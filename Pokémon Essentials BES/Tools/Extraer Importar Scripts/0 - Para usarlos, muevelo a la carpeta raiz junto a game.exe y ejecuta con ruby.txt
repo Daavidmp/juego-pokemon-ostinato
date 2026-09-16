@@ -1,0 +1,1 @@
+0 - Para usarlos, muevelo a la carpeta raiz junto a game.exe y ejecuta con ruby. 

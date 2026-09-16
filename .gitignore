@@ -1,0 +1,38 @@
+# --- Copias de seguridad -----------------------------------------------------
+# Son la red para deshacer cambios en el motor. Se quedan en el disco, pero no
+# tiene sentido versionarlas: para eso ya está el propio git.
+*.bak
+*.bak-*
+*~
+
+# --- Partidas guardadas y errores --------------------------------------------
+# Game.rxdata es TU partida, no parte del juego. Si se sube, cualquiera que
+# clone el repo empieza con tus Pokémon.
+Game.rxdata
+*.sav
+errorlog.txt
+*.log
+*.dmp
+
+# --- Restos de Krita ---------------------------------------------------------
+*.kra~
+.*-autosave.kra
+
+# --- Basura de Windows y de los editores -------------------------------------
+Thumbs.db
+desktop.ini
+.DS_Store
+*.tmp
+
+# --- Nota sobre el peso ------------------------------------------------------
+# El repositorio ocupa unos 490 MB, y la mitad son secuencias de fotogramas:
+#   Graphics/Titles/OstinatoCine/    4811 JPEG   143 MB   (la cinemática)
+#   Graphics/Titles/OstinatoMenu/     400 JPEG   105 MB   (el fondo del menú)
+#   Graphics/Titles/OstinatoIntro/    160 JPEG    11 MB   (el vídeo de marca)
+# Git no lleva bien miles de binarios: cada cambio guarda el archivo entero.
+# Si el repositorio se vuelve lento, quita el comentario de estas tres líneas y
+# guarda los vídeos originales aparte. El juego NO arranca sin ellas, así que
+# habrá que documentar de dónde se sacan.
+# Graphics/Titles/OstinatoCine/
+# Graphics/Titles/OstinatoMenu/
+# Graphics/Titles/OstinatoIntro/
