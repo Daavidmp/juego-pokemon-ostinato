@@ -14,6 +14,11 @@ errorlog.txt
 *.log
 *.dmp
 
+# --- Copias de seguridad de borrados grandes ---------------------------------
+# Mismo motivo que los .bak: es mi red por si hiciera falta deshacer un borrado
+# masivo (como el de los mapas de muestra de Essentials), no contenido del juego.
+_backup-*.zip
+
 # --- Restos de Krita ---------------------------------------------------------
 *.kra~
 .*-autosave.kra

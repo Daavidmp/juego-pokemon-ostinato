@@ -1,62 +1,73 @@
 SUBIR POKÉMON OSTINATO A GITHUB
 ===============================
 
-PASO 0 — Instalar git (no lo tienes)
-------------------------------------
-He comprobado el equipo y git no está instalado, así que los comandos de
-GitHub no te van a funcionar todavía. Bájalo de:
+Git ya está instalado (2.55.0) y el repositorio ya está montado: rama main,
+primer commit hecho con los 22.247 archivos, y el remoto apuntando a
+https://github.com/Daavidmp/juego-pokemon-ostinato.git
 
-    https://git-scm.com/download/win
-
-Instalador siguiente-siguiente, todo por defecto. Cuando acabe, CIERRA y vuelve
-a abrir la consola (si no, no encuentra el comando) y comprueba:
-
-    git --version
+Solo te queda subirlo.
 
 
-PASO 1 — Decidir si el repositorio es público o privado
--------------------------------------------------------
-LÉELO ANTES DE SUBIR.
-
+ANTES DE SUBIR — público o privado
+----------------------------------
 El proyecto lleva dentro tiles, sprites, música y sonidos de Pokémon. Nintendo
 cierra repositorios de fangames con cierta regularidad, y el aviso llega a
 nombre de la cuenta, no del proyecto.
 
-Si el repositorio es para guardar tu trabajo y no perderlo, ponlo PRIVADO.
-Hacerlo público no te aporta nada ahora mismo y te expone.
+Si el repositorio es para guardar tu trabajo y no perderlo, ponlo PRIVADO:
 
     En GitHub: Settings -> General -> Danger Zone -> Change visibility
 
-Si lo quieres público de todas formas, allá tú, pero que sea una decisión y no
-un descuido.
+En privado tienes exactamente lo mismo sin exponerte. Público no te aporta nada
+todavía. Si aun así lo quieres abierto, adelante, pero que sea una decisión.
 
 
-PASO 2 — Subirlo
-----------------
-Abre la consola EN LA CARPETA DEL PROYECTO:
+SUBIRLO
+-------
+Abre una consola NUEVA (la que hubiera abierta antes de instalar git no
+encuentra el comando) y ejecuta:
 
     cd "C:\Users\ASUS\Music\Pokemon Ostinato"
-
-Y ejecuta, una a una:
-
-    git init
-    git add .
-    git commit -m "Primer commit: Pokemon Ostinato"
-    git branch -M main
-    git remote add origin https://github.com/Daavidmp/juego-pokemon-ostinato.git
     git push -u origin main
 
-El primer `git add .` tarda un rato: son 22.000 archivos. El `push` tarda más
-todavía, porque sube unos 490 MB. Déjalo correr y no lo cortes.
+Tarda. Son unos 448 MB y va a parecer que se ha colgado varias veces. No lo
+cortes.
 
-Si te pide usuario y contraseña, la contraseña NO es la de tu cuenta: hace
-falta un token. GitHub te lo ofrece solo la primera vez, o lo sacas en
-Settings -> Developer settings -> Personal access tokens.
+Te va a pedir que inicies sesión. Se abre una ventana del navegador y lo
+autorizas ahí; no hace falta token ni contraseña.
+
+
+A PARTIR DE AHORA
+-----------------
+Cada vez que quieras guardar cambios:
+
+    cd "C:\Users\ASUS\Music\Pokemon Ostinato"
+    git add .
+    git commit -m "lo que hayas hecho"
+    git push
+
+Para ver qué has tocado desde el último guardado:
+
+    git status
+
+
+QUIÉN FIRMA LOS COMMITS
+-----------------------
+He puesto, solo para este repositorio:
+
+    nombre:  Daavidmp
+    correo:  Daavidmp@users.noreply.github.com
+
+Ese correo es el que GitHub da para no publicar el de verdad. Tenía a mano tu
+correo del trabajo y NO lo he usado: en un repositorio público queda a la vista
+de cualquiera para siempre. Si prefieres otro:
+
+    git config user.email "el-que-quieras@ejemplo.com"
 
 
 LO QUE NO SE SUBE
 -----------------
-El .gitignore de la raíz deja fuera:
+El .gitignore de la raíz deja fuera, y está comprobado que funciona:
 
   *.bak, *.bak-*     las copias de seguridad del motor (tu red para deshacer;
                      se quedan en el disco, pero versionarlas no tiene sentido)
@@ -69,7 +80,7 @@ El .gitignore de la raíz deja fuera:
 
 SOBRE EL PESO
 -------------
-Unos 490 MB, y la mitad son secuencias de fotogramas:
+448 MB, y la mitad son secuencias de fotogramas:
 
   Graphics/Titles/OstinatoCine/    4811 JPEG   143 MB   la cinemática
   Graphics/Titles/OstinatoMenu/     400 JPEG   105 MB   el fondo del menú
