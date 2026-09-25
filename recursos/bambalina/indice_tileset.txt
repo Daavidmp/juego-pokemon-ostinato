@@ -1,0 +1,55 @@
+Villa Bambalina.png · 256 x 25920 px · 810 filas
+
+Filas 0-717: Exterior1 tal cual (mismos tiles y mismas posiciones).
+Filas 718 en adelante: piezas propias de Villa Bambalina.
+Las piezas partidas en trozos se pintan en el mapa poniendo cada trozo a la derecha del anterior.
+
+Pieza · columna · fila · ancho x alto (tiles)
+hierba (bloque sin costura)                                    col 0  fila 718  4x4
+plaza empedrada (bloque sin costura)                           col 4  fila 718  2x3
+tierra (bloque sin costura)                                    col 0  fila 722  8x4
+teatro · trozo 1/2 (columnas 0-7 del edificio)                 col 0  fila 726  8x6
+teatro · trozo 2/2 (columnas 8-11 del edificio)                col 0  fila 732  4x6
+taller_telas                                                   col 0  fila 738  8x7
+taller_marionetas                                              col 0  fila 745  6x7
+taller_pintura                                                 col 0  fila 752  8x6
+taller_tramoya · trozo 1/2 (columnas 0-7 del edificio)         col 0  fila 758  8x7
+taller_tramoya · trozo 2/2 (columnas 8-8 del edificio)         col 0  fila 765  1x7
+casa_vecino_pequena                                            col 1  fila 765  6x6
+casa_vecino_dos_plantas                                        col 1  fila 771  6x7
+puesto_telas_rayas                                             col 4  fila 732  4x4
+puesto_telas_naranja                                           col 0  fila 778  4x4
+puesto_marionetas                                              col 4  fila 778  4x4
+puesto_pintura                                                 col 0  fila 782  4x4
+fuente                                                         col 0  fila 786  5x5
+banco                                                          col 4  fila 782  3x3
+jardinera                                                      col 6  fila 718  2x2
+muro_bajo_recto                                                col 4  fila 736  3x2
+muro_bajo_esquina                                              col 6  fila 720  2x2
+muro_grafiti                                                   col 5  fila 785  3x3
+muro_tiza                                                      col 5  fila 788  3x4
+valla                                                          col 0  fila 791  3x2
+camino · parche 3x3 (esquinas, lados y centro)                 col 3  fila 792  3x3
+camino · esquinas interiores (2x2)                             col 6  fila 792  2x2
+retablo (el panel de los seis orbes)                           col 0  fila 795  6x3
+banderines · recto, 3 combinaciones de color (alternarlas)     col 0  fila 798  3x1
+banderines · diagonal que baja (izq -> der)                    col 0  fila 799  3x1
+banderines · diagonal que sube (izq -> der)                    col 0  fila 800  3x1
+banderines · poste de madera para colgarlos                    col 3  fila 798  1x2
+valla · remate izquierdo                                       col 3  fila 800  1x1
+valla · tramo (repetir)                                        col 4  fila 800  1x1
+valla · remate derecho                                         col 5  fila 800  1x1
+valla · tramo vertical (repetir)                               col 6  fila 800  1x1
+valla · poste suelto / final del tramo vertical                col 7  fila 800  1x1
+farolas · farola_marioneta                                     col 0  fila 801  2x4
+farolas · farola_marioneta_invertida                           col 2  fila 801  2x4
+farolas · farola_teatrito                                      col 4  fila 801  2x4
+farolas · farola_teatrito_invertida                            col 6  fila 801  2x4
+farolas · farola_verde_ext1                                    col 0  fila 805  1x5
+farolas · farola_verde_ext1_invertida                          col 1  fila 805  1x5
+farolas · farola_azul_ext1                                     col 2  fila 805  1x5
+farolas · farola_azul_ext1_invertida                           col 3  fila 805  1x5
+farolas · farola_blanca_ext1                                   col 4  fila 806  1x4
+farolas · farola_blanca_ext1_invertida                         col 5  fila 806  1x4
+farolas · farola_marron_ext1                                   col 6  fila 805  1x5
+farolas · farola_marron_ext1_invertida                         col 7  fila 805  1x5
