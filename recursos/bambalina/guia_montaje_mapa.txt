@@ -1,0 +1,53 @@
+VILLA BAMBALINA · guía para montar el mapa en RMXP
+Referencia visual: mapa_referencia_firefly.png (pueblo en terrazas)
+Tileset: Villa Bambalina.png · autotile: Autotiles/Bambalina camino.png
+Posiciones exactas de las piezas propias: indice_tileset.txt (filas 718 en adelante)
+
+PREPARACIÓN
+- Copia "Villa Bambalina.png" a Graphics/Tilesets y "Bambalina camino.png" a Graphics/Autotiles.
+- En la base de datos, crea un tileset con esa imagen y pon "Bambalina camino" en uno de los huecos de autotile.
+  Con el autotile, el camino de tierra se pinta de una pasada y el borde de hierba sale solo.
+  Si prefieres no usar el autotile, tienes las mismas piezas sueltas en el tileset (camino · parche 3x3 y esquinas interiores).
+- Tamaño recomendado del mapa: unos 46 x 23 tiles (proporción de la referencia).
+- Capas: 1 = suelo (hierba, camino, plaza) · 2 = desniveles, escaleras, vallas, flores, sombras · 3 = edificios, árboles, farolas, banderines.
+  Marca como "no pasable" los tiles de los edificios, excepto la puerta; los tejados, con prioridad por encima del jugador.
+
+ELEMENTO DEL MAPA                               DÓNDE ESTÁ EN EL TILESET
+Suelo de hierba                                 propio · hierba 4x4 (fila 718)  [o la hierba de Exterior1, filas 0-3]
+Caminos de tierra con borde de hierba           autotile Bambalina camino  ·  o bien las piezas del camino (fila 792)
+Explanadas grandes de tierra (la plaza)         propio · tierra 8x4 (fila 722) en el centro, con el borde del autotile alrededor
+Losas grises delante de los talleres            propio · plaza empedrada 2x3 (fila 718, col 4)
+Terrazas / desniveles de tierra                 Exterior1 · marco de acantilado con hierba, filas 50-53 (cols 0-4)
+                                                y plataforma elevada, filas 54-59 (cols 0-4): toma los tiles de los lados para alargar
+Escaleras de piedra entre terrazas              Exterior1 · filas 56-58, cols 5-7
+Árboles del borde (bosque)                      Exterior1 · filas 39-44: las copas se superponen fila a fila para hacer bosque
+Rocas grandes y pequeñas                        Exterior1 · filas 46-48 (cols 6-7) y filas 15-16 (cols 5-7)
+Cueva en el acantilado (derecha)                Exterior1 · filas 45-46, col 4
+Flores sueltas y parterres                      Exterior1 · filas 2-4 (cols 4-7) · jardinera propia (fila 718, col 6)
+Huertos                                         Exterior1 · tierra marrón filas 12-14 (cols 3-5) + plantas filas 7-9
+Vallas de los jardines                          propio · valla por piezas (fila 800): remate izq, tramo, remate der, vertical, poste
+Teatro (arriba a la izquierda)                  propio · teatro, en 2 trozos (filas 726 y 732)
+Retablo (a la derecha del teatro)               propio · retablo 6x3 (fila 795). Evento "examinar" encima: las cinco cajas del guion
+Farolas (todas)                                 bloque "farolas" (fila 801): cada farola con su copia invertida al lado
+                                                  marioneta y teatrito (2x4) · verde, azul, blanca y marrón de Exterior1 (1x5 / 1x4)
+Farolas del teatro                              farola_teatrito a un lado y farola_teatrito_invertida al otro, con los brazos hacia la puerta
+Farolas de la plaza                             farola_marioneta / _invertida, con los brazos hacia dentro de la plaza
+Banderines de la plaza                          propio · banderines (fila 798): postes o farolas en las puntas, tramos rectos
+                                                alternando los 3 colores, y diagonales para las cuerdas en pico
+Fuente de la marioneta                          propio · fuente 5x5
+Puestos (5 en la referencia)                    propio · 4 puestos distintos: repite uno para el quinto
+Taller de telas (arriba centro)                 propio · taller_telas
+Casa de dos plantas con balcón                  propio · casa_vecino_dos_plantas
+Taller de tramoya (x2 en la referencia)         propio · taller_tramoya, en 2 trozos. Uno es el de Cuerda; el otro puede ser un almacén
+Taller de marionetas (terraza media, izq)       propio · taller_marionetas
+Taller de pintura (terraza baja, izq)           propio · taller_pintura
+Centro Pokémon                                  Exterior1 · el Centro que ya usa el resto del juego
+Tienda                                          Exterior1 · la tienda del toldo naranja
+Casa pequeña de tejado rojo (abajo der)         propio · casa_vecino_pequena
+Muros de piedra bajos                           propio · muro_bajo_recto / muro_bajo_esquina
+
+CAMBIOS RESPECTO AL PLANO DEL GUION (acto 0, 26x24)
+- El mapa crece a unos 46x23 y se organiza en tres terrazas: el teatro arriba, la plaza en medio, y el Centro y la tienda abajo.
+- Salidas: al sur por el camino de abajo (Ruta 1) y al este por el camino de la terraza media (Ruta 2).
+  En la referencia hay un camino que sale por abajo a la izquierda: ciérralo con árboles si no lleva a ningún sitio.
+- El cartel "CERRADO" va en la puerta del teatro, como indica el guion.
