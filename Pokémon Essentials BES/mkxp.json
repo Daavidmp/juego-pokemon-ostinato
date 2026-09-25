@@ -179,7 +179,7 @@
     "defScreenW": 1364,
     "defScreenH": 768,
 
-    "smoothScaling": true,
+    "smoothScaling": false,
     "fixedAspectRatio": true,
 
 
