@@ -1,0 +1,49 @@
+Ciudad Sonaja.png · 256 x 26016 px · 813 filas
+
+Filas 0-717: Exterior1 tal cual (Centro Pokémon, tienda, árboles... en sus sitios de siempre).
+Filas 718 en adelante: piezas de Sonaja. Las piezas partidas se pintan poniendo cada trozo a la derecha del anterior.
+Autotile del bordillo: Autotiles/Sonaja bordillo.png (capa 2, encima del bloque de plaza o de césped).
+
+Pieza · columna · fila · ancho x alto (tiles)
+plaza · 4 variantes de 1 casilla: 2 lisas + 2 con adoquín de color (salpicar poco) col 0  fila 718  4x1
+calle · 1 casilla                                                col 4  fila 718  1x1
+césped · 3 variantes de 1 casilla                                col 5  fila 718  3x1
+local · trozo 1/2 (columnas 0-7)                                 col 0  fila 719  8x11
+local · trozo 2/2 (columnas 8-9)                                 col 0  fila 730  2x11
+casa_roja_frente                                                 col 2  fila 730  4x6
+casa_roja_espalda                                                col 2  fila 736  4x6
+casa_roja_lado                                                   col 0  fila 742  4x7
+casa_roja_lado · espejo (para el otro lado de la calle)          col 4  fila 742  4x7
+casa_azul_frente                                                 col 0  fila 749  4x6
+casa_azul_espalda                                                col 4  fila 749  4x6
+casa_azul_lado                                                   col 0  fila 755  4x7
+casa_azul_lado · espejo (para el otro lado de la calle)          col 4  fila 755  4x7
+tienda_verde_frente                                              col 0  fila 762  5x6
+tienda_verde_espalda                                             col 0  fila 768  5x6
+tienda_verde_lado                                                col 0  fila 774  4x6
+tienda_verde_lado · espejo (para el otro lado de la calle)       col 4  fila 774  4x6
+tienda_amarilla_frente                                           col 0  fila 780  5x6
+tienda_amarilla_espalda                                          col 0  fila 786  5x6
+tienda_amarilla_lado                                             col 0  fila 792  4x6
+tienda_amarilla_lado · espejo (para el otro lado de la calle)    col 4  fila 792  4x6
+ayuntamiento                                                     col 0  fila 798  7x8
+jardinera                                                        col 6  fila 730  1x2
+maceta_azul                                                      col 7  fila 730  1x2
+maceta_amarilla                                                  col 6  fila 732  1x2
+maceta_barro                                                     col 7  fila 732  1x2
+banco                                                            col 6  fila 734  2x2
+cajas_fruta                                                      col 0  fila 806  4x2
+barril                                                           col 6  fila 736  2x2
+tarima_tambor                                                    col 6  fila 738  2x2
+farola_roja                                                      col 5  fila 762  1x3
+farola_verde                                                     col 6  fila 762  1x3
+farola_azul                                                      col 7  fila 762  1x3
+farola_amarilla                                                  col 5  fila 765  1x3
+guirnalda                                                        col 0  fila 808  6x1
+poste                                                            col 6  fila 740  1x2
+ropa_tendida                                                     col 4  fila 806  4x2
+muro_bajo_recto                                                  col 0  fila 809  5x2
+muro_bajo_esquina                                                col 5  fila 768  3x3
+terraza                                                          col 5  fila 771  3x2
+cajas_gato                                                       col 5  fila 780  3x2
+muro_carteles                                                    col 0  fila 811  4x2

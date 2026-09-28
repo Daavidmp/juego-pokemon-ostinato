@@ -1,0 +1,42 @@
+     0         1         2         3     
+     012345678901234567890123456789012345
+    +------------------------------------+
+  0 |TTTTTTTTTTTTTTTTTTTTTTTT^^TTTTTTTTTT|
+  1 |TTTTTTTTTTTTTTTTTTTTTTTT..TTTTTTTTTT|
+  2 |TTTTTTTTTTTTTTTLLLLLLLTT..TTTTTTTTTT|
+  3 |TT............LLLLLLLL............TT|
+  4 |TT...........LLLLLLLLLL...........TT|
+  5 |TT...........LLLLLLLLLL........8.Y.>|
+  6 |TT...........LLLLLLLLLL..........YY>|
+  7 |TT.BBBB.x..x.LLLLLLLLLL......BBBB.TT|
+  8 |TT.BBBB.xxxx.LLLLLLLLLL......BBBB.TT|
+  9 |TT.BBBB.xxxx.LLLLLLLLLL......BBBB.TT|
+ 10 |TT.BBBB.xxxx.LLLLLLLLLL......BBBB.TT|
+ 11 |TT.BBBB..xfx.LLLLLLLLLLf...xxBBBB.TT|
+ 12 |TT.BBKB..xfx.LLLL11LLLLf...xxBBDB.TT|
+ 13 |TT........f.5........6.f..........TT|
+ 14 |TTPPPPPPPoooooooooooooooooo.......TT|
+ 15 |TTPPPPPPPx~~~~~~oooo~~~~~~x.MMMMMMTT|
+ 16 |TTPPPPPPPxoooooooooooooooox.MMMMMMTT|
+ 17 |TTPPPPPPPoooo2ooooooooooooo.MMMMMMTT|
+ 18 |TTPPPPPPPooxxxxooxxoooxxxoo.MMMMMMTT|
+ 19 |TTPPPPPPPooxxxxooxx7ooxxxoo.MMMMMMTT|
+ 20 |TTPPPPPPPoooooooooooooooooo.MMDMMMTT|
+ 21 |TTPPPDPPPoooooooooooooooooo.......TT|
+ 22 |TT.......oooxxxooo4ooxxxooo.ggggggTT|
+ 23 |TTgggggg.ofoxxxooooooxxxofo.ggggggTT|
+ 24 |TTgggggg..f.....x..x.....f........TT|
+ 25 |TT........f.....x..x.....f........TT|
+ 26 |TT...AAAAA........................TT|
+ 27 |TT..AAAAAAA...BB....BB............TT|
+ 28 |TT..AAAAAAA..BBBB..BBBB.BBBBBBBBBBTT|
+ 29 |TT..AAAAAAA..BBBB..BBBB.BBBBBBBBBBTT|
+ 30 |TT..AAAsAAA..BBBB..BBBB.BBBBBBBBBBTT|
+ 31 |TT..AAAAAAA..BBBB..BBBB.BBBBBBBBBBTT|
+ 32 |TT..AAAAAAAxxBBBB..BBBB.BBBBBBBBBBTT|
+ 33 |TT..AAADAAAxxBBDB..BDBB.BBDBBBBDBBTT|
+ 34 |TT.............................3..TT|
+ 35 |TTTTTTTTTTTTTTTT....TTTTTTTTTTTTTTTT|
+ 36 |TTTTTTTTTTTTTTTT....TTTTTTTTTTTTTTTT|
+ 37 |TTTTTTTTTTTTTTTT.vv.TTTTTTTTTTTTTTTT|
+    +------------------------------------+
