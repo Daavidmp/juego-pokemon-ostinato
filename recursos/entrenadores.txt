@@ -1,0 +1,42 @@
+# ENTRENADORES DE POKÉMON OSTINATO
+#
+# Aquí se dice qué personajes del mapa son entrenadores y qué Pokémon llevan. Luego:
+#
+#     cd C:\Users\david.martinez\pkmn-devkit
+#     python entrenadores.py --probar      <- comprueba todo sin tocar nada
+#     python entrenadores.py               <- lo aplica (con RPG Maker XP CERRADO)
+#
+# Qué hace: convierte el personaje en entrenador (con las páginas que usa Essentials BES), le pone el
+# nombre Trainer(vista) para que te vea al pasar, y escribe su equipo en PBS/trainers.txt. Se puede
+# ejecutar las veces que haga falta: si cambias un equipo, lo actualiza; no duplica nada.
+# Antes de tocar nada hace copia en .devkit_backups.
+#
+# Primero pon el personaje en el mapa con RPG Maker (su gráfico, dónde está y hacia dónde mira)
+# y ponle un nombre al evento. Después, un bloque así por entrenador:
+#
+#   [Nombre que sale en el combate]
+#   mapa    = nombre del mapa en RPG Maker, o su número
+#   evento  = nombre del evento del personaje, o sus coordenadas: 6,9
+#   clase   = tipo de entrenador de PBS/trainertypes.txt (YOUNGSTER, HIKER, LASS...)
+#   vista   = casillas a las que te ve (0 = solo pelea si le hablas, como un líder)
+#   equipo  = ESPECIE nivel; ESPECIE nivel @OBJETO [MOV1, MOV2, MOV3, MOV4] M/F
+#   objetos = (opcional) objetos que usa en combate: POTION, SUPERPOTION
+#   id      = (opcional) solo si dos entrenadores tienen la misma clase y el mismo nombre
+#   reto    = lo que dice al verte
+#   derrota = lo que dice en el combate cuando le ganas
+#   despues = lo que dice si le vuelves a hablar
+#
+# Las especies, movimientos y objetos van en inglés y en mayúsculas, como en el PBS (MUDKIP, TACKLE, ORANBERRY).
+# Si algo no existe, el script lo dice y no toca nada.
+#
+# Ejemplo (del guion, Ruta 3). Quítale las almohadillas cuando exista el mapa y el personaje:
+#
+# [Chico Serrín]
+# mapa    = Ruta 3
+# evento  = Serrín
+# clase   = YOUNGSTER
+# vista   = 4
+# equipo  = KRICKETOT 8; NINCADA 9
+# reto    = Mi hermano dice que en Sonaja hay que bailar para ganar. Yo no me lo creo.
+# derrota = ...Voy a tener que creérmelo.
+# despues = (el guion no la tiene todavía)

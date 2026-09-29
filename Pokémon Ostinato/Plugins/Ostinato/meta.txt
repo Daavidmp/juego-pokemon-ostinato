@@ -1,0 +1,4 @@
+Name       = Pokemon Ostinato
+Version    = 1.0
+Essentials = 21.1
+Credits    = Pokemon Ostinato
