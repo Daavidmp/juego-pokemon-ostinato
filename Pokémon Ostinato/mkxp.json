@@ -5,37 +5,35 @@
 // a single forward slash instead (even on Windows).
 //==============================================================================
 {
-    // Ostinato: en false a proposito. Con el modo de alta resolucion, mkxp
-    // calcula la proporcion al encajar la imagen con la resolucion de arranque
-    // (512x384, 4:3) y no con la del juego (682x384): con true el juego salia
-    // estrechado en una franja de 1440x1080 con bandas negras a los lados.
-    // El lienzo ya es 16:9 (1918x1080), asi que llenar la pantalla no deforma.
+    // Ostinato: en false a proposito. Este mkxp calcula la proporcion al
+    // encajar la imagen con la resolucion de arranque del motor (512x384, 4:3)
+    // y no con la del juego (682x384): con true el juego salia estrechado en
+    // una franja de 1440x1080 con bandas negras a los lados. El juego ya es
+    // 16:9, asi que llenar la pantalla no deforma nada.
     "fixedAspectRatio": false,
     "fullscreen": true,
 
     //==========================================================================
     // Calidad de imagen de Pokemon Ostinato (pensado para pantalla completa).
     //
-    // El juego va a 682x384 por dentro, pero casi todo el arte (menu,
-    // cinematica, cuadros de dialogo, retratos) esta dibujado a 1920x1080. En
-    // vez de pintar a 682x384 y estirar la imagen, se pinta directamente a
-    // 1080/384 = 2.8125x (1918x1080): el arte grande sale a su tamano real,
-    // pixel a pixel, y el pixel art del mapa se dibuja con pixeles nitidos.
+    // El juego va a 682x384 (16:9). Para el mapa y los menus, la imagen se
+    // escala primero por un numero entero (x2, pixeles exactos, sin
+    // deformarse) y el ultimo tramo hasta la pantalla se suaviza: es la forma
+    // de que el pixel art se vea nitido a un tamano que no es multiplo exacto.
+    // Las escenas propias a pantalla completa (arranque, portada, menu del
+    // titulo, cinematica, presentacion de Arce) suben la resolucion a
+    // 1920x1080 mientras duran (OstinatoHD) y se ven a su tamano real.
     //
-    // El factor tiene que ser el de la pantalla: con otro (3.0, por ejemplo)
-    // este mkxp encaja el juego al tamano de la pantalla DENTRO de un bufer
-    // mas grande y deja un marco negro alrededor. Para un monitor de 1440p
-    // seria 3.75, y para 4K 5.625.
+    // NO usar "enableHires": con el, este mkxp dibuja el texto de Essentials
+    // con una fuente de sustitucion (tipo Arial, borrosa y con huecos entre
+    // letras) en vez de la fuente pixelada, y ademas encaja mal la proporcion.
     //
-    //   smoothScaling / smoothScalingDown: 0 vecino mas cercano, 1 bilineal,
-    //   2 bicubico, 3 Lanczos3, 4 xBRZ. Solo afectan al ultimo encaje en la
-    //   pantalla (1918 -> 1920); los mapas se pintan siempre pixel a pixel.
+    //   smoothScaling: 0 vecino mas cercano, 1 bilineal, 2 bicubico,
+    //   3 Lanczos3, 4 xBRZ.
     //==========================================================================
-    "enableHires": true,
-    "framebufferScalingFactor": 2.8125,
-    "textureScalingFactor": 1.0,
-    "smoothScaling": 3,
-    "smoothScalingDown": 3,
+    "integerScalingActive": true,
+    "integerScalingLastMile": true,
+    "smoothScaling": 1,
     "smoothScalingMipmaps": true,
     //==========================================================================
     // Things you may want to/should change.

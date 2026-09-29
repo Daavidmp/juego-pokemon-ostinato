@@ -28,6 +28,7 @@ Los scripts propios del juego son un plugin de Essentials, en texto, en
 | `005_Laboratorio` | La presentación de la Profesora Arce |
 | `006_Prologo` | El cuadro de diálogo y el prólogo: despertar, cocina, telediario, Lira en la puerta, laboratorio y la fuga de los tres iniciales |
 | `007_Farolas` | Las farolas de Villa Bambalina, que se encienden al caer la noche |
+| `008_Pantallas512` | Centra las pantallas de menú y los combates de Sky, que son de 512x384 |
 
 Al arrancar en modo depuración, Essentials recompila los plugins en
 `Data/PluginScripts.rxdata`, que es lo que lee el juego normal: después de tocar
@@ -39,10 +40,16 @@ un plugin hay que arrancar una vez en depuración y subir ese archivo también.
 JPEG más el audio aparte**, y el fotograma se elige por reloj, no contando
 vueltas del bucle.
 
-**El arte se hace a 1920x1080.** La resolución del juego es 682x384, pero
-`mkxp.json` pinta en alta resolución (`enableHires`, factor 2.8125 = 1080/384),
-así que el arte grande se ve a su tamaño real. Ese factor corresponde a un
-monitor de 1080p; en `mkxp.json` está explicado cómo cambiarlo para otros.
+**El arte se hace a 1920x1080.** La resolución del juego es 682x384 (16:9). Las
+escenas propias a pantalla completa suben la resolución a 1920x1080 mientras
+duran (`OstinatoHD`); el mapa y los menús se escalan por un número entero y se
+suavizan solo en el último tramo. **No activar `enableHires`** en `mkxp.json`:
+con él, este mkxp dibuja el texto de Essentials con una fuente de sustitución.
+Y `fixedAspectRatio` va en `false` a propósito (está explicado en el archivo).
+
+**Las pantallas de Sky son de 512x384.** Mochila, equipo, Pokédex, combates y
+demás se muestran centradas con bandas negras a los lados
+(`008_Pantallas512`); el mapa y las escenas propias ocupan toda la pantalla.
 
 **Los interruptores 39-50 los reserva La Base de Sky.** Los del prólogo son el
 101-104; los del guion van numerados como en el guion más 50 (la fuga es el 72
