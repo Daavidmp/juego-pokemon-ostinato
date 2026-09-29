@@ -1,0 +1,108 @@
+GUION DEL PROLOGO DE POKEMON OSTINATO
+Desde que Kaia se despierta hasta que dejan de ver la tele.
+
+Cambia lo que quieras dejando el codigo de la izquierda como esta: es lo que
+me dice a que PNG va cada linea. Si quieres partir una linea en dos, o juntar
+dos en una, dilo al lado y ya renumero yo.
+
+Los parentesis son lo que pasa en pantalla, no se lee.
+
+
+=== ACTO 1 · EL DESPERTAR (habitacion de Kaia) ===
+Blanca todavia no se ve, asi que en su recuadro pone "??".
+
+D00  KAIA    Aissh...
+D01  KAIA    Ya es de día del todo.
+??           (se oye a alguien fregando, abajo)
+CAP0 --      (Ruidos de alguien fregando, abajo.)
+D02  KAIA    Me levanto y lo primero que escucho es el ruido de alguien fregando
+D03  ??      ¿Kaia?
+D04  ??      Kaia? Estas ahí? He escuchado el crujido de la cama, seguro que estas despierta
+D05  KAIA    Llevo despierta un rato.
+D06  ??      Pues baja a desayunar, anda.
+D07  ??      Que te están esperando desde hace ya tiempo.
+D08  KAIA    ¿Quién?
+D09  ??      Lira. Lleva abajo desde las nueve preguntando por ti.
+D10  ??      Ha dicho que si no bajas, sube ella y te saca a base de ostias.
+
+
+=== ACTO 2 · LA COCINA ===
+Ya se le ve la cara, así que en su recuadro pone BLANCA.
+
+C00  BLANCA  Ya era hora muchacha.
+C01  BLANCA  Sientate, anda. Te he guardado lo tuyo.
+             (Kaia rodea la mesa y se sienta)
+C02  KAIA    Gracias mama.
+             (Blanca se acerca a la mesa)
+C03  BLANCA  Esta recien hecho. Cometelo caliente, que asi esta más rico.
+             (Blanca se sienta con ella)
+C04  BLANCA  ¿Tienes ganas de ir al laboratorio?
+C05  KAIA    Si.
+C06  KAIA    Y un poco de miedo.
+C07  BLANCA  Normal, todavía me acuerdo yo de aquella época, que tiempos mas bonitos pase junto a mis compañeros.
+C08  BLANCA  Pero bueno, come anda que te están esperando.
+C09  BLANCA  Y vamos a ver las noticias un poco, que últimamente pasan muchas cosas y no me entero de nada.
+C10  KAIA    Pues enciendo la tele y nos enteramos de algo.
+TV0  TELE    ...y con esto cerramos la jornada de liga.
+             (se queda 3,6 segundos y se quita sola, sin pulsar)
+
+
+=== ACTO 3 · EL TELEDIARIO (30 pantallas) ===
+La presentadora cambia de pose cada vez que se avanza. Entre corchetes va el
+rotulo de abajo, que cambia por bloques de noticia.
+
+[FINAL DE LIGA · Villa Tramoya gana dos a uno con el gol en el descuento]
+N01  Dos a uno, con el gol en el minuto noventa y cuatro.
+N02  Fue un encuentro que jamás olvidaremos.
+N03  Pero bueno, duarante el tiempo muerto, se realizo la ceremonia de baile con las mascotas de la liga.
+N04  Salieron exactamente catorce, aunque se convocaron a dieciséis, nunca se supo de las dos faltantes.
+N05  El club confia en que las otras dos aparezcan.
+N06  Y hasta aqui los deportes.
+
+[VILLA TRAMOYA · La noticia del dia llega del fronton municipal]
+N07  Pasamos a la noticia del dia, que nos llega de Villa Tramoya.
+
+[COMBATE DE AURAS · Dos participantes, cincuenta y cinco minutos inmoviles y dos vencedores]
+N08  Ayer se celebro el primer combate de auras de la region, un combate bastante emocionante y a mi parecer raro de ver.
+N09  Se calcula que aparecieron cerca de doscientas personas al fronton municipal para verlo.
+N10  Los dos participantes se colocaron de pie, uno frente al otro.
+N11  Y permanecieron inmoviles durante cincuenta y cinco minutos.
+N12  Al termino del encuentro, ambos se declararon vencedores.
+N13  El publico se dividio.
+N14  Hubo intercambio de pareceres a la salida.
+N15  La organizacion ha facilitado esta imagen para acreditar la afluencia.
+N16  En ella aparecen once de los doscientos asistentes.
+N17  Y esta otra, que segun los organizadores es del mismo dia.
+N18  Esta cadena no ha podido confirmar al final el ganador del torneo de aura.
+N19  Aunque en una encuesta echa en el mismo momento del torneo, todos tenían claro un ganador, el cual no conocemos su nombre, pero si contamos con una foto suya.
+N20  Sin mas explicacion.
+N21  El ayuntamiento ha pedido que no se vuelva a realizar este tipo de torneos.
+N22  La organizacion responde que nunca se acabaran los combates de aura.
+
+[CIUDAD MUDA · Tercer caso este mes: un hombre de treinta y cuatro años deja de hablar]
+NAntes Ahora vamos con la noticia mas importante del dia
+N23  En Ciudad Muda, el ayuntamiento ha confirmado esta mañana un nuevo caso.
+N24  Se trata de un hombre de treinta y cuatro años, vecino del barrio del almacen.
+N25  Segun el parte municipal, dejo de hablar el martes por la tarde.
+N26  Continua en su domicilio, acompañado por su familia. Su estado es estable.
+N27  Es el tercer caso este mes en la misma ciudad.
+N28  El consistorio recuerda que no existe por ahora un protocolo especifico.
+N29  Y remite a las familias a los servicios sociales.
+
+[EL TIEMPO · Sol y algo de viento a partir del mediodia]
+N30  Y el tiempo para hoy: sol, y algo de viento a partir del mediodia.
+
+En el pie de pantalla pone: CANAL CADENCIA · 9:34
+
+
+=== ACTO 4 · DESPUES DE LAS NOTICIAS (cocina) ===
+
+C12  KAIA    Que es lo que acabamos de ver, como que dejo de hablar?
+C13  KAIA    Mama, tu tienes idea de que ha pasado?
+C14  BLANCA  Ni idea hija, pero he escuchado que cada vez más personas estan acabando en estado vegetal
+C15  KAIA    Ostras, que extraño
+C16  BLANCA  Son cosas que le pasan a gente mayor, supongo.
+C17  KAIA    Mama, tenia treinta y cuatro años, si consideras eso mayor.
+C19  BLANCA  Bueno, anda come, que te están esperando
+
+

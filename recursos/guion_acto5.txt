@@ -1,0 +1,92 @@
+ACTO 5 · LA PUERTA DE CASA
+Kaia sale de casa y se encuentra a Lira esperandola.
+
+Mismo sistema que el otro: cambia lo que quieras y deja el codigo de la
+izquierda como esta. Los parentesis son lo que pasa en pantalla.
+
+LIRA habla por la izquierda, KAIA por la derecha.
+
+
+P00  LIRA    Vaya, te has dormido, como siempre..
+P01  KAIA    Buenos dias.
+P02  LIRA    Llevo aqui desde las nueve.
+P03  KAIA    Ya. Me lo ha dicho mi madre.
+P04  LIRA    Te lo ha dicho y has tardado otros veinte minutos.
+P05  KAIA    Estaba desayunando.
+P06  LIRA    Y viendo las noticias.
+P07  KAIA    ...
+P08  LIRA    Se te oia la tele desde el portal.
+             (Kaia no contesta) sadra como … con el recuadro de kaia
+P09  LIRA    Lo del hombre ese que dejo de hablar, ¿no?
+P10  KAIA    Si.
+P11  LIRA    Mi padre dice que es cosa del agua, que últimamente esta muy sucia y al gente se la bebe.
+P12  LIRA    Aunque si que es verdad que mi padre dice muchas cosas, que después no son.
+P13  KAIA    Ya.
+P14  LIRA    Bueno. Da igual. Ya estas aqui.
+P15  LIRA    ¿Sabes que dia es hoy?
+P16  KAIA    Jueves.
+P17  LIRA    Es nuestro dia, Kaia.
+P18  LIRA    Hoy conoceremos a nuestro compañero de aventura.
+P19  KAIA    Lo se.
+P20  LIRA    Pues no lo parece.
+P21  KAIA    Es que no me lo creo todavia.
+P22  LIRA    Pues te lo vas creyendo por el camino.
+P23  LIRA    Venga, que nos estan esperando.
+P24  KAIA    ¿Por donde era?
+             (Lira se para y la mira)
+P25  LIRA    Al norte del pueblo. Por si no te acordabas.
+P26  LIRA    Todo recto, no tiene perdida.
+P27  KAIA    Me acordaba.
+P28  LIRA    Claro.
+             (Lira se da la vuelta y se va sola hacia el norte, al laboratorio)
+             (Kaia se queda en la puerta: a partir de aqui manda el jugador)
+
+
+=== ACTO 5b · EL PUEBLO (ya con el mando en la mano) ===
+
+Lira no se lleva a Kaia: se va ella sola y Kaia se queda plantada. Desde ese
+momento el jugador anda por Pueblo Preludio a su aire. De momento no hay
+vecinos con los que hablar. Lo unico cerrado es la salida de abajo del mapa,
+la que lleva a la ruta 1: si lo intenta, no le deja y sale el recuadro de Kaia.
+
+Tres maneras de decirlo, elige una (o escribe la tuya):
+
+X00a KAIA   Todavia no. Primero el laboratorio.
+X01a KAIA   Esta al norte del pueblo, y la profesora me espera.
+
+X00b KAIA   Si me voy del pueblo sin pasar por el laboratorio me mata.
+X01b KAIA   La profesora, digo. Y mi madre tambien.
+
+X00c KAIA   Al norte. El laboratorio esta al norte.
+X01c KAIA   Que si me lo repito no se me olvida.
+
+Si prefieres que sea una sola pantalla en vez de dos, dilo y la junto.
+
+
+NOTAS
+
+- Lira mete la noticia del hombre mudo para enlazar con lo de la cocina, y de
+  paso se queda flotando: nadie sabe nada, todo el mundo opina. Si no la
+  quieres aqui, se quitan P08 a P13 y el acto sigue funcionando.
+
+- P24 es el chiste del acto: Kaia lleva toda la vida en el pueblo y pregunta
+  por donde se va al laboratorio. Por eso Lira se para antes de contestar.
+
+- P07 es los puntos suspensivos en el recuadro de Kaia, sin que ella diga
+  nada. Igual que en la cocina.
+
+- Los dibujos de Lira ya estan puestos: el retrato (DlgLira.png, recortado de
+  medio cuerpo y a la misma altura que el de Blanca) y su cartelito de nombre
+  (DlgNomLira.png). El muñeco del mapa sale de Graphics/Characters/sora.png.
+
+- Por donde se va Lira: sale de (33,21), justo delante de la puerta de casa,
+  y sube hasta (25,7), que es la puerta del laboratorio. Son 24 pasos y no
+  atraviesa nada:
+     abajo 1, izquierda 4, arriba 1, izquierda 3, arriba 13, izquierda 1,
+     arriba 1
+  Baja una casilla al principio para esquivar el buzon de (30,21), cruza por
+  delante de casa y sube pegada al camino de tierra.
+
+- El laboratorio esta al NORTE del pueblo (su puerta son los eventos de (24,7)
+  y (25,7)). La salida de abajo, la que hay que cerrar, es la de la fila 34,
+  que lleva a la ruta 1.

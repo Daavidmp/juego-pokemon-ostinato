@@ -1,0 +1,39 @@
+﻿Teatro interior.png  -  225 filas, 1800 casillas
+id de casilla = 384 + fila*8 + columna
+
+vista_vacia        20 x 10 casillas   filas 0 y 10   id  384   la sala de abajo vista desde el balcon, sin publico (partida en 3 tiras de 8)
+vista_publico      20 x 10 casillas   filas 30 y 40   id  624   la misma con el patio lleno (partida en 3 tiras de 8)
+suelo               4 x 4  casillas   fila  60        id  864   platea, suelo de la sala
+suelo_balcon        4 x 4  casillas   fila  64        id  896   entarimado del balcon, se repite
+tarima              4 x 4  casillas   fila  68        id  928   tablas del escenario
+alfombra            4 x 4  casillas   fila  72        id  960   alfombra del pasillo
+pared               8 x 4  casillas   fila  76        id  992   pared de fondo, damasco y zocalo
+pared_clara         8 x 4  casillas   fila  80        id 1024   pared clara de la sala, se repite
+palcos_tira         8 x 4  casillas   fila  84        id 1056   tira de palcos para la pared, se repite
+arco               16 x 10 casillas   filas 88 y 98   id 1088   boca del escenario (partida en 2 tiras de 8)
+borde_escenario     4 x 2  casillas   fila 108        id 1248   canto del escenario con candilejas, se repite
+escalera            3 x 4  casillas   fila 110        id 1264   escalones al escenario
+telon_cerrado      12 x 7  casillas   filas 114 y 121   id 1296   telon bajado (partida en 2 tiras de 8)
+telon_bando        12 x 3  casillas   filas 128 y 131   id 1408   banda de arriba del telon subido (partida en 2 tiras de 8)
+telon_izq           3 x 7  casillas   fila 134        id 1456   cortina recogida, izquierda
+telon_der           3 x 7  casillas   fila 141        id 1512   cortina recogida, derecha
+fondo_bosque       12 x 5  casillas   filas 148 y 153   id 1568   telon de foro pintado (partida en 2 tiras de 8)
+palco               5 x 7  casillas   fila 158        id 1648   palco suelto, junto al arco
+palcos              8 x 8  casillas   fila 165        id 1704   palcos en dos alturas, se puede partir por la mitad
+balaustrada         2 x 2  casillas   fila 173        id 1768   baranda de piedra, se repite
+baranda             4 x 2  casillas   fila 175        id 1784   barandilla del balcon con faldon, se repite
+baranda_fin         4 x 3  casillas   fila 177        id 1800   remate de la barandilla, izquierdo; el derecho es este espejado
+puerta              3 x 4  casillas   fila 180        id 1824   puerta de dos hojas
+puerta_arco         3 x 5  casillas   fila 184        id 1856   puerta en arco, cerrada
+cortinaje           3 x 8  casillas   fila 189        id 1896   cortinaje lateral, izquierdo; el derecho es este espejado
+cordon              3 x 2  casillas   fila 197        id 1960   cordon de terciopelo entre dos pies
+farol               2 x 4  casillas   fila 199        id 1976   farol colgado de la pared
+aplique             2 x 3  casillas   fila 203        id 2008   candelabro de pared
+butacas             3 x 1  casillas   fila 206        id 2032   fila de butacas vistas por detras, se repite
+butacas_frente      3 x 3  casillas   fila 207        id 2040   fila de butacas vistas de frente
+canto_grada         4 x 1  casillas   fila 210        id 2064   canto de terraza de la grada, se repite
+escalera_pasillo    3 x 1  casillas   fila 211        id 2072   escalones del pasillo central
+cuerdas             4 x 2  casillas   fila 212        id 2080   cuerdas de bastidores
+percha              4 x 3  casillas   fila 214        id 2096   perchero de vestuario
+espejo              2 x 4  casillas   fila 217        id 2120   espejo de pie
+cajas               2 x 4  casillas   fila 221        id 2152   cajones de utileria

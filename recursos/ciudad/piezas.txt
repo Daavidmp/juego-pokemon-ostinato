@@ -1,0 +1,95 @@
+Ciudad.png  -  418 filas, 3344 casillas
+id de casilla = 384 + fila*8 + columna
+
+suelo_ciudad            2 x 2  casillas   fila   0   id  384   adoquin de la calle, se repite
+agua_ciudad             4 x 4  casillas   fila   2   id  400   agua del canal, se repite
+orilla_sur              4 x 3  casillas   fila   6   id  432   orilla con el agua abajo
+orilla_norte            4 x 3  casillas   fila   9   id  456   orilla con el agua arriba, la de enfrente
+orilla_oeste            4 x 3  casillas   fila  12   id  480   orilla con el agua a la izquierda
+orilla_este             4 x 3  casillas   fila  15   id  504   idem a la derecha
+esquina_dentro          4 x 4  casillas   fila  18   id  528   esquina del muelle, agua por dentro
+esquina_dentro_d        4 x 4  casillas   fila  22   id  560   idem espejada
+esquina_fuera           4 x 4  casillas   fila  26   id  592   esquina del muelle, agua por fuera
+esquina_fuera_d         4 x 4  casillas   fila  30   id  624   idem espejada
+borde_muelle            4 x 2  casillas   fila  34   id  656   canto del muelle, se repite
+escalera_agua           2 x 5  casillas   fila  36   id  672   escalones al agua, bajando hacia arriba
+escalera_agua_d         2 x 5  casillas   fila  41   id  712   idem espejada
+escalera_agua_sur       2 x 5  casillas   fila  46   id  752   escalones al agua, bajando hacia abajo
+puente_tramo            6 x 4  casillas   fila  51   id  792   tablero del puente, se repite
+puente_fin              3 x 4  casillas   fila  55   id  824   arranque del puente, izquierdo
+puente_fin_d            3 x 4  casillas   fila  59   id  856   arranque del puente, derecho
+tejado                  3 x 3  casillas   fila  63   id  888   pano de tejado, se repite
+tejado_alero            4 x 2  casillas   fila  66   id  912   alero de abajo con canalon, se repite
+tejado_costado          2 x 3  casillas   fila  68   id  928   alero de costado, izquierdo
+tejado_costado_d        2 x 3  casillas   fila  71   id  952   alero de costado, derecho
+muro_liso               4 x 3  casillas   fila  74   id  976   muro sin hueco, se repite
+muro_ventana            3 x 3  casillas   fila  77   id 1000   muro con ventana
+muro_puerta             4 x 3  casillas   fila  80   id 1024   muro con puerta
+muro_esquina            1 x 3  casillas   fila  83   id 1048   esquina de manzana, izquierda
+muro_esquina_d          1 x 3  casillas   fila  86   id 1072   esquina de manzana, derecha
+muro_liso_rosa          4 x 3  casillas   fila  89   id 1096   muro rosa
+muro_ventana_rosa       3 x 3  casillas   fila  92   id 1120   ventana rosa
+muro_puerta_rosa        4 x 3  casillas   fila  95   id 1144   puerta rosa
+muro_esquina_rosa       1 x 3  casillas   fila  98   id 1168   esquina rosa
+muro_esquina_rosa_d     1 x 3  casillas   fila 101   id 1192   esquina rosa derecha
+muro_liso_azul          4 x 3  casillas   fila 104   id 1216   muro azul
+muro_ventana_azul       3 x 3  casillas   fila 107   id 1240   ventana azul
+muro_puerta_azul        4 x 3  casillas   fila 110   id 1264   puerta azul
+muro_esquina_azul       1 x 3  casillas   fila 113   id 1288   esquina azul
+muro_esquina_azul_d     1 x 3  casillas   fila 116   id 1312   esquina azul derecha
+muro_liso_verde         4 x 3  casillas   fila 119   id 1336   muro verde
+muro_ventana_verde      3 x 3  casillas   fila 122   id 1360   ventana verde
+muro_puerta_verde       4 x 3  casillas   fila 125   id 1384   puerta verde
+muro_esquina_verde      1 x 3  casillas   fila 128   id 1408   esquina verde
+muro_esquina_verde_d    1 x 3  casillas   fila 131   id 1432   esquina verde derecha
+muro_liso_ocre          4 x 3  casillas   fila 134   id 1456   muro ocre
+muro_ventana_ocre       3 x 3  casillas   fila 137   id 1480   ventana ocre
+muro_puerta_ocre        4 x 3  casillas   fila 140   id 1504   puerta ocre
+muro_esquina_ocre       1 x 3  casillas   fila 143   id 1528   esquina ocre
+muro_esquina_ocre_d     1 x 3  casillas   fila 146   id 1552   esquina ocre derecha
+manzana_crema_der       6 x 8  casillas   fila 149   id 1576   manzana crema, callejon a la derecha
+manzana_crema_izq       6 x 8  casillas   fila 157   id 1640   manzana crema, callejon a la izquierda
+manzana_crema_dos       6 x 8  casillas   fila 165   id 1704   manzana crema, callejon a los dos lados
+manzana_rosa_der        6 x 8  casillas   fila 173   id 1768   manzana rosa, callejon a la derecha
+manzana_rosa_izq        6 x 8  casillas   fila 181   id 1832   manzana rosa, callejon a la izquierda
+manzana_rosa_dos        6 x 8  casillas   fila 189   id 1896   manzana rosa, callejon a los dos lados
+manzana_azul_der        6 x 8  casillas   fila 197   id 1960   manzana azul, callejon a la derecha
+manzana_azul_izq        6 x 8  casillas   fila 205   id 2024   manzana azul, callejon a la izquierda
+manzana_azul_dos        6 x 8  casillas   fila 213   id 2088   manzana azul, callejon a los dos lados
+manzana_verde_der       6 x 8  casillas   fila 221   id 2152   manzana verde, callejon a la derecha
+manzana_verde_izq       6 x 8  casillas   fila 229   id 2216   manzana verde, callejon a la izquierda
+manzana_verde_dos       6 x 8  casillas   fila 237   id 2280   manzana verde, callejon a los dos lados
+manzana_ocre_der        6 x 8  casillas   fila 245   id 2344   manzana ocre, callejon a la derecha
+manzana_ocre_izq        6 x 8  casillas   fila 253   id 2408   manzana ocre, callejon a la izquierda
+manzana_ocre_dos        6 x 8  casillas   fila 261   id 2472   manzana ocre, callejon a los dos lados
+fachada_puerta          6 x 3  casillas   fila 269   id 2536   fachada con puerta, de la primera hornada
+casa_norte              6 x 5  casillas   fila 272   id 2560   tejado visto por detras
+casa1                   6 x 7  casillas   fila 277   id 2600   casa crema
+casa_tienda             7 x 7  casillas   fila 284   id 2656   tienda con toldo
+casa_alta               3 x 9  casillas   fila 291   id 2712   casa alta y estrecha
+casa_amarilla           7 x 7  casillas   fila 300   id 2784   casa amarilla de esquina
+casa_almacen            7 x 6  casillas   fila 307   id 2840   almacen con polea
+casa_pescaderia         7 x 4  casillas   fila 313   id 2888   pescaderia
+casa_floristeria        5 x 5  casillas   fila 317   id 2920   floristeria
+casa_escalera           3 x 8  casillas   fila 322   id 2960   casa con escalera exterior
+casa_astillero          6 x 5  casillas   fila 330   id 3024   astillero
+casa_lider              9 x 9  casillas   fila 335   id 3064   casa del lider  (partida en 2 tiras de 8)
+gimnasio               10 x 11 casillas   fila 353   id 3208   el gimnasio  (partida en 2 tiras de 8)
+farola                  1 x 4  casillas   fila 375   id 3384   farola
+norays                  4 x 1  casillas   fila 379   id 3416   norays con cadena, horizontal
+norays_v                1 x 3  casillas   fila 380   id 3424   norays con cadena, vertical
+barca                   5 x 2  casillas   fila 383   id 3448   barca tumbada
+barca_v                 2 x 5  casillas   fila 385   id 3464   barca de pie
+cajas                   2 x 3  casillas   fila 390   id 3504   cajones
+barril                  1 x 2  casillas   fila 393   id 3528   barril
+cuerda                  1 x 1  casillas   fila 395   id 3544   cuerda
+banderines              5 x 1  casillas   fila 396   id 3552   banderines, se repiten
+maceta                  2 x 2  casillas   fila 397   id 3560   maceta de geranios
+jardinera               3 x 2  casillas   fila 399   id 3576   jardinera de flores
+jardinera2              3 x 2  casillas   fila 401   id 3592   jardinera de hojas
+cesta_colgante          2 x 3  casillas   fila 403   id 3608   cesta colgante, izquierda
+cesta_colgante_d        2 x 3  casillas   fila 406   id 3632   cesta colgante, derecha
+banco                   3 x 2  casillas   fila 409   id 3656   banco
+fuente                  3 x 2  casillas   fila 411   id 3672   fuente
+puesto                  3 x 3  casillas   fila 413   id 3688   puesto de mercado
+tendedero               4 x 2  casillas   fila 416   id 3712   tendedero

@@ -2,7 +2,7 @@
 TrainerBattleBGM=Battle! (Trainer)
 WildBattleBGM=Battle! (Wild Pokemon)
 PlayerA=POKEMONTRAINER_Red,trchar000,boy_bike,boy_surf_offset,boy_run,boy_surf_offset,boy_fish_offset,boy_fish_offset
-PlayerB=POKEMONTRAINER_Leaf,trchar001,girl_bike,girl_surf_offset,girl_run,girl_surf_offset,girl_fish_offset,girl_fish_offset
+PlayerB=POKEMONTRAINER_Leaf,kaia,girl_bike,girl_surf_offset,girl_run,girl_surf_offset,girl_fish_offset,girl_fish_offset
 TrainerVictoryME=Victory - Trainer.ogg
 WildVictoryME=Victory - Wild Pokemon.ogg
 BicycleBGM=Bike
@@ -10,50 +10,66 @@ Home=3,7,5,8
 SurfBGM=Surf
 [001]
 # Intro
+SnapEdges=true
 [002]
 # Pueblo Empanada
 Outdoor=true
 MapPosition=0,13,12
 ShowArea=true
+SnapEdges=true
 [003]
 # Casa de \PN
 BattleBack=IndoorB
 MapPosition=0,13,12
 HealingSpot=2,8,8
+SnapEdges=true
 [004]
 # Laboratorio Pokémon
 MapPosition=0,13,12
+SnapEdges=true
 [005]
 # Ruta 1
 Outdoor=true
 MapPosition=0,13,11
 ShowArea=true
+SnapEdges=true
 [006]
 # Casa de Kurt
 MapPosition=0,13,11
+SnapEdges=true
 [007]
 # Ciudad Milanesa
 Outdoor=true
 MapPosition=0,13,10
 MapSize=2,11
 ShowArea=true
+SnapEdges=true
 [008]
 # Casa de Belén
 MapPosition=0,13,12
+SnapEdges=true
 [009]
 # Centro Pokémon
 MapPosition=0,14,10
 HealingSpot=8,17,11
+SnapEdges=true
 [010]
 # Gimnasio Milanesa
 BattleBack=IndoorB
 MapPosition=0,13,10
+SnapEdges=true
 [011]
 # Instituto Pokémon
 MapPosition=0,14,10
+SnapEdges=true
+[043]
+SnapEdges=true
 [012]
-# Club Movimientos
+# Villa Bambalina
+Outdoor=true
 MapPosition=0,14,10
+ShowArea=true
+SnapEdges=true
 [013]
 # Rincón de Juegos
 MapPosition=0,14,10
