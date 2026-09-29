@@ -5,7 +5,12 @@
 // a single forward slash instead (even on Windows).
 //==============================================================================
 {
-    "fixedAspectRatio": true,
+    // Ostinato: en false a proposito. Con el modo de alta resolucion, mkxp
+    // calcula la proporcion al encajar la imagen con la resolucion de arranque
+    // (512x384, 4:3) y no con la del juego (682x384): con true el juego salia
+    // estrechado en una franja de 1440x1080 con bandas negras a los lados.
+    // El lienzo ya es 16:9 (1918x1080), asi que llenar la pantalla no deforma.
+    "fixedAspectRatio": false,
     "fullscreen": true,
 
     //==========================================================================
