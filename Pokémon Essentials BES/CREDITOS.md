@@ -161,6 +161,22 @@ La base elíptica bajo Mudkip, recoloreada a tono neutro y con sombra añadida.
 - **En el proyecto:** `Graphics/Titles/EscBase.png`
 - **Origen:** Pokémon Essentials, `Graphics/Pictures/introbase.png`
 
+### Mudkip, Fennekin y Sprigatito en el mapa
+
+Sprites de mapa (4 direcciones × 4 fotogramas) de los tres iniciales, para la
+fuga del laboratorio.
+
+- **En el proyecto:** `Graphics/Characters/MUDKIP.png`, `FENNEKIN.png`, `SPRIGATITO.png`
+- **Origen:** los sprites de seguidores de Following Pokémon EX, tal como vienen
+  en [Pokemon-Essentials-21-With-Unofficial-EBDX](https://github.com/Manurocker95/Pokemon-Essentials-21-With-Unofficial-EBDX),
+  `Graphics/Characters/Followers/`
+- **Autores:** Gen 1-5 · MissingLukey, help-14, Kymoyonian, cSc-A7X, 2and2makes5,
+  Pokegirl4ever, Fernandojl, Silver-Skies, TyranitarDark, Getsuei-H, Kid1513,
+  Milomilotic11, Kyt666, kdiamo11, Chocosrawlooid, Syledude, Gallanty,
+  Gizamimi-Pichu, Zyon17, LarryTurbo, spritesstealer. Gen 6-9: ver la lista
+  completa en `gen9_credits.txt` de ese repositorio (Pokémon Gen 9 Overworld
+  sprites) **antes de publicar**.
+
 ---
 
 ## Motor
