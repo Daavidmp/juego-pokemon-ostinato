@@ -20,6 +20,20 @@ module Settings
 end
 
 #-------------------------------------------------------------------------------
+# Musica en mp3. La v21 trae ".mp3" comentado en la lista de extensiones de
+# audio, asi que Game_System#bgm_play daba por inexistente cualquier pista mp3
+# y los mapas se quedaban en silencio (Pueblo Preludio, Casa Kaia, Casa
+# Generica, Laboratorio). El motor si las reproduce: lleva libmpg123.
+#-------------------------------------------------------------------------------
+module FileTest
+  if !AUDIO_EXTENSIONS.include?(".mp3")
+    exts = AUDIO_EXTENSIONS + [".mp3"]
+    remove_const(:AUDIO_EXTENSIONS)
+    AUDIO_EXTENSIONS = exts
+  end
+end
+
+#-------------------------------------------------------------------------------
 # Escenas dibujadas a 1920x1080 (arranque, titulo, cinematica, laboratorio).
 # En BES se veian nitidas porque su Sprite_Resizer subia el bufer a 1918x1080.
 # La v21 no tiene resizer: mientras dura la escena se sube el bufer a 1920x1080
@@ -31,7 +45,25 @@ module OstinatoHD
   ANCHO = 1920
   ALTO  = 1080
 
+  # Si mkxp.json ya pinta en alta resolucion (enableHires con
+  # framebufferScalingFactor de 2 o mas), el arte de 1920 se ve nitido sin
+  # tocar el bufer, y subirlo lo multiplicaria otra vez (5760x3240 a 3x).
+  def self.alta_resolucion?
+    return @alta if !@alta.nil?
+    @alta = false
+    begin
+      cfg = File.read("mkxp.json")
+      if cfg =~ /^\s*"enableHires"\s*:\s*true/ &&
+         cfg =~ /^\s*"framebufferScalingFactor"\s*:\s*([\d.]+)/
+        @alta = ($1.to_f >= 2.0)
+      end
+    rescue
+    end
+    return @alta
+  end
+
   def self.subir
+    return nil if alta_resolucion?
     w = Graphics.width
     h = Graphics.height
     return nil if w >= ANCHO

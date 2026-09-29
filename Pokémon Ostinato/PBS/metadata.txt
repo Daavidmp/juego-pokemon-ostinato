@@ -24,8 +24,8 @@ SurfFishCharset = boy_fish_offset
 #-------------------------------
 [2]
 TrainerType = POKEMONTRAINER_Leaf
-WalkCharset = trchar001
-RunCharset = girl_run
+WalkCharset = kaia
+RunCharset = kaia
 CycleCharset = girl_bike
 SurfCharset = girl_surf
 DiveCharset = girl_surf

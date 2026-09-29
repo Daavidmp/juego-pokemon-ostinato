@@ -22,7 +22,7 @@ module OstinatoArranque
   INTRO_COUNT = 160
   INTRO_FPS   = 20
 
-  PORTADA = "Graphics/Titles/OstinatoPortada.jpg"
+  PORTADA = "Graphics/Titles/OstinatoPortada.png"
 
   STING   = "OstinatoLogo"          # el golpe de logo, justo los 8 s del video
 

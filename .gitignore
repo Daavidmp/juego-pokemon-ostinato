@@ -41,3 +41,9 @@ desktop.ini
 # Graphics/Titles/OstinatoCine/
 # Graphics/Titles/OstinatoMenu/
 # Graphics/Titles/OstinatoIntro/
+
+# --- Restos de las pruebas automaticas del juego -------------------------------
+PRUEBA_MIGRACION.txt
+HERRAMIENTA.rb
+prueba_migracion/
+herramienta/

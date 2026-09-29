@@ -1,0 +1,23 @@
+# La fuga de los tres iniciales. Sigue a "Venga. Acercaos." del laboratorio.
+# (Kaia y Lira se acercan a la mesa)
+izq2|Esa.
+der|Aún no las has visto.
+izq2|Ya. Pero esa.
+# (clic: se abre la primera, sale Mudkip y se las queda mirando)
+# (clic, clic: salen Fennekin y Sprigatito, y los tres se van en fila por la puerta)
+izq2|...
+der|Se han ido.
+izq|Ya lo veo.
+izq2|¿Eso lo pueden hacer?
+izq|Una Poké Ball se abre desde dentro.
+izq|Desde fuera hace falta el botón. Desde dentro, no.
+izq|Llevaban ahí desde ayer. Eso es mucho tiempo.
+izq|Y la puerta está abierta desde las ocho, como todos los días.
+izq|No han ido lejos. No pueden. Es un pueblo.
+izq|Traédmelos y hablamos.
+izq2|¿Los tres?
+izq|Los tres.
+izq2|¿Y la que traiga más...?
+izq|No. Los tres, y luego habláis vosotras.
+izq|Yo no reparto nada.
+izq2|Vale. Pues a buscar.

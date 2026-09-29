@@ -2,34 +2,70 @@
 #-------------------------------
 [001]
 Name = Intro
+SnapEdges = true
 #-------------------------------
 [002]
 Name = Pueblo Preludio
 Outdoor = true
 MapPosition = 0,13,12
 ShowArea = true
+SnapEdges = true
 #-------------------------------
 [003]
 Name = pisodeabajo
 BattleBack = indoor1
 MapPosition = 0,13,12
 HealingSpot = 2,8,8
+SnapEdges = true
 #-------------------------------
 [004]
 Name = Casa Generica - Planta Baja
-MapPosition = 0,13,12
+SnapEdges = true
 #-------------------------------
 [005]
 Name = Casa Generica - Piso Superior
-MapPosition = 0,13,11
+SnapEdges = true
 #-------------------------------
 [006]
-Name = Mapa en blanco 10x10
-MapPosition = 0,13,11
+Name = pueblo-Preludio-casa-npc1
+SnapEdges = true
 #-------------------------------
 [007]
 Name = Laboratorio Pokemon
-MapPosition = 0,13,10
+SnapEdges = true
+#-------------------------------
+[008]
+Name = pueblo-Preludio-casa-npc2
+SnapEdges = true
+#-------------------------------
+[009]
+Name = ruta1
+Outdoor = true
+ShowArea = true
+SnapEdges = true
+#-------------------------------
+[010]
+Name = ruta2
+Outdoor = true
+ShowArea = true
+SnapEdges = true
+#-------------------------------
+[011]
+Name = ruta3
+Outdoor = true
+ShowArea = true
+SnapEdges = true
+#-------------------------------
+[012]
+Name = Villa Banvalina
+Outdoor = true
+ShowArea = true
+SnapEdges = true
+#-------------------------------
+[013]
+Name = teatro interior
+SnapEdges = true
 #-------------------------------
 [043]
 Name = Habitacion Kaia
+SnapEdges = true

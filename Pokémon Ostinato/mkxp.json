@@ -6,8 +6,32 @@
 //==============================================================================
 {
     "fixedAspectRatio": true,
-    "smoothScaling": true,
     "fullscreen": true,
+
+    //==========================================================================
+    // Calidad de imagen de Pokemon Ostinato (pensado para pantalla completa).
+    //
+    // El juego va a 682x384 por dentro, pero casi todo el arte (menu,
+    // cinematica, cuadros de dialogo, retratos) esta dibujado a 1920x1080. En
+    // vez de pintar a 682x384 y estirar la imagen, se pinta directamente a
+    // 1080/384 = 2.8125x (1918x1080): el arte grande sale a su tamano real,
+    // pixel a pixel, y el pixel art del mapa se dibuja con pixeles nitidos.
+    //
+    // El factor tiene que ser el de la pantalla: con otro (3.0, por ejemplo)
+    // este mkxp encaja el juego al tamano de la pantalla DENTRO de un bufer
+    // mas grande y deja un marco negro alrededor. Para un monitor de 1440p
+    // seria 3.75, y para 4K 5.625.
+    //
+    //   smoothScaling / smoothScalingDown: 0 vecino mas cercano, 1 bilineal,
+    //   2 bicubico, 3 Lanczos3, 4 xBRZ. Solo afectan al ultimo encaje en la
+    //   pantalla (1918 -> 1920); los mapas se pintan siempre pixel a pixel.
+    //==========================================================================
+    "enableHires": true,
+    "framebufferScalingFactor": 2.8125,
+    "textureScalingFactor": 1.0,
+    "smoothScaling": 3,
+    "smoothScalingDown": 3,
+    "smoothScalingMipmaps": true,
     //==========================================================================
     // Things you may want to/should change.
     //==========================================================================
@@ -16,12 +40,15 @@
     // Note that the "Game Title" defined in RPG Maker XP should not have
     // accented characters in it, which is why this property is useful.
     //
-    "windowTitle": "La Base De Sky 1.2.1.1",
+    "windowTitle": "Pokémon Ostinato",
 
     // The game window's width and height, in pixels.
+    // Ostinato: tiene que ser el tamano de la pantalla. Con el modo de alta
+    // resolucion, mkxp recorta el dibujo al tamano inicial de la ventana
+    // escalado (con 1364x768 se quedaba en 1642x922 y el resto en negro).
     //
-    "defScreenW": 1364,
-    "defScreenH": 768,
+    "defScreenW": 1920,
+    "defScreenH": 1080,
 
     // The path to the game window's icon. For Linux only. (Default: none)
     //

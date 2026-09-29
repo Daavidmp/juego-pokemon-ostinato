@@ -2,7 +2,7 @@
 # Prueba automática de la migración a La Base de Sky. NO forma parte del juego.
 #
 # Solo hace algo si existe el fichero PRUEBA_MIGRACION.txt en la carpeta del juego.
-# Recorre el arranque, el menú, la cinemática, el laboratorio y los mapas
+# Recorre el arranque, el menú, la cinemática, la escena de Arce y el prólogo entero
 # pulsando las teclas él solo, guarda capturas y un registro en
 # prueba_migracion/, y cierra el juego. Se borra al terminar la migración.
 #===============================================================================
@@ -123,21 +123,117 @@ if FileTest.exist?("PRUEBA_MIGRACION.txt")
       alias_method :_prueba_start_new, :start_new
       def start_new
         _prueba_start_new
-        P_.log("partida nueva · jugador #{$player.name} · personaje #{$player.character_ID} · " \
-               "gráfico #{$game_player.character_name rescue '?'}")
-        P_.en(60)  { P_.foto("08_casa_kaia") }
-        P_.en(80)  { P_.transferir(43, 7, 7) }
-        P_.en(140) { P_.foto("09_habitacion_kaia") }
-        P_.en(160) { P_.transferir(2, 20, 17) }
-        P_.en(230) { P_.foto("10_pueblo_preludio") }
-        P_.en(250) { P_.transferir(7, 13, 19) }
-        P_.en(310) { P_.foto("11_laboratorio_antes"); $game_switches[72] = true; $game_map.need_refresh = true }
-        P_.en(400) { P_.foto("12_laboratorio_fuga") }
-        P_.en(520) { P_.foto("13_laboratorio_fuga_2") }
-        P_.en(900) do
-          P_.foto("14_laboratorio_despues")
-          P_.log("SW 72 = #{$game_switches[72]} · SW 73 (los tres se han escapado) = #{$game_switches[73]}")
-          P_.log("FIN")
+        P_.recorrer_prologo
+      end
+    end
+  end
+
+  # --- el prologo entero, usando las mismas puertas que el jugador ---
+  #   cuarto (despertar) -> escalera -> cocina y telediario -> puerta de casa
+  #   (Lira) -> puerta del laboratorio -> sube por la alfombra (charla y fuga)
+  #   -> sale y vuelve a entrar, para ver que la mesa sigue vacia y Lira no esta.
+  # Mientras corre una escena se pulsa Enter cada poco y se saca una foto de
+  # vez en cuando; entre escena y escena se cruza la puerta que toca.
+  module PruebaMigracion
+    ESCENAS = [:OstinatoDespertar, :OstinatoCocina, :OstinatoPuerta, :OstinatoLaboratorio]
+
+    def self.ocupado?
+      ESCENAS.any? { |n| Object.const_defined?(n) && Object.const_get(n).instance_variable_get(:@corriendo) }
+    end
+
+    def self.estado
+      ev = $game_map.events.values.select { |e| e.id >= 900 }.map { |e| "#{e.name}(#{e.x},#{e.y})" }.join(" ")
+      "mapa #{$game_map.map_id} kaia(#{$game_player.x},#{$game_player.y}) " \
+      "sw101-104=#{(101..104).map { |i| $game_switches[i] ? 1 : 0 }.join} sw72=#{$game_switches[72]} " \
+      "sw73=#{$game_switches[73]} sw78=#{$game_switches[78]} #{ev}"
+    end
+
+    def self.recorrer_prologo
+      log("partida nueva · jugador #{$player.name} · personaje #{$player.character_ID}")
+      @hecho = {}
+      @fotos = 0
+      @ultima_foto = 0
+      @ultimo_enter = 0
+      @inicio = @f
+      vigilar
+    end
+
+    def self.vigilar
+      en(1) do
+        begin
+          paso_prologo
+        rescue Exception => e
+          log("ERROR prologo: #{e.class}: #{e.message}\n  " + (e.backtrace || [])[0, 6].join("\n  "))
+        end
+        vigilar if !@hecho[:fin]
+      end
+    end
+
+    def self.foto_escena
+      @fotos += 1
+      foto("p%03d_mapa%d" % [@fotos, $game_map.map_id])
+    end
+
+    def self.paso_prologo
+      return if !$scene.is_a?(Scene_Map) || !$game_map
+      if @f - @inicio > 60 * 60 * 12
+        log("ERROR: el prologo no ha acabado en 12 minutos · #{estado}")
+        @hecho[:fin] = true
+        $scene = nil
+        return
+      end
+      if ocupado?
+        if @f - @ultimo_enter >= 36
+          @ultimo_enter = @f
+          pulsa(Input::USE)
+        end
+        if @f - @ultima_foto >= 150
+          @ultima_foto = @f
+          foto_escena
+        end
+        return
+      end
+      return if $game_temp.player_transferring || $game_player.moving?
+      mapa = $game_map.map_id
+      if mapa == 43 && $game_switches[101] && !@hecho[:cuarto]
+        @hecho[:cuarto] = true
+        log("despertar visto · #{estado}")
+        en(20) { transferir(3, 11, 4) }            # la escalera
+      elsif mapa == 3 && $game_switches[102] && !@hecho[:cocina]
+        @hecho[:cocina] = true
+        log("cocina y telediario vistos · #{estado}")
+        en(20) { transferir(2, 33, 20) }           # la puerta de casa
+      elsif mapa == 2 && $game_switches[103] && !@hecho[:pueblo]
+        @hecho[:pueblo] = true
+        log("puerta vista · #{estado}")
+        en(20) { transferir(7, 13, 22) }           # la puerta del laboratorio
+      elsif mapa == 7 && !$game_switches[104] && !@hecho[:subir]
+        @hecho[:subir] = true
+        log("en el laboratorio · #{estado}")
+        foto("30_laboratorio_entrada")
+        pbMoveRoute($game_player, [PBMoveRoute::UP] * 7)   # por la alfombra hasta la fila 15
+      elsif mapa == 7 && $game_switches[73] && !@hecho[:fuga]
+        @hecho[:fuga] = true
+        log("fuga vista · #{estado}")
+        log("mesa, capa de arriba: " + (16..18).map { |x| "#{$game_map.data[x, 7, 2]}/#{$game_map.data[x, 8, 2]}" }.join(" "))
+        foto("40_laboratorio_despues")
+        en(20) { transferir(2, 25, 8) }            # sale a la calle
+      elsif mapa == 2 && @hecho[:fuga] && !@hecho[:fuera]
+        @hecho[:fuera] = true
+        foto("41_pueblo_despues")
+        en(40) { transferir(7, 13, 22) }           # y vuelve a entrar
+      elsif mapa == 7 && @hecho[:fuera] && !@hecho[:vuelta]
+        @hecho[:vuelta] = true
+        en(60) do
+          $game_player.moveto(13, 12)
+          $game_player.center(13, 12) rescue nil
+        end
+        en(90) do
+          foto("42_laboratorio_vuelta")
+          log("vuelta al laboratorio · #{estado}")
+          log("mesa, capa de arriba: " + (16..18).map { |x| "#{$game_map.data[x, 7, 2]}/#{$game_map.data[x, 8, 2]}" }.join(" "))
+          log("FIN")
+          @hecho[:fin] = true
           $scene = nil
         end
       end

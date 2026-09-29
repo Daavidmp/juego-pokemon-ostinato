@@ -275,11 +275,12 @@ end
 # manejador de Ostinato_TitleScreen en vez de anadir un boton repetido.
 # Se mantiene "order" => 10 para que el boton siga en su sitio.
 #===============================================================================
-# Donde empieza la partida de verdad, saltandose Map001 (la intro de la demo).
-# Sale de "Home=3,7,5,8" en PBS/metadata.txt: mapa 3, casa de Kaia.
-INICIO_MAPA = 3
-INICIO_X    = 7
-INICIO_Y    = 5
+# Donde empieza la partida de verdad: el cuarto de Kaia, al lado de la cama.
+# Solo es la red por si System.rxdata no trae punto de inicio; el que manda es
+# el que se marca en el editor con "Colocar posicion inicial".
+INICIO_MAPA = 43
+INICIO_X    = 2
+INICIO_Y    = 11
 
 MenuHandlers.add(:load_screen, :new_game, {
   "name"  => _INTL("Nueva partida"),
@@ -294,13 +295,14 @@ MenuHandlers.add(:load_screen, :new_game, {
       rescue
       end
     end
-    # NO se arranca en el mapa de inicio del proyecto (Map001), que es la intro
-    # de la demo tecnica de Essentials BES: se entra directamente en casa de Kaia,
-    # el "Home = 3,7,5,8" de PBS/metadata.txt. Game.start_new (v21) empieza donde
-    # dice $data_system, asi que se le da ese sitio antes de llamarlo.
-    $data_system.start_map_id = INICIO_MAPA
-    $data_system.start_x      = INICIO_X
-    $data_system.start_y      = INICIO_Y
+    # Game.start_new (v21) empieza donde dice $data_system, que es lo que se
+    # marca en el editor. Si se mueve el inicio en RPG Maker, el juego va
+    # detras sin tocar este script. Solo si no hay nada se usan las constantes.
+    if !$data_system.start_map_id || $data_system.start_map_id <= 0
+      $data_system.start_map_id = INICIO_MAPA
+      $data_system.start_x      = INICIO_X
+      $data_system.start_y      = INICIO_Y
+    end
     Game.start_new
     # Como la intro de la demo era tambien la que inicializaba al jugador, hay
     # que hacer aqui lo suyo: tipo de entrenador y nombre. En el guion Arce le
