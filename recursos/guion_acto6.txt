@@ -1,0 +1,69 @@
+ACTO 6 · EL LABORATORIO (mapa 007)
+Kaia entra, sube por la alfombra y al pasar de la fila 15 arranca la escena.
+
+Mismo sistema: cambia lo que quieras dejando el codigo de la izquierda.
+
+ARCE habla por la izquierda, LIRA tambien por la izquierda (los retratos se
+cruzan al cambiar de una a otra), y KAIA por la derecha.
+
+Donde esta cada una:
+  profesora Arce ... (13, 7), mirando hacia abajo
+  Lira ............ (12, 9), mirando hacia arriba
+  Kaia ............ (14, 9), se planta sola ahi al arrancar la escena
+  la mesa de las tres pokeballs queda a la derecha de Arce, en (16-18, 8)
+
+
+L00  ARCE   Vaya. Ya estamos todas.
+L01  LIRA   Le decía yo que no tardabas.
+L02  KAIA   Has tardado tú menos, nada más.
+L03  LIRA   Yo salí de casa. Tú saliste de la cama.
+L04  ARCE   Dejadlo, que llevo aquí desde las ocho y ese chiste ya me lo sé.
+L05  ARCE   Kaia. ¿Cómo está tu madre?
+L06  KAIA   Fregando.
+L07  ARCE   Entonces está bien. Dale recuerdos.
+L08  ARCE   Bueno.
+L09  ARCE   Sabéis por qué estáis aquí, ¿no?
+L10  LIRA   Sí.
+L11  KAIA   Más o menos.
+L12  ARCE   Más o menos me vale.
+L13  LIRA   Profesora, ¿usted ha visto lo de Ciudad Muda?
+L14  ARCE   Lo he visto.
+L15  KAIA   ¿Y qué es?
+L16  ARCE   No lo sé.
+L17  ARCE   Y el que te diga que lo sabe, tampoco.
+L18  ARCE   Hoy no toca eso. Hoy toca lo vuestro.
+L19  ARCE   Mirad la mesa.
+L20  KAIA   Son tres.
+L21  ARCE   Una para cada una.
+L22  ARCE   La tercera se queda esperando.
+L23  KAIA   ¿Esperando a quién?
+L24  ARCE   A quien venga. Siempre viene alguien.
+L25  ARCE   No os lo penséis mucho, que luego se hace tarde y se me enfría el café.
+L26  LIRA   Yo lo tengo decidido desde los seis años.
+L27  KAIA   Yo no.
+L28  ARCE   Pues mejor.
+L29  ARCE   Los que lo traen decidido de casa son los que se llevan la sorpresa.
+L30  ARCE   Venga. Acercaos.
+             (aqui acaba el acto: lo de elegir va en el siguiente)
+
+
+NOTAS
+
+- Arce no explica lo de Ciudad Muda porque no lo sabe, y lo dice. Es la unica
+  adulta que aparece hasta ahora que no se inventa una explicacion: la madre
+  dice que es cosa de gente mayor y el padre de Lira que es el agua. Si
+  prefieres que Arce si sepa algo y se lo calle, cambia L16 y L17.
+
+- L22 y L24, lo de la tercera pokeball esperando, dejan la puerta abierta a un
+  tercer personaje. Si no lo quieres, se quitan las dos y no se nota.
+
+- Al acabar la escena se abre la salida del pueblo (el interruptor 43), que
+  hasta ahora estaba cerrada.
+
+- La profesora y Lira se quedan puestas en el laboratorio aunque salgas y
+  vuelvas a entrar.
+
+- PENDIENTE: me dijiste que Lira aparece "en la casilla 007" y falta el otro
+  numero. La he puesto en (12,9), al lado de donde se planta Kaia y de cara a
+  la profesora. Si querias (7,7) o cualquier otra, dimelo y es cambiar una
+  linea.

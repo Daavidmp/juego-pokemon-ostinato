@@ -1,0 +1,65 @@
+VECINOS DE PUEBLO PRELUDIO · CONVERSACION NORMAL
+Gente diciendo cosas de gente. Nada de la trama.
+
+REGLA: todas valen en cualquier momento de la partida. Ninguna dice "hoy" ni
+"esta mañana", ninguna da por hecho que Kaia acaba de llegar o que va a algun
+sitio, y ninguna cambia de sentido si la lees al final del juego. Hablan de
+costumbres, no de ratos.
+
+Cada bloque es una persona. Las dos frases van juntas: la primera cuenta algo
+y la segunda le da la razon, la desmiente o la ensancha. Si quieres una sola
+linea por vecino, quedate con la primera.
+
+
+=== N1 · EL DEL BANCO ===
+N1a  Cuando desde aqui se pueden apreciar las vistas del monte, eso quiere decir que no va a llover.
+N1b  Nunca he fallado en mis predicciones
+
+=== N2 · LA DE LA COLADA ===
+N2a  Siempre tiendo la colada a primera hora.
+N2b  Mas tarde no hay quien la seque, aunque pegue todo el sol.
+
+=== N4 · LA QUE MIRA DESDE LA PUERTA ===
+N4a  Me pongo aqui porque se puede ver quien entra y quien sale del pueblo.
+N4b  No por nada, pero si no fuera por mi, aquí entraría todo el mundo.
+
+=== N7 · LA DE LAS PLANTAS ===
+N7a  Me pongo a hablar con esta planta desde hace ya 5 años. Ya se que no me oye.
+N7b  Pero el dia que se me olvida hablar con ella, tengo mala suerte.
+
+//N8 en otro sitio
+=== N8 · EL DE LA PESCA ===
+N8a  Aqui hace años que no pica nada.
+N8b  Tampoco vengo por los peces.
+
+=== N9 · EL DEL POKEMON VIEJO ===
+N9a  Este pokemon ya no me escucha hablar.
+N9b  Pero aunque no me escuche me relaja hablar con el a solas.
+
+=== N16 · LA DE LAS GAFAS ===
+N16a  Me paso la vida buscando mis gafas de vista.
+N16b  Ya estoy mayor, y como ya no esta conmigo mi pokemon, nunca las encuentro.
+
+=== N17 · EL QUE NO SE ACUERDA ===
+N17a  Se que tenia que salir a hacer algo, pero ya no me acuerdo, debería de apuntar cada cosa que voy a hacer
+
+=== N18 · LA QUE NO SALE DEL PUEBLO ===
+N18a  Yo de aqui no me he movido nunca.
+N18b  Y no me preguntes si me arrepiento, que depende del dia te contesto cualquier cosa.
+
+
+NOTAS
+
+- Todas son de costumbre, no de momento: "la tiendo siempre", "las cuento
+  desde que me jubile", "se sube y no hay forma". Por eso valen igual la
+  primera vez que la ultima.
+
+- Casi todas dicen cuanto llevan haciendo lo que hacen: ocho años, cuarenta,
+  desde que se jubilo, media vida. Es lo que hace que el pueblo parezca tener
+  pasado sin contar ninguno.
+
+- N4, N12 y N14 estan escritas para que no se sepa si hay pulla. El vecino
+  dice una cosa y el jugador decide.
+
+- N18 y N19 son las dos que mas juego darian si algun dia quieres que un
+  vecino tenga algo que contar de verdad.

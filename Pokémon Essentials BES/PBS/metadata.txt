@@ -65,8 +65,11 @@ SnapEdges=true
 [043]
 SnapEdges=true
 [012]
-# Club Movimientos
+# Villa Bambalina
+Outdoor=true
 MapPosition=0,14,10
+ShowArea=true
+SnapEdges=true
 [013]
 # Rincón de Juegos
 MapPosition=0,14,10
