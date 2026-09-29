@@ -1,7 +1,7 @@
 # Pokémon Ostinato
 
-Fangame de Pokémon dibujado a mano, sobre **Pokémon Essentials BES** (fork no
-oficial de Essentials v16.2) corriendo en **MKXP-Z**.
+Fangame de Pokémon dibujado a mano, sobre **La Base de Sky** (Pokémon Essentials
+v21.1) corriendo en **MKXP-Z**.
 
 La región se llama **Cadencia**. Cuando alguien se entiende bien con su Pokémon,
 allí dicen que «hacen coro». Nadie sabe muy bien qué nombra esa palabra.
@@ -10,60 +10,71 @@ allí dicen que «hacen coro». Nadie sabe muy bien qué nombra esa palabra.
 
 ## Cómo se juega
 
-Abre `Pokémon Essentials BES/Game.exe`.
+Abre `Pokémon Ostinato/Game.exe`. Está pensado para pantalla completa.
+
+Para editar mapas y eventos, abre `Pokémon Ostinato/Game.rxproj` con RPG Maker XP.
 
 ## Cómo está montado
 
-El motor guarda **todos los scripts dentro de `Data/Scripts.rxdata`**, en un
-único archivo binario (Marshal de Ruby + zlib). No hay carpeta de scripts
-sueltos: para editarlos hace falta RPG Maker XP o una herramienta que lea ese
-formato.
+Los scripts propios del juego son un plugin de Essentials, en texto, en
+`Pokémon Ostinato/Plugins/Ostinato/`:
 
-Los scripts propios del juego van todos con el prefijo `Ostinato_` y se
-insertan justo antes de `Main`, para que sus redefiniciones pisen a las del
-motor:
-
-| Script | Qué hace |
+| Plugin | Qué hace |
 |---|---|
-| `Ostinato_TitleScreen` | El menú del título, con los botones dibujados a mano |
-| `Ostinato_Arranque` | Vídeo de marca, portada y el Diglett que asoma si no tocas nada |
-| `Ostinato_Cinematica` | La cinemática de apertura al dar a «Nueva partida» |
-| `Ostinato_Laboratorio` | La escena de la Profesora Arce |
-| `Ostinato_Pantalla` | Ajusta el búfer al tamaño del monitor |
+| `001_Compatibilidad` | Lo que el juego necesitaba de Essentials BES: pantalla 682x384, menú del título por `MenuHandlers`, música en mp3 |
+| `002_Arranque` | Vídeo de marca, portada y el Diglett que asoma si no tocas nada |
+| `003_Titulo` | El menú del título, con los botones dibujados a mano |
+| `004_Cinematica` | La cinemática de apertura al dar a «Nueva partida» |
+| `005_Laboratorio` | La presentación de la Profesora Arce |
+| `006_Prologo` | El cuadro de diálogo y el prólogo: despertar, cocina, telediario, Lira en la puerta, laboratorio y la fuga de los tres iniciales |
+| `007_Farolas` | Las farolas de Villa Bambalina, que se encienden al caer la noche |
 
-### Dos cosas que conviene saber antes de tocar nada
+Al arrancar en modo depuración, Essentials recompila los plugins en
+`Data/PluginScripts.rxdata`, que es lo que lee el juego normal: después de tocar
+un plugin hay que arrancar una vez en depuración y subir ese archivo también.
 
-**El motor no reproduce vídeo.** `Game.exe` es MKXP-Z y no lleva enlazada
-ninguna librería de códec. Todo lo que parece un vídeo son **secuencias de JPEG
-más un mp3 aparte**, y el fotograma se elige por reloj (`Time.now`), no contando
-vueltas del bucle: con cuatro minutos de narración, contar vueltas se
-desincroniza del audio en cuanto el motor pierde un fotograma.
+### Cosas que conviene saber antes de tocar nada
 
-**El arte se hace a 1920x1080 y lo encoge el propio sprite** con
-`zoom = Graphics.width / 1920.0`. La resolución nominal del motor es 682x384 y
-`Ostinato_Pantalla` sube el búfer real al tamaño del monitor. Ojo: el script
-`037_Sprite_Resizer` redefine `x=`, `y=`, `ox=` y `zoom_x=` multiplicando por el
-factor de escala, pero **no toca `src_rect`**, que sigue yendo en píxeles del
-bitmap.
+**El motor no reproduce vídeo.** Todo lo que parece un vídeo son **secuencias de
+JPEG más el audio aparte**, y el fotograma se elige por reloj, no contando
+vueltas del bucle.
+
+**El arte se hace a 1920x1080.** La resolución del juego es 682x384, pero
+`mkxp.json` pinta en alta resolución (`enableHires`, factor 2.8125 = 1080/384),
+así que el arte grande se ve a su tamaño real. Ese factor corresponde a un
+monitor de 1080p; en `mkxp.json` está explicado cómo cambiarlo para otros.
+
+**Los interruptores 39-50 los reserva La Base de Sky.** Los del prólogo son el
+101-104; los del guion van numerados como en el guion más 50 (la fuga es el 72
+y el 73, la salida del pueblo el 78).
+
+**Las pruebas automáticas** están en `Plugins/ZZ_PruebaMigracion/` y no hacen
+nada salvo que exista su archivo disparador (`PRUEBA_MIGRACION.txt`,
+`HERRAMIENTA.rb` o `DIAGNOSTICO.txt`) en la carpeta del juego.
 
 ## Estructura
 
 ```
-Pokémon Essentials BES/     el juego
-  Data/                     mapas, scripts y datos del motor
+Pokémon Ostinato/           el juego
+  Plugins/Ostinato/         los scripts propios
+  Data/                     mapas y datos del motor
   Graphics/                 todo el arte
-    Titles/                 portada, menú, cinemática y escena del laboratorio
+    Titles/                 portada, menú, cinemática, escenas y diálogos
   Audio/                    música y efectos
   PBS/                      datos en texto: Pokémon, movimientos, entrenadores
 Overworlds/                 sprites de mapa
-CREDITOS.md                 quién ha hecho cada cosa que no es propia
+recursos/                   guiones, piezas de mapas y herramientas
 ```
+
+El juego empezó en Essentials BES y se pasó a La Base de Sky el 29 de septiembre
+de 2026; el proyecto antiguo sigue en el historial de git, y
+`recursos/migracion/` tiene los scripts con los que se hizo el paso.
 
 ## Créditos
 
-En **[CREDITOS.md](Pokémon%20Essentials%20BES/CREDITOS.md)** está la lista de
-todo el material que no es propio y de quién lo hizo. Se actualiza cada vez que
-se mete algo nuevo.
+En **[CREDITOS.md](Pokémon%20Ostinato/CREDITOS.md)** está la lista de todo el
+material que no es propio y de quién lo hizo. Se actualiza cada vez que se mete
+algo nuevo.
 
 ## Sobre la licencia
 
@@ -73,7 +84,7 @@ Pokémon y de la comunidad de fangames— cuyos derechos no son míos y que por
 tanto no puedo relicenciar.
 
 Lo que sí es mío es el arte dibujado a mano (portada, cinemática, personajes,
-escenas) y el código de los scripts `Ostinato_`.
+escenas) y el código de los plugins de Ostinato.
 
 Pokémon es propiedad de Nintendo, Game Freak y The Pokémon Company. Esto es un
 proyecto de aficionado, sin ánimo de lucro y sin relación con ellos.
