@@ -1,0 +1,174 @@
+POKÉMON OSTINATO · CONTEXTO DE TRABAJO CON CLAUDE
+Actualizado: 2026-09-30
+
+Para retomar en otro dispositivo: pásale este fichero a Claude al empezar ("lee recursos/CONTEXTO_CLAUDE.txt").
+
+
+================================================================================
+1. REGLAS QUE NO SE SALTAN
+================================================================================
+- PROHIBIDO ABRIR EL JUEGO en el ordenador del trabajo (Game.exe, modo debug, pruebas con ventana,
+  RPG Maker XP). Se comprueba todo leyendo los datos y ejecutando código sin el motor; el juego lo
+  prueba David y pasa el errorlog: %APPDATA%\Pokemon Ostinato\errorlog.txt
+- Antes de escribir mapas o System.rxdata: RPG Maker XP CERRADO (si está abierto, al guardar machaca).
+  Comprobar con `tasklist | findstr RPGXP`.
+- Switches y variables del guion: número del guion + 50 (del 14 al 68 los usa Essentials/Sky).
+  El prólogo usa además 101-104.
+- Los scripts de Plugins/Ostinato/ van en ASCII puro (sin tildes ni ñ, también en comentarios) y con
+  finales de línea CRLF. Tras editar con Python, volver a poner CRLF.
+- No inventar diálogo del guion de David: si falta una frase, dejar un hueco marcado "(por escribir)".
+  (Las frases de gente de fondo, científicos, etc. sí se pueden proponer; él las revisa.)
+- Nada de contenido sexual (se rechazó el meme de Vaporeon; se puso una curiosidad de la Pokédex).
+- David quiere calidad ("que esté guapo"), pixel art limpio sin reescalar a ojo, y planos ASCII de
+  1 carácter = 1 tile en vez de documentos largos.
+
+
+================================================================================
+2. EL PROYECTO
+================================================================================
+Repositorio: https://github.com/Daavidmp/juego-pokemon-ostinato  (rama main)
+  Pokémon Ostinato/        el juego: La Base de Sky 1.2.1.1 = Essentials v21.1 en castellano, Gen 9
+  recursos/                guiones de diálogo, herramientas, piezas de tilesets, migración
+  Overworlds/              sprites de seguidores sueltos
+Documentos de diseño (fuera del repo): C:\Users\david.martinez\Documents\Pokemon-Ostinato\
+  OSTINATO-ACTO0-PROLOGO-GIMNASIO1.md  (manda en el prólogo), OSTINATO-PLANOS-01..05.md,
+  OSTINATO-v4-*.md, biblia. Generadores de planos en _planos_src/ (maps.py, doc5.py, e2b.py,
+  sonaja_plano.py). PDF: node _build-planos.mjs <md> + Chrome headless.
+
+Motor: se migró de Essentials BES v5 (fork de v16.2) a La Base de Sky (v21.1). El proyecto BES se
+quitó del repo; si queda la carpeta "Pokémon Essentials BES" en disco son solo copias del devkit.
+  - Pantalla 682x384 (16:9), pantalla completa, 60 fps. Plugin Ostinato en Plugins/Ostinato/.
+  - Las escenas de 1920x1080 suben el búfer con OstinatoHD.con { } (001_Compatibilidad.rb).
+    enableHires en mkxp.json está DESACTIVADO a propósito.
+  - Los plugins y el PBS solo se compilan al abrir el juego en debug (desde RPG Maker).
+
+Mapas (Data/MapNNN.rxdata): 1 Intro · 2 Pueblo Preludio 40x35 · 3 casa de Kaia (planta baja) ·
+43 habitación de Kaia · 4 casa genérica · 5 su piso de arriba · 6 y 8 casas de vecinos ·
+7 laboratorio 25x25 · 9 Ruta 1 · 10 Ruta 2 · 11 Ruta 3 · 12 Villa Bambalina · 13 teatro interior.
+
+
+================================================================================
+3. CÓMO ESTÁ HECHO EL PRÓLOGO (Plugins/Ostinato/)
+================================================================================
+001 Compatibilidad (pantalla, HD, mp3, menú de carga con MenuHandlers) · 002 Arranque · 003 Título ·
+004 Cinemática · 005 Laboratorio (escena de Arce) · 006 Prologo (despertar, cocina, puerta, laboratorio,
+fuga, vecinos, salida) · 007 Farolas · 008 Pantallas512 · 009 PrologoDeDia · 010 InicialesEnElPueblo ·
+011 MiniSprigatito.
+
+- Los personajes de las escenas y la gente de fondo NO son eventos del mapa: se crean por script al
+  entrar (ids 900+). OstMapa.sprites les da sprite.
+- Diálogos: OstDlg.run([[png, lado], ...], artes). El texto va como IMAGEN (Graphics/Titles/xxxTxtNN.png)
+  generada con recursos/herramientas/textos.ps1:
+      powershell -File textos.ps1 <PREFIJO> <fichero.txt> "<ruta>\Graphics\Titles"
+  Cada línea del .txt es "lado|texto" (lado: izq, der, izq2, cap). OJO: borra antes todos los PNG que
+  empiecen por ese prefijo. Frases de 2 líneas como mucho (el script avisa).
+  Guiones de texto: recursos/guion_*.txt (vecinos_normales, vecinos_casas, cientificos,
+  iniciales_pueblo, minijuegos, fuga_laboratorio, prologo...).
+- OstinatoVecinos.GENTE (006): mapa => [x, y, mira, charset, primera, última, prefijo, anima?].
+  Preludio: 9 vecinos recolocados con sentido (banco, salida, fuente...) + Stoutland del vecino viejo.
+  Casas: mapa 6 (cocina, niña), 8 (el que vuelve a comer, chaval), 4 (el de la tele).
+  Laboratorio: 3 científicos (Slowpoke, Poké Balls, Alakazam) + Vaporeon y su profesor bajo la
+  librería de arriba a la izquierda. Ninguno pisa el camino de la fuga (col 15 filas 8-11, col 14
+  filas 11-22, (13,22)) ni los sitios de Kaia (14,9), Lira (12,9) y Arce (13,7).
+- 009: durante el prólogo la hora es siempre mediodía (pbGetTimeNow). Acaba al llegar a la Ruta 1
+  con la salida abierta (SW 78) -> enciende SW 84.
+- 010: tras la fuga (SW 73) los tres iniciales salen en Preludio: Mudkip en la fuente (10,20),
+  Fennekin en la hierba alta (17,10), Sprigatito en el columpio (31,9). Al hablarles: su frase y su
+  minijuego; al ganarlo "se encariña contigo" (ME Pkmn get) y te sigue con Followers de la v21.
+
+Switches propios: 72 fuga terminada · 73 los tres se han escapado · 74/75/76 Mudkip/Fennekin/
+Sprigatito devuelto al laboratorio · 78 salida sur abierta · 84 fuera del pueblo (fin del prólogo) ·
+85/86/87 Mudkip/Fennekin/Sprigatito te sigue · 101-104 escenas del prólogo vistas.
+
+
+================================================================================
+4. MINIJUEGOS DE LOS INICIALES
+================================================================================
+Idea acordada: al hablar con el inicial se abre una pantalla nueva (1920x1080), al ganar vuelve al
+mapa, sale "se ha encariñado contigo" y te sigue. Con los tres siguiéndote, Kaia va al laboratorio,
+habla con Arce y los tres se ponen delante de la mesa.
+
+HECHO · SPRIGATITO, "El columpio" (011_MiniSprigatito.rb)
+  Vista desde DETRÁS del columpio mirando al pueblo. El asiento se aleja (sube y encoge) y vuelve
+  (baja y crece). ESPACIO justo cuando vuelve hacia Kaia. 5 empujones buenos -> salta, destello,
+  cae de frente. Nunca se pierde. ~15 s. Tecla ESPACIO que se ilumina, halo, 5 hojitas de progreso.
+  Arte: Graphics/Titles/MiniSprigatito/ (fondo, columpio, sprigatito x3, sprigatito_salta x2).
+  Música: Audio/BGM/Mini Sprigatito.ogg (de "Playground Melody.mp3" de Suno; bucle 11,3 s -> 88,4 s
+  con LOOPSTART/LOOPLENGTH y fundido cruzado; -16 LUFS). SE: Audio/SE/Columpio chirrido/acierto/
+  empuje/fallo.ogg. El salto suena con el grito de Sprigatito.
+  Ajustes (constantes arriba del fichero): PERIODO 2,2 s, AMP_PASO, VENTANA de acierto, EMPUJES 5.
+  Base común OstMini (fundidos, pergamino de instrucciones, música/SE con repuesto si falta).
+  Probar sin jugar el prólogo: en debug, SW 73 = ON y entrar en Pueblo Preludio.
+  Pendiente: que David lo pruebe en el juego y dé feedback de tiempos/volumen.
+
+POR HACER · MUDKIP, "La fuente" (tipo osu)
+  Fondo de la fuente, Mudkip en pixel art moviéndose (reutilizar Graphics/Titles/EscMudkip.png, 76
+  fotogramas de 176x196). Ondas de agua que se cierran sobre círculos con una tecla dentro; pulsar
+  esa tecla en el momento exacto hace sonar una nota. ~30 s de notas; al acertarlas todas suena la
+  canción entera. Sin perder (las falladas vuelven).
+  DECIDIR: teclas -> flechas o Z X C V.
+  Arte (Graphics/Titles/MiniMudkip/): fondo 1920x1080 · circulo ~200 · anillo ~400 · tecla_* ~90 ·
+  acierto/fallo 4-6 fotogramas ~300.
+  Audio: BGM "Mini Mudkip base" (sin melodía, tempo FIJO, p.ej. 100 bpm, ~30 s) · BGM "Mini Mudkip
+  completa" (con melodía) · SE "Nota 1".."Nota 8" · SE de fallo suave.
+
+POR HACER · FENNEKIN, "La hierba alta" (martillo)
+  Vista con arbustos que se mueven. Se mueve con el RATÓN un martillo; clic = animación de golpe.
+  Pillar a Fennekin 5 veces: asoma la cola unos segundos, cada vez más difícil; hay que darle a la
+  cola. DECIDIR: martillo de juguete (propuesta: de goma, con "¡pi!") o normal.
+  Motor: Input.mouse_x / mouse_y / Input.trigger?(Input::MOUSELEFT) existen en Sky.
+  Arte (Graphics/Titles/MiniFennekin/): fondo · arbusto 3 fotogramas ~260x220 · cola 3 fotogramas ·
+  fennekin_sale ~300 · martillo 3 fotogramas ~160 · golpe 4 fotogramas.
+  Audio: BGM juguetón en bucle · SE zas del martillo, golpe en vacío, golpe en la cola, crujido de hojas.
+
+POR HACER · la llegada al laboratorio con los tres, y los interruptores 74-76 (devuelto).
+
+
+================================================================================
+5. FLUJO DE ARTE Y AUDIO
+================================================================================
+Arte: Adobe Firefly (modelo Gemini Flash). Base de prompt:
+  "Pixel art de alta calidad estilo Pokémon Negro/Blanco (quinta generación), mismo estilo que la
+   imagen de referencia. Contorno oscuro, sombreado limpio, colores vivos pero suaves. Sin texto ni
+   marcas de agua."  Personajes/objetos sobre fondo blanco liso (se recortan después).
+  Referencias útiles: Graphics/Titles/EscFondo.png (estilo de las escenas), sprites de
+  Graphics/Characters/Followers/, recortes del mapa (Downloads\mini_sprigatito\referencias\).
+  Procesado: medir la rejilla de píxel de Firefly (casi siempre 5,73 px por píxel de arte en 16:9;
+  ojo con los múltiplos) y tomar un color por celda; nunca reescalar a ojo. Luego x8 exacto.
+  Script de ejemplo: Downloads\mini_sprigatito\proceso\procesar.py (usa pixelar.py de
+  Downloads\sonaja\). Sonidos de Firefly: recortar a mano (ffmpeg silenceremove se comió un sonido).
+Música: Suno (Instrumental). Prompt tipo:
+  "classic handheld monster-collecting RPG soundtrack, <tema>, <instrumentos>, catchy memorable
+   melody, <tonalidad>, steady <N> bpm, clean professional mix, game OST, loopable, no fade out,
+   instrumental, no vocals". Generar varias, descargar WAV si se puede.
+  Montaje: ffmpeg portátil (pip imageio-ffmpeg), buscar bucle comparando espectros, fundido cruzado
+  de 60 ms en el salto, ganancia fija a -16 LUFS, OGG con LOOPSTART/LOOPLENGTH (en muestras).
+  (Pendiente de confirmar en el juego que mkxp lee las marcas de bucle.)
+
+
+================================================================================
+6. HERRAMIENTAS
+================================================================================
+- pkmn-devkit (C:\Users\david.martinez\pkmn-devkit): lee/escribe .rxdata (devkit/rxdata/marshal.py,
+  project.py con copias en .devkit_backups/, ignoradas por git). App PySide6 (Python de Windows
+  C:\Python314 tiene PySide6).
+  ¡OJO! entrenadores.py + recursos/entrenadores.txt se escribieron para BES (formato v16). Tras la
+  migración a la v21 ya NO valen tal cual: en la v21 vuelve a servir el formato por comentarios del
+  generador original del devkit (devkit/events/trainer.py). Revisar antes de usar.
+- Ruby para comprobar scripts sin el motor: ruby3.2 de Ubuntu extraído con dpkg -x en una carpeta
+  temporal (ruby -c = sintaxis). Se pueden ejecutar minijuegos con imitaciones de Sprite/Bitmap/
+  Graphics/Input para ver que llegan al final (así se encontró que jugar devolvía nil).
+- Volcar eventos de un mapa / dibujar un mapa con su tileset y casillas pisables: scripts sencillos
+  con el devkit (se rehacen en un momento si hace falta).
+
+
+================================================================================
+7. OTRAS COSAS YA HECHAS
+================================================================================
+- Tileset de Villa Bambalina (Exterior1 + piezas de Firefly) y de Ciudad Sonaja (casas en 3 vistas:
+  frente/espalda/piñón, suelos de 1 casilla, autotile del bordillo). Material en recursos/bambalina,
+  recursos/sonaja y Downloads\sonaja\ (scripts construir.py, suelo.py, maqueta.py, plano.py).
+- Plano de Sonaja 36x38 en el guion del acto 0 y en PLANOS-02 (mapas 07, 07a El Local, 07b karaoke),
+  con salidas N (Ruta 6), NE (Ruta 9, 3 árboles de Tala) y S (Ruta 4). Cartel del Local en castellano.
+- Pendiente de alinear: v4-03-GUION-I (l.964), v4-06-CONSTRUCCION (T-062) y la biblia todavía
+  describen el gimnasio 1 como escenario de calle.
