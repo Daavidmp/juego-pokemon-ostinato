@@ -5,7 +5,7 @@
 #   se mueve un martillo de juguete; al hacer clic da un golpe, como quien
 #   clava un clavo. La cola de Fennekin sube de un arbusto, se menea un rato y
 #   se vuelve a esconder; hay que darle. Cada vez asoma menos tiempo y algun
-#   arbusto se mueve sin nada dentro para despistar. A la quinta, Fennekin
+#   arbusto se mueve sin nada dentro para despistar. A la decima, Fennekin
 #   sale de un salto. No se puede perder: si no le das, asoma en otro.
 #
 #   El arte va en Graphics/Titles/MiniFennekin/ (fondo, arbusto, cola,
@@ -16,7 +16,7 @@
 module OstinatoMiniFennekin
   DIR = "Graphics/Titles/MiniFennekin/"
   BGM = "Mini Fennekin"
-  CAPTURAS = 5
+  CAPTURAS = 10
 
   # x, y de la base de cada arbusto y su escala. Los de atras a 0,75: sus
   # pixeles de 8 quedan en 6 exactos, sin deformarse.
@@ -24,7 +24,8 @@ module OstinatoMiniFennekin
     [ 520, 830, 0.75], [ 960, 810, 0.75], [1400, 830, 0.75],
     [ 300, 1060, 1.0], [ 740, 1075, 1.0], [1180, 1075, 1.0], [1620, 1060, 1.0]
   ]
-  ASOMA  = [1.80, 1.50, 1.25, 1.05, 0.90]   # segundos que se ve la cola, cada vez menos
+  # segundos que se ve la cola, cada vez menos (uno por captura)
+  ASOMA  = [1.80, 1.65, 1.50, 1.38, 1.26, 1.15, 1.05, 0.97, 0.90, 0.85]
   PAUSA  = [0.9, 1.6]                        # segundos entre una asomada y la siguiente
   SENUELO = 0.35                             # probabilidad de que otro arbusto se mueva a la vez
   GOLPE_F = 12                               # fotogramas que dura el golpe del martillo
@@ -233,10 +234,11 @@ module OstinatoMiniFennekin
     golpe.z = 590
     golpe.visible = false
 
-    # las cinco llamitas del progreso, arriba a la derecha
+    # las llamitas del progreso, arriba a la derecha. La fila acaba siempre en
+    # el mismo sitio (borde derecho en 1876), tenga las que tenga.
     llamas = []
     CAPTURAS.times do |i|
-      llamas.push(OstMini::Icono.new(vp, DIR + "icono_llama.png", 1580 + i * 62, 30))
+      llamas.push(OstMini::Icono.new(vp, DIR + "icono_llama.png", 1876 - 48 - (CAPTURAS - 1 - i) * 54, 30))
     end
 
     chispas = OstMini::Chispas.new(vp, 595)

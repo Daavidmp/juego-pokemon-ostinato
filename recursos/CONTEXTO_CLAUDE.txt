@@ -90,13 +90,15 @@ habla con Arce y los tres se ponen delante de la mesa.
 
 HECHO · SPRIGATITO, "El columpio" (011_MiniSprigatito.rb)
   Vista desde DETRÁS del columpio mirando al pueblo. El asiento se aleja (sube y encoge) y vuelve
-  (baja y crece). ESPACIO justo cuando vuelve hacia Kaia. 5 empujones buenos -> salta, destello,
-  cae de frente. Nunca se pierde. ~15 s. Tecla ESPACIO que se ilumina, halo, 5 hojitas de progreso.
+  (baja y crece). ESPACIO justo cuando vuelve hacia Kaia. 10 empujones buenos -> salta, destello,
+  cae de frente. Nunca se pierde. ~20-25 s. Tecla ESPACIO que se ilumina, halo, 10 hojitas de
+  progreso (la fila acaba siempre en x=1878, se coloca sola según EMPUJES).
   Arte: Graphics/Titles/MiniSprigatito/ (fondo, columpio, sprigatito x3, sprigatito_salta x2).
   Música: Audio/BGM/Mini Sprigatito.ogg (de "Playground Melody.mp3" de Suno; bucle 11,3 s -> 88,4 s
   con LOOPSTART/LOOPLENGTH y fundido cruzado; -16 LUFS). SE: Audio/SE/Columpio chirrido/acierto/
   empuje/fallo.ogg. El salto suena con el grito de Sprigatito.
-  Ajustes (constantes arriba del fichero): PERIODO 2,2 s, AMP_PASO, VENTANA de acierto, EMPUJES 5.
+  Ajustes (constantes arriba del fichero): PERIODO 2,2 s, AMP_PASO 0,07, VENTANA de acierto (una por
+  empujón, de 0,20 a 0,13 s), EMPUJES 10. Se alargó de 5 a 10 el 2026-09-30 (lo pidió David).
   Base común OstMini (fundidos, pergamino de instrucciones, música/SE con repuesto si falta).
   Probar sin jugar el prólogo: en debug, SW 73 = ON y entrar en Pueblo Preludio.
   Pendiente: que David lo pruebe en el juego y dé feedback de tiempos/volumen.
@@ -106,16 +108,19 @@ POR HACER · MUDKIP, "La fuente" (tipo osu)
   fotogramas de 176x196). Ondas de agua que se cierran sobre círculos con una tecla dentro; pulsar
   esa tecla en el momento exacto hace sonar una nota. ~30 s de notas; al acertarlas todas suena la
   canción entera. Sin perder (las falladas vuelven).
-  DECIDIR: teclas -> flechas o Z X C V.
+  Teclas: A S D F (decidido por David el 2026-09-30). Primero el arte y la música (prompts dados
+  el 2026-09-30), después se programa con el material definitivo.
   Arte (Graphics/Titles/MiniMudkip/): fondo 1920x1080 · circulo ~200 · anillo ~400 · tecla_* ~90 ·
   acierto/fallo 4-6 fotogramas ~300.
   Audio: BGM "Mini Mudkip base" (sin melodía, tempo FIJO, p.ej. 100 bpm, ~30 s) · BGM "Mini Mudkip
   completa" (con melodía) · SE "Nota 1".."Nota 8" · SE de fallo suave.
 
-POR HACER · FENNEKIN, "La hierba alta" (martillo)
+HECHO (arte provisional) · FENNEKIN, "La hierba alta" (martillo) (012_MiniFennekin.rb)
   Vista con arbustos que se mueven. Se mueve con el RATÓN un martillo; clic = animación de golpe.
-  Pillar a Fennekin 5 veces: asoma la cola unos segundos, cada vez más difícil; hay que darle a la
-  cola. DECIDIR: martillo de juguete (propuesta: de goma, con "¡pi!") o normal.
+  Pillar a Fennekin 10 veces (CAPTURAS; ASOMA tiene un tiempo por captura, de 1,80 a 0,85 s): asoma
+  la cola unos segundos, cada vez más difícil; hay que darle a la cola. Martillo de juguete.
+  FALTAN: BGM "Mini Fennekin" y SE "Arbusto crujido", "Martillo pi/pof/zas" (ahora suenan repuestos
+  de Essentials; "Martillo zas" no tiene repuesto y no suena).
   Motor: Input.mouse_x / mouse_y / Input.trigger?(Input::MOUSELEFT) existen en Sky.
   Arte (Graphics/Titles/MiniFennekin/): fondo · arbusto 3 fotogramas ~260x220 · cola 3 fotogramas ·
   fennekin_sale ~300 · martillo 3 fotogramas ~160 · golpe 4 fotogramas.

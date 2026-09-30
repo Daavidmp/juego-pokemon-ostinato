@@ -369,11 +369,12 @@ module OstinatoMiniSprigatito
 
   PERIODO   = 2.2       # segundos que tarda una ida y vuelta
   AMP_MIN   = 0.12      # radianes: el balanceo con el que empieza
-  AMP_PASO  = 0.14      # lo que sube con cada empujon bueno
+  AMP_PASO  = 0.07      # lo que sube con cada empujon bueno (10 empujones: llega al mismo vuelo que antes con 5)
   AMP_FALLO = 0.05      # lo que baja si se empuja a destiempo
   AMP_SIGUE = 0.05      # que parte de lo que falta se gana cada fotograma (el empujon no da tirones)
-  EMPUJES   = 5
-  VENTANA   = [0.20, 0.18, 0.16, 0.15, 0.14]   # segundos de margen, cada vez menos
+  EMPUJES   = 10
+  # segundos de margen, cada vez menos
+  VENTANA   = [0.20, 0.19, 0.18, 0.17, 0.16, 0.155, 0.15, 0.145, 0.14, 0.13]
   SUELO     = 1075      # donde aterriza Sprigatito al saltar, delante del columpio
   CERCA     = 1.5       # su tamano ahi: el salto esta a pixel de 4, asi queda a pixel de 6 exacto
 
@@ -433,10 +434,11 @@ module OstinatoMiniSprigatito
     brillo.x = tecla.x
     brillo.y = tecla.y
 
-    # los cinco empujones, arriba a la derecha: hojitas que se van encendiendo
+    # los empujones, arriba a la derecha: hojitas que se van encendiendo. La fila
+    # acaba siempre en el mismo sitio (borde derecho en 1878), tenga las que tenga.
     hojas = []
     EMPUJES.times do |i|
-      hojas.push(OstMini::Icono.new(vp, DIR + "icono_hoja.png", 1590 + i * 60, 36))
+      hojas.push(OstMini::Icono.new(vp, DIR + "icono_hoja.png", 1878 - 48 - (EMPUJES - 1 - i) * 54, 36))
     end
 
     chispas = OstMini::Chispas.new(vp, 750)
