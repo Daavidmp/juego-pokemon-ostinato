@@ -1,34 +1,39 @@
 #===============================================================================
 # Pokemon Ostinato - Minijuego de Fennekin: la cola entre los arbustos
 #
-#   Un prado con siete arbustos (tres al fondo, cuatro delante) que se mecen.
-#   Con el RATON se mueve un martillo de juguete; al hacer clic da un golpe,
-#   como quien clava un clavo. La cola de Fennekin asoma de un arbusto un rato
-#   y hay que darle. Cada vez asoma menos tiempo y algun arbusto se mueve sin
-#   nada dentro para despistar. A la quinta, Fennekin sale de un salto.
-#   No se puede perder: si no le das, asoma en otro arbusto.
+#   Un prado con siete arbustos (tres al fondo, cuatro delante). Con el RATON
+#   se mueve un martillo de juguete; al hacer clic da un golpe, como quien
+#   clava un clavo. La cola de Fennekin sube de un arbusto, se menea un rato y
+#   se vuelve a esconder; hay que darle. Cada vez asoma menos tiempo y algun
+#   arbusto se mueve sin nada dentro para despistar. A la quinta, Fennekin
+#   sale de un salto. No se puede perder: si no le das, asoma en otro.
 #
 #   El arte va en Graphics/Titles/MiniFennekin/ (fondo, arbusto, cola,
-#   fennekin_sale, martillo, golpe). Mientras falte alguna pieza se dibuja una
-#   provisional por codigo, asi que el juego ya se puede probar.
-#   Todo esta medido sobre el lienzo de 1920x1080 (usa OstMini, del 011).
+#   fennekin_sale, martillo, golpe, icono_llama), sacado de Firefly con
+#   Downloads/mini_fennekin/proceso/procesar.py. Todo esta medido sobre el
+#   lienzo de 1920x1080 (usa OstMini, del 011).
 #===============================================================================
 module OstinatoMiniFennekin
   DIR = "Graphics/Titles/MiniFennekin/"
   BGM = "Mini Fennekin"
   CAPTURAS = 5
 
-  # x, y de la base de cada arbusto y su escala: los de atras, mas pequenos
+  # x, y de la base de cada arbusto y su escala. Los de atras a 0,75: sus
+  # pixeles de 8 quedan en 6 exactos, sin deformarse.
   ARBUSTOS = [
-    [ 520, 600, 0.80], [ 960, 580, 0.80], [1400, 600, 0.80],
-    [ 300, 900, 1.00], [ 740, 920, 1.00], [1180, 920, 1.00], [1620, 900, 1.00]
+    [ 520, 830, 0.75], [ 960, 810, 0.75], [1400, 830, 0.75],
+    [ 300, 1060, 1.0], [ 740, 1075, 1.0], [1180, 1075, 1.0], [1620, 1060, 1.0]
   ]
   ASOMA  = [1.80, 1.50, 1.25, 1.05, 0.90]   # segundos que se ve la cola, cada vez menos
   PAUSA  = [0.9, 1.6]                        # segundos entre una asomada y la siguiente
   SENUELO = 0.35                             # probabilidad de que otro arbusto se mueva a la vez
-  GOLPE_F = 14                               # fotogramas que dura el golpe del martillo
-  CABEZA_X = 0.47                            # centro de la cabeza del martillo en su dibujo (en fraccion del
-  CABEZA_Y = 0.22                            # fotograma): el raton apunta ahi, y ahi cae el golpe
+  GOLPE_F = 12                               # fotogramas que dura el golpe del martillo
+  IMPACTO = 3                                # fotograma del golpe en el que cae la cabeza
+  CABEZA_X = 0.584                           # centro de la cabeza del martillo en su dibujo (en
+  CABEZA_Y = 0.490                           # fraccion del fotograma): el raton apunta ahi
+  SUBE_F = 11                                # fotogramas que tarda la cola en salir
+  BAJA_F = 9                                 # y en esconderse
+  SUELO  = 1040                              # donde aterriza Fennekin al final
 
   def self.jugar
     ganado = false
@@ -38,83 +43,8 @@ module OstinatoMiniFennekin
     return ganado
   end
 
-  #-----------------------------------------------------------------------------
-  # Arte (o su provisional)
-  #-----------------------------------------------------------------------------
   def self.arte(nombre)
-    b = OstMini.bmp(DIR + nombre + ".png")
-    return b if b
-    return provisional(nombre)
-  end
-
-  def self.mancha(b, cx, cy, rx, ry, color)
-    y = -ry
-    while y <= ry
-      ancho = (rx * Math.sqrt([1.0 - (y.to_f / ry) ** 2, 0.0].max)).to_i
-      b.fill_rect(cx - ancho, cy + y, ancho * 2, 1, color)
-      y += 1
-    end
-  end
-
-  def self.provisional(nombre)
-    case nombre
-    when "fondo"
-      b = Bitmap.new(OstMini::ANCHO, OstMini::ALTO)
-      b.fill_rect(0, 0, OstMini::ANCHO, 380, Color.new(150, 205, 240))
-      b.fill_rect(0, 300, OstMini::ANCHO, 120, Color.new(70, 140, 80))
-      b.fill_rect(0, 420, OstMini::ANCHO, 660, Color.new(120, 190, 90))
-      b.fill_rect(0, 700, OstMini::ANCHO, 380, Color.new(105, 175, 80))
-      return b
-    when "arbusto"      # 3 fotogramas de 260x220, meciendose
-      b = Bitmap.new(780, 220)
-      3.times do |k|
-        dx = k * 260 + (k - 1) * 6
-        mancha(b, dx + 130, 150, 125, 70, Color.new(40, 90, 45))
-        mancha(b, dx + 90, 110, 70, 60, Color.new(60, 130, 60))
-        mancha(b, dx + 170, 105, 70, 62, Color.new(60, 130, 60))
-        mancha(b, dx + 130, 85, 60, 55, Color.new(80, 160, 75))
-      end
-      return b
-    when "cola"         # 3 fotogramas de 120x140: asomando, meneandose, del todo
-      b = Bitmap.new(360, 140)
-      3.times do |k|
-        dx = k * 120
-        alto = [60, 95, 120][k]
-        mancha(b, dx + 60, 140 - alto / 2, 26, alto / 2, Color.new(235, 150, 60))
-        mancha(b, dx + 60 + (k - 1) * 6, 140 - alto + 16, 20, 20, Color.new(250, 230, 200))
-      end
-      return b
-    when "fennekin_sale"
-      b = Bitmap.new(300, 300)
-      mancha(b, 150, 200, 90, 80, Color.new(240, 180, 90))
-      mancha(b, 150, 110, 70, 65, Color.new(250, 200, 110))
-      mancha(b, 95, 50, 22, 45, Color.new(230, 140, 60))
-      mancha(b, 205, 50, 22, 45, Color.new(230, 140, 60))
-      return b
-    when "martillo"     # 3 fotogramas de 160x160: en alto, bajando, golpe
-      b = Bitmap.new(480, 160)
-      3.times do |k|
-        dx = k * 160
-        caida = [0, 20, 42][k]
-        b.fill_rect(dx + 70, 40 + caida / 2, 18, 110 - caida / 2, Color.new(150, 100, 50))
-        b.fill_rect(dx + 20, 10 + caida, 110, 50, Color.new(230, 70, 70))
-        b.fill_rect(dx + 20, 10 + caida, 110, 12, Color.new(250, 140, 140))
-      end
-      return b
-    when "golpe"        # 4 fotogramas de 200x200: estrellitas que se abren
-      b = Bitmap.new(800, 200)
-      4.times do |k|
-        r = 30 + k * 20
-        8.times do |i|
-          a = i * Math::PI / 4
-          x = k * 200 + 100 + (Math.cos(a) * r).to_i
-          y = 100 + (Math.sin(a) * r).to_i
-          b.fill_rect(x - 7, y - 7, 14, 14, Color.new(255, 240, 120))
-        end
-      end
-      return b
-    end
-    return Bitmap.new(8, 8)
+    return OstMini.bmp(DIR + nombre + ".png")
   end
 
   #-----------------------------------------------------------------------------
@@ -141,39 +71,136 @@ module OstinatoMiniFennekin
   end
 
   #-----------------------------------------------------------------------------
+  # La cola de un arbusto: sube desde detras de las hojas, se menea, y baja.
+  # Se dibuja desde su punta hacia abajo y se recorta antes del pie del arbusto,
+  # asi nunca asoma por debajo.
+  #-----------------------------------------------------------------------------
+  class Cola
+    attr_reader :estado, :sprite
+    def initialize(vp, bmp, d, aw, ah, z)
+      @b = bmp
+      @cw = bmp.width / 3
+      @ch = bmp.height
+      @x, @base, @esc = d
+      @s = Sprite.new(vp)
+      @s.bitmap = bmp
+      @s.ox = @cw / 2
+      @s.oy = 0
+      @s.x = @x
+      @s.zoom_x = @esc
+      @s.zoom_y = @esc
+      @s.z = z
+      @s.visible = false
+      @arriba = @base - ah * @esc * 0.93             # la copa del arbusto
+      @fuera = @base - ah * @esc * 0.72 - @ch * @esc  # punta de la cola, del todo fuera
+      @corte = @base - ah * @esc * 0.60               # la cola no se dibuja por debajo de aqui
+      @dentro = @arriba + 24 * @esc                   # punta de la cola, escondida
+      @estado = nil
+      @t = 0
+      @p = 0.0
+      @desde = 1.0
+    end
+    def sacar; @estado = :sube; @t = 0; end
+    def esconder
+      return if !@estado || @estado == :baja
+      @desde = @p          # baja desde donde este, aunque no hubiera salido del todo
+      @estado = :baja
+      @t = 0
+    end
+    def golpear; @estado = :golpe; @t = 0; end
+    def visible?; @estado == :fuera || (@estado == :sube && @t >= 3); end
+    def fuera?; @estado == :fuera || @estado == :sube; end
+
+    # la punta del martillo cae dentro de lo que se ve de la cola (con margen)
+    def dentro?(px, py)
+      return false if !visible?
+      ancho = @cw * @esc * 0.5 + 30
+      return false if px < @s.x - ancho || px > @s.x + ancho
+      return py >= @s.y - 30 && py <= @arriba + 40
+    end
+
+    def update
+      return if !@estado
+      @t += 1
+      f = 0
+      zx = @esc
+      zy = @esc
+      case @estado
+      when :sube
+        p = OstMini.rebote(@t.to_f / SUBE_F)
+        if @t >= SUBE_F
+          @estado = :fuera
+          @t = 0
+        end
+      when :fuera
+        p = 1.0
+        f = (@t < 6) ? 0 : [0, 1, 0, 2][(@t / 7) % 4]    # meneo: centro, izquierda, centro, derecha
+      when :baja
+        p = @desde * (1.0 - OstMini.entra(@t.to_f / BAJA_F))
+        if @t >= BAJA_F
+          @estado = nil
+          @s.visible = false
+          return
+        end
+      when :golpe
+        # se aplasta con el golpe y se mete de golpe
+        if @t <= 4
+          p = 1.0
+          zx = @esc * 1.25
+          zy = @esc * 0.72
+        else
+          p = 1.0 - OstMini.sale((@t - 4) / 7.0)
+        end
+        if @t >= 11
+          @estado = nil
+          @s.visible = false
+          return
+        end
+      end
+      @p = p
+      top = @dentro + (@fuera - @dentro) * p
+      top += (@esc - zy) * @ch          # aplastada, la punta baja
+      hvis = [[(@corte - top) / zy, @ch].min, 0].max.to_i
+      @s.zoom_x = zx
+      @s.zoom_y = zy
+      @s.y = top.round
+      @s.src_rect = Rect.new(f * @cw, 0, @cw, hvis)
+      @s.visible = true
+    end
+    def dispose; @s.dispose if !@s.disposed?; end
+  end
+
+  #-----------------------------------------------------------------------------
   def self.juego(vp, telon)
     begin
       Graphics.show_cursor = false
     rescue
     end
 
-    fondo = Sprite.new(vp)
-    fondo.bitmap = arte("fondo")
-    fondo.z = 0
+    fondo = OstMini.fondo(vp, DIR + "fondo.png")
 
     ab = arte("arbusto")
     aw = ab.width / 3
     ah = ab.height
     cola_b = arte("cola")
-    cw = cola_b.width / 3
-    ch = cola_b.height
+    sombra_b = OstMini.bmp(OstMini::COMUN + "sombra.png")
 
-    # cada arbusto: su sprite y, detras, el de la cola (que asoma por arriba)
+    # cada arbusto: su sombra, la cola detras y el arbusto delante
     matas = []
     colas = []
+    sombras = []
     ARBUSTOS.each_with_index do |d, i|
-      c = Sprite.new(vp)
-      c.bitmap = cola_b
-      c.src_rect = Rect.new(0, 0, cw, ch)
-      c.ox = cw / 2
-      c.oy = ch
-      c.x = d[0] + (aw * d[2] * 0.18).to_i
-      c.y = d[1] - (ah * d[2] * 0.62).to_i
-      c.zoom_x = d[2]
-      c.zoom_y = d[2]
-      c.z = 10 + i * 2
-      c.visible = false
-      colas.push(c)
+      sb = Sprite.new(vp)
+      sb.bitmap = sombra_b
+      sb.ox = sombra_b.width / 2
+      sb.oy = sombra_b.height / 2
+      sb.x = d[0]
+      sb.y = d[1] - (14 * d[2]).to_i
+      sb.zoom_x = d[2]
+      sb.zoom_y = d[2]
+      sb.z = 5
+      sombras.push(sb)
+      colas.push(Cola.new(vp, cola_b, d, aw, ah, 10 + i * 2))
       s = Sprite.new(vp)
       s.bitmap = ab
       s.src_rect = Rect.new(0, 0, aw, ah)
@@ -209,52 +236,79 @@ module OstinatoMiniFennekin
     # las cinco llamitas del progreso, arriba a la derecha
     llamas = []
     CAPTURAS.times do |i|
-      l = Sprite.new(vp)
-      l.bitmap = Bitmap.new(40, 48)
-      dibujar_llama(l.bitmap, false)
-      l.x = 1590 + i * 56
-      l.y = 36
-      l.z = 700
-      llamas.push(l)
+      llamas.push(OstMini::Icono.new(vp, DIR + "icono_llama.png", 1580 + i * 62, 30))
     end
 
+    chispas = OstMini::Chispas.new(vp, 595)
+    viento = OstMini::Ambiente.new(vp, 500, [0, 1, 1, 0, 1])
     cartel = OstMini.cartel(vp, "MiniFenTxt00")
 
     pillados = 0
     t = 0
     meneo = Array.new(ARBUSTOS.length, 0)    # fotogramas que le quedan de sacudida a cada arbusto
+    fuerza = Array.new(ARBUSTOS.length, 1)   # y con cuantos empezo (para que se vaya calmando)
     donde = -1                              # arbusto con la cola fuera (-1: ninguno)
     ultimo = -1
     queda = segundos(PAUSA[0])              # fotogramas hasta el siguiente cambio
     golpeando = 0
     golpe_t = -1
+    quitar_cartel = false
 
-    OstMini.fundir(telon, 0, 20)
+    menear = proc do |i, n|
+      meneo[i] = n
+      fuerza[i] = n
+    end
 
-    while pillados < CAPTURAS
+    # lo que se mueve solo en cada fotograma: arbustos, colas, martillo, efectos
+    mover = proc do
       OstMini.tick
       t += 1
       mx, my = raton
       martillo.x = mx
       martillo.y = my
-
-      # los arbustos se mecen solos, y mas si hay algo moviendose dentro
+      # quietos respiran un poco de lado a lado; sacudidos alternan sus dos poses con hojas
       matas.each_with_index do |s, i|
-        f = (t / 16 + i) % 3
+        d = ARBUSTOS[i]
         if meneo[i] > 0
-          f = (t / 3) % 3
+          r = meneo[i].to_f / fuerza[i]
+          s.src_rect = Rect.new((1 + (meneo[i] / 4) % 2) * aw, 0, aw, ah)
+          s.x = d[0] + (Math.sin(meneo[i] * 1.4) * 8 * d[2] * r).round
           meneo[i] -= 1
+        else
+          s.src_rect = Rect.new(0, 0, aw, ah)
+          s.x = d[0] + (Math.sin(t * 0.03 + i * 1.7) * 2).round
         end
-        s.src_rect = Rect.new(f * aw, 0, aw, ah)
       end
+      colas.each { |c| c.update }
+      if golpe_t >= 0
+        golpe.src_rect = Rect.new([golpe_t / 3, 3].min * gw, 0, gw, gb.height)
+        golpe_t += 1
+        if golpe_t > 12
+          golpe.visible = false
+          golpe_t = -1
+        end
+      end
+      chispas.update
+      llamas.each { |l| l.update }
+      viento.update
+      OstMini.temblor(vp)
+      if quitar_cartel
+        cartel.each { |c| c.opacity = [c.opacity - 18, 0].max }
+      end
+    end
+
+    OstMini.fundir(telon, 0, 20) { viento.update }
+
+    while pillados < CAPTURAS
+      mover.call
+      mx, my = raton
 
       # la cola
       queda -= 1
       if donde >= 0
-        edad = segundos(ASOMA[pillados]) - queda
-        colas[donde].src_rect = Rect.new(((edad < 8) ? 0 : ((edad / 10) % 2 + 1)) * cw, 0, cw, ch)
-        if queda <= 0
-          esconder(colas, donde, matas, meneo)
+        if queda <= 0 && colas[donde].fuera?
+          colas[donde].esconder
+          menear.call(donde, 10)
           donde = -1
           queda = segundos(PAUSA[0] + rand * (PAUSA[1] - PAUSA[0]))
         end
@@ -262,43 +316,50 @@ module OstinatoMiniFennekin
         opciones = (0...ARBUSTOS.length).to_a - [ultimo]
         donde = opciones[rand(opciones.length)]
         ultimo = donde
-        colas[donde].visible = true
-        colas[donde].src_rect = Rect.new(0, 0, cw, ch)
-        meneo[donde] = 18
+        colas[donde].sacar
+        menear.call(donde, 16)
         OstMini.se("Arbusto crujido", "GUI sel cursor", 70, 100)
         if rand < SENUELO * (pillados + 1) / CAPTURAS.to_f + 0.1
           otro = ((0...ARBUSTOS.length).to_a - [donde])
-          meneo[otro[rand(otro.length)]] = 22
+          menear.call(otro[rand(otro.length)], 22)
         end
         queda = segundos(ASOMA[pillados])
       end
 
-      # el martillo
+      # el martillo: se inclina, cae (y se aplasta la cabeza) y vuelve a subir
       if golpeando > 0
         golpeando -= 1
         paso = GOLPE_F - golpeando
-        f = (paso < 4) ? 1 : ((paso < 9) ? 2 : 0)
+        f = (paso < IMPACTO) ? 1 : ((paso < IMPACTO + 5) ? 2 : ((paso < IMPACTO + 8) ? 1 : 0))
         martillo.src_rect = Rect.new(f * mw, 0, mw, mb.height)
-        if paso == 4
-          px = mx
-          py = my
-          if donde >= 0 && dentro?(colas[donde], px, py, cw, ch)
+        martillo.y = my + ((paso >= IMPACTO && paso < IMPACTO + 3) ? 6 : 0)
+        if paso == IMPACTO
+          if donde >= 0 && colas[donde].dentro?(mx, my)
             pillados += 1
             OstMini.se("Martillo pi", "Mining hammer", 90, 130)
             begin
               GameData::Species.play_cry_from_species(:FENNEKIN, 0, 85, 100)
             rescue
             end
-            dibujar_llama(llamas[pillados - 1].bitmap, true)
-            cartel.each { |c| c.opacity = 0 } if pillados == 1
-            esconder(colas, donde, matas, meneo)
+            llamas[pillados - 1].encender
+            chispas.lanzar(llamas[pillados - 1].x, llamas[pillados - 1].y, 0.5)
+            chispas.lanzar(mx, my - 40)
+            OstMini.temblar(7)
+            quitar_cartel = true
+            colas[donde].golpear
+            menear.call(donde, 18)
             donde = -1
             queda = segundos(PAUSA[0] + rand * (PAUSA[1] - PAUSA[0]))
+            golpe.zoom_x = golpe.zoom_y = 1.0
+            golpe.opacity = 255
           else
             OstMini.se("Martillo pof", "Mining pick", 70, 90)
+            golpe.zoom_x = golpe.zoom_y = 0.5
+            golpe.opacity = 190
           end
-          golpe.x = px
-          golpe.y = py
+          golpe.x = mx
+          golpe.y = my
+          golpe.src_rect = Rect.new(0, 0, gw, gb.height)
           golpe.visible = true
           golpe_t = 0
         end
@@ -308,94 +369,73 @@ module OstinatoMiniFennekin
       else
         martillo.src_rect = Rect.new(0, 0, mw, mb.height)
       end
-      if golpe_t >= 0
-        golpe.src_rect = Rect.new([golpe_t / 3, 3].min * gw, 0, gw, gb.height)
-        golpe_t += 1
-        if golpe_t > 12
-          golpe.visible = false
-          golpe_t = -1
-        end
-      end
     end
 
     # --- el final: Fennekin sale de un salto del ultimo arbusto -----------------
-    OstMini.opacidad(cartel, 0)
-    colas.each { |c| c.visible = false }
+    quitar_cartel = true
+    colas.each { |c| c.esconder if c.estado }
+    martillo.src_rect = Rect.new(0, 0, mw, mb.height)
     base = ARBUSTOS[ultimo]
+    # primero el arbusto se sacude con ganas
+    menear.call(ultimo, 26)
+    OstMini.se("Arbusto crujido", "GUI sel cursor", 80, 90)
+    26.times { |k| mover.call; OstMini.se("Arbusto crujido", "GUI sel cursor", 70, 110) if k == 12 }
+
     sale = Sprite.new(vp)
     sale.bitmap = arte("fennekin_sale")
     sale.ox = sale.bitmap.width / 2
-    sale.oy = sale.bitmap.height
-    sale.x = base[0]
-    sale.z = 400
-    meneo[ultimo] = 30
+    sale.oy = sale.bitmap.height - 4
+    sale.z = matas[ultimo].z - 1
+    sombra = Sprite.new(vp)
+    sombra.bitmap = sombra_b
+    sombra.ox = sombra_b.width / 2
+    sombra.oy = sombra_b.height / 2
+    sombra.x = 960
+    sombra.y = SUELO - 8
+    sombra.z = 390
+    sombra.opacity = 0
+    menear.call(ultimo, 20)
     begin
       GameData::Species.play_cry_from_species(:FENNEKIN, 0, 90, 100)
     rescue
     end
-    n = 50
+    y_ini = base[1] - ah * base[2] * 0.35
+    n = 48
     n.times do |k|
-      OstMini.tick
-      mx, my = raton
-      martillo.x = mx
-      martillo.y = my
-      matas.each_with_index do |s, i|
-        f = meneo[i] > 0 ? (k / 3) % 3 : (k / 16 + i) % 3
-        meneo[i] -= 1 if meneo[i] > 0
-        s.src_rect = Rect.new(f * aw, 0, aw, ah)
-      end
+      mover.call
       u = (k + 1).to_f / n
-      # sube, se queda un instante arriba y cae delante, en el centro
-      sale.x = (base[0] + (960 - base[0]) * u).to_i
-      sale.y = (base[1] - 60 - 420 * Math.sin(u * Math::PI) + (1020 - base[1]) * u).to_i
-      sale.zoom_x = base[2] + (1.3 - base[2]) * u
-      sale.zoom_y = sale.zoom_x
+      sale.z = 400 if k == 8        # ya ha salido de entre las hojas: por delante de todo
+      # sube estirado, se queda un instante arriba y cae delante, en el centro
+      sale.x = (base[0] + (960 - base[0]) * OstMini.suave(u)).to_i
+      sale.y = (y_ini + (SUELO - y_ini) * u - 440 * Math.sin(u * Math::PI)).to_i
+      esc = base[2] + (1.0 - base[2]) * u
+      estira = 0.16 * (1 - u) ** 2 + 0.08 * OstMini.entra(u)   # al salir y al llegar abajo
+      sale.zoom_x = esc * (1.0 - estira * 0.5)
+      sale.zoom_y = esc * (1.0 + estira)
+      sombra.opacity = (255 * OstMini.entra(u)).to_i
+      sombra.zoom_x = 0.6 + 0.4 * u
+      sombra.zoom_y = sombra.zoom_x
     end
+    sale.y = SUELO
     OstMini.se("Martillo pi", "Mining hammer", 90, 150)
-    40.times do |k|
-      OstMini.tick
-      sale.y = 1020 - (Math.sin(k * Math::PI / 20.0).abs * 36).to_i
-    end
-    OstMini.fundir(telon, 255, 10)
+    chispas.lanzar(960, SUELO - sale.bitmap.height / 2)
+    OstMini.temblar(8)
+    OstinatoMiniSprigatito.brincar(sale, sombra, mover, [0.22, 0.10], [64, 26])
+    30.times { mover.call }
+    OstMini.fundir(telon, 255, 10) { viento.update }
 
     begin
       Graphics.show_cursor = true
     rescue
     end
     [fondo, martillo, golpe, sale].each { |s| OstMini.soltar(s) }
-    (matas + colas).each { |s| s.dispose if s && !s.disposed? }
-    ab.dispose if !ab.disposed?
-    cola_b.dispose if !cola_b.disposed?
-    llamas.each { |l| OstMini.soltar(l) }
+    sombra.dispose if !sombra.disposed?
+    (matas + sombras).each { |s| s.dispose if s && !s.disposed? }
+    colas.each { |c| c.dispose }
+    [ab, cola_b, sombra_b].each { |b| b.dispose if !b.disposed? }
+    llamas.each { |l| l.dispose }
+    [chispas, viento].each { |o| o.dispose }
     cartel.each { |c| OstMini.soltar(c) }
     return true
-  end
-
-  def self.esconder(colas, i, matas, meneo)
-    colas[i].visible = false
-    meneo[i] = 12
-  end
-
-  # la cola se da por golpeada si la punta del martillo cae dentro de su dibujo
-  # (con un poco de margen, que el martillo es grande)
-  def self.dentro?(cola, px, py, cw, ch)
-    return false if !cola.visible
-    ancho = cw * cola.zoom_x * 0.5 + 30
-    arriba = cola.y - ch * cola.zoom_y - 30
-    return false if px < cola.x - ancho || px > cola.x + ancho
-    return false if py < arriba || py > cola.y + 30
-    return true
-  end
-
-  def self.dibujar_llama(b, encendida)
-    b.clear
-    fuera = encendida ? Color.new(240, 120, 40) : Color.new(90, 70, 60, 150)
-    dentro = encendida ? Color.new(255, 220, 110) : Color.new(120, 100, 90, 150)
-    [[18, 0, 4], [14, 6, 12], [10, 12, 20], [6, 18, 28], [4, 24, 32], [4, 30, 32], [6, 36, 28], [10, 42, 20]].each do |x, y, w|
-      b.fill_rect(x, y, w, 6, fuera)
-    end
-    [[16, 24, 8], [12, 30, 16], [14, 36, 12]].each do |x, y, w|
-      b.fill_rect(x, y, w, 6, dentro)
-    end
   end
 end
