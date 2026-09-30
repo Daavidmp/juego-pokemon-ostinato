@@ -11,8 +11,8 @@
 #   (IniTxt, recursos/guion_iniciales_pueblo.txt) y empieza su minijuego. Al
 #   ganarlo "se encarina contigo" y te sigue (interruptores 85, 86, 87), hasta
 #   que lo devuelvas al laboratorio (74, 75, 76).
-#   De momento solo esta montado el de Sprigatito (011_MiniSprigatito.rb); los
-#   otros dos, sin minijuego todavia, solo dicen su frase.
+#   Montados: Sprigatito (011_MiniSprigatito.rb) y Fennekin (012_MiniFennekin.rb).
+#   Mudkip, sin minijuego todavia, solo dice su frase.
 #===============================================================================
 module OstinatoIniciales
   MAPA  = 2
@@ -23,7 +23,7 @@ module OstinatoIniciales
   # interruptor de "te sigue", texto de "se ha encarinado", nombre, minijuego
   TRES = [
     [10, 20, 6, "MUDKIP",     "IniTxt00", 74, 85, "IniTxt03", "Mudkip",     nil],   # en el borde de la fuente
-    [17, 10, 2, "FENNEKIN",   "IniTxt01", 75, 86, "IniTxt04", "Fennekin",   nil],   # en la hierba alta, bajo el laboratorio
+    [17, 10, 2, "FENNEKIN",   "IniTxt01", 75, 86, "IniTxt04", "Fennekin",   "OstinatoMiniFennekin"],   # en la hierba alta, bajo el laboratorio
     [31,  9, 2, "SPRIGATITO", "IniTxt02", 76, 87, "IniTxt05", "Sprigatito", "OstinatoMiniSprigatito"]  # en el columpio
   ]
 

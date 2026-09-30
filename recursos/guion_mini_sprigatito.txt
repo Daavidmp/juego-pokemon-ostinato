@@ -1,0 +1,4 @@
+# INSTRUCCIONES DEL MINIJUEGO DE SPRIGATITO · prefijo MiniSprTxt
+# Una frase por línea, "lado|texto".
+# MiniSprTxt00 · el columpio
+cap|Pulsa ESPACIO justo cuando el columpio vuelva hacia ti.

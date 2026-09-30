@@ -1,0 +1,4 @@
+# INSTRUCCIONES DEL MINIJUEGO DE FENNEKIN · prefijo MiniFenTxt
+# Una frase por línea, "lado|texto".
+# MiniFenTxt00 · la cola entre los arbustos
+cap|Mueve el martillo con el ratón y dale a la cola de Fennekin cuando asome.
