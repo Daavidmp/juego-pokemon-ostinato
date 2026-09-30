@@ -1,0 +1,99 @@
+PROMPTS DEL MINIJUEGO DE MUDKIP, "LA FUENTE" (tipo osu, teclas A S D F)
+2026-09-30
+
+Referencias en Descargas\mini_mudkip\referencias\:
+  estilo_fondo_columpio.png  -> REFERENCIA DE ESTILO (al máximo) para todo el arte
+  fuente_del_pueblo.png      -> cómo es la fuente de Pueblo Preludio (solo para mirarla, NO como
+                                referencia de composición: es vista cenital y el fondo va de frente)
+  plaza_de_la_fuente.png     -> lo que hay alrededor
+
+El juego: Mudkip está en el borde de la fuente. Sobre el agua aparecen círculos con una letra
+(A, S, D o F); una onda grande se va cerrando sobre cada uno y hay que pulsar su tecla justo cuando
+la onda lo toca. Cada acierto hace sonar una nota; al acabar suena la canción entera.
+
+================================================================================
+1. FONDO (1920x1080) · Firefly, 16:9
+================================================================================
+Pixel art de alta calidad estilo Pokémon Negro/Blanco (quinta generación), mismo estilo que la
+imagen de referencia. Contorno oscuro, sombreado limpio, colores vivos pero suaves. Sin texto ni
+marcas de agua. Vista frontal y cercana de una fuente redonda de plaza de pueblo, a la altura de
+los ojos de alguien sentado en el borde: el pretil de piedra gris azulada ocupa la parte de abajo
+de toda la imagen, y detrás, dentro de la pila, una superficie de agua turquesa en calma, amplia y
+despejada, que llena el centro de la imagen. En el centro de la pila, una columna de piedra
+turquesa de dos pisos de la que cae agua en hilos finos. Al fondo, desenfocado por la distancia,
+la plaza de un pueblo tranquilo: suelo de tierra clara, hierba, dos farolas verdes, bancos de
+madera, casas de tejado rojo y árboles. Mediodía soleado, cielo azul con nubes blancas. El agua
+del centro sin reflejos fuertes ni objetos encima, porque ahí se dibujan los círculos del juego.
+
+Excluir: personajes, Pokémon, texto, marco, viñeta, reflejos muy brillantes en el centro del agua.
+
+================================================================================
+2. CÍRCULO (objetivo, ~200 px) · fondo blanco liso
+================================================================================
+Pixel art de alta calidad estilo Pokémon Negro/Blanco, mismo estilo que la imagen de referencia.
+Contorno oscuro, sombreado limpio. Sin texto ni marcas de agua. Un disco redondo de agua visto
+casi de frente, como una gota enorme posada sobre el agua: borde azul oscuro, interior turquesa
+claro con un brillo blanco curvo arriba a la izquierda y el centro liso y claro (ahí va una letra).
+Un solo objeto centrado sobre fondo blanco liso.
+
+================================================================================
+3. ONDA QUE SE CIERRA (~400 px) · fondo blanco liso
+================================================================================
+Pixel art de alta calidad estilo Pokémon Negro/Blanco, mismo estilo que la imagen de referencia.
+Un anillo fino de onda de agua visto casi de frente: un círculo hueco, de grosor fino y parejo,
+azul claro con un filo blanco, el interior completamente vacío. Un solo objeto centrado sobre
+fondo blanco liso. Sin texto ni marcas de agua.
+
+================================================================================
+4. ACIERTO (salpicadura, 5 fotogramas de ~300 px) · fondo blanco liso
+================================================================================
+Pixel art de alta calidad estilo Pokémon Negro/Blanco, mismo estilo que la imagen de referencia.
+Tira horizontal de 5 fotogramas de animación, del mismo tamaño y separados, de una salpicadura
+de agua alegre: 1 una gota que toca el agua, 2 una corona de agua que sube, 3 la corona abierta
+con gotitas y destellos blancos, 4 las gotas cayendo, 5 solo unas ondas pequeñas. Turquesa y
+blanco, contorno oscuro. Fondo blanco liso. Sin texto ni marcas de agua.
+
+================================================================================
+5. FALLO (4 fotogramas de ~300 px) · fondo blanco liso
+================================================================================
+Pixel art de alta calidad estilo Pokémon Negro/Blanco, mismo estilo que la imagen de referencia.
+Tira horizontal de 4 fotogramas de animación, del mismo tamaño y separados, de una gota pequeña
+que cae al agua sin gracia y se deshace en una onda gris azulada que se apaga: 1 la gota, 2 un
+plof pequeño, 3 una onda apagada, 4 casi nada. Colores apagados. Fondo blanco liso. Sin texto.
+
+================================================================================
+6. TECLAS A S D F
+================================================================================
+No hace falta Firefly: se sacan de la tecla ESPACIO del columpio (MiniSprigatito/tecla.png, 3
+fotogramas: normal, encendida y pulsada) cambiando la palabra por la letra, con la misma tipografía
+de píxel. Así quedan idénticas.
+
+================================================================================
+7. MÚSICA · Suno (Instrumental)
+================================================================================
+Dos pistas con la MISMA tonalidad y el MISMO tempo, porque las notas que suenan al acertar tienen
+que encajar con la base. Si en Suno se pueden sacar las pistas por separado (stems), mejor: se
+genera solo la completa y la base sale quitándole la melodía.
+
+a) Mini Mudkip completa (suena al final, cuando se acierta todo):
+classic handheld monster-collecting RPG soundtrack, playful fountain in a sunny village square,
+bright marimba and kalimba lead melody, plucked harp, soft strings, light bouncy percussion, water
+droplet textures, catchy memorable melody, C major, steady 100 bpm, clean professional mix, game OST,
+loopable, no fade out, instrumental, no vocals
+
+b) Mini Mudkip base (suena mientras se juega, SIN melodía):
+classic handheld monster-collecting RPG soundtrack, playful fountain in a sunny village square,
+rhythm section only: soft bouncy drums, round bass, gentle plucked harp chords, water droplet
+textures, no lead melody, simple repeating chord loop, C major, steady 100 bpm, clean professional
+mix, game OST, loopable, no fade out, instrumental, no vocals
+
+Descargar en WAV si se puede. Comprobar que las dos van al mismo tempo.
+
+================================================================================
+8. NOTAS Y SONIDOS
+================================================================================
+Las 8 notas ("Nota 1".."Nota 8") mejor NO generarlas: se sintetizan cuando esté la canción, con un
+timbre de marimba o kalimba, en la escala pentatónica de su tonalidad (así cualquier nota suena
+bien encima de la base).
+Sonido de fallo (Firefly, efectos de sonido): "soft muted water plop, small droplet falling into a
+fountain, short, gentle, no echo". Recortarlo a mano, sin silenceremove.
