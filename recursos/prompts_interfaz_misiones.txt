@@ -1,0 +1,30 @@
+PROMPT · INTERFAZ DE MISIONES estilo "Manual del aventurero" (Genshin Impact) · Adobe Firefly, 16:9
+2026-09-30
+
+Diseño de interfaz de videojuego (UI mockup) a pantalla completa 16:9, pantalla de "Misiones" al
+estilo del Manual del Aventurero de Genshin Impact, adaptada a un juego de Pokémon con pixel art
+de alta calidad estilo Pokémon Negro/Blanco. Aspecto de libro-cuaderno de viaje abierto sobre un
+fondo desenfocado de un pueblo soleado: papel color crema envejecido con textura suave, bordes y
+esquinas con filigrana dorada fina, cantos de tapa en azul marino oscuro. A la izquierda, una
+columna vertical de pestañas con iconos sencillos (misión principal con una estrella, misiones
+secundarias con una hoja, encargos con un sobre, completadas con un tic), la pestaña activa
+resaltada en dorado. En el centro-izquierda, una lista de misiones en tarjetas alargadas
+redondeadas: cada una con un icono circular a la izquierda, una línea de título y una línea más
+fina debajo, y la tarjeta seleccionada con borde dorado brillante. A la derecha, el panel de
+detalle de la misión seleccionada: una ilustración enmarcada arriba (una plaza de pueblo con una
+fuente), debajo bloques de texto de relleno como líneas grises, una lista de objetivos con
+casillas redondas (una marcada), y abajo una fila de recompensas en casillas cuadradas con
+objetos (una Poké Ball, una baya, una poción) y un botón alargado dorado. Paleta: crema, dorado
+suave, azul marino y toques turquesa. Limpio, legible, elegante, mucho espacio entre elementos.
+
+Excluir: texto legible, letras, números, logotipos, marcas de agua, personajes, estilo 3D
+realista, colores saturados, desorden.
+
+Notas:
+- El texto lo pongo yo después en el juego: por eso se piden "líneas grises" en vez de letras
+  (Firefly escribe letras sin sentido).
+- Si sale demasiado "pintado" y poco pixel, quita "pixel art..." y deja "ilustración 2D plana de
+  interfaz de videojuego"; luego lo paso a píxel yo.
+- Para sacar las piezas por separado (tarjeta, pestaña, casilla de objetivo, casilla de
+  recompensa, botón), pide cada una sola "centrada sobre fondo blanco liso", con la misma
+  descripción de colores.

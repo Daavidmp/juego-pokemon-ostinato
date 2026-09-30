@@ -1,0 +1,4 @@
+# INSTRUCCIONES DEL MINIJUEGO DE MUDKIP · prefijo MiniMudTxt
+# Una frase por línea, "lado|texto".
+# MiniMudTxt00 · la fuente
+cap|Pulsa A, S, D o F justo cuando la onda se cierre sobre su círculo.

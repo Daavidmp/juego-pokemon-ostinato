@@ -103,17 +103,20 @@ HECHO · SPRIGATITO, "El columpio" (011_MiniSprigatito.rb)
   Probar sin jugar el prólogo: en debug, SW 73 = ON y entrar en Pueblo Preludio.
   Pendiente: que David lo pruebe en el juego y dé feedback de tiempos/volumen.
 
-POR HACER · MUDKIP, "La fuente" (tipo osu)
-  Fondo de la fuente, Mudkip en pixel art moviéndose (reutilizar Graphics/Titles/EscMudkip.png, 76
-  fotogramas de 176x196). Ondas de agua que se cierran sobre círculos con una tecla dentro; pulsar
-  esa tecla en el momento exacto hace sonar una nota. ~30 s de notas; al acertarlas todas suena la
-  canción entera. Sin perder (las falladas vuelven).
-  Teclas: A S D F (decidido por David el 2026-09-30). Primero el arte y la música (prompts dados
-  el 2026-09-30), después se programa con el material definitivo.
-  Arte (Graphics/Titles/MiniMudkip/): fondo 1920x1080 · circulo ~200 · anillo ~400 · tecla_* ~90 ·
-  acierto/fallo 4-6 fotogramas ~300.
-  Audio: BGM "Mini Mudkip base" (sin melodía, tempo FIJO, p.ej. 100 bpm, ~30 s) · BGM "Mini Mudkip
-  completa" (con melodía) · SE "Nota 1".."Nota 8" · SE de fallo suave.
+HECHO · MUDKIP, "La fuente" (tipo osu) (013_MiniMudkip.rb)
+  Vista de frente de la fuente. Mudkip en medio, de pie en el borde de delante; los círculos salen
+  en el agua a su altura (8 SITIOS, 4 a cada lado, sin taparle). Una onda se cierra sobre cada
+  círculo y hay que pulsar su tecla (A S D F) justo cuando lo toca: suena una nota, salpica y
+  Mudkip salta contento. 32 notas en el pulso de la base (NOTAS, MELODIA). Sin perder: la fallada
+  vuelve más tarde. Al acabar NO suena ninguna canción (a David no le gustaba): la base se apaga,
+  grito de Mudkip, la fuente salpica ~2,6 s y fundido.
+  Arte (Graphics/Titles/MiniMudkip/): fondo 1936x1096 (x8) · circulo · anillo · acierto x5 ·
+  fallo x2 · tecla_a/s/d/f x3 (de la tecla ESPACIO del columpio) · mudkip x3 (quieto) ·
+  mudkip_contento x2 (salto y aterrizaje), de Firefly, x5 y alineados por los pies.
+  Audio: BGM "Mini Mudkip base" (100,09 bpm, 48 pulsos, bucle exacto) · SE "Mudkip nota 1".."8"
+  (marimba, pentatónica de Do) · SE "Mudkip fallo". Prompts en recursos/prompts_mini_mudkip.txt.
+  Probado con bot el 2026-09-30: 32 aciertos, una fallada que vuelve, final correcto.
+  Pendiente: que David lo pruebe y ajuste VENTANA (0,14 s) / AJUSTE (retraso del audio).
 
 HECHO (arte provisional) · FENNEKIN, "La hierba alta" (martillo) (012_MiniFennekin.rb)
   Vista con arbustos que se mueven. Se mueve con el RATÓN un martillo; clic = animación de golpe.

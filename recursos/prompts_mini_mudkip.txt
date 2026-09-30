@@ -69,7 +69,7 @@ fotogramas: normal, encendida y pulsada) cambiando la palabra por la letra, con 
 de píxel. Así quedan idénticas.
 
 ================================================================================
-7. MÚSICA · Suno (Instrumental)
+7. MÚSICA · Suno (Instrumental)  [la "completa" ya no se usa: el final va sin canción]
 ================================================================================
 Dos pistas con la MISMA tonalidad y el MISMO tempo, porque las notas que suenan al acertar tienen
 que encajar con la base. Si en Suno se pueden sacar las pistas por separado (stems), mejor: se
@@ -97,3 +97,35 @@ timbre de marimba o kalimba, en la escala pentatónica de su tonalidad (así cua
 bien encima de la base).
 Sonido de fallo (Firefly, efectos de sonido): "soft muted water plop, small droplet falling into a
 fountain, short, gentle, no echo". Recortarlo a mano, sin silenceremove.
+
+================================================================================
+8. MUDKIP (el personaje, en medio de la pantalla) · Firefly, fondo blanco liso
+================================================================================
+Referencias de estilo: estilo_fondo_columpio.png y, sobre todo, MiniSprigatito/sprigatito.png y
+MiniFennekin/fennekin_sale.png (para que Mudkip salga con el mismo trazo, grosor de pixel y
+sombreado que los otros dos). Se genera cada tira por separado, en 16:9.
+
+a) mudkip.png (quieto, 3 fotogramas):
+Pixel art de alta calidad estilo Pokémon Negro/Blanco, mismo estilo que las imágenes de
+referencia: contorno negro grueso, sombreado limpio de dos tonos, colores vivos. Sin texto ni
+marcas de agua. Tira horizontal de 3 fotogramas de animación del mismo tamaño, separados y
+alineados por abajo, del Pokémon Mudkip de cuerpo entero, de frente al espectador, de pie sobre
+sus cuatro patas y mirando al frente con cara alegre: cuerpo azul claro, mejillas con las
+agallas naranjas en forma de estrella, aleta azul en la cabeza, cola con aleta. 1 quieto, 2
+respirando con el cuerpo un poco más bajo y la aleta de la cabeza algo doblada, 3 igual que el 1
+pero con la cola moviéndose hacia un lado. Mismo tamaño y posición en los tres. Fondo blanco liso.
+
+b) mudkip_contento.png (al acertar, 2 fotogramas):
+Pixel art de alta calidad estilo Pokémon Negro/Blanco, mismo estilo que las imágenes de
+referencia: contorno negro grueso, sombreado limpio, colores vivos. Sin texto ni marcas de agua.
+Tira horizontal de 2 fotogramas de animación del mismo tamaño, separados y alineados por abajo,
+del Pokémon Mudkip de cuerpo entero y de frente: 1 dando un saltito de alegría con las cuatro
+patas encogidas, los ojos cerrados en forma de arco y la boca abierta sonriendo; 2 aterrizando
+feliz con las patas delanteras abiertas, la cola hacia arriba y unas gotitas de agua saltando
+alrededor. El mismo Mudkip, del mismo tamaño que en la tira de quieto. Fondo blanco liso.
+
+Excluir en los dos: fondo, suelo, sombra dibujada, texto, otros Pokémon, vista de lado o de
+espaldas.
+
+En el juego: Mudkip va en medio, de pie en el borde de delante de la fuente, y los círculos salen
+en el agua a su altura, a izquierda y derecha de él.
