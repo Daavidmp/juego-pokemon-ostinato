@@ -1,0 +1,19 @@
+# CIENTÍFICOS DEL LABORATORIO · prefijo CienTxt
+# Curiosidades de la Pokédex, contadas por gente que lleva demasiado tiempo con ellas.
+# Una frase por línea, "lado|texto". El número del PNG sale del orden.
+
+# CienTxt00-01 · el del ordenador
+cap|Un Slowpoke tarda cinco segundos en darse cuenta de que algo le duele.
+cap|Llevo tres años intentando cronometrarlo. Nunca me acuerdo de darle al botón.
+# CienTxt02-03 · el de la máquina
+cap|Las Poké Balls se inventaron al ver que los Pokémon encogen cuando están débiles.
+cap|Lo raro es que a nadie se le ocurriera preguntar antes por qué encogían.
+# CienTxt04-05 · la de las librerías
+cap|Dicen que un Alakazam tiene un cociente intelectual de cinco mil.
+cap|Nunca he sabido quién le hizo la prueba, ni si la aprobó el que se la puso.
+# CienTxt06-08 · el de Vaporeon
+cap|Según la Pokédex, sus células se parecen tanto al agua que al sumergirse no se ve.
+cap|Llevo tres semanas intentando encontrarla en la pecera.
+cap|Creo que está ahí.
+# CienTxt09 · Vaporeon
+cap|(El Vaporeon te mira sin parpadear.)

@@ -1,0 +1,4 @@
+# INSTRUCCIONES DE LOS MINIJUEGOS DE LOS INICIALES
+# Una frase por línea, "lado|texto". Cada minijuego tiene su prefijo.
+# MiniSprTxt00 · el columpio de Sprigatito
+cap|Pulsa ESPACIO justo cuando el columpio vuelva hacia ti.

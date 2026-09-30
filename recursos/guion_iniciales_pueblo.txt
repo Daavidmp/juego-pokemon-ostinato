@@ -1,0 +1,14 @@
+# LOS TRES INICIALES, ESCONDIDOS EN PUEBLO PRELUDIO · prefijo IniTxt
+# Provisional: lo que se ve al hablarles mientras no esté montada la forma de hacerlos volver.
+# Una frase por línea, "lado|texto". El número del PNG sale del orden.
+
+# IniTxt00 · Mudkip, en la fuente
+cap|(Mudkip chapotea en la fuente. Te mira y sigue chapoteando.)
+# IniTxt01 · Fennekin, en la hierba alta
+cap|(Entre la hierba asoma una cola. En cuanto te acercas, se esconde.)
+# IniTxt02 · Sprigatito, en el columpio
+cap|(Sprigatito se balancea en el columpio y hace como que no te ha visto.)
+# IniTxt03-05 · al ganar su minijuego, ya en el mapa
+cap|¡Mudkip se ha encariñado contigo! A partir de ahora te sigue.
+cap|¡Fennekin se ha encariñado contigo! A partir de ahora te sigue.
+cap|¡Sprigatito se ha encariñado contigo! A partir de ahora te sigue.

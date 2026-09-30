@@ -1859,7 +1859,7 @@ end
 
 
 #===============================================================================
-# LOS VECINOS DE PUEBLO PRELUDIO
+# LOS VECINOS DE PUEBLO PRELUDIO (y la gente de sus casas y del laboratorio)
 #
 #   Gente del pueblo con la que se puede hablar. No llevan retrato ni placa de
 #   nombre: salen en el cuadro neutro, el mismo de las acotaciones. Los que
@@ -1871,46 +1871,77 @@ end
 #   motor se encarga de girarlos hacia Kaia y de no pisarse con otra cosa.
 #===============================================================================
 module OstinatoVecinos
-  MAPA = 2
   BASE = 940         # ids de evento a partir de aqui, lejos de los del mapa
 
-  # x, y, hacia donde mira, charset, primera frase, ultima frase
-  GENTE = [
-    [ 6, 19, 2, "anciano1",  0,  2],   # el del banco, junto a la fuente
-    [13, 16, 2, "mujer1",    3,  4],   # la de la colada
-    [10, 16, 2, "anciana1",  5,  6],   # la que mira desde la puerta
-    [18,  7, 8, "criadora",  7,  8],   # la de las plantas, junto al parterre
-    [15, 30, 2, "pescador",  9, 10],   # el de la pesca, abajo junto al agua
-    [34, 26, 2, "anciano2", 11, 12],   # el del pokemon viejo
-    [ 8, 18, 2, "anciana2", 13, 14],   # la de las gafas
-    [25, 24, 2, "hombre1",  15, 16],   # el que no se acuerda
-    [28, 17, 2, "veterana", 17, 18]    # la que no sale del pueblo
-  ]
+  # mapa => gente: x, y, hacia donde mira, charset, primera frase, ultima
+  # frase, prefijo de los PNG de texto y, si es un Pokemon, true para que se
+  # mueva en el sitio. Los que van sentados estan ENCIMA del banco o la silla.
+  # Los textos salen de recursos/guion_vecinos_*.txt y guion_cientificos.txt
+  # con recursos/herramientas/textos.ps1.
+  GENTE = {
+    2 => [   # Pueblo Preludio
+      [ 2, 18, 6, "anciano1",  0,  2, "VecTxt"],   # el del banco, sentado mirando al pueblo
+      [13, 16, 2, "mujer1",    3,  4, "VecTxt"],   # la de la colada, delante de su casa
+      [22, 24, 2, "anciana1",  5,  6, "VecTxt"],   # la que mira desde la puerta: la suya da al camino de salida
+      [18,  7, 8, "criadora",  7,  8, "VecTxt"],   # la de las plantas, junto al parterre
+      [20, 33, 4, "pescador",  9, 10, "VecTxt"],   # el de la pesca, en la salida, junto al agua
+      [34, 26, 6, "anciano2", 11, 12, "CasaTxt"],  # el del pokemon viejo: habla de su Stoutland...
+      [35, 26, 4, "Followers/STOUTLAND", 10, 10, "CasaTxt", true],  # ...y su pokemon viejo
+      [ 8, 18, 2, "anciana2", 13, 14, "VecTxt"],   # la de las gafas, buscandolas junto a la fuente
+      [24, 28, 2, "hombre1",  15, 16, "VecTxt"],   # el que no se acuerda, parado antes de la salida
+      [18, 22, 4, "veterana", 17, 18, "VecTxt"]    # la que no sale del pueblo, sentada en el banco
+    ],
+    6 => [   # casa de vecinos 1
+      [ 3,  3, 8, "mujer2",    0,  1, "CasaTxt"],  # la de la cocina
+      [12,  7, 4, "nina",      2,  3, "CasaTxt"]   # la nina
+    ],
+    8 => [   # casa de vecinos 2
+      [ 9,  6, 4, "operario",  4,  5, "CasaTxt"],  # el que vuelve a comer, sentado a la mesa
+      [ 4,  6, 2, "chaval1",   6,  7, "CasaTxt"]   # el chaval
+    ],
+    4 => [   # casa generica
+      [ 7,  5, 8, "veterano",  8,  9, "CasaTxt"]   # el de la tele
+    ],
+    7 => [   # laboratorio: fuera del camino de la fuga y de los sitios de Kaia, Lira y Arce
+      [12,  6, 8, "trainer_SCIENTIST", 0, 1, "CienTxt"],   # el del ordenador, en el taburete
+      [ 8,  5, 8, "tecnico",           2, 3, "CienTxt"],   # el de la maquina
+      [ 8, 14, 8, "cientifica",        4, 5, "CienTxt"],   # la de las librerias
+      [16,  6, 2, "Followers/VAPOREON", 9, 9, "CienTxt", true],  # Vaporeon, bajo la libreria de la esquina
+      [17,  6, 4, "trainer_PROFESSOR", 6, 8, "CienTxt"]    # y a su lado, el que la estudia
+    ]
+  }
 
   # Sin retratos y sin placa: el cuadro neutro y punto.
   ARTES = {}
 
-  def self.disponible?
-    b = OstDlg.bmp(OstDlg::DIR + "VecTxt00.png")
-    return false if !b
-    b.dispose
+  def self.gente
+    return nil if !$game_map
+    return GENTE[$game_map.map_id]
+  end
+
+  def self.disponible?(lista)
+    lista.each do |g|
+      b = OstDlg.bmp(OstDlg::DIR + sprintf("%s%02d.png", g[6], g[4]))
+      return false if !b
+      b.dispose
+    end
     return true
   end
 
-  def self.hablar(i)
-    g = GENTE[i]
+  def self.hablar(mapa, i)
+    g = (GENTE[mapa] || [])[i]
     return if !g
     guion = []
     k = g[4]
     while k <= g[5]
-      guion.push([sprintf("VecTxt%02d", k), "cap"])
+      guion.push([sprintf("%s%02d", g[6], k), "cap"])
       k += 1
     end
     OstDlg.run(guion, ARTES)
   end
 
-  def self.crear(i)
-    g = GENTE[i]
+  def self.crear(lista, i)
+    g = lista[i]
     id = BASE + i
     return if $game_map.events[id]
     ev = RPG::Event.new(g[0], g[1])
@@ -1919,9 +1950,10 @@ module OstinatoVecinos
     # el dibujo va en la pagina, no en el evento: asi aguanta un refresco
     ev.pages[0].graphic.character_name = g[3]
     ev.pages[0].graphic.direction = g[2]
+    ev.pages[0].step_anime = true if g[7]
     ev.pages[0].trigger = 0           # hablarle con el boton
     ev.pages[0].list = [
-      RPG::EventCommand.new(355, 0, ["OstinatoVecinos.hablar(" + i.to_s + ")"]),
+      RPG::EventCommand.new(355, 0, ["OstinatoVecinos.hablar(" + $game_map.map_id.to_s + ", " + i.to_s + ")"]),
       RPG::EventCommand.new(0, 0, [])
     ]
     $game_map.events[id] = Game_Event.new($game_map.map_id, ev, $game_map)
@@ -1929,13 +1961,14 @@ module OstinatoVecinos
 
   def self.poblar
     return if !$game_map || !$game_map.events
-    return if $game_map.map_id != MAPA
-    return if !disponible?
+    lista = gente
+    return if !lista
+    return if !disponible?(lista)
     faltaba = false
     i = 0
-    while i < GENTE.length
+    while i < lista.length
       if !$game_map.events[BASE + i]
-        crear(i)
+        crear(lista, i)
         faltaba = true
       end
       i += 1
@@ -1948,14 +1981,13 @@ module OstinatoVecinos
   end
 
   def self.comprobar
-    return if !$game_map || $game_map.map_id != MAPA
+    return if !gente
     return if !$game_player || $game_player.moving?
     return if $game_temp && ($game_temp.message_window_showing ||
                              $game_temp.player_transferring)
     poblar
   end
 end
-
 
 #===============================================================================
 # LA SALIDA DEL PUEBLO, CERRADA HASTA PASAR POR EL LABORATORIO

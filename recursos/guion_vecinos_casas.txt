@@ -1,0 +1,25 @@
+# VECINOS DE LAS CASAS DE PUEBLO PRELUDIO · prefijo CasaTxt
+# Misma regla que guion_vecinos_normales.txt: costumbres, nada de "hoy".
+# Una frase por línea, "lado|texto". El número del PNG sale del orden.
+
+# CasaTxt00-01 · casa 1 (mapa 6) · LA DE LA COCINA
+cap|Siempre hago comida para cuatro, aunque en casa somos dos.
+cap|Lo que sobra se lo llevo a la vecina. Ella hace lo mismo y me lo devuelve.
+# CasaTxt02-03 · casa 1 (mapa 6) · LA NIÑA
+cap|Mi madre dice que si me como la verdura seré entrenadora.
+cap|Yo creo que eso se lo inventa.
+# CasaTxt04-05 · casa 2 (mapa 8) · EL QUE VUELVE A COMER
+cap|Trabajo fuera del pueblo, pero vuelvo siempre a la hora de comer.
+cap|Por el camino se piensa mejor que en ningún otro sitio.
+# CasaTxt06-07 · casa 2 (mapa 8) · EL CHAVAL
+cap|Cuando sea mayor tendré un Pokémon que vuele, y así no tendré que andar.
+cap|Mi abuelo dice que eso mismo decía él.
+# CasaTxt08-09 · casa genérica (mapa 4) · EL DE LA TELE
+cap|Esta casa la construyó mi padre, y todavía cruje en los mismos sitios.
+cap|El día que deje de crujir, me preocupo.
+# CasaTxt10 · el Stoutland del vecino del Pokémon viejo (mapa 2)
+cap|(El Stoutland abre un ojo, te mira y lo vuelve a cerrar.)
+# CasaTxt11-12 · Preludio (mapa 2) · EL DEL POKEMON VIEJO, con su Stoutland al lado
+# (sustituye a N9a-N9b de guion_vecinos_normales.txt, que hablaban de un Pokémon sin nombrar)
+cap|Este Stoutland lleva conmigo desde que era un Lillipup que me mordía los cordones.
+cap|Ahora ya no muerde nada. Pero cuando me ve atarme los zapatos, todavía me mira.
