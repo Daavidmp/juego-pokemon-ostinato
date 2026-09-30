@@ -64,16 +64,24 @@ fuga, vecinos, salida) · 007 Farolas · 008 Pantallas512 · 009 PrologoDeDia ·
   empiecen por ese prefijo. Frases de 2 líneas como mucho (el script avisa).
   Guiones de texto: recursos/guion_*.txt (vecinos_normales, vecinos_casas, cientificos,
   iniciales_pueblo, minijuegos, fuga_laboratorio, prologo...).
-- OstinatoVecinos.GENTE (006): mapa => [x, y, mira, charset, primera, última, prefijo, anima?].
-  Preludio: 9 vecinos recolocados con sentido (banco, salida, fuente...) + Stoutland del vecino viejo.
-  Casas: mapa 6 (cocina, niña), 8 (el que vuelve a comer, chaval), 4 (el de la tele).
-  Laboratorio: 3 científicos (Slowpoke, Poké Balls, Alakazam) + Vaporeon y su profesor bajo la
-  librería de arriba a la izquierda. Ninguno pisa el camino de la fuga (col 15 filas 8-11, col 14
-  filas 11-22, (13,22)) ni los sitios de Kaia (14,9), Lira (12,9) y Arce (13,7).
+- PERSONAJES = EVENTOS DE LOS MAPAS (desde 2026-09-30, lo pidió David para colocarlos en RPG Maker).
+  El código ya no crea a nadie: los busca por NOMBRE con OstMapa.evento("Lira") y los lleva andando
+  desde donde estén con OstMapa.camino (búsqueda de camino), así se pueden mover en el editor.
+  Nombres que usa el código: "Blanca" (mapa 3), "Lira" (mapa 2: pág. SW 102 con dibujo, SW 103
+  vacía; mapa 7: pág. SW 73 vacía), "Profesora Arce" (7), "Mudkip"/"Fennekin"/"Sprigatito" (2:
+  pág. 1 vacía, SW 73 dibujo + OstinatoIniciales.hablar(i), SW 85-87 y 74-76 vacías).
+  Vecinos: evento normal con Script OstinatoVecinos.hablar("VecTxt", 0, 2) (prefijo, primera, última).
+  Los únicos que siguen creándose en marcha: los tres iniciales al salir de sus bolas en la fuga y
+  el desayuno/vapor de la cocina. SKINS: del tamaño del de Kaia (celda 64x64; los de ANIL de 240x256
+  tienen la misma escala). Nunca los trainer_* de 128x192 (salen enanos). Hay muchos en
+  C:\Users\ASUS\Pictures\POKEMON ANIL V4.13\Pokemon Anil V4.13\Graphics\Characters.
+- DIÁLOGOS EN HD: OstDlg.run hace una foto del mapa, sube a 1920x1080 (OstinatoHD) con la foto de
+  fondo y el cuadro encima a tamaño real; en los pasos "haz" baja al mapa y vuelve. El telediario
+  también va a 1920 (sus 31 PNG se recortaron: traían un marco gris arriba y filos claros).
 - 009: durante el prólogo la hora es siempre mediodía (pbGetTimeNow). Acaba al llegar a la Ruta 1
   con la salida abierta (SW 78) -> enciende SW 84.
 - 010: tras la fuga (SW 73) los tres iniciales salen en Preludio: Mudkip en la fuente (10,20),
-  Fennekin en la hierba alta (17,10), Sprigatito en el columpio (31,9). Al hablarles: su frase y su
+  Fennekin en la hierba alta (17,10), Sprigatito en el columpio (31,9) (eventos del mapa). Al hablarles: su frase y su
   minijuego; al ganarlo "se encariña contigo" (ME Pkmn get) y te sigue con Followers de la v21.
 
 Switches propios: 72 fuga terminada · 73 los tres se han escapado · 74/75/76 Mudkip/Fennekin/

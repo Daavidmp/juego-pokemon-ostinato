@@ -142,7 +142,7 @@ if FileTest.exist?("PRUEBA_MIGRACION.txt")
     end
 
     def self.estado
-      ev = $game_map.events.values.select { |e| e.id >= 900 }.map { |e| "#{e.name}(#{e.x},#{e.y})" }.join(" ")
+      ev = $game_map.events.values.select { |e| e.character_name.to_s != "" }.map { |e| "#{e.name}(#{e.x},#{e.y})" }.join(" ")
       "mapa #{$game_map.map_id} kaia(#{$game_player.x},#{$game_player.y}) " \
       "sw101-104=#{(101..104).map { |i| $game_switches[i] ? 1 : 0 }.join} sw72=#{$game_switches[72]} " \
       "sw73=#{$game_switches[73]} sw78=#{$game_switches[78]} #{ev}"

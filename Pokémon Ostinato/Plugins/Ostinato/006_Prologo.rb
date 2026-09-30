@@ -15,6 +15,76 @@
 #   ventana los vuelve a agrandar. Se ven en su sitio, algo mas blandos.
 #===============================================================================
 module OstMapa
+  # Un evento del mapa por su nombre en el editor ("Lira", "Blanca"...). Los
+  # personajes estan puestos en los mapas con RPG Maker, donde se pueden mover
+  # a mano; el codigo solo los busca para usarlos en las escenas.
+  def self.evento(nombre)
+    return nil if !$game_map || !$game_map.events
+    return $game_map.events.values.find { |e| e.name == nombre }
+  end
+
+  # Los pasos para llevar a un personaje hasta (tx, ty) por donde se pueda
+  # andar, esquivando a los demas. Como sale del sitio donde este puesto en
+  # el editor, se le puede mover alli sin tocar las escenas. La casilla de
+  # llegada vale aunque tenga algo (una puerta es un evento). nil si no hay
+  # camino.
+  def self.camino(ev, tx, ty)
+    return nil if !ev || !$game_map
+    ini = [ev.x, ev.y]
+    fin = [tx, ty]
+    return [] if ini == fin
+    pasos = [[2, 0, 1, PBMoveRoute::DOWN], [4, -1, 0, PBMoveRoute::LEFT],
+             [6, 1, 0, PBMoveRoute::RIGHT], [8, 0, -1, PBMoveRoute::UP]]
+    de = { ini => nil }
+    cola = [ini]
+    while (p = cola.shift)
+      break if p == fin
+      pasos.each do |d, dx, dy, orden|
+        n = [p[0] + dx, p[1] + dy]
+        next if de.key?(n) || !$game_map.valid?(n[0], n[1])
+        if n == fin
+          next if !$game_map.passable?(p[0], p[1], d)
+        else
+          next if !ev.passable?(p[0], p[1], d)
+        end
+        de[n] = [p, orden]
+        cola.push(n)
+      end
+    end
+    return nil if !de.key?(fin)
+    lista = []
+    n = fin
+    while de[n]
+      lista.unshift(de[n][1])
+      n = de[n][0]
+    end
+    return lista
+  end
+
+  # a se gira hacia b (sea donde sea que los haya puesto el editor)
+  def self.mirarse(a, b)
+    return if !a || !b
+    dx = b.x - a.x
+    dy = b.y - a.y
+    return if dx == 0 && dy == 0
+    if dx.abs > dy.abs
+      dx > 0 ? a.turn_right : a.turn_left
+    else
+      dy > 0 ? a.turn_down : a.turn_up
+    end
+  end
+
+  # Lo quita del mapa hasta que se vuelva a entrar (como "Borrar evento");
+  # para que no vuelva, su pagina depende de un interruptor.
+  def self.quitar(ev)
+    return if !ev
+    ev.erase
+    begin
+      sprites
+    rescue
+    end
+  end
+
   # Da sprite a los eventos que se han metido en $game_map.events despues de
   # montar el mapa, y quita los de los eventos que ya no estan.
   def self.sprites
@@ -152,6 +222,49 @@ module OstDlg
     end
   end
 
+  # EL CUADRO EN ALTA RESOLUCION. El mapa se pinta a 682x384 y la pantalla lo
+  # amplia: el pergamino, los retratos y las letras, que estan dibujados a
+  # 1920x1080, perdian toda la definicion al pasar por ese bufer. Mientras hay
+  # cuadro, se hace una foto del mapa, la pantalla sube a 1920x1080 con la foto
+  # ampliada de fondo, y el cuadro va encima a su tamano real. Cuando alguien
+  # tiene que andar (los pasos "haz"), se baja al mapa de verdad y al acabar se
+  # hace otra foto. Si la pantalla ya esta a 1920 (las escenas propias), no
+  # hace nada.
+  def self.hd_subir(estado)
+    return if estado[:arriba]
+    foto = nil
+    begin
+      foto = Graphics.snap_to_bitmap
+    rescue
+      foto = nil
+    end
+    antes = OstinatoHD.subir
+    if !antes
+      foto.dispose if foto && !foto.disposed?
+      return
+    end
+    vpf = Viewport.new(0, 0, Graphics.width, Graphics.height)
+    vpf.z = 99998
+    s = Sprite.new(vpf)
+    if foto
+      s.bitmap = foto
+      s.zoom_x = Graphics.width.to_f / foto.width
+      s.zoom_y = Graphics.height.to_f / foto.height
+    end
+    estado[:antes] = antes
+    estado[:fondo] = s
+    estado[:vpf] = vpf
+    estado[:arriba] = true
+  end
+
+  def self.hd_bajar(estado)
+    return if !estado[:arriba]
+    soltar(estado[:fondo])
+    begin; estado[:vpf].dispose; rescue; end
+    OstinatoHD.bajar(estado[:antes])
+    estado[:arriba] = false
+  end
+
   # guion: lista de pasos
   #   ["DespTxt00", "der"]  una caja de texto, con el rabito a ese lado
   #   ["pausa", 3.0]        un silencio; no hay que pulsar nada
@@ -161,6 +274,8 @@ module OstDlg
   # tiene a una altura: el de Blanca en la cocina la tiene 38 pixeles por
   # encima de donde cae el rabito con la posicion de siempre.
   def self.run(guion, artes, ajustes = nil)
+    estado = {}
+    hd_subir(estado)
     e  = gw.to_f / ART_W
     vp = Viewport.new(0, 0, gw, gh)
     vp.z = 99999
@@ -238,7 +353,10 @@ module OstDlg
           hoja.opacity = 0
           ladoActual = nil
           datosActual = nil
+          # lo que pasa se ve en el mapa de verdad; al volver, foto nueva
+          hd_bajar(estado)
           paso[1].call if paso[1]
+          hd_subir(estado)
           next
         end
         if paso[0] == "tv"
@@ -479,6 +597,7 @@ module OstDlg
       soltar(texto); soltar(caja); soltar(hoja); soltar(nombre)
       arte.each_value { |s| soltar(s) }
       begin; vp.dispose; rescue; end
+      hd_bajar(estado)
     end
   end
 end
@@ -690,11 +809,9 @@ end
 #   acerca y hablan. Acaba con "vamos a ver las noticias un poco", que es lo que
 #   enlaza con la escena del telediario.
 #
-#   Blanca NO esta puesta como evento en el mapa: se crea en marcha, igual que
-#   hace Essentials con los personajes que te siguen (PField_DependentEvents
-#   monta sus Game_Event con RPG::Event.new). Asi la escena no depende de que
-#   el mapa traiga nada preparado. Al recargar el mapa desaparece; cuando haya
-#   que dejarla ahi fija, se pone un evento normal con el charset "blanca".
+#   Blanca es un evento del mapa 3 llamado "Blanca" (charset "blanca"): se
+#   coloca en el editor donde se quiera y la escena la lleva andando desde
+#   alli hasta el lado de Kaia (OstMapa.camino).
 #
 #   Los sitios estan medidos sobre la rejilla de paso del mapa 3: la mesa ocupa
 #   x 5-9 en las filas 7 y 8, y las sillas son las casillas andables de al lado.
@@ -703,11 +820,9 @@ module OstinatoCocina
   MAPA   = 3
   SWITCH = 102     # "la escena de la cocina ya se ha visto"
 
-  MADRE_X  = 3; MADRE_Y  = 5    # junto a la encimera, de espaldas
   CERCA_X  = 7; CERCA_Y  = 9    # se acerca y se queda de pie al lado de Kaia
   SIENTA_X = 8; SIENTA_Y = 9    # y luego se sienta en la silla de al lado
   SILLA_X  = 6; SILLA_Y  = 9    # la silla de abajo a la izquierda, la de Kaia
-  ID_MADRE = 901
 
   # El desayuno puesto: la mesa ocupa las filas 7 y 8, asi que los cacharros
   # van en la fila 8, justo delante de cada silla. Son eventos con dibujo de
@@ -776,23 +891,7 @@ module OstinatoCocina
   end
 
   def self.madre
-    return nil if !$game_map || !$game_map.events
-    return $game_map.events[ID_MADRE]
-  end
-
-  def self.crear_madre
-    return if madre
-    ev = RPG::Event.new(MADRE_X, MADRE_Y)
-    ev.id = ID_MADRE
-    ev.name = "Blanca"
-    g = Game_Event.new($game_map.map_id, ev, $game_map)
-    g.character_name = "blanca"
-    g.turn_up
-    $game_map.events[ID_MADRE] = g
-    begin
-      OstMapa.sprites
-    rescue
-    end
+    return OstMapa.evento("Blanca")
   end
 
   # Lanza una ruta y espera a que termine, sin colgarse si algo va mal.
@@ -842,24 +941,13 @@ module OstinatoCocina
     OstDlg.esperar(0.35)
   end
 
-  # Su madre deja la encimera y se planta al lado de Kaia, mirandola.
-  #
-  # Va RODEANDO la mesa por abajo: baja hasta la fila 10, cruza por delante de
-  # las sillas y sube a la casilla de al lado de Kaia. Antes iba por la fila 9
-  # y le pasaba a Kaia por encima, porque su silla (6,9) esta justo en medio.
-  #
-  # Y anda con la cara quieta: direction_fix hace que no se gire en cada
-  # esquina, que era lo que la hacia cambiar de cara mientras cruzaba.
+  # Su madre deja la encimera y se planta al lado de Kaia, mirandola. Va
+  # andando desde donde este puesta, rodeando la mesa y sin pasar por encima
+  # de Kaia (el camino esquiva a los personajes), mirando a donde va.
   def self.acercarse
     m = madre
     return if !m
-    # Anda mirando a donde va: si baja, de espaldas; si va a la derecha, de
-    # perfil a la derecha. Nada de cara fija, que la dejaba cruzando la cocina
-    # de frente y andando de lado.
-    pasos = []
-    5.times { pasos.push(PBMoveRoute::DOWN) }    # (3,5) -> (3,10), por debajo de las sillas
-    4.times { pasos.push(PBMoveRoute::RIGHT) }   # (3,10) -> (7,10)
-    pasos.push(PBMoveRoute::UP)                  # y sube al hueco de al lado de Kaia
+    pasos = OstMapa.camino(m, CERCA_X, CERCA_Y) || []
     pasos.push(PBMoveRoute::TURN_LEFT)            # ya al lado, se vuelve hacia Kaia
     mover(m, pasos)
     begin
@@ -926,7 +1014,6 @@ module OstinatoCocina
 
   def self.run
     return if !disponible?
-    crear_madre
     poner_mesa
     OstDlg.esperar(0.5)
     mover(madre, [PBMoveRoute::TURN_DOWN])   # se gira: primera vez que se le ve la cara
@@ -979,8 +1066,8 @@ module OstinatoTele
   # parpadea: va aqui como un sprite suelto, colocado en el hueco que le deja
   # la caja roja. Sus medidas son las del lienzo de 1364x768 de las imagenes.
   PUNTO      = "NoticiasPunto.png"
-  PUNTO_CX   = 1108    # centro del hueco dentro de la caja roja
-  PUNTO_CY   = 61
+  PUNTO_CX   = 1109    # centro del hueco dentro de la caja roja
+  PUNTO_CY   = 53
   # el ciclo del parpadeo, en fotogramas: encendido, se apaga, apagado, vuelve
   PUNTO_ON   = 40
   PUNTO_BAJA = 8
@@ -1074,18 +1161,14 @@ module OstinatoTele
     end
   end
 
+  # El mapa se va a negro a su resolucion; las noticias se ven a 1920x1080
+  # (OstinatoHD), como las escenas propias, para que las letras salgan nitidas
+  # y no pasen por el bufer de 682x384. Al apagar la tele se vuelve al mapa.
   def self.run
     return if !disponible?
-    vp = Viewport.new(0, 0, OstDlg.gw, OstDlg.gh)
-    vp.z = 99997
-    e = OstDlg.gw.to_f / ANCHO
-
-    tele = Sprite.new(vp)
-    tele.z = 10
-    tele.zoom_x = e
-    tele.zoom_y = e
-    negro = telon(vp)
-    poner_punto(vp, e)
+    vp0 = Viewport.new(0, 0, OstDlg.gw, OstDlg.gh)
+    vp0.z = 99997
+    negro0 = telon(vp0)
 
     # la musica de la casa se guarda para devolverla al apagar la tele
     antes = nil
@@ -1095,39 +1178,54 @@ module OstinatoTele
     end
 
     begin
-      fundir(negro, 255, 16)
+      fundir(negro0, 255, 16)
       begin
         pbBGMPlay(MUSICA)
       rescue
       end
-      i = 1
-      while i <= CUANTAS
-        nb = OstDlg.bmp(OstDlg::DIR + sprintf("Noticias%02d.png", i))
-        break if !nb
-        OstDlg.swap(tele, nb)
-        fundir(negro, 0, -16) if i == 1
-        esperar_enter
-        i += 1
+      OstinatoHD.con do
+        vp = Viewport.new(0, 0, OstDlg.gw, OstDlg.gh)
+        vp.z = 99997
+        e = OstDlg.gw.to_f / ANCHO
+        tele = Sprite.new(vp)
+        tele.z = 10
+        tele.zoom_x = e
+        tele.zoom_y = e
+        negro = telon(vp)
+        negro.opacity = 255
+        poner_punto(vp, e)
+        begin
+          i = 1
+          while i <= CUANTAS
+            nb = OstDlg.bmp(OstDlg::DIR + sprintf("Noticias%02d.png", i))
+            break if !nb
+            OstDlg.swap(tele, nb)
+            fundir(negro, 0, -16) if i == 1
+            esperar_enter
+            i += 1
+          end
+          # Su madre apaga la tele: la sintonia se va de golpe, sin desvanecer.
+          # Ese silencio seco es el que hace el trabajo despues de lo de Ciudad Muda.
+          begin
+            pbBGMStop
+          rescue
+          end
+          fundir(negro, 255, 16)
+        ensure
+          quitar_punto
+          OstDlg.soltar(tele)
+          OstDlg.soltar(negro)
+          begin; vp.dispose; rescue; end
+        end
       end
-      # Su madre apaga la tele: la sintonia se va de golpe, sin desvanecer.
-      # Ese silencio seco es el que hace el trabajo despues de lo de Ciudad Muda.
-      begin
-        pbBGMStop
-      rescue
-      end
-      fundir(negro, 255, 16)
-      OstDlg.soltar(tele)
-      tele = nil
       begin
         $game_system.bgm_play(antes) if antes && antes.name && antes.name != ""
       rescue
       end
-      fundir(negro, 0, -16)
+      fundir(negro0, 0, -16)
     ensure
-      quitar_punto
-      OstDlg.soltar(tele) if tele
-      OstDlg.soltar(negro)
-      begin; vp.dispose; rescue; end
+      OstDlg.soltar(negro0)
+      begin; vp0.dispose; rescue; end
     end
   end
 end
@@ -1141,35 +1239,26 @@ end
 #   al laboratorio subiendo por el camino de tierra, y Kaia se queda en la
 #   puerta. A partir de ahi manda el jugador.
 #
-#   Lira no esta puesta en el mapa: se crea en marcha, igual que Blanca en la
-#   cocina, y se borra en cuanto se va. Asi la escena no depende de que el
-#   mapa traiga nada preparado.
+#   Lira es un evento del mapa 2 llamado "Lira": sale con el interruptor 102
+#   (cocina vista) y deja de salir con el 103 (esta escena vista), que se
+#   enciende al acabar. Se coloca en el editor; al irse va andando desde alli
+#   hasta la puerta del laboratorio (OstMapa.camino).
 #===============================================================================
 module OstinatoPuerta
   MAPA   = 2         # Pueblo Preludio
   SWITCH = 103       # "la escena de la puerta ya se ha visto"
   ANTES  = 102       # y no salta si antes no se ha visto la cocina
 
-  ID_LIRA = 921      # un hueco alto, para no pisar los eventos del mapa
-  LIRA_X  = 33       # dos casillas por debajo de la puerta: asi Kaia puede
-  LIRA_Y  = 22       # salir del portal y se quedan de cara, sin pisarse
-  PUERTA_Y = 20      # la casilla de la puerta, donde aparece Kaia al salir
-  CHARSET = "sora"
+  PUERTA_X = 33      # la casilla de la puerta de casa, donde aparece Kaia
+  PUERTA_Y = 20      # al salir
+  LAB_X    = 25      # la puerta del laboratorio, a donde se va Lira
+  LAB_Y    = 7
   DEPRISA = 5        # velocidad al irse; la de andar normal es 4
 
   ARTES = {
     "izq" => ["DlgLira.png", 174, 465, "DlgNomLira"],
     "der" => ["DlgKaia.png", 1333, 503, "DlgNomKaia"]
   }
-
-  # El camino hasta la puerta del laboratorio, en (25,7), en pares de
-  # [cuantos pasos, hacia donde]. Sacado de la rejilla de paso del mapa:
-  # cruza por delante de casa esquivando el buzon de (30,21) y sube pegada al
-  # camino de tierra. No atraviesa nada.
-  CAMINO = [
-    [4, PBMoveRoute::LEFT], [1, PBMoveRoute::UP],   [3, PBMoveRoute::LEFT],
-    [13, PBMoveRoute::UP],  [1, PBMoveRoute::LEFT], [1, PBMoveRoute::UP]
-  ]
 
   def self.guion
     [
@@ -1215,32 +1304,7 @@ module OstinatoPuerta
   end
 
   def self.lira
-    return nil if !$game_map || !$game_map.events
-    return $game_map.events[ID_LIRA]
-  end
-
-  def self.crear_lira
-    return if lira
-    ev = RPG::Event.new(LIRA_X, LIRA_Y)
-    ev.id = ID_LIRA
-    ev.name = "Lira"
-    g = Game_Event.new($game_map.map_id, ev, $game_map)
-    g.character_name = CHARSET
-    g.turn_up
-    $game_map.events[ID_LIRA] = g
-    begin
-      OstMapa.sprites
-    rescue
-    end
-  end
-
-  def self.quitar_lira
-    return if !lira
-    $game_map.events.delete(ID_LIRA)
-    begin
-      OstMapa.sprites
-    rescue
-    end
+    return OstMapa.evento("Lira")
   end
 
   # Lanza una ruta y espera a que termine, sin colgarse si algo va mal.
@@ -1275,15 +1339,15 @@ module OstinatoPuerta
   end
 
   def self.irse
-    pasos = []
-    CAMINO.each { |tramo| tramo[0].times { pasos.push(tramo[1]) } }
+    l = lira
+    return if !l
     begin
-      lira.move_speed = DEPRISA
+      l.move_speed = DEPRISA
     rescue
     end
-    mover(lira, pasos)
+    mover(l, OstMapa.camino(l, LAB_X, LAB_Y) || [])
     OstDlg.esperar(0.25)
-    quitar_lira
+    OstMapa.quitar(l)
   end
 
   # Antes de nada, dejar a Kaia a la vista. Si la escena anterior la dejo
@@ -1309,18 +1373,18 @@ module OstinatoPuerta
     return if !$game_player
     ver_a_kaia
     begin
-      if $game_player.x == LIRA_X && $game_player.y == PUERTA_Y
+      if $game_player.x == PUERTA_X && $game_player.y == PUERTA_Y
         mover($game_player, [PBMoveRoute::DOWN])
-        $game_player.moveto(LIRA_X, PUERTA_Y + 1) if $game_player.y == PUERTA_Y
+        $game_player.moveto(PUERTA_X, PUERTA_Y + 1) if $game_player.y == PUERTA_Y
       end
-      $game_player.turn_down
+      OstMapa.mirarse($game_player, lira)
     rescue
     end
   end
 
   def self.run
-    crear_lira
     salir_de_casa
+    OstMapa.mirarse(lira, $game_player)
     OstDlg.esperar(0.4)
     OstDlg.run(guion, ARTES)
     irse
@@ -1337,9 +1401,10 @@ module OstinatoPuerta
     return if !disponible?
     @corriendo = true
     begin
-      $game_switches[SWITCH] = true
       run
     ensure
+      # al acabar, no antes: con el 103 la pagina de Lira se queda vacia
+      $game_switches[SWITCH] = true
       @corriendo = false
     end
   end
@@ -1359,10 +1424,11 @@ end
 #   izquierda ("izq" y "izq2"): Arce en uno y Lira en el otro, y cuando cambia
 #   el que habla los retratos se cruzan en un fundido.
 #
-#   Arce y Lira no estan puestas en el mapa: se crean al entrar, como Blanca
-#   en la cocina. La charla acaba con "Venga. Acercaos." y sigue sin corte con
-#   la fuga de los tres iniciales (OstinatoFuga, mas abajo). Al acabar se abre
-#   la salida del pueblo.
+#   Arce ("Profesora Arce") y Lira ("Lira") son eventos del mapa 7, puestos
+#   en el editor. Lira deja de salir con el interruptor 73 (los tres se han
+#   escapado): despues se ha ido a buscarlos. La charla acaba con "Venga.
+#   Acercaos." y sigue sin corte con la fuga de los tres iniciales
+#   (OstinatoFuga, mas abajo). Al acabar se abre la salida del pueblo.
 #===============================================================================
 module OstinatoLaboratorio
   MAPA   = 7
@@ -1370,12 +1436,6 @@ module OstinatoLaboratorio
   ANTES  = 103       # y no salta si antes no se ha visto lo de la puerta
   LINEA  = 15        # al pasar de esta fila hacia arriba, arranca
 
-  ID_LIRA = 921
-  ID_ARCE = 922
-  LIRA_X  = 12       # Lira esperando al lado de la alfombra
-  LIRA_Y  = 9
-  ARCE_X  = 13       # la profesora, delante de la mesa de las pokeballs
-  ARCE_Y  = 7
   KAIA_X  = 14       # donde se planta Kaia para hablar
   KAIA_Y  = 9
 
@@ -1431,45 +1491,18 @@ module OstinatoLaboratorio
     return true
   end
 
-  def self.crear(id, x, y, nombre, charset, mirando)
-    return if !$game_map || !$game_map.events
-    return if $game_map.events[id]
-    ev = RPG::Event.new(x, y)
-    ev.id = id
-    ev.name = nombre
-    g = Game_Event.new($game_map.map_id, ev, $game_map)
-    g.character_name = charset
-    case mirando
-    when 2 then g.turn_down
-    when 4 then g.turn_left
-    when 6 then g.turn_right
-    else g.turn_up
-    end
-    $game_map.events[id] = g
-    return g
+  def self.arce
+    return OstMapa.evento("Profesora Arce")
   end
 
-  # La profesora esta en el laboratorio siempre, no solo durante la escena: si
-  # el jugador sale y vuelve a entrar, se la encuentra igual. Lira tambien,
-  # hasta la fuga: despues se ha ido a buscarlos y la mesa se queda vacia.
+  def self.lira
+    return OstMapa.evento("Lira")
+  end
+
+  # Con la fuga hecha, las bolas de la mesa ya no estan.
   def self.poblar
-    return if !$game_map || !$game_map.events
-    escapados = OstinatoFuga.escapados?
-    OstinatoFuga.vaciar_mesa if escapados
-    falta = false
-    if !$game_map.events[ID_ARCE]
-      crear(ID_ARCE, ARCE_X, ARCE_Y, "Profesora Arce", "profesora", 2)
-      falta = true
-    end
-    if !escapados && !$game_map.events[ID_LIRA]
-      crear(ID_LIRA, LIRA_X, LIRA_Y, "Lira", "sora", 8)
-      falta = true
-    end
-    return if !falta
-    begin
-      OstMapa.sprites
-    rescue
-    end
+    return if !$game_map
+    OstinatoFuga.vaciar_mesa if OstinatoFuga.escapados?
   end
 
   # Lanza una ruta y espera, sin quedarse colgado si algo se cruza.
@@ -1500,26 +1533,16 @@ module OstinatoLaboratorio
     end
   end
 
-  # Kaia se planta sola en su sitio: primero se pone en la columna y despues
-  # sube. En ese orden, porque subiendo primero se le pondria Lira delante.
+  # Kaia se planta sola en su sitio, rodeando a quien haya en medio, y mira
+  # a la profesora.
   def self.colocar_a_kaia
     return if !$game_player
-    pasos = []
-    x = $game_player.x
-    y = $game_player.y
-    while x < KAIA_X
-      pasos.push(PBMoveRoute::RIGHT); x += 1
-    end
-    while x > KAIA_X
-      pasos.push(PBMoveRoute::LEFT); x -= 1
-    end
-    while y > KAIA_Y
-      pasos.push(PBMoveRoute::UP); y -= 1
-    end
+    pasos = OstMapa.camino($game_player, KAIA_X, KAIA_Y) || []
     mover($game_player, pasos) if pasos.length > 0
     begin
       $game_player.moveto(KAIA_X, KAIA_Y)
       $game_player.turn_up
+      OstMapa.mirarse($game_player, arce)
     rescue
     end
   end
@@ -1577,8 +1600,8 @@ end
 #   y con la fuga hecha (interruptor 73) la mesa se vacia cada vez que se
 #   entra, sin tocar el dibujo del mapa en el editor.
 #
-#   Los tres iniciales, y Lira cuando se va, se crean y se borran en marcha,
-#   como el resto de personajes del prologo. Interruptores del guion, con el
+#   Los tres iniciales salen de sus bolas: se crean y se borran en marcha, no
+#   estan en el mapa. Lira (evento del mapa) se va por la puerta. Interruptores del guion, con el
 #   +50: 72 = la fuga ya ha pasado, 73 = los tres se han escapado (SW 0023).
 #===============================================================================
 module OstinatoFuga
@@ -1601,6 +1624,8 @@ module OstinatoFuga
   LIRA_X = 16
   KAIA_X = 17
   DELANTE_Y = 9
+  PUERTA_X = 13               # la puerta de la calle, por donde se va Lira
+  PUERTA_Y = 23
 
   SONIDO_BOLA = "Battle recall"
 
@@ -1751,8 +1776,8 @@ module OstinatoFuga
   # Kaia y Lira se ponen delante de la mesa, mirandola. Lira baja una fila
   # para no pasar por encima de Kaia, que esta entre ella y la mesa.
   def self.acercarse
-    lira = evento(OstinatoLaboratorio::ID_LIRA)
-    arce = evento(OstinatoLaboratorio::ID_ARCE)
+    lira = OstinatoLaboratorio.lira
+    arce = OstinatoLaboratorio.arce
     kaia = []
     x = $game_player.x
     while x < KAIA_X
@@ -1762,9 +1787,8 @@ module OstinatoFuga
     kaia.push(PBMoveRoute::TURN_UP)
     pasosLira = []
     if lira
-      pasosLira.push(PBMoveRoute::DOWN)
-      (LIRA_X - lira.x).times { pasosLira.push(PBMoveRoute::RIGHT) }
-      pasosLira.push(PBMoveRoute::UP)
+      # desde donde este, rodeando a Kaia, que esta entre ella y la mesa
+      pasosLira = OstMapa.camino(lira, LIRA_X, DELANTE_Y) || []
       pasosLira.push(PBMoveRoute::TURN_UP)
     end
     mover_juntos([[$game_player, kaia, 0], [lira, pasosLira, 6]])
@@ -1812,7 +1836,7 @@ module OstinatoFuga
       rutas.push([g, pasos, 1 + i * 14])
     end
     # Kaia y Lira los siguen con la mirada: se giran hacia la puerta
-    lira = evento(OstinatoLaboratorio::ID_LIRA)
+    lira = OstinatoLaboratorio.lira
     mover_juntos(rutas + [[$game_player, [PBMoveRoute::TURN_DOWN], 60],
                           [lira, [PBMoveRoute::TURN_DOWN], 50]])
     # ya en la calle: se van del mapa
@@ -1830,15 +1854,12 @@ module OstinatoFuga
 
   # Lira se va a buscarlos, deprisa, por el mismo camino.
   def self.lira_se_va
-    lira = evento(OstinatoLaboratorio::ID_LIRA)
+    lira = OstinatoLaboratorio.lira
     return if !lira
     lira.move_speed = DEPRISA
-    pasos = [PBMoveRoute::DOWN]
-    (lira.x - 14).times { pasos.push(PBMoveRoute::LEFT) }
-    12.times { pasos.push(PBMoveRoute::DOWN) }
-    pasos += [PBMoveRoute::LEFT, PBMoveRoute::DOWN]
+    pasos = OstMapa.camino(lira, PUERTA_X, PUERTA_Y) || []
     mover_juntos([[lira, pasos, 0], [$game_player, [PBMoveRoute::TURN_DOWN], 0]])
-    borrar(OstinatoLaboratorio::ID_LIRA)
+    OstMapa.quitar(OstinatoLaboratorio.lira)
   end
 
   # Al acabar la escena, pase lo que pase por el camino, queda todo en su
@@ -1847,7 +1868,7 @@ module OstinatoFuga
     $game_switches[SW_FUGA] = true
     $game_switches[SW_ESCAPE] = true
     BOLAS.each_index { |i| borrar(ID_POKE + i) }
-    borrar(OstinatoLaboratorio::ID_LIRA)
+    OstMapa.quitar(OstinatoLaboratorio.lira)
     vaciar_mesa
     begin
       $game_player.instance_variable_set(:@move_route_forcing, false)
@@ -1865,127 +1886,32 @@ end
 #   nombre: salen en el cuadro neutro, el mismo de las acotaciones. Los que
 #   tienen cara son los del reparto; el pueblo habla desde el cuadro pelado.
 #
-#   No estan puestos como eventos en el mapa: se crean al entrar, igual que
-#   Blanca o Arce. Cada uno lleva su pagina con una sola orden, una llamada a
-#   OstinatoVecinos.hablar, asi que se disparan con el boton de siempre y el
-#   motor se encarga de girarlos hacia Kaia y de no pisarse con otra cosa.
+#   Son eventos normales de los mapas, puestos con RPG Maker: se mueven, se
+#   cambian de cara o de dibujo en el editor. Su pagina tiene una sola orden,
+#   una llamada a guion como
+#       OstinatoVecinos.hablar("VecTxt", 0, 2)
+#   que saca los textos VecTxt00..VecTxt02 (Graphics/Titles), hechos con
+#   recursos/herramientas/textos.ps1 desde recursos/guion_vecinos_*.txt y
+#   guion_cientificos.txt.
 #===============================================================================
 module OstinatoVecinos
-  BASE = 940         # ids de evento a partir de aqui, lejos de los del mapa
-
-  # mapa => gente: x, y, hacia donde mira, charset, primera frase, ultima
-  # frase, prefijo de los PNG de texto y, si es un Pokemon, true para que se
-  # mueva en el sitio. Los que van sentados estan ENCIMA del banco o la silla.
-  # Los textos salen de recursos/guion_vecinos_*.txt y guion_cientificos.txt
-  # con recursos/herramientas/textos.ps1.
-  GENTE = {
-    2 => [   # Pueblo Preludio
-      [ 2, 18, 6, "anciano1",  0,  2, "VecTxt"],   # el del banco, sentado mirando al pueblo
-      [13, 16, 2, "mujer1",    3,  4, "VecTxt"],   # la de la colada, delante de su casa
-      [22, 24, 2, "anciana1",  5,  6, "VecTxt"],   # la que mira desde la puerta: la suya da al camino de salida
-      [18,  7, 8, "criadora",  7,  8, "VecTxt"],   # la de las plantas, junto al parterre
-      [20, 33, 4, "pescador",  9, 10, "VecTxt"],   # el de la pesca, en la salida, junto al agua
-      [34, 26, 6, "anciano2", 11, 12, "CasaTxt"],  # el del pokemon viejo: habla de su Stoutland...
-      [35, 26, 4, "Followers/STOUTLAND", 10, 10, "CasaTxt", true],  # ...y su pokemon viejo
-      [ 8, 18, 2, "anciana2", 13, 14, "VecTxt"],   # la de las gafas, buscandolas junto a la fuente
-      [24, 28, 2, "hombre1",  15, 16, "VecTxt"],   # el que no se acuerda, parado antes de la salida
-      [18, 22, 4, "veterana", 17, 18, "VecTxt"]    # la que no sale del pueblo, sentada en el banco
-    ],
-    6 => [   # casa de vecinos 1
-      [ 3,  3, 8, "mujer2",    0,  1, "CasaTxt"],  # la de la cocina
-      [12,  7, 4, "nina",      2,  3, "CasaTxt"]   # la nina
-    ],
-    8 => [   # casa de vecinos 2
-      [ 9,  6, 4, "operario",  4,  5, "CasaTxt"],  # el que vuelve a comer, sentado a la mesa
-      [ 4,  6, 2, "chaval1",   6,  7, "CasaTxt"]   # el chaval
-    ],
-    4 => [   # casa generica
-      [ 7,  5, 8, "veterano",  8,  9, "CasaTxt"]   # el de la tele
-    ],
-    7 => [   # laboratorio: fuera del camino de la fuga y de los sitios de Kaia, Lira y Arce
-      [12,  6, 8, "trainer_SCIENTIST", 0, 1, "CienTxt"],   # el del ordenador, en el taburete
-      [ 8,  5, 8, "tecnico",           2, 3, "CienTxt"],   # el de la maquina
-      [ 8, 14, 8, "cientifica",        4, 5, "CienTxt"],   # la de las librerias
-      [16,  6, 2, "Followers/VAPOREON", 9, 9, "CienTxt", true],  # Vaporeon, bajo la libreria de la esquina
-      [17,  6, 4, "trainer_PROFESSOR", 6, 8, "CienTxt"]    # y a su lado, el que la estudia
-    ]
-  }
-
   # Sin retratos y sin placa: el cuadro neutro y punto.
   ARTES = {}
 
-  def self.gente
-    return nil if !$game_map
-    return GENTE[$game_map.map_id]
-  end
-
-  def self.disponible?(lista)
-    lista.each do |g|
-      b = OstDlg.bmp(OstDlg::DIR + sprintf("%s%02d.png", g[6], g[4]))
-      return false if !b
-      b.dispose
-    end
-    return true
-  end
-
-  def self.hablar(mapa, i)
-    g = (GENTE[mapa] || [])[i]
-    return if !g
+  def self.hablar(prefijo, desde, hasta = nil)
+    hasta ||= desde
     guion = []
-    k = g[4]
-    while k <= g[5]
-      guion.push([sprintf("%s%02d", g[6], k), "cap"])
+    k = desde
+    while k <= hasta
+      nombre = sprintf("%s%02d", prefijo, k)
+      b = OstDlg.bmp(OstDlg::DIR + nombre + ".png")
+      if b
+        b.dispose
+        guion.push([nombre, "cap"])
+      end
       k += 1
     end
-    OstDlg.run(guion, ARTES)
-  end
-
-  def self.crear(lista, i)
-    g = lista[i]
-    id = BASE + i
-    return if $game_map.events[id]
-    ev = RPG::Event.new(g[0], g[1])
-    ev.id = id
-    ev.name = "Vecino" + i.to_s
-    # el dibujo va en la pagina, no en el evento: asi aguanta un refresco
-    ev.pages[0].graphic.character_name = g[3]
-    ev.pages[0].graphic.direction = g[2]
-    ev.pages[0].step_anime = true if g[7]
-    ev.pages[0].trigger = 0           # hablarle con el boton
-    ev.pages[0].list = [
-      RPG::EventCommand.new(355, 0, ["OstinatoVecinos.hablar(" + $game_map.map_id.to_s + ", " + i.to_s + ")"]),
-      RPG::EventCommand.new(0, 0, [])
-    ]
-    $game_map.events[id] = Game_Event.new($game_map.map_id, ev, $game_map)
-  end
-
-  def self.poblar
-    return if !$game_map || !$game_map.events
-    lista = gente
-    return if !lista
-    return if !disponible?(lista)
-    faltaba = false
-    i = 0
-    while i < lista.length
-      if !$game_map.events[BASE + i]
-        crear(lista, i)
-        faltaba = true
-      end
-      i += 1
-    end
-    return if !faltaba
-    begin
-      OstMapa.sprites
-    rescue
-    end
-  end
-
-  def self.comprobar
-    return if !gente
-    return if !$game_player || $game_player.moving?
-    return if $game_temp && ($game_temp.message_window_showing ||
-                             $game_temp.player_transferring)
-    poblar
+    OstDlg.run(guion, ARTES) if guion.length > 0
   end
 end
 
@@ -2093,7 +2019,6 @@ class Scene_Map
     OstinatoCocina.comprobar
     OstinatoPuerta.comprobar
     OstinatoLaboratorio.comprobar
-    OstinatoVecinos.comprobar
     OstinatoSalida.comprobar
   end
 end
