@@ -1,0 +1,51 @@
+PROMPTS · BOTÓN DE INTERACTUAR Y BOCADILLO DE LOS PERSONAJES SIN RETRATO · Adobe Firefly
+2026-09-30
+
+Referencia de estilo para los dos (subir en "Referencia de estilo"): Descargas\referencia_cuadro.png
+(el pergamino con marco de rama y flores del diálogo, DlgCuadroN.png). Así todo parece del mismo
+juego. Si se quiere, añadir también referencia_hoja.png (la hojita de "pulsa para seguir").
+
+================================================================================
+1. BOTÓN "ENTER" (abajo a la derecha, sale al acercarte a algo) · fondo blanco liso, 1:1
+================================================================================
+Ilustración 2D de interfaz de videojuego, mismo estilo que la imagen de referencia: un botón
+redondeado de pergamino color crema con textura suave de papel, enmarcado por una rama fina
+enroscada de color marrón con dos hojitas verdes y una florecilla rosa en una esquina. En el
+centro, grabado en tinta marrón oscura, el símbolo de la tecla Enter: una flecha que baja y gira
+a la izquierda (↵), grande, limpia y centrada. Ligero relieve, sombra suave debajo, bordes
+nítidos. Un solo objeto centrado sobre fondo blanco liso. Aspecto acogedor y elegante, como de
+cuaderno de viaje.
+
+Excluir: letras, palabras, números, texto, marcas de agua, fondo, estilo 3D realista, metal,
+brillo plástico.
+
+Para la animación, pedir además con el mismo prompt:
+  b) "...el mismo botón PULSADO: hundido un poco, la sombra más corta y la tinta algo más oscura"
+  c) "...el mismo botón con un brillo suave dorado alrededor del marco" (para que palpite)
+Si Firefly dibuja mal la flecha, genéralo SIN el símbolo ("el centro liso, sin nada") y la flecha
+la pongo yo encima en píxel, igual que la tecla ESPACIO del columpio.
+
+================================================================================
+2. BOCADILLO PARA LOS PERSONAJES SIN RETRATO (sale encima de quien habla) · fondo blanco liso, 16:9
+================================================================================
+Ilustración 2D de interfaz de videojuego, mismo estilo que la imagen de referencia: un bocadillo
+de diálogo pequeño y apaisado de pergamino color crema, con textura suave de papel y bordes
+ligeramente irregulares, enmarcado por una rama fina marrón con hojitas verdes y dos florecillas
+en las esquinas de arriba. Abajo en el centro, un piquito corto de pergamino que apunta hacia
+abajo, hacia quien habla. El interior amplio, liso y vacío (ahí va el texto). Sombra suave.
+Un solo objeto centrado sobre fondo blanco liso.
+
+Excluir: texto, letras, personajes, retratos, fondo, marcas de agua, estilo 3D.
+
+Piezas extra (mismo prompt cambiando el final), para montarlo a cualquier tamaño según lo que
+diga cada vecino:
+  b) "...solo la esquina de arriba a la izquierda del marco, con su florecilla" 
+  c) "...solo un tramo recto horizontal del marco de rama"
+  d) "...solo el piquito de pergamino que apunta hacia abajo"
+Con el bocadillo entero ya me vale: lo corto en 9 trozos (esquinas, lados y centro) para que se
+estire al ancho de cada frase sin deformar las flores.
+
+Cómo quedaría en el juego: al hablar con un vecino, el bocadillo sale encima de su cabeza con el
+piquito apuntándole y el texto dentro; el resto del mapa se ve igual. Otra opción, si se prefiere:
+el cuadro de siempre abajo, pero con una placa pequeña de nombre ("Vecina", "Pescador") en vez de
+retrato.
