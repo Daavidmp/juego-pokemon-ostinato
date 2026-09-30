@@ -1,0 +1,8 @@
+# Opciones de la elección. 0-2 los iniciales, 3-6 lo que siente Kaia.
+der|Mudkip
+der|Fennekin
+der|Sprigatito
+der|Nada.
+der|No sé.
+der|Me da un poco de miedo.
+der|Que es mío.

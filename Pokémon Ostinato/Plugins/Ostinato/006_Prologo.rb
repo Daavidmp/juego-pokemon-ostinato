@@ -1553,11 +1553,8 @@ module OstinatoLaboratorio
     OstDlg.esperar(0.4)
     OstDlg.run(guion, ARTES)
     OstinatoFuga.terminar
-    # a partir de aqui ya puede salir del pueblo
-    begin
-      $game_switches[OstinatoSalida::SWITCH_LAB] = true
-    rescue
-    end
+    # la salida del pueblo ya no se abre aqui: la abre el combate contra Lira
+    # (014_EleccionYCombate), como en el guion (SW 0028)
   end
 
   def self.comprobar
@@ -1935,7 +1932,7 @@ end
 module OstinatoSalida
   MAPA_PUEBLO = 2
   MAPA_RUTA   = 9
-  SWITCH_LAB  = 78   # "ya ha estado en el laboratorio"
+  SWITCH_LAB  = 78   # salida abierta: la abre el combate contra Lira (014)
   ESPERA      = 40   # fotogramas hasta poder repetir el aviso
 
   # las cuatro casillas de la fila de abajo que llevan a la ruta 1

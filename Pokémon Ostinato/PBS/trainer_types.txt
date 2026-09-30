@@ -419,3 +419,8 @@ BaseMoney = 4
 Name = Playera
 Gender = Female
 BaseMoney = 4
+#-------------------------------
+[LIRA]
+Name = Rival
+Gender = Female
+BaseMoney = 8

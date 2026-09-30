@@ -1,0 +1,24 @@
+# Escena 6 del Acto 0: el combate. En el laboratorio (en el guion era la plaza):
+# Lira para a Kaia a media sala al irse. izq = Lira, der = Kaia. Guion p. 16.
+izq|Kaia.
+der|¿Qué.
+izq|Venga.
+der|Aquí.
+izq|Aquí. Es donde estamos.
+izq|Mira, te lo digo antes: te voy a ganar.
+izq|Y no porque yo sea mejor. Es que el mío le gana al tuyo. Es matemática.
+izq|Si te ganase siendo igual de buenas, eso sí sería feo.
+# 08-10 si gana Kaia
+izq|...
+izq|Vale, eso no me lo esperaba.
+izq|No me ha gustado. Pero está bien. Son dos cosas distintas y las dos son verdad.
+# 11-13 si pierde Kaia (con una pausa antes de la 13)
+izq|Te lo he dicho.
+izq|No te pongas así, que te lo he dicho antes de empezar. Eso cuenta.
+izq|Ha estado bien igual.
+# 14-18 las dos ramas
+izq|Me voy ya. Por el sur.
+der|¿Ahora?
+izq|Ahora. Mi madre ya lo sabe y ya hemos discutido lo que teníamos que discutir.
+izq|Kaia.
+izq|Come antes de salir. Que te conozco y te vas sin comer.

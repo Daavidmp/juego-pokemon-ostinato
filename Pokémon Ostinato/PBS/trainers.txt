@@ -117,3 +117,17 @@ Pokemon = CHARIZARD,63
     Item = SITRUSBERRY
 Pokemon = BLASTOISE,63
     Item = SITRUSBERRY
+#-------------------------------
+# Lira, primer combate (Acto 0, escena 6). La versión es el inicial que coge:
+# 0 Mudkip, 1 Fennekin, 2 Sprigatito (el de la derecha del que coge Kaia).
+[LIRA,Lira,0]
+LoseText = ...
+Pokemon = MUDKIP,5
+#-------------------------------
+[LIRA,Lira,1]
+LoseText = ...
+Pokemon = FENNEKIN,5
+#-------------------------------
+[LIRA,Lira,2]
+LoseText = ...
+Pokemon = SPRIGATITO,5

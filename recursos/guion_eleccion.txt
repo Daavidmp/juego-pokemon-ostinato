@@ -1,0 +1,19 @@
+# Escena 5 del Acto 0: la elección. En el laboratorio, cuando Kaia trae a los tres.
+# izq = Arce, izq2 = Lira, der = Kaia. Frases del guion (OSTINATO-ACTO0, p. 14).
+# Quitadas «He traído uno yo.» / «Has traído uno tú. Sí. Y ella dos.»: aquí los tres los trae Kaia.
+izq|Ahí los tenéis.
+izq|No los voy a volver a guardar. Ya han dicho lo que tenían que decir.
+izq|Tú primero.
+izq2|¿Por qué ella primero?
+izq|Porque los ha traído ella.
+izq2|Vale.
+# (se elige: Mudkip, Fennekin o Sprigatito)
+izq|Bien.
+izq|¿Y ahora qué sientes?
+# (Kaia: cuatro respuestas, ninguna es la buena)
+izq|Vale.
+izq2|Pues yo el que le gana al tuyo.
+izq|Lira.
+izq2|¿Qué? Es verdad. Es el que le gana. No me lo estoy inventando.
+# (el tercero, en el suelo del laboratorio, si se le habla)
+cap|(Levanta la cabeza. Vuelve a bajarla.)
