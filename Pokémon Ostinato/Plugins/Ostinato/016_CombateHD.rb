@@ -672,15 +672,17 @@ class Battle::Scene::FightMenu
   def ost_colocar
     @buttons.each_with_index do |s, i|
       sel = (i == @index)
-      dx = sel ? 10 : 0
+      dx = sel ? 14 : 0
       s.x = OST_BOTONES[i][0] + dx
-      s.y = OST_BOTONES[i][1]
-      s.tone = sel ? Tone.new(40, 40, 40) : Tone.new(-30, -30, -30)
+      s.y = OST_BOTONES[i][1] - (sel ? 4 : 0)
+      s.tone = sel ? Tone.new(30, 30, 30) : Tone.new(-55, -55, -55, 60)
+      s.zoom_x = s.zoom_y = sel ? 1.06 : 1.0
+      s.opacity = (@ostVacio && @ostVacio[i]) ? 110 : 255
       ic = @ostIconos[i]
       ic.x = s.x - s.ox + OST_CIRCULO[0]
       ic.y = s.y - s.oy + OST_CIRCULO[1]
-      ic.visible = @visible && @visibility["button_#{i}"]
-      @visibility["icono_#{i}"] = @visibility["button_#{i}"]
+      ic.visible = @visible && @visibility["button_#{i}"] && !(@ostVacio && @ostVacio[i])
+      @visibility["icono_#{i}"] = @visibility["button_#{i}"] && !(@ostVacio && @ostVacio[i])
     end
   end
 
@@ -705,11 +707,16 @@ class Battle::Scene::FightMenu
     return ostcomb_refreshSelection if !@ost
     moves = (@battler) ? @battler.moves : []
     @buttons.each_with_index do |s, i|
+      @ostVacio ||= []
       if !moves[i]
-        @visibility["button_#{i}"] = false
-        s.visible = false
+        # hueco sin ataque: el boton gris y apagado, sin icono
+        @ostVacio[i] = true
+        @visibility["button_#{i}"] = true
+        s.visible = @visible
+        s.bitmap = OstCombate.bmp("ataques/ataque_NORMAL")
         next
       end
+      @ostVacio[i] = false
       @visibility["button_#{i}"] = true
       s.visible = @visible
       t = OstCombate.tipo_id(moves[i].display_type(@battler))
@@ -742,19 +749,34 @@ class Battle::Scene::FightMenu
     OstCombate.texto(b, pp[0], pp[1] - yb + 90, pp[2], 56, tipo.upcase, 1, Color.new(255, 255, 255))
     # descripcion, potencia y precision
     de = OST_DESC
-    OstCombate.fuente(b, 32)
     gm = GameData::Move.try_get(move.id) rescue nil
     texto = (gm) ? gm.description.to_s : ""
-    lineas = OstCombate.lineas(b, texto, de[2] - 10)
-    lineas = lineas[0, 4]
+    # la letra mas grande que deje el texto en tres lineas
+    tam = 40
+    lineas = []
+    while tam >= 28
+      OstCombate.fuente(b, tam)
+      lineas = OstCombate.lineas(b, texto, de[2] - 20)
+      break if lineas.length <= 3
+      tam -= 2
+    end
+    lineas = lineas[0, 3]
     lineas.each_with_index do |l, i|
-      OstCombate.texto(b, de[0], de[1] - yb + i * 36, de[2], 38, l, 0, Color.new(25, 25, 25))
+      OstCombate.texto(b, de[0] + 6, de[1] - yb + 4 + i * (tam + 4), de[2] - 12, tam + 6, l, 0, Color.new(30, 30, 30))
     end
     pot = (gm && gm.power.to_i > 1) ? gm.power.to_s : "-"
     pre = (gm && gm.accuracy.to_i > 0) ? gm.accuracy.to_s : "-"
+    cat = ["F\u00CDSICO", "ESPECIAL", "ESTADO"][gm ? gm.category : 2] rescue ""
+    # una franja negra abajo con los datos, en tres columnas
+    fy = de[1] - yb + 146
+    b.fill_rect(de[0] - 4, fy, de[2] + 8, 48, Color.new(15, 15, 15))
     OstCombate.fuente(b, 36)
-    OstCombate.texto(b, de[0], de[1] - yb + 150, de[2], 42,
-                     "POTENCIA #{pot}     PRECISI\u00D3N #{pre}", 0, Color.new(180, 20, 20))
+    tercio = (de[2] + 8) / 3
+    [["POT", pot], ["PREC", pre], [cat, nil]].each_with_index do |(et, val), k|
+      txt = val ? "#{et} #{val}" : et
+      OstCombate.texto(b, de[0] - 4 + k * tercio, fy + 2, tercio, 46, txt, 1,
+                       (k == 2) ? Color.new(255, 200, 60) : Color.new(255, 255, 255))
+    end
   end
 
   alias ostcomb_refreshMegaEvolutionButton refreshMegaEvolutionButton
@@ -829,4 +851,27 @@ def pbRepositionMessageWindow(msgwindow, linecount = 2)
   s = msgwindow.instance_variable_get(:@ost_sitio)
   return if !s || !OstCombate.activo?
   msgwindow.x, msgwindow.y, msgwindow.width, msgwindow.height = s
+end
+
+# El boton elegido late un poco, y el ataque elegido tambien
+class Battle::Scene::CommandMenu
+  def update
+    super
+    return if !@ost || !@ostSel || @ostSel.disposed?
+    z = 1.0 + 0.035 * Math.sin(System.uptime * 7)
+    @ostSel.zoom_x = z
+    @ostSel.zoom_y = z
+  end
+end
+
+class Battle::Scene::FightMenu
+  def update
+    super
+    return if !@ost || !@buttons
+    s = @buttons[@index]
+    return if !s || s.disposed?
+    z = 1.06 + 0.025 * Math.sin(System.uptime * 7)
+    s.zoom_x = z
+    s.zoom_y = z
+  end
 end
