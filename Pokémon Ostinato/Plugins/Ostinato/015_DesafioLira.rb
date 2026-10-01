@@ -4,7 +4,7 @@
 #   1. La pantalla del mapa se raja poco a poco (unos 2 s): una grieta en un
 #      sitio, otra en otro, la pantalla entera... y estalla en cristales que
 #      caen.
-#   2. Negro. De golpe, el personaje (a la izquierda, senalando).
+#   2. Negro. De golpe, el personaje (a la izquierda; el dibujo de los creditos).
 #   3. A la derecha cae el "bollo" (una mancha aplastada, como pisada por una
 #      apisonadora) con "LIRA TE DESAFIA" encima.
 #   4. Mientras, la pantalla negra se rompe un poquito: se le sueltan unas
@@ -196,8 +196,8 @@ module OstDesafio
       pj.ox = pj.bitmap.width / 2
       pj.oy = pj.bitmap.height
       pj.x = PERSONAJE_X
-      pj.y = H + 20
-      pj.mirror = true                  # que senale hacia su letrero
+      pj.y = H - 30
+      pj.mirror = false                 # tal cual esta dibujada (CREDITOS, amiga.png)
       pj.visible = false
       bollo = centrado.call("bollo", 7)
       bollo.x = BOLLO_X
