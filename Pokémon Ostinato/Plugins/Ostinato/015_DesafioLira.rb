@@ -38,7 +38,7 @@ module OstDesafio
 
   # la lamina negra se rompe solo por aqui: [centro, radio, en que fotograma empieza]
   ROTURAS = [[[250, 160], 190, 10], [[1760, 950], 200, 40], [[1050, 70], 150, 75],
-             [[1840, 120], 130, 105]]
+             [[1840, 120], 130, 105], [[1010, 980], 130, 60], [[160, 900], 120, 90]]
   CELDA = [96, 90]                 # tamano de las piececitas (rejilla de triangulos)
 
   def self.se(nombre, volumen = 90, tono = 100)
@@ -199,6 +199,25 @@ module OstDesafio
       pj.y = H - 30
       pj.mirror = false                 # tal cual esta dibujada (CREDITOS, amiga.png)
       pj.visible = false
+      # su halo fucsia (con su forma) detras, para que no se pierda en el negro,
+      # y un foco de luz tenue a su espalda
+      halo = Sprite.new(vp_pj)
+      halo.bitmap = bmp("lira_halo")
+      sprites.push(halo)
+      halo.ox = halo.bitmap.width / 2
+      halo.oy = halo.bitmap.height - 40
+      halo.x = pj.x
+      halo.y = pj.y
+      halo.z = -1
+      halo.blend_type = 1
+      halo.opacity = 0
+      foco = centrado.call("foco", 3)
+      foco.blend_type = 1
+      foco.x = PERSONAJE_X
+      foco.y = 560
+      foco.zoom_x = 1.6
+      foco.zoom_y = 1.3
+      foco.opacity = 0
       bollo = centrado.call("bollo", 7)
       bollo.x = BOLLO_X
       bollo.y = BOLLO_Y
@@ -261,7 +280,7 @@ module OstDesafio
               lamina_b.fill_rect(xa, y, xb - xa, 1, Color.new(0, 0, 0, 0))
               pb.fill_rect(xa - bx0, y - by0, xb - xa, 1, Color.new(0, 0, 0))
             end
-            s = nuevo.call(pb, 3)
+            s = nuevo.call(pb, 4)
             s.ox = (q[1] - bx0).round
             s.oy = (q[2] - by0).round
             s.x = q[1].round
@@ -331,16 +350,22 @@ module OstDesafio
       8.times { paso.call }            # un instante de negro
 
       # --- 2. de golpe, el personaje -----------------------------------------------
+      # sale de golpe como una silueta blanca y enseguida toma su color; no se mueve
       se("Vs flash", 100, 100)
       t_pj = t
       pj.visible = true
-      blanco.opacity = 255
-      6.times do |f|
-        u = OstMini.sale((f + 1) / 6.0)
-        blanco.opacity = [blanco.opacity - 45, 0].max
+      pj.tone = Tone.new(255, 255, 255)
+      blanco.opacity = 120
+      12.times do |f|
+        u = OstMini.sale((f + 1) / 12.0)
+        v = (255 * (1 - u)).to_i
+        pj.tone = Tone.new(v, v, v)
+        halo.opacity = (175 * u).to_i
+        foco.opacity = (255 * u).to_i
+        blanco.opacity = [blanco.opacity - 20, 0].max
         paso.call
       end
-      pj.zoom_x = pj.zoom_y = 1.0
+      pj.tone = Tone.new(0, 0, 0)
 
       # --- 3. el bollo, aplastado ---------------------------------------------------
       se("Vs sword", 100, 100)
@@ -374,7 +399,6 @@ module OstDesafio
 
       # --- 4. se queda, y el negro se va desconchando ---------------------------------
       150.times do |f|
-        texto.tone = ((f / 10) % 2 == 1 && f > 30) ? Tone.new(40, 20, 30) : Tone.new(0, 0, 0)
         paso.call
       end
 
@@ -383,7 +407,7 @@ module OstDesafio
       negro_b.fill_rect(0, 0, W, H, Color.new(0, 0, 0))
       negro = nuevo.call(negro_b, 20)
       negro.opacity = 0
-      16.times { |f| negro.opacity = [(f + 1) * 16, 255].min; pj.opacity = 255 - negro.opacity; paso.call }
+      16.times { |f| negro.opacity = [(f + 1) * 16, 255].min; pj.opacity = 255 - negro.opacity; halo.opacity = [halo.opacity, 255 - negro.opacity].min; paso.call }
       viewport.color = Color.new(0, 0, 0, 255) if viewport
     ensure
       vp.ox = 0
