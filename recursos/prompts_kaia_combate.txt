@@ -1,0 +1,30 @@
+PROMPT · KAIA DE ESPALDAS LANZANDO LA POKÉ BALL (sprite de combate) · Adobe Firefly
+2026-10-01
+
+Lo que pide el juego: una tira de 5 fotogramas de 128x128 (POKEMONTRAINER_Leaf_back.png),
+Kaia de espaldas y cortada por la cintura, a pixel de 2 (64x64 de arte por fotograma).
+Firefly no da la rejilla exacta: yo separo los fotogramas, los paso a píxel limpio y
+los monto a ese tamaño.
+
+Ajustes: Proporción Panorámica (16:9) · Tipo de contenido Arte · sin estilos.
+Referencia de ESTILO: Descargas\kaia_combate\referencia_kaia.png (su sprite de frente,
+para que salga ella, con sus colores y el mismo trazo de píxel).
+
+Prompt:
+Pixel art de videojuego estilo Pokémon de quinta generación, mismo personaje y mismos
+colores que la imagen de referencia: una chica de pelo rosa coral recogido en dos
+coletas con lazos blancos, blusa blanca con volantes y pantalón ancho gris claro.
+Tira horizontal de 5 fotogramas de animación del mismo tamaño, separados por espacio en
+blanco y alineados por abajo, de la chica VISTA DE ESPALDAS en tres cuartos (se le ve la
+nuca, las coletas y el hombro izquierdo, la cara casi no), cortada a la altura de la
+cintura, lanzando una Poké Ball hacia delante con el brazo derecho:
+1 de pie, tranquila, con la Poké Ball en la mano junto a la cadera;
+2 gira un poco el cuerpo y echa el brazo hacia atrás, las coletas se mueven;
+3 el brazo arriba por detrás de la cabeza, a punto de lanzar;
+4 lanza: el brazo estirado hacia delante y arriba, la mano abierta, la bola ya no está;
+5 termina el gesto: el brazo baja hacia delante y las coletas siguen el movimiento.
+Gesto propio, con energía y algo de soltura, no rígido. Contorno oscuro, sombreado limpio
+de dos o tres tonos, píxeles nítidos. Fondo blanco liso.
+
+Excluir: cara de frente, piernas enteras, fondo, suelo, sombra, texto, marca de agua,
+otros personajes, Pokémon, sombrero, gorra.
