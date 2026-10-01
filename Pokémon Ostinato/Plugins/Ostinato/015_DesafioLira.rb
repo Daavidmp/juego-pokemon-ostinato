@@ -163,6 +163,8 @@ module OstDesafio
     antes = OstinatoHD.subir
     vp = Viewport.new(0, 0, Graphics.width, Graphics.height)
     vp.z = 999_999
+    vp_pj = Viewport.new(0, 0, Graphics.width, Graphics.height)
+    vp_pj.z = 1_000_000
     sprites = []
     nuevo = proc do |bitmap, z|
       s = Sprite.new(vp)
@@ -188,7 +190,9 @@ module OstDesafio
       lamina = nuevo.call(lamina_b, 2)
 
       # el personaje y el letrero, escondidos
-      pj = nuevo.call(bmp(RIVALES[tipo] || "lira"), 6)
+      pj = Sprite.new(vp_pj)            # en su propia capa: los temblores no la mueven
+      pj.bitmap = bmp(RIVALES[tipo] || "lira")
+      sprites.push(pj)
       pj.ox = pj.bitmap.width / 2
       pj.oy = pj.bitmap.height
       pj.x = PERSONAJE_X
@@ -331,10 +335,8 @@ module OstDesafio
       t_pj = t
       pj.visible = true
       blanco.opacity = 255
-      OstMini.temblar(6)
       6.times do |f|
         u = OstMini.sale((f + 1) / 6.0)
-        pj.zoom_x = pj.zoom_y = 1.10 - 0.10 * u
         blanco.opacity = [blanco.opacity - 45, 0].max
         paso.call
       end
@@ -373,7 +375,6 @@ module OstDesafio
       # --- 4. se queda, y el negro se va desconchando ---------------------------------
       150.times do |f|
         texto.tone = ((f / 10) % 2 == 1 && f > 30) ? Tone.new(40, 20, 30) : Tone.new(0, 0, 0)
-        pj.zoom_x = pj.zoom_y = 1.0 + 0.008 * Math.sin(f * 0.1)
         paso.call
       end
 
@@ -382,7 +383,7 @@ module OstDesafio
       negro_b.fill_rect(0, 0, W, H, Color.new(0, 0, 0))
       negro = nuevo.call(negro_b, 20)
       negro.opacity = 0
-      16.times { |f| negro.opacity = [(f + 1) * 16, 255].min; paso.call }
+      16.times { |f| negro.opacity = [(f + 1) * 16, 255].min; pj.opacity = 255 - negro.opacity; paso.call }
       viewport.color = Color.new(0, 0, 0, 255) if viewport
     ensure
       vp.ox = 0
@@ -394,6 +395,7 @@ module OstDesafio
       end
       foto.dispose if foto && !foto.disposed?
       begin; vp.dispose; rescue; end
+      begin; vp_pj.dispose; rescue; end
       OstinatoHD.bajar(antes) if antes
       viewport.color = Color.new(0, 0, 0, 255) if viewport
     end
