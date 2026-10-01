@@ -1,0 +1,83 @@
+PROMPTS · INTERFAZ DE COMBATE, ESTILO ELEGIDO (rojo/negro/blanco, tinta y tramas) · Firefly
+2026-10-01
+
+Estilo elegido: Descargas\interfaz_combate\estilo_elegido.png (paneles angulosos en rojo,
+negro y blanco, tramas de puntos, manchas de tinta). Subirla SIEMPRE como Referencia de
+ESTILO. Ajustes: Panorámica (16:9) · Arte · sin estilos. El texto lo pone el juego.
+
+ESTILO (al final de cada prompt):
+Mismo estilo que la imagen de referencia: paneles angulosos cortados en diagonal, rojo
+intenso, negro y blanco, contornos negros gruesos, tramas de puntos de cómic, manchas y
+salpicaduras de tinta negra en los bordes, sensación de movimiento. Fondo gris liso.
+
+Excluir (todas): Pokémon, personajes, escenario, letras legibles, números, logotipos,
+marca de agua, pergamino, marcos de rama, 3D fotográfico.
+
+--- PANTALLAS COMPLETAS (para ver variaciones) ---
+V1 · Igual que la referencia pero con los cuatro botones más inclinados y escalonados, el
+     seleccionado más grande y saliéndose un poco del panel, con un destello blanco.
+V2 · Igual pero con el panel de abajo partido en dos piezas que se solapan en diagonal, y
+     una franja negra con trama recorriendo la pantalla por detrás de las fichas.
+V3 · PANTALLA DE ATAQUES: en vez de los cuatro botones, cuatro botones de ataque en 2x2
+     inclinados, cada uno con una franja del color de su tipo (azul, gris, blanco, azul)
+     y un círculo para el icono; el primero resaltado; a la derecha una caja pequeña
+     negra para los PP y el tipo.
+V4 · PANTALLA DE EQUIPO/CAMBIO: seis placas inclinadas apiladas en dos columnas con hueco
+     para un icono pequeño y una barra de vida en cada una; la primera resaltada en rojo.
+
+--- PIEZAS SUELTAS (las que montaré en el juego), cada una sola y centrada ---
+1 · Panel de mensaje: un panel apaisado (5 a 1) blanco con marco negro grueso, base roja
+    con trama asomando por los bordes y manchas de tinta en una esquina. Vacío.
+2 · Botón de acción normal: un botón apaisado (3 a 1) gris claro con borde negro grueso,
+    cortado en diagonal por los lados. Vacío.
+3 · El mismo botón SELECCIONADO: rojo con trama, borde blanco y un destello, un poco más
+    grande y más inclinado.
+4 · Iconos (en una fila, separados): un puño, una mochila, una Poké Ball y una flecha de
+    salida, en negro con contorno blanco, estilo pegatina.
+5 · Ficha del rival: placa apaisada cortada en diagonal, mitad roja para el nombre y mitad
+    blanca para el nivel, debajo un carril negro vacío para la vida, manchas de tinta.
+6 · Ficha propia: igual pero cortada al revés, más alta, con hueco para los números de
+    vida y un carril fino para la experiencia.
+7 · Barras: tres barras alargadas (verde, amarilla, roja) y una fina azul, planas con un
+    brillo, en filas separadas.
+8 · Botón de ataque: apaisado (4 a 1), inclinado, borde negro grueso, franja de color a la
+    izquierda y un círculo para el icono del tipo. (Uno basta: yo hago los 18 tipos.)
+9 · Caja de PP: placa negra pequeña con trama y borde blanco, cortada en diagonal.
+10 · Bolitas del equipo: seis Poké Balls pequeñas en fila, la cuarta gris (debilitado).
+
+--- ELEGIDO (2026-10-01) ---
+Maquetas en Descargas\interfaz_combate\: maqueta_v2_rayo.png (panel partido por el rayo),
+maqueta_v1_destello.png (destello al elegir) y maqueta_ataques.png (ataques + caja de PP +
+descripción). Pantalla de cambiar Pokémon: de momento no.
+Piezas: las 1-10 de arriba, con maqueta_v2_rayo.png como Referencia de ESTILO, y además:
+11 · Panel de descripción del ataque: placa apaisada (2 a 1) gris claro con borde negro
+     grueso y un marco interior fino plateado, cortada en diagonal en una esquina. Vacía.
+12 · Panel de mensaje partido: la pieza 1 pero con el lado derecho cortado en zigzag de
+     rayo, para encajar con los botones como en maqueta_v2_rayo.png.
+13 · Destello: un estallido de luz blanca con rayos finos y chispas, sobre fondo negro
+     liso (lo pongo encima del botón al pulsar).
+
+--- PIEZAS SACADAS DE LAS MAQUETAS (2026-10-01) ---
+Descargas\interfaz_combate\piezas\: ficha_rival, ficha_propia, barra_comandos,
+barra_ataques, boton_sel, boton_ataque (neutra, se tiñe por tipo), bolita. Ya a la
+escala de 1920x1080, sin texto.
+
+ICONOS DE TIPO (los 18, faltan) · Referencia de ESTILO: maqueta_ataques.png
+Una cuadrícula de 18 iconos redondos del mismo tamaño, separados, en 6 columnas y 3
+filas, cada uno un círculo con contorno negro grueso, fondo del color del tipo y un
+símbolo blanco sencillo y grueso: normal (un círculo), fuego (una llama), agua (una
+gota), planta (una hoja), eléctrico (un rayo), hielo (un copo), lucha (un puño), veneno
+(una gota con calavera simple), tierra (montones de tierra), volador (un ala), psíquico
+(un ojo), bicho (un escarabajo simple), roca (una piedra), fantasma (una silueta de
+fantasma), dragón (una cabeza de dragón simple), siniestro (una luna creciente), acero
+(una tuerca), hada (una estrella de cuatro puntas). Planos, estilo cómic, fondo blanco
+liso. Excluir: letras, texto, números, degradados realistas.
+
+MÚSICA DE COMBATE ÉPICA · Suno (Instrumental)
+Estilo:
+epic orchestral rock battle theme for a monster-collecting RPG, powerful driving drums,
+distorted electric guitars with heroic riffs, full orchestra with soaring strings and
+bold brass fanfares, choir pads (no words), pounding taiko hits, fast tempo 170 bpm,
+minor key building to a triumphant major climax, intense and cinematic, short
+dramatic intro then a loopable main section, instrumental
+Excluir: vocals, lyrics, lo-fi, chill, acoustic, slow tempo, dubstep
