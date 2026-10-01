@@ -1,0 +1,89 @@
+PROMPTS · ANIMACIÓN "X TE DESAFÍA" (entrada a combates importantes) · Adobe Firefly
+2026-10-01
+
+La animación (rehecha desde cero):
+  1. La pantalla del mapa se raja poco a poco (2 s como mucho): primero una grieta
+     en un sitio, luego otra en otro, más grietas... hasta que se rompe entera.
+  2. Pantalla negra. De golpe aparece el personaje.
+  3. A la derecha, "LIRA TE DESAFÍA" sobre un "bollo": una mancha aplastada, como si
+     la hubiera pisado una apisonadora.
+  4. Mientras tanto, la pantalla negra se rompe un poquito: se le caen piececitas
+     y por los huecos se ve un pelín del fondo de detrás.
+Las letras las pongo yo (Firefly escribe mal): sirve para cualquier rival, "X te desafía".
+Las piececitas negras que caen también las hago yo. Lira es Desafio/lira.png (ya está).
+
+================================================================================
+1. GRIETAS (3 imágenes) · 16:9, fondo NEGRO liso
+================================================================================
+Se ponen encima del mapa en modo "sumar luz": lo negro no se ve, solo las líneas.
+
+a) Golpe pequeño:
+Grietas de cristal roto vistas de frente, blancas y finas sobre un fondo negro puro y
+liso. Un solo punto de impacto pequeño en el centro de la imagen, del que salen unas
+pocas grietas cortas en estrella y un anillo pequeño alrededor. Líneas nítidas, con
+algún destello blanco diminuto en el punto del golpe. El resto de la imagen,
+completamente negro y vacío.
+
+b) Golpe mediano:
+Igual que el anterior pero con el impacto más grande: más grietas, más largas, dos
+anillos de grietas alrededor del punto de golpe, ocupando un tercio de la imagen.
+Blancas y finas sobre negro puro y liso. El resto, negro y vacío.
+
+c) Pantalla rota entera:
+Un cristal completamente roto que ocupa toda la imagen: grietas blancas y finas que
+cruzan de borde a borde desde varios puntos de impacto, formando trozos grandes y
+pequeños de formas irregulares. Blancas y nítidas sobre negro puro y liso.
+
+Excluir (las tres): color, fondo con textura, reflejos de colores, objetos, texto,
+marca de agua, desenfoque.
+
+================================================================================
+2. EL "BOLLO" DEL LETRERO · 16:9, fondo BLANCO liso
+================================================================================
+Ilustración 2D estilo anime de videojuego: una mancha plana y ancha, como si una
+bola de pintura densa hubiera sido aplastada por una apisonadora: alargada en
+horizontal, con los bordes irregulares, salpicaduras pequeñas a los lados y alguna
+grieta en el borde, como de chapa abollada. Color rojo carmesí intenso con zonas
+rosa fucsia y un contorno negro grueso, sombra suave debajo. Plana, vista de frente,
+sin relieve 3D realista. Un solo objeto centrado sobre fondo blanco liso. El centro
+de la mancha liso y amplio, porque encima va un texto.
+
+Excluir: texto, letras, números, personajes, marca de agua, degradados de fondo.
+
+(Si sale bien, otra con la misma idea en morado y negro, para otros rivales.)
+
+================================================================================
+3. EL FONDO QUE SE VE POR LOS HUECOS · 16:9
+================================================================================
+Ilustración 2D estilo anime de videojuego, fondo de presentación de un rival en un
+juego de Pokémon: un remolino de energía rosa fucsia y rojo carmesí sobre un fondo
+morado muy oscuro, con rayos de luz que salen del centro, chispas pequeñas y nubes
+de humo estilizadas con contorno, muy contrastado y vibrante. Sin personajes.
+Composición llena, que se vea bien aunque solo asome por trozos pequeños.
+
+Excluir: personajes, Pokémon, texto, marca de agua, paisaje realista.
+
+================================================================================
+AJUSTES EN FIREFLY
+================================================================================
+Todas: Proporción "Panorámica (16:9)" · Tipo de contenido "Arte" · sin estilos de la
+galería. Referencias en Descargas\desafio_referencias\.
+  1. Grietas (a, b, c): SIN referencia. Si el negro sale con textura, repetir.
+  2. Bollo: Referencia de ESTILO = estilo_tinta.png (mismo trazo y colores).
+  3. Fondo: Referencia de ESTILO = estilo_fondo_rojo.png (mismo estilo, que no sea igual).
+Cualquier tamaño que dé Firefly vale: lo ajusto yo a 1920x1080.
+
+================================================================================
+MÚSICA DEL COMBATE CONTRA LIRA · Suno (Instrumental)
+================================================================================
+Nombre en el juego: "Combate Lira" (Audio/BGM). Si sale con un principio que no se
+repite y luego una parte que sí, mejor: le marco el bucle.
+
+Estilo:
+classic handheld monster-collecting RPG rival battle theme, energetic pop punk,
+fast driving drums, punchy palm-muted electric guitars, slap bass, bright synth
+brass stabs, catchy confident lead melody, playful but determined, friendly
+rival who is sure she will win, 165 bpm, minor key with major lift in the chorus,
+short dramatic intro then a loopable main section, instrumental, no vocals
+
+Excluir: vocals, lyrics, choir, orchestral epic, dubstep, lo-fi, slow tempo
