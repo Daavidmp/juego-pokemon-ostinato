@@ -407,7 +407,9 @@ module OstDesafio
       negro_b.fill_rect(0, 0, W, H, Color.new(0, 0, 0))
       negro = nuevo.call(negro_b, 20)
       negro.opacity = 0
-      16.times { |f| negro.opacity = [(f + 1) * 16, 255].min; pj.opacity = 255 - negro.opacity; halo.opacity = [halo.opacity, 255 - negro.opacity].min; paso.call }
+      # Lira se oscurece sin transparentarse: si bajara su opacidad, el halo de
+      # detras se veria a traves y la tenyiria de morado
+      16.times { |f| negro.opacity = [(f + 1) * 16, 255].min; vp_pj.color = Color.new(0, 0, 0, negro.opacity); paso.call }
       viewport.color = Color.new(0, 0, 0, 255) if viewport
     ensure
       vp.ox = 0
