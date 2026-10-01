@@ -131,3 +131,53 @@ Pokemon = FENNEKIN,5
 [LIRA,Lira,2]
 LoseText = ...
 Pokemon = SPRIGATITO,5
+#-------------------------------
+# Rutas 1 a 3 (Acto 0, tabla maestra de entrenadores). Equipos ampliados a 2-3.
+[CHAVAL,Tallo]
+LoseText = Pues nada. Al sur.
+Pokemon = KRICKETOT,5
+Pokemon = PIDGEY,4
+#-------------------------------
+[EXCURSIONISTA,Brote]
+LoseText = Es que me paro mucho.
+Pokemon = SENTRET,5
+Pokemon = PIDGEY,4
+Pokemon = KRICKETOT,4
+#-------------------------------
+[CHICA,Tona]
+LoseText = Y encima ahora llego tarde al pan.
+Pokemon = POOCHYENA,7
+Pokemon = WHISMUR,6
+#-------------------------------
+[RECADERO,Bemol]
+LoseText = ¡Toma, que era esto!
+Pokemon = KRICKETOT,6
+Pokemon = WHISMUR,7
+#-------------------------------
+[EXCURSIONISTA,Ribete]
+LoseText = Como yo.
+Pokemon = NINCADA,7
+Pokemon = SENTRET,8
+Pokemon = PIDGEY,7
+#-------------------------------
+[APICULTOR,Panal]
+LoseText = Y eso que les doy de comer.
+Pokemon = COMBEE,9
+Pokemon = COMBEE,9
+Pokemon = ODDISH,8
+#-------------------------------
+[EXCURSIONISTA,Peldaño]
+LoseText = Es que son tres.
+Pokemon = SENTRET,9
+Pokemon = POOCHYENA,10
+#-------------------------------
+[CHICO,Serrín]
+LoseText = ...Voy a tener que creérmelo.
+Pokemon = KRICKETOT,8
+Pokemon = NINCADA,9
+#-------------------------------
+[SENORA,Cera]
+LoseText = Pues eso.
+Pokemon = COMBEE,10
+Pokemon = ODDISH,9
+Pokemon = WHISMUR,9

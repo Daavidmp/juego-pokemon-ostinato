@@ -1,0 +1,32 @@
+# Entrenadores de las rutas 1-3. Frases del guion del Acto 0 (tabla de cada ruta).
+# Por entrenador: antes / despues (la de "al perder", que el guion no tiene "despues").
+# 00-01 Chaval Tallo (Ruta 1)
+cap|¿Tú también vas al sur? Es que todo el mundo va al sur.
+cap|Pues nada. Al sur.
+# 02-03 Excursionista Brote (Ruta 1)
+cap|Llevo dos horas andando y he llegado aquí. Aquí está a diez minutos de mi casa.
+cap|Es que me paro mucho.
+# 04-05 Chica Tona (Ruta 2)
+cap|Voy a Vado a por pan. Hay pan más cerca, pero el de Vado es el de Vado.
+cap|Y encima ahora llego tarde al pan.
+# 06-09 Recadero Bemol (Ruta 2): antes (2), despues (2, con las Pociones en medio)
+cap|¡Kaia! ¡Hola! Me manda la profesora a traerte una cosa y me he perdido.
+cap|Bueno, perdido no. Sé dónde estoy. No sé dónde estás tú. Estabas.
+cap|¡Toma, que era esto!
+cap|¡Ya está! ¡Ya he hecho el recado!
+# 10-12 Excursionista Ribete (Ruta 2): antes (2), despues
+cap|Estos muretes los hicieron para que las ovejas no se cayeran.
+cap|Las ovejas se caían igual.
+cap|Como yo.
+# 13-14 Apicultor Panal (Ruta 3)
+cap|Las colmenas son mías. Los bichos no. Los bichos están de paso, como todo el mundo.
+cap|Y eso que les doy de comer.
+# 15-16 Excursionista Peldaño (Ruta 3)
+cap|Tres escalones. Los ha contado todo el mundo y siempre son tres.
+cap|Es que son tres.
+# 17-18 Chico Serrín (Ruta 3)
+cap|Mi hermano dice que en Sonaja hay que bailar para ganar. Yo no me lo creo.
+cap|...Voy a tener que creérmelo.
+# 19-20 Señora Cera (Ruta 3)
+cap|Subo todos los días. Todos. Y cada día me parece más alto, que eso no puede ser.
+cap|Pues eso.

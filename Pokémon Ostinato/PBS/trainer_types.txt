@@ -424,3 +424,38 @@ BaseMoney = 4
 Name = Rival
 Gender = Female
 BaseMoney = 8
+#-------------------------------
+[CHAVAL]
+Name = Chaval
+Gender = Male
+BaseMoney = 16
+#-------------------------------
+[EXCURSIONISTA]
+Name = Excursionista
+Gender = Mixed
+BaseMoney = 20
+#-------------------------------
+[CHICA]
+Name = Chica
+Gender = Female
+BaseMoney = 16
+#-------------------------------
+[RECADERO]
+Name = Recadero
+Gender = Male
+BaseMoney = 20
+#-------------------------------
+[APICULTOR]
+Name = Apicultor
+Gender = Male
+BaseMoney = 24
+#-------------------------------
+[CHICO]
+Name = Chico
+Gender = Male
+BaseMoney = 16
+#-------------------------------
+[SENORA]
+Name = Señora
+Gender = Female
+BaseMoney = 24
