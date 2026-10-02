@@ -402,7 +402,7 @@ class Battle::Scene::PokemonDataBox
                 :nombre => [60, 70, 370, 84], :nivel => [470, 76, 200, 84],
                 :nivel_texto => "Lv.%d", :nivel_alin => 1,
                 :vida => [322, 200, 312, 34], :bloques => 8, :estado => [70, 150],
-                :bolitas => [137, 280, 58] }   # sin la flecha de debajo
+                :bolitas => [137, 268, 82] }   # sin la flecha de debajo
   OST_PROPIA = { :pos => [1112, 474], :fondo => "ficha_propia",
                  :nombre => [112, 40, 390, 84], :nivel => [604, 48, 130, 84],
                  :nivel_texto => "%d", :nivel_alin => 0,
@@ -606,7 +606,7 @@ class Battle::Scene::PokemonDataBox
     rescue
     end
     bx, by, paso = d[:bolitas]
-    lado = 50
+    lado = 72
     6.times do |i|
       pk = equipo[i]
       if pk && !pk.egg?
