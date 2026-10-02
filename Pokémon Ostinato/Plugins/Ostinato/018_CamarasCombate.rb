@@ -24,7 +24,8 @@ module OstCamara
   VISIBLE_Y = 380             # el centro de lo que se ve por encima de la barra
   ESPERA = 15                 # segundos sin elegir hasta que la camara se mueve sola
   RIVAL_EN = [1000, 300]      # donde queda el rival en sus primeros planos
-  PIES_Y = 770                # el borde de abajo del lado propio, nunca por encima
+  SUELO = OstCombate::BARRA2_Y + 77   # desde aqui la barra de abajo es opaca (sus manchas, no)
+  PIES_Y = SUELO + 20         # el borde de abajo del lado propio, nunca por encima
   MUNDO = /\A(battle_bg2?|pokemon_\d+|shadow_\d+|player_\d+|trainer_\d+)\z/
 
   # metodos de Sprite sin pasar por los de 016 (los Pokemon fingen zoom 1)
@@ -165,6 +166,26 @@ module OstCamara
       @temblor = 0 if @temblor < 0.3
     end
 
+    # El borde de abajo del dibujo de un sprite, en la pantalla (sin camara)
+    def fondo(s)
+      return SY.bind(s).call + (s.src_rect.height - s.oy) * SZY.bind(s).call
+    end
+
+    # El borde de abajo (el corte) mas alto de los sprites del lado propio
+    # -sus Pokemon y Kaia-, en reposo
+    def corte_propio(claves = nil)
+      ys = []
+      sprites.each do |k, s|
+        next if !k.is_a?(String) || !s
+        next if claves ? !claves.include?(k) : k !~ /\A(pokemon_\d*[02468]|player_\d+)\z/
+        next if s.disposed? || !s.bitmap || s.bitmap.disposed?
+        next if !claves && !s.visible
+        b = s.instance_variable_get(:@ost_reposo_fondo)
+        ys.push(b || fondo(s))
+      end
+      return ys.min || OstCombate::PROPIO[1]
+    end
+
     # que el fondo siga tapando la pantalla con el zoom
     def limitar(fx, fy, z)
       bg = sprites["battle_bg"]
@@ -177,37 +198,67 @@ module OstCamara
       my = CENTRO[1] / z
       # los pies del lado propio (el corte de abajo de su sprite de espaldas)
       # siguen escondidos tras la barra
-      fy = [fy, OstCombate::PROPIO[1] - (PIES_Y - CENTRO[1]) / z].min if z > 1.0
+      fy = [fy, corte_propio - (PIES_Y - CENTRO[1]) / z].min if z > 1.0
       fx = [[fx, x0 + mx].max, x1 - mx].min if x1 - x0 >= 2 * mx
       fy = [[fy, y0 + my].max, y1 - my].min if y1 - y0 >= 2 * my
       return [fx, fy]
     end
 
     # Dibuja el fotograma con la camara puesta y devuelve todo a su sitio
+    #   Ademas, siempre (tambien durante los ataques): el Pokemon propio nunca
+    #   se dibuja mas arriba de su sitio. Su sprite de espaldas acaba cortado
+    #   y ese corte va escondido tras la barra; si una animacion lo subia, se
+    #   veia partido por la mitad.
     def dibujar
-      return yield if !activa? || @bloqueo > 0
-      begin
-        avanzar
-      rescue StandardError
-        reiniciar
-        return yield
+      return yield if !activa?
+      camara = false
+      if @bloqueo == 0
+        begin
+          avanzar
+          camara = !neutra?
+        rescue StandardError
+          reiniciar
+        end
       end
-      return yield if neutra?
-      z = @cam[2]
-      fx, fy = limitar(@cam[0], @cam[1], z)
-      dx = (@temblor > 0) ? (rand * 2 - 1) * @temblor : 0
-      dy = (@temblor > 0) ? (rand * 2 - 1) * @temblor * 0.6 : 0
       guardados = []
-      sprites.each do |k, s|
-        next if !s || !k.is_a?(String) || k !~ MUNDO
-        next if s.disposed?
-        x = SX.bind(s).call; y = SY.bind(s).call
-        zx = SZX.bind(s).call; zy = SZY.bind(s).call
-        guardados.push([s, x, y, zx, zy])
-        SXS.bind(s).call(((x - fx) * z + CENTRO[0] + dx).round)
-        SYS.bind(s).call(((y - fy) * z + CENTRO[1] + dy).round)
-        SZXS.bind(s).call(zx * z)
-        SZYS.bind(s).call(zy * z)
+      begin
+        if camara
+          z = @cam[2]
+          fx, fy = limitar(@cam[0], @cam[1], z)
+          dx = (@temblor > 0) ? (rand * 2 - 1) * @temblor : 0
+          dy = (@temblor > 0) ? (rand * 2 - 1) * @temblor * 0.6 : 0
+        end
+        sprites.each do |k, s|
+          next if !s || !k.is_a?(String) || k !~ MUNDO
+          next if s.disposed?
+          x = SX.bind(s).call; y = SY.bind(s).call
+          ny = y
+          # comparando su borde de abajo (las animaciones le cambian el origen)
+          if k =~ /\Apokemon_\d*[02468]\z/ &&(reposo = s.instance_variable_get(:@ost_reposo_fondo))
+            sube = reposo - fondo(s)
+            ny = y + sube if sube > 0
+          end
+          next if !camara && ny == y
+          zx = SZX.bind(s).call; zy = SZY.bind(s).call
+          guardados.push([s, x, y, zx, zy])
+          if camara
+            SXS.bind(s).call(((x - fx) * z + CENTRO[0] + dx).round)
+            SYS.bind(s).call(((ny - fy) * z + CENTRO[1] + dy).round)
+            SZXS.bind(s).call(zx * z)
+            SZYS.bind(s).call(zy * z)
+          else
+            SYS.bind(s).call(ny)
+          end
+        end
+      rescue StandardError
+        # una camara que falla no rompe el dibujo: todo a su sitio y plano general
+        guardados.each do |s, x, y, zx, zy|
+          next if s.disposed?
+          SXS.bind(s).call(x); SYS.bind(s).call(y)
+          SZXS.bind(s).call(zx); SZYS.bind(s).call(zy)
+        end
+        guardados = []
+        reiniciar
       end
       begin
         return yield
@@ -231,7 +282,9 @@ module OstCamara
       z = 1.7
       vistas = []
       [[idx_propio, 0], [idx_rival, 960]].each do |idx, x0|
-        vp = Viewport.new(x0 + (x0 == 0 ? -960 : 960), 0, 960, 1080)
+        # solo hasta la barra de abajo: sigue a la vista, con su mensaje, y tu
+        # Pokemon queda apoyado en ella (nunca partido)
+        vp = Viewport.new(x0 + (x0 == 0 ? -960 : 960), 0, 960, SUELO)
         vp.z = 100500
         copias = []
         ["battle_bg", "shadow_#{idx}", "pokemon_#{idx}"].each do |k|
@@ -256,7 +309,7 @@ module OstCamara
       vs.ox = 100
       vs.oy = 62
       vs.x = 960
-      vs.y = 470
+      vs.y = SUELO / 2 + 20
       vs.angle = 8
       vs.z = 100520
       vs.opacity = 0
@@ -264,7 +317,7 @@ module OstCamara
       destello.bitmap = Bitmap.new(16, 16)
       destello.bitmap.fill_rect(0, 0, 16, 16, Color.new(255, 255, 255))
       destello.zoom_x = 120
-      destello.zoom_y = 68
+      destello.zoom_y = SUELO / 16.0
       destello.z = 100530
       destello.opacity = 0
       total = 104
@@ -289,6 +342,8 @@ module OstCamara
                 cx = [[cx, bx0 + 480 / zz].max, bx1 - 480 / zz].min
                 cy = [[cy, by0 + 540 / zz].max, by1 - 540 / zz].min
               end
+              # el tuyo: su corte justo por debajo del final del panel, sobre la barra
+              cy = corte_propio(["pokemon_#{idx_propio}"]) - (PIES_Y - 540) / zz if x0 == 0
               copias.each do |o, c|
                 next if o.disposed?
                 c.bitmap = o.bitmap
@@ -334,11 +389,11 @@ module OstCamara
     # la raya negra con filo blanco, en diagonal, tapando la junta del centro
     def raya_bitmap
       return @raya if @raya && !@raya.disposed?
-      @raya = Bitmap.new(140, 1080)
+      @raya = Bitmap.new(140, SUELO)
       blanco = Color.new(255, 255, 255)
       negro = Color.new(10, 10, 10)
-      1080.times do |y|
-        xc = 70 + 24 - 48 * y / 1080.0
+      SUELO.times do |y|
+        xc = 70 + 24 - 48 * y / SUELO.to_f
         @raya.fill_rect((xc - 44).round, y, 88, 1, blanco)
         @raya.fill_rect((xc - 36).round, y, 72, 1, negro)
       end
@@ -351,6 +406,16 @@ class << Graphics
   alias_method :ostcam_update, :update
   def update
     OstCamara.dibujar { ostcam_update }
+  end
+end
+
+# Donde descansa cada Pokemon (lo que la v21 llama y no guarda: @spriteY
+# sigue a las animaciones)
+class Battle::Scene::BattlerSprite
+  alias ostcam_pbSetPosition pbSetPosition
+  def pbSetPosition
+    ostcam_pbSetPosition
+    @ost_reposo_fondo = OstCamara.fondo(self) if OstCombate.activo? && @_iconBitmap
   end
 end
 

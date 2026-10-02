@@ -402,7 +402,7 @@ class Battle::Scene::PokemonDataBox
                 :nombre => [60, 70, 370, 84], :nivel => [470, 76, 200, 84],
                 :nivel_texto => "Lv.%d", :nivel_alin => 1,
                 :vida => [322, 200, 312, 34], :bloques => 8, :estado => [70, 150],
-                :bolitas => [137, 280, 58], :flecha => [61, 340] }
+                :bolitas => [137, 280, 58] }   # sin la flecha de debajo
   OST_PROPIA = { :pos => [1112, 474], :fondo => "ficha_propia",
                  :nombre => [112, 40, 390, 84], :nivel => [604, 48, 130, 84],
                  :nivel_texto => "%d", :nivel_alin => 0,
@@ -461,7 +461,7 @@ class Battle::Scene::PokemonDataBox
     @ostExp.fill_rect(0, 0, e[2], e[3], Color.new(60, 170, 240))
     @expBar.bitmap = @ostExp
     @sprites["expBar"] = @expBar
-    # el rival: las bolitas de su equipo y la flecha, debajo de la ficha
+    # el rival: las bolitas de su equipo, debajo de la ficha
     if d[:bolitas]
       @ostLinea = Sprite.new(viewport)
       @ostLinea.bitmap = Bitmap.new(720, 420)
@@ -600,8 +600,6 @@ class Battle::Scene::PokemonDataBox
     d = ost_datos
     b = @ostLinea.bitmap
     b.clear
-    f = OstCombate.bmp("flecha")
-    b.stretch_blt(Rect.new(d[:flecha][0], d[:flecha][1], 400, f.height), f, f.rect)   # mas corta: no llega a tu Pokemon
     equipo = []
     begin
       equipo = @battler.battle.pbParty(@battler.index)
