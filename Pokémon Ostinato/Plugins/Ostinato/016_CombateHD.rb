@@ -726,8 +726,13 @@ end
 # Los ataques
 #-------------------------------------------------------------------------------
 class Battle::Scene::FightMenu
-  OST_BOTONES = [[268, 894], [670, 894], [262, 1006], [666, 1006]]
-  OST_CIRCULO = [68, 49]           # el hueco del icono, dentro del boton
+  # los botones de la hoja de Firefly (Descargasinterfaz_combatetaques),
+  # 310x112, en dos filas dentro del panel blanco; la de abajo, un poco a la
+  # izquierda siguiendo la inclinacion
+  OST_BOTONES = [[315, 894], [665, 894], [303, 1006], [653, 1006]]
+  OST_CIRCULO = [71, 52]           # el circulo del icono, dentro del boton
+  OST_ICONO   = 0.52               # el icono de tipo (96 px), como insignia en el circulo
+  OST_NOMBRE  = [42, -4, 172]      # el nombre: desplazamiento desde el centro y ancho
   OST_PP      = [931, 864, 255, 164]
   OST_DESC    = [1268, 858, 612, 196]
 
@@ -759,7 +764,7 @@ class Battle::Scene::FightMenu
       s.bitmap = OstCombate.bmp("tipos/NORMAL")
       s.ox = s.bitmap.width / 2
       s.oy = s.bitmap.height / 2
-      s.zoom_x = s.zoom_y = 0.84
+      s.zoom_x = s.zoom_y = OST_ICONO
       addSprite("icono_#{i}", s)
       next s
     end
@@ -788,15 +793,24 @@ class Battle::Scene::FightMenu
       dx = sel ? 14 : 0
       s.x = OST_BOTONES[i][0] + dx
       s.y = OST_BOTONES[i][1] - (sel ? 4 : 0)
-      s.tone = sel ? Tone.new(30, 30, 30) : Tone.new(-55, -55, -55, 60)
+      s.tone = sel ? Tone.new(30, 30, 30) : Tone.new(-35, -35, -35, 40)
       s.zoom_x = s.zoom_y = sel ? 1.06 : 1.0
       s.opacity = (@ostVacio && @ostVacio[i]) ? 110 : 255
+      ost_icono(i)
       ic = @ostIconos[i]
-      ic.x = s.x - s.ox + OST_CIRCULO[0]
-      ic.y = s.y - s.oy + OST_CIRCULO[1]
       ic.visible = @visible && @visibility["button_#{i}"] && !(@ostVacio && @ostVacio[i])
       @visibility["icono_#{i}"] = @visibility["button_#{i}"] && !(@ostVacio && @ostVacio[i])
     end
+  end
+
+  # el icono de tipo en el circulo del boton, siguiendo su zoom (el elegido late)
+  def ost_icono(i)
+    s = @buttons[i]
+    ic = @ostIconos[i]
+    return if !s || !ic || s.disposed? || ic.disposed?
+    ic.x = s.x + (OST_CIRCULO[0] - s.ox) * s.zoom_x
+    ic.y = s.y + (OST_CIRCULO[1] - s.oy) * s.zoom_y
+    ic.zoom_x = ic.zoom_y = OST_ICONO * s.zoom_x
   end
 
   alias ostcomb_refreshButtonNames refreshButtonNames
@@ -805,12 +819,20 @@ class Battle::Scene::FightMenu
     moves = (@battler) ? @battler.moves : []
     b = @overlay.bitmap
     b.clear
-    OstCombate.fuente(b, 46)
     @buttons.each_with_index do |s, i|
       next if !moves[i]
-      x = OST_BOTONES[i][0] + ((i == @index) ? 10 : 0)
-      y = OST_BOTONES[i][1] - OstCombate::BARRA_Y
-      OstCombate.texto(b, x - 100, y - 30, 280, 60, moves[i].name.upcase, 1,
+      x = OST_BOTONES[i][0] + ((i == @index) ? 14 : 0) + OST_NOMBRE[0]
+      y = OST_BOTONES[i][1] - ((i == @index) ? 4 : 0) - OstCombate::BARRA_Y + OST_NOMBRE[1]
+      w = OST_NOMBRE[2]
+      nombre = moves[i].name.upcase
+      # la letra mas grande que quepa a la derecha del circulo
+      tam = 42
+      OstCombate.fuente(b, tam)
+      while tam > 28 && b.text_size(nombre).width > w
+        tam -= 2
+        OstCombate.fuente(b, tam)
+      end
+      OstCombate.texto(b, x - w / 2, y - 30, w, 60, nombre, 1,
                        Color.new(255, 255, 255), Color.new(0, 0, 0), 3)
     end
   end
@@ -978,6 +1000,7 @@ class Battle::Scene::FightMenu
     z = 1.06 + 0.025 * Math.sin(System.uptime * 7)
     s.zoom_x = z
     s.zoom_y = z
+    ost_icono(@index)
   end
 end
 

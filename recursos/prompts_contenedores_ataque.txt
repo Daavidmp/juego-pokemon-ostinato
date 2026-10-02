@@ -1,0 +1,80 @@
+POKEMON OSTINATO - Contenedores de ataque, uno por tipo (Adobe Firefly)
+=====================================================================
+
+Un boton por tipo (18). Sin texto ni icono: el nombre del ataque y el
+icono del tipo los pone el juego encima (Graphics/UI/Ostinato/Combate/tipos).
+
+Para todos:
+  - Formato: horizontal 16:9, el mas grande que deje (2688x1536).
+  - Tipo de contenido: Arte.
+  - Referencia de composicion: Descargas\interfaz_combate\ref_boton.png
+    (el boton MOCHILA tal como sale en el juego), intensidad media.
+  - Referencia de estilo: Descargas\Firefly_Cartel de habilidad ... 617330.png,
+    intensidad alta.
+  - Cuando tengas el primero (Normal) bien, usalo tambien como referencia de
+    composicion de los demas (en vez de ref_boton.png), intensidad alta: asi
+    salen todos con la misma forma.
+  - Guardalos en Descargas\interfaz_combate\ataques\ con el nombre ataque_TIPO.png
+    (ataque_NORMAL.png, ataque_FIRE.png...).
+
+PROMPT (cambia [COLOR] por el de cada tipo):
+
+Boton de ataque para la interfaz de combate de un videojuego, estilo comic
+manga. Un unico paralelogramo alargado inclinado hacia la derecha, unas 4
+veces mas ancho que alto, con borde negro grueso de tinta y una fina
+sombra negra desplazada abajo a la derecha. El relleno es [COLOR] liso, con
+una franja diagonal mas oscura del mismo color en el tercio derecho cubierta
+de trama de puntos de semitono. En el extremo izquierdo, un circulo blanco
+con aro negro grueso, vacio por dentro, que sobresale un poco del borde.
+Pequenas salpicaduras de tinta negra junto al circulo. Bordes nitidos, sin
+texto, sin letras, sin iconos, sin degradados suaves. Fondo blanco liso, el
+boton centrado y entero, sin cortar.
+
+LOS 18 TIPOS ([COLOR] -> nombre del archivo):
+  gris claro calido (#A8A77A)        -> ataque_NORMAL.png
+  rojo anaranjado (#EE8130)          -> ataque_FIRE.png
+  azul (#6390F0)                     -> ataque_WATER.png
+  verde hoja (#7AC74C)               -> ataque_GRASS.png
+  amarillo electrico (#F7D02C)       -> ataque_ELECTRIC.png
+  azul hielo claro (#96D9D6)         -> ataque_ICE.png
+  rojo oscuro (#C22E28)              -> ataque_FIGHTING.png
+  morado (#A33EA1)                   -> ataque_POISON.png
+  ocre tierra (#E2BF65)              -> ataque_GROUND.png
+  lavanda (#A98FF3)                  -> ataque_FLYING.png
+  rosa fucsia (#F95587)              -> ataque_PSYCHIC.png
+  verde lima (#A6B91A)               -> ataque_BUG.png
+  marron arena (#B6A136)             -> ataque_ROCK.png
+  morado oscuro apagado (#735797)    -> ataque_GHOST.png
+  azul violeta intenso (#6F35FC)     -> ataque_DRAGON.png
+  marron oscuro (#705746)            -> ataque_DARK.png
+  gris acero azulado (#B7B7CE)       -> ataque_STEEL.png
+  rosa claro (#D685AD)               -> ataque_FAIRY.png
+
+LOS 18 DE UNA VEZ (una sola imagen)
+-----------------------------------
+  - Formato: cuadrado 1:1, 2048x2048. Tipo de contenido: Arte.
+  - Referencia de estilo: el cartel de habilidad (intensidad alta).
+  - Referencia de composicion: ninguna (la del boton suelto le obliga a
+    pintar uno solo).
+
+Hoja de 18 botones de ataque para la interfaz de combate de un videojuego,
+estilo comic manga, ordenados en una cuadricula de 3 columnas y 6 filas,
+todos iguales en forma y tamano y bien separados entre si, sin tocarse.
+Cada boton es un paralelogramo alargado inclinado hacia la derecha, unas 4
+veces mas ancho que alto, con borde negro grueso de tinta, una fina sombra
+negra desplazada abajo a la derecha, relleno de un color liso con una
+franja diagonal mas oscura en el tercio derecho cubierta de trama de puntos
+de semitono, y en el extremo izquierdo un circulo blanco con aro negro
+grueso, vacio por dentro. Cada boton de un color distinto, por filas de
+izquierda a derecha: fila 1 gris beige, naranja, azul; fila 2 verde hoja,
+amarillo, azul hielo; fila 3 rojo oscuro, morado, ocre; fila 4 lavanda,
+rosa fucsia, verde lima; fila 5 marron arena, morado oscuro, azul violeta;
+fila 6 marron oscuro, gris acero, rosa claro. Bordes nitidos, sin texto,
+sin letras, sin iconos, sin degradados suaves. Fondo blanco liso.
+
+(Orden = NORMAL, FIRE, WATER / GRASS, ELECTRIC, ICE / FIGHTING, POISON,
+GROUND / FLYING, PSYCHIC, BUG / ROCK, GHOST, DRAGON / DARK, STEEL, FAIRY.)
+Guardala como Descargas\interfaz_combate\ataques\hoja_ataques.png.
+
+Firefly no siempre respeta el color exacto: si alguno sale de otro tono, no
+pasa nada, se lo ajusto yo al recortarlo.
