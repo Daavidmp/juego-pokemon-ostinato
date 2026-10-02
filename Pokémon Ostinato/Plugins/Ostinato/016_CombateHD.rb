@@ -306,6 +306,14 @@ class Battle::Scene
         @oldfont = nil
         super
       end
+      # la flecha de "pulsa para seguir", mas grande y mas a la derecha
+      def w.moveCursor
+        super
+        return if !@pausesprite || @pausesprite.disposed?
+        @pausesprite.zoom_x = @pausesprite.zoom_y = 1.6
+        @pausesprite.x += 46
+        @pausesprite.y -= 8
+      end
     end
   end
 
@@ -726,13 +734,13 @@ end
 # Los ataques
 #-------------------------------------------------------------------------------
 class Battle::Scene::FightMenu
-  # los botones de la hoja de Firefly (Descargasinterfaz_combatetaques),
-  # 310x112, en dos filas dentro del panel blanco; la de abajo, un poco a la
-  # izquierda siguiendo la inclinacion
-  OST_BOTONES = [[315, 894], [665, 894], [303, 1006], [653, 1006]]
-  OST_CIRCULO = [71, 52]           # el circulo del icono, dentro del boton
-  OST_ICONO   = 0.52               # el icono de tipo (96 px), como insignia en el circulo
-  OST_NOMBRE  = [42, -4, 172]      # el nombre: desplazamiento desde el centro y ancho
+  # los botones de la hoja de Firefly (Descargas/interfaz_combate/ataques),
+  # 400x92 (alargados estirando solo su tramo liso), en dos filas dentro del
+  # panel blanco; la de abajo, un poco a la izquierda siguiendo la inclinacion
+  OST_BOTONES = [[277, 896], [700, 896], [265, 1002], [688, 1002]]
+  OST_CIRCULO = [58, 43]           # el circulo del icono, dentro del boton
+  OST_ICONO   = 0.43               # el icono de tipo (96 px), como insignia en el circulo
+  OST_NOMBRE  = [8, -2, 215]      # el nombre: desplazamiento desde el centro y ancho
   OST_PP      = [931, 864, 255, 164]
   OST_DESC    = [1268, 858, 612, 196]
 
