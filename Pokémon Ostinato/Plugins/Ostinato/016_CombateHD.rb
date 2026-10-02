@@ -557,7 +557,7 @@ class Battle::Scene::PokemonDataBox
     b = @ostLinea.bitmap
     b.clear
     f = OstCombate.bmp("flecha")
-    b.blt(d[:flecha][0], d[:flecha][1], f, f.rect)
+    b.stretch_blt(Rect.new(d[:flecha][0], d[:flecha][1], 400, f.height), f, f.rect)   # mas corta: no llega a tu Pokemon
     equipo = []
     begin
       equipo = @battler.battle.pbParty(@battler.index)
@@ -865,7 +865,7 @@ end
 # El cartel de habilidad ("Mar Llamas de Fennekin"), al estilo de la interfaz
 #-------------------------------------------------------------------------------
 class Battle::Scene::AbilitySplashBar
-  OST_Y = [640, 250]          # propio, rival
+  OST_Y = [380, 30]           # propio (sale por la izquierda), rival (por la derecha)
 
   alias ostcomb_initialize initialize
   def initialize(side, viewport = nil)
@@ -890,7 +890,8 @@ class Battle::Scene::AbilitySplashBar
     @contents = Bitmap.new(w, h)
     self.bitmap = @contents
     OstCombate.fuente(self.bitmap, 52)
-    self.x = (side == 0) ? -Graphics.width / 2 : Graphics.width
+    # la animacion la mueve medio ancho de pantalla: asi acaba pegada a su borde
+    self.x = (side == 0) ? -(Graphics.width / 2) : Graphics.width + (Graphics.width / 2 - w)
     self.y = OST_Y[side]
   end
 
