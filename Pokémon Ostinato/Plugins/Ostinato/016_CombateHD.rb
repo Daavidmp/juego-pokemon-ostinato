@@ -31,8 +31,8 @@ module OstCombate
   BARRA2_Y = ALTO - 346      # la barra de mensaje y botones (con sus manchas por arriba)
 
   # centro de los pies de cada lado (como las bases de la v21)
-  PROPIO = [554, 700]
-  RIVAL  = [1374, 450]
+  PROPIO = [554, 735]        # entero, de pie en el centro de su losa
+  RIVAL  = [1374, 418]
 
   @activo = false
   def self.activo?; return @activo; end
@@ -45,8 +45,14 @@ module OstCombate
     begin
       return yield
     ensure
+      if @temporal
+        # el combate acabo con la pantalla ya bajada (el fundido final)
+        OstUI.salir
+        @temporal = false
+      else
+        OstinatoHD.bajar(@antes) if @antes
+      end
       @activo = false
-      OstinatoHD.bajar(@antes) if @antes
       @antes = nil
     end
   end
@@ -63,6 +69,39 @@ module OstCombate
       @antes = OstinatoHD.subir
       @activo = true
     end
+  end
+
+  # [centro x, centro y, ancho] de las losas: los ovalos de estilo_elegido.png
+  LOSAS = [[554, 814, 760], [1374, 407, 690]]   # la propia: y = su borde de abajo, apoyado en la barra
+
+  # Un ovalo de pixel (se amplia despues): borde oscuro, filo y relleno
+  def self.ovalo(w, h, relleno, filo, borde)
+    b = Bitmap.new(w, h)
+    a = w / 2.0
+    c = h / 2.0
+    [[0, borde], [1, filo], [3, relleno]].each do |m, col|
+      h.times do |y|
+        yy = (y + 0.5 - c) / (c - m)
+        next if yy.abs >= 1
+        hw = (a - m) * Math.sqrt(1 - yy * yy)
+        b.fill_rect((a - hw).round, y, (2 * hw).round, 1, col)
+      end
+    end
+    return b
+  end
+
+  # caja del dibujo (lo no transparente) de un bitmap, mirando de 2 en 2
+  def self.caja(bm)
+    x0 = bm.width; y0 = bm.height; x1 = 0; y1 = 0
+    (0...bm.height).step(2) do |y|
+      (0...bm.width).step(2) do |x|
+        next if bm.get_pixel(x, y).alpha < 30
+        x0 = x if x < x0; x1 = x if x > x1
+        y0 = y if y < y0; y1 = y if y > y1
+      end
+    end
+    return [0, 0, bm.width - 1, bm.height - 1] if x1 < x0
+    return [x0, y0, x1, y1]
   end
 
   def self.bmp(nombre)
@@ -180,7 +219,8 @@ class Battle::Scene
       return ostcomb_pbTrainerPosition(side, index, sideSize) if !OstCombate.activo?
       k = OstCombate::ESCALA
       if side == 0
-        ret = [OstCombate::PROPIO[0], OstCombate::PROPIO[1] - TRAINER_PLAYER_OFFSET_Y * k]
+        # Kaia va cortada por la cintura: su borde de abajo, escondido tras la barra
+        ret = [OstCombate::PROPIO[0] - 40, OstCombate::BARRA2_Y + 110]
       else
         ret = [OstCombate::RIVAL[0], OstCombate::RIVAL[1] + TRAINER_FOE_OFFSET_Y * k]
       end
@@ -213,16 +253,34 @@ class Battle::Scene
         s.y = ((OstCombate::ALTO - alto) / 2).round
       end
       @sprites["battle_bg2"].x = -OstCombate::ANCHO if @sprites["battle_bg2"]
-      grande = (z == 1.0)
+      # Las losas, cuadradas con la interfaz: del tamano y en el sitio de los
+      # ovalos de la maqueta, con el Pokemon de pie en su centro. La propia de
+      # los fondos de 512 esta cortada por abajo (la tapaba la barra vieja):
+      # se completa con su reflejo.
       2.times do |side|
         base = @sprites["base_#{side}"]
         next if !base || !base.bitmap
-        bz = grande ? 1 : OstCombate::BASE_ESCALA
+        bm = base.bitmap
+        x0, y0, x1, y1 = OstCombate.caja(bm)
+        if side == 0 && y1 >= bm.height - 2
+          # se dibuja un ovalo entero con sus colores (relleno, filo y borde)
+          relleno = bm.get_pixel((x0 + x1) / 2, y1 - 2)
+          filo    = bm.get_pixel((x0 + x1) / 2, y0 + 3)
+          borde   = bm.get_pixel((x0 + x1) / 2, y0)
+          entero = OstCombate.ovalo(290, 66, relleno, filo, borde)
+          base.bitmap = entero
+          bm = entero
+          x0, y0, x1, y1 = 0, 0, bm.width - 1, bm.height - 1
+        end
+        ancho = OstCombate::LOSAS[side][2]
+        bz = ancho.to_f / [x1 - x0 + 1, 1].max
         base.zoom_x = bz
         base.zoom_y = bz
-        p = Battle::Scene.pbBattlerPosition(side)
-        base.x = p[0]
-        base.y = p[1] + ((side == 0) ? 40 : 0)
+        base.ox = (x0 + x1) / 2
+        # la animacion de entrada coloca la propia por su borde de abajo
+        base.oy = (side == 0) ? y1 + 1 : (y0 + y1) / 2
+        base.x = OstCombate::LOSAS[side][0]
+        base.y = OstCombate::LOSAS[side][1]
       end
     end
     @sprites["cmdBar_bg"].visible = false if @sprites["cmdBar_bg"]
@@ -236,7 +294,8 @@ class Battle::Scene
     return if !OstCombate.activo?
     box = @sprites["messageBox"]
     if box
-      box.bitmap = OstCombate.bmp("barra_mensaje")
+      # con setBitmap: al refrescarse (al volver del equipo) no vuelve al de 512
+      box.setBitmap(OstCombate::DIR + "barra_mensaje")
       box.x = 0
       box.y = OstCombate::BARRA2_Y
     end
@@ -355,12 +414,12 @@ class Battle::Scene::PokemonDataBox
   # (medido sobre las piezas de Descargas\interfaz_combate\piezas2, colocadas
   # como en estilo_elegido.png)
   OST_RIVAL = { :pos => [79, 13], :fondo => "ficha_rival",
-                :nombre => [48, 64, 380, 80], :nivel => [462, 80, 210, 72],
+                :nombre => [60, 70, 370, 84], :nivel => [470, 76, 200, 84],
                 :nivel_texto => "Lv.%d", :nivel_alin => 1,
                 :vida => [322, 200, 312, 34], :bloques => 8, :estado => [70, 150],
                 :bolitas => [137, 280, 58], :flecha => [61, 340] }
   OST_PROPIA = { :pos => [1112, 474], :fondo => "ficha_propia",
-                 :nombre => [100, 34, 380, 76], :nivel => [604, 50, 130, 64],
+                 :nombre => [112, 40, 390, 84], :nivel => [604, 48, 130, 84],
                  :nivel_texto => "%d", :nivel_alin => 0,
                  :vida => [382, 140, 298, 26], :numeros => [400, 178, 280, 66],
                  :exp => [258, 272, 394, 11], :estado => [110, 200] }
@@ -946,4 +1005,77 @@ class Battle::Scene::FightMenu
     s.zoom_x = z
     s.zoom_y = z
   end
+end
+
+#-------------------------------------------------------------------------------
+# El equipo y la mochila desde el combate. El combate no los abre con
+# pbFadeOutIn sino fundiendo sus propios sprites (pbFadeOutAndHide), asi que
+# no pasaban por OstUI y se abrian a 1920 rotos. Aqui: en cuanto el combate
+# queda a negro se baja a la resolucion normal con las bandas de 512, y se
+# vuelve a subir justo antes de que reaparezca.
+#-------------------------------------------------------------------------------
+module OstCombate
+  def self.bajar_un_momento
+    return false if !@activo || !@antes
+    OstinatoHD.bajar(@antes)
+    @activo = false
+    @temporal = true
+    OstUI.entrar
+    return true
+  end
+
+  def self.volver
+    @temporal = false
+    OstUI.salir
+    @antes = OstinatoHD.subir
+    @activo = true
+  end
+end
+
+module OstUI
+  def self.entrar
+    return if ancho_real <= ANCHO
+    poner_bandas if @nivel == 0
+    @nivel += 1
+  end
+
+  def self.salir
+    return if @nivel <= 0
+    @nivel -= 1
+    quitar_bandas if @nivel == 0
+  end
+end
+
+class Battle::Scene
+  def pbFadeOutAndHide(sprites)
+    r = super
+    @ost_abajo = (@ost_abajo || 0) + 1 if OstCombate.bajar_un_momento
+    return r
+  end
+
+  def pbFadeInAndShow(sprites, visiblesprites = nil)
+    if @ost_abajo && @ost_abajo > 0
+      @ost_abajo -= 1
+      OstCombate.volver
+    end
+    return visiblesprites ? super(sprites, visiblesprites) : super(sprites)
+  end
+end
+
+#-------------------------------------------------------------------------------
+# Las animaciones de los ataques calculan el centro del Pokemon con su zoom.
+# Nuestros Pokemon dicen tener zoom 1 (para que las animaciones no los
+# encojan), asi que aqui se usa el zoom real: si no, el Pokemon se dibujaba
+# mas abajo durante cada ataque y la barra lo tapaba.
+#-------------------------------------------------------------------------------
+alias ostcomb_getSpriteCenter getSpriteCenter
+def getSpriteCenter(sprite)
+  return ostcomb_getSpriteCenter(sprite) if !sprite || !sprite.respond_to?(:ost_k)
+  return [0, 0] if sprite.disposed?
+  return [sprite.x, sprite.y] if !sprite.bitmap || sprite.bitmap.disposed?
+  k = sprite.ost_k
+  cx = sprite.src_rect.width / 2
+  cy = sprite.src_rect.height / 2
+  return [sprite.x + (cx - sprite.ox) * sprite.zoom_x * k,
+          sprite.y + (cy - sprite.oy) * sprite.zoom_y * k]
 end
