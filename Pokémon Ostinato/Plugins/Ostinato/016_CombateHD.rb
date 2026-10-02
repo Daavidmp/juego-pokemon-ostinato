@@ -916,13 +916,12 @@ class Battle::Scene::AbilitySplashBar
     ostcomb_initialize(side, viewport)
     @ost = OstCombate.activo?
     return if !@ost
-    # el cartel de Firefly (habilidad.png); el del rival, volteado: su punta
-    # mira hacia dentro de la pantalla
+    # el cartel de Firefly (habilidad.png: panel blanco sobre tira roja, mancha
+    # arriba a la izquierda, rombo negro a la derecha); el del rival, volteado
     fondo = OstCombate.bmp("habilidad")
     @bgSprite.bitmap = fondo
     @bgSprite.src_rect = Rect.new(0, 0, fondo.width, fondo.height)
     @bgSprite.mirror = (side == 1)
-    @bgSprite.tone = Tone.new(55, 22, 22)   # el rojo vivo de la interfaz, no granate
     w = fondo.width
     @contents.dispose
     @contents = Bitmap.new(w, fondo.height)
@@ -938,16 +937,15 @@ class Battle::Scene::AbilitySplashBar
     return ostcomb_refresh if !@ost
     self.bitmap.clear
     return if !@battler
-    # el texto, en la parte roja lisa (lejos de la punta y de la mancha)
-    # centradas en la parte roja lisa (sin la punta)
-    x0 = (@side == 0) ? 20 : 120
-    alin = 1
-    OstCombate.fuente(self.bitmap, 46)
-    OstCombate.texto(self.bitmap, x0, 54, 500, 54, @battler.abilityName.upcase, alin,
-                     Color.new(255, 255, 255), Color.new(120, 0, 12), 3)
-    OstCombate.fuente(self.bitmap, 30)
-    OstCombate.texto(self.bitmap, x0, 104, 500, 40, _INTL("de {1}", @battler.name).upcase, alin,
-                     Color.new(255, 255, 255), Color.new(120, 0, 12), 2)
+    # el texto, en negro y centrado en lo blanco (lejos de la mancha y la trama,
+    # que en el del rival quedan a la derecha)
+    x0 = (@side == 0) ? 125 : 65
+    OstCombate.fuente(self.bitmap, 56)
+    OstCombate.texto(self.bitmap, x0, 58, 470, 62, @battler.abilityName.upcase, 1,
+                     Color.new(16, 16, 16))
+    OstCombate.fuente(self.bitmap, 32)
+    OstCombate.texto(self.bitmap, x0, 118, 470, 40, _INTL("de {1}", @battler.name).upcase, 1,
+                     Color.new(200, 30, 40))
   end
 end
 
@@ -1035,6 +1033,28 @@ class Battle::Scene
       OstCombate.volver
     end
     return visiblesprites ? super(sprites, visiblesprites) : super(sprites)
+  end
+end
+
+#-------------------------------------------------------------------------------
+# La entrada al combate: la v21 funde un negro de 512x384 y deja una barra
+# negra donde iba su barra de mensajes. A 1920 el negro solo tapaba un trozo
+# de la pantalla y la barra se quedaba encima de la nuestra: aqui el negro
+# tapa la pantalla entera y la barra no sale.
+#-------------------------------------------------------------------------------
+class Battle::Scene::Animation::Intro
+  def addNewSprite(x, y, name, origin = PictureOrigin::TOP_LEFT)
+    pic = super
+    return pic if !OstCombate.activo? || !name.to_s.include?("black_")
+    if name.to_s.include?("black_bar")
+      pic.setOpacity(0, 0)
+    else
+      b = @pictureSprites[@pictureSprites.length - 1].bitmap
+      if b && b.width > 0
+        pic.setZoomXY(0, 100.0 * Graphics.width / b.width + 1, 100.0 * Graphics.height / b.height + 1)
+      end
+    end
+    return pic
   end
 end
 
