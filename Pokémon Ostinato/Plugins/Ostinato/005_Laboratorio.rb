@@ -118,6 +118,16 @@ module OstinatoLab
   #-----------------------------------------------------------------------------
   def self.run
     return if !disponible?
+    # Va siempre a 1920x1080, que es para lo que estan dibujadas las piezas:
+    # si se lanza desde otro sitio a la resolucion del mapa, se veia borrosa.
+    if gw < ART_W && defined?(OstinatoHD) && !@subiendo
+      @subiendo = true
+      begin
+        return OstinatoHD.con { run }
+      ensure
+        @subiendo = false
+      end
+    end
 
     e = gw.to_f / ART_W            # real -> nominal
     vp = Viewport.new(0, 0, gw, gh)
@@ -208,10 +218,18 @@ module OstinatoLab
         tick
       end
 
+      # Cada momento es su EscTxtNN.png; si la frase no cabia en una pantalla,
+      # sigue en EscTxtNNb.png con el mismo retrato y el mismo Mudkip.
+      pasos = []
+      BEATS.each_with_index do |b, k|
+        pasos.push([sprintf("EscTxt%02d", k), b[0], b[1]])
+        sigue = sprintf("EscTxt%02db", k)
+        pasos.push([sigue, b[0], b[1]]) if pbResolveBitmap(DIR + sigue)
+      end
       i = 0
-      while i < BEATS.length
-        ret = BEATS[i][0]
-        mud = BEATS[i][1]
+      while i < pasos.length
+        ret = pasos[i][1]
+        mud = pasos[i][2]
 
         # --- retrato de la derecha, con fundido si cambia ---
         if ret != retActual
@@ -242,7 +260,7 @@ module OstinatoLab
         end
 
         # --- texto de este momento ---
-        nb = bmp(sprintf("%sEscTxt%02d.png", DIR, i))
+        nb = bmp(DIR + pasos[i][0] + ".png")
         swap(texto, nb)
         texto.x = (TXT_X * e).to_i
         texto.y = (TXT_Y * e).to_i

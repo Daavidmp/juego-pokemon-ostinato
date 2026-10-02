@@ -1,0 +1,441 @@
+POKEMON OSTINATO - TODOS LOS DIALOGOS QUE HAY EN EL JUEGO (2026-10-02)
+
+Cómo corregir: cambia solo el texto que va detrás de los dos puntos.
+El código del principio (EscTxt00, LabTxt12...) es la imagen de esa frase en el
+juego: no lo toques, así sé cuál regenerar. Las líneas con // son notas de escena.
+Si quieres partir una frase en dos o juntar dos, dímelo con una nota al lado.
+
+
+==============================================================================
+      // INTRO · La profesora Arce te presenta el mundo   (EscTxt)
+==============================================================================
+      // Escena de la profesora Arce, despues de la cinematica (habla ella todo el rato)
+EscTxt00  Arce: ¡Bienvenida al mundo de los Pokémon!
+EscTxt01  Arce: Me llamo Arce. Aquí me llaman profesora, aunque lo único que hago es investigar todo sobre unas pequeñas criaturas.
+EscTxt02  Arce: Criaturas a las que llamamos Pokémon.
+EscTxt03  Arce: Llevan con nosotros desde antes de que apareciera la especie humana.
+EscTxt04  Arce: Mira. Este es uno de ellos.
+EscTxt05  Arce: Se llama Mudkip. Nació en el río que pasa por detrás de tu pueblo.
+EscTxt06  Arce: Cada Pokémon cuenta con su propia forma de ser.
+EscTxt07  Arce: Actualmente nos encontramos en Cadencia. Y verás, la gente que vive en esta región tiene la misma forma de pensar.
+EscTxt08  Arce: Todo el mundo dice que cuando alguien está coordinado con su Pokémon, «hacen coro».
+EscTxt09  Arce: Aunque lleve años estudiando a los Pokémon, nunca entenderé esa expresión.
+EscTxt10  Arce: Pero hoy no toca hablar de mí.
+EscTxt11  Arce: Tú eres Kaia. Vives en Pueblo Preludio, al sur de la región.
+EscTxt12  Arce: Te gustan los Pokémon desde siempre y te los sabes todos por su nombre desde bien chiquitita.
+EscTxt13  Arce: Y hay algo de lo que nunca hablas con nadie. Tranquila, hoy no lo sacaré yo.
+EscTxt14  Arce: Esta es Lira. Tu amiga desde que erais dos crías.
+EscTxt15  Arce: Nota lo que siente la gente antes de que piensen en delatarse a ellos mismos. No siempre le viene bien, se ha metido en varios líos.
+EscTxt16  Arce: Te está esperando en la puerta, con ansias de conocer a su compañero de aventura.
+EscTxt17  Arce: Así que dime: ¿estás preparada para empezar tu aventura?
+      // Aquí sale un si estoy preparada que debe contestar kaia(el jugador con enter)
+      // Después la profesora Arce dira: Pues adelante...
+
+
+==============================================================================
+      // ACTO 1 · El despertar   (DespTxt)
+==============================================================================
+      // ACTO 1 - EL DESPERTAR.  lado|texto
+      // der = Kaia, izq = su madre (que aun no se ve, sale como ??)
+DespTxt00  Kaia: Aissh...
+DespTxt01  Kaia: Ya es de día del todo.
+DespTxt02  Kaia: Me levanto y lo primero que escucho es el ruido de alguien en el piso de abajo.
+DespTxt03  Madre (??): ¿Kaia?
+DespTxt04  Madre (??): ¿Estás ahí?
+DespTxt05  Madre (??): He escuchado el crujido de la cama. Seguro que estás despierta.
+DespTxt06  Kaia: Llevo despierta un rato.
+DespTxt07  Madre (??): Pues baja a desayunar, anda.
+DespTxt08  Madre (??): Que te están esperando desde hace ya tiempo.
+DespTxt09  Kaia: ¿Quién?
+DespTxt10  Madre (??): Lira. Lleva abajo desde las nueve preguntando por ti.
+DespTxt11  Madre (??): Ha dicho que si no bajas, sube ella y te saca a base de ostias.
+DespTxt12  Kaia: ¡Ok, ahora bajo!
+
+
+==============================================================================
+      // ACTOS 2 Y 4 · La cocina   (CociTxt)
+==============================================================================
+      // ACTO 2 Y 4 - LA COCINA.  lado|texto
+      // izq = Blanca, der = Kaia
+CociTxt00  Blanca: Ya era hora, muchacha.
+CociTxt01  Blanca: Siéntate, anda. Te he guardado lo tuyo.
+CociTxt02  Kaia: Gracias, mamá.
+CociTxt03  Blanca: Está recién hecho. Cómetelo caliente, que así está más rico.
+CociTxt04  Blanca: ¿Tienes ganas de ir al laboratorio para conocer a tu compañero de aventura?
+CociTxt05  Kaia: Sí.
+CociTxt06  Kaia: Aunque debo de reconocer que también tengo algo de miedo.
+CociTxt07  Blanca: Normal. Todavía me acuerdo yo de aquella época.
+CociTxt08  Blanca: Qué tiempos más bonitos pasé junto a mis compañeros.
+CociTxt09  Blanca: Pero bueno, come, anda, que te están esperando.
+CociTxt10  Blanca: Y vamos a ver las noticias un poco.
+CociTxt11  Blanca: Que últimamente pasan muchas cosas y no me entero de nada.
+CociTxt12  Kaia: Pues enciendo la tele y nos enteramos de algo.
+CociTxt13  Kaia: ¿Qué es lo que acabamos de ver? ¿Cómo es eso de que dejó de hablar?
+CociTxt14  Kaia: Mamá, ¿tú tienes idea de lo que acaban de decir?
+CociTxt15  Blanca: Ni idea, hija.
+CociTxt16  Blanca: Pero he escuchado que cada vez más personas acaban en estado vegetal.
+CociTxt17  Kaia: Ostras, qué extraño.
+CociTxt18  Blanca: Son cosas que le pasan a gente mayor, supongo.
+CociTxt19  Kaia: Mamá, tenía treinta y cuatro años, si consideras eso mayor...
+CociTxt20  Blanca: Bueno, dejemos este tema para otro día. Come, anda, que te están esperando.
+
+
+==============================================================================
+      // ACTO 5 · La puerta de casa   (PuerTxt)
+==============================================================================
+      // ACTO 5 - LA PUERTA DE CASA.  lado|texto
+      // izq = Lira, der = Kaia
+PuerTxt00  Lira: Vaya, te has dormido, como siempre... Era de esperar.
+PuerTxt01  Kaia: Buenos días Lira.
+PuerTxt02  Lira: Buenos días, Kaia. ¿Sabes que llevo aquí desde las nueve?
+PuerTxt03  Kaia: Ya. Me lo ha dicho mi madre.
+PuerTxt04  Lira: Te lo ha dicho y has tardado otros veinte minutos, bfff.
+PuerTxt05  Kaia: Estaba desayunando.
+PuerTxt06  Lira: Y viendo las noticias.
+PuerTxt07  Kaia: ...
+PuerTxt08  Lira: Se te oía la tele desde el portal.
+PuerTxt09  Lira: Entonces, ¿has escuchado lo del hombre en estado vegetal?
+PuerTxt10  Kaia: Sí.
+PuerTxt11  Lira: Mi padre dice que es cosa del agua.
+PuerTxt12  Lira: Que últimamente está muy sucia y la gente se la bebe.
+PuerTxt13  Lira: Aunque mi padre dice muchas cosas extrañas.
+PuerTxt14  Lira: Que después nunca son.
+PuerTxt15  Kaia: Ya.
+PuerTxt16  Lira: Bueno. Da igual. Ya estás aquí.
+PuerTxt17  Lira: ¿Sabes qué día es hoy, no?
+PuerTxt18  Kaia: Jueves.
+PuerTxt19  Lira: Ya sé, me refería a que hoy es nuestro día, Kaia.
+PuerTxt20  Lira: Hoy conoceremos a nuestro compañero que nos acompañará en nuestra aventura.
+PuerTxt21  Kaia: Lo sé.
+PuerTxt22  Lira: Pues no te veo con muchas ansias.
+PuerTxt23  Kaia: Es que no me lo creo todavía, estoy en shock.
+PuerTxt24  Lira: Pues te lo vas creyendo por el camino.
+PuerTxt25  Lira: Que, al parecer, la profesora Arce nos está esperando.
+PuerTxt26  Kaia: Pongámonos en marcha. Por cierto, ¿por dónde era? Jajaja.
+PuerTxt27  Lira: Al norte del pueblo. Por si no te acordabas.
+PuerTxt28  Lira: Todo para arriba, no tiene pérdida.
+PuerTxt29  Kaia: Sí, sí, ya me acordaba.
+PuerTxt30  Lira: Claro. No llegues más tarde de lo que llegas, anda.
+
+
+==============================================================================
+      // ACTO 6 · El laboratorio   (LabTxt)
+==============================================================================
+      // ACTO 6 - EL LABORATORIO.  lado|texto
+      // izq = profesora Arce, izq2 = Lira, der = Kaia
+LabTxt00  Arce: Vaya. Pues ya estamos todas.
+LabTxt01  Lira: Le había dicho que ya llegabas, aunque has tardado más de lo que pensaba.
+LabTxt02  Kaia: No he llegado tarde, simplemente tú has llegado antes.
+LabTxt03  Lira: Cuando yo estaba saliendo de casa, tú todavía seguías soñando con Arceus.
+LabTxt04  Arce: Bueno chicas, no pasa nada, lo importante es que ya estáis aquí.
+LabTxt05  Arce: Por cierto Kaia. ¿Cómo está tu madre?
+LabTxt06  Kaia: Bien, sigue tan tacaña como siempre.
+LabTxt07  Arce: Me alegro de que esté bien. Dale recuerdos.
+LabTxt08  Arce: Bueno, vamos a lo importante.
+LabTxt09  Arce: Sabéis por qué estáis aquí, ¿no?
+LabTxt10  Lira: Sí.
+LabTxt11  Kaia: Más o menos.
+LabTxt12  Arce: Más o menos me vale.
+LabTxt19  Arce: No os hago esperar entonces, vamos directamente al tema.
+      // (va justo después de LabTxt19)
+LabTxt31  Arce: ¿Veis esa mesa de ahí?
+LabTxt20  Kaia: Sí, claro, esa con las tres Poké Balls.
+LabTxt21  Arce: Exactamente. Podéis elegir una de las tres cada una.
+LabTxt22  Arce: La tercera se quedará esperando a que llegue otra persona.
+LabTxt25  Arce: No os lo penséis mucho, que luego se hace tarde y se me enfría el café de la mañana.
+LabTxt26  Lira: Yo ya estoy decidida.
+LabTxt27  Kaia: Yo no. Dejadme tomarme mi tiempo, es una elección muy importante para mí.
+LabTxt28  Arce: Tranquilas, me quedo aquí esperando.
+LabTxt30  Arce: Acercaos a la mesa para conocer a los tres.
+
+
+==============================================================================
+      // La fuga de los tres iniciales   (FugaTxt)
+==============================================================================
+      // La fuga de los tres iniciales. Sigue a "Venga. Acercaos." del laboratorio.
+      // (Kaia y Lira se acercan a la mesa)
+FugaTxt00  Lira: Ahora que me he acercado, tengo dudas.
+FugaTxt01  Kaia: Yo también. ¿A quién elijo?
+      // (clic: salen los tres al mismo tiempo)
+FugaTxt03  Lira: ...
+FugaTxt04  Kaia: Se acaban de ir en nuestra cara.
+FugaTxt05  Arce: Qué liada.
+FugaTxt06  Lira: ¿Desde cuándo los Pokémon se pueden escapar de sus Poké Balls?
+FugaTxt07  Arce: Me acabo de enterar de que pueden hacer eso.
+FugaTxt09  Arce: Y mira que son Pokémon que no suelen ser problemáticos.
+FugaTxt11  Arce: Bueno, seguro que no han ido muy lejos.
+FugaTxt12  Arce: Traédmelos y hablamos.
+FugaTxt18  Kaia: A la orden, jefa.
+
+
+==============================================================================
+      // Aviso al intentar salir del pueblo   (PuerAvi)
+==============================================================================
+      // El aviso al intentar salir del pueblo por abajo. Los dos son de Kaia.
+PuerAvi00  Kaia: Todavía no. Primero el laboratorio.
+PuerAvi01  Kaia: Está al norte del pueblo, y la profesora me espera.
+      // (tras el combate, hasta despedirse de Blanca)
+PuerAvi02  Kaia: Debería de despedirme de mi madre antes de irme.
+
+      // Si esta en la parte de conseguir a los tres pokemon porque se han escapado kaia dira: seguro que los tres no han salido del pueblo, buscaré por aquí.
+
+==============================================================================
+      // Vecinos de Pueblo Preludio (en la calle)   (VecTxt)
+==============================================================================
+      // Vecinos de Pueblo Preludio. El lado no se usa: hablan desde el cuadro neutro.
+VecTxt00  Vecino/a: Cuando desde aquí se pueden apreciar las vistas del monte,
+VecTxt01  Vecino/a: eso quiere decir que no va a llover.
+VecTxt02  Vecino/a: Nunca he fallado en mis predicciones.
+VecTxt03  Vecino/a: Siempre tiendo la colada a primera hora.
+VecTxt04  Vecino/a: Más tarde no hay quien la seque, aunque pegue todo el sol.
+VecTxt05  Vecino/a: Me pongo aquí porque se puede ver quién entra y quién sale del pueblo.
+VecTxt06  Vecino/a: No por nada, pero si no fuera por mí, aquí entraría todo el mundo.
+VecTxt07  Vecino/a: Me pongo a hablar con esta planta desde hace ya cinco años.
+VecTxt08  Vecino/a: Ya sé que no me oye. Pero el día que se me olvida, tengo mala suerte.
+VecTxt09  Vecino/a: Aquí hace años que no pica nada.
+VecTxt10  Vecino/a: Tampoco vengo por los peces.
+VecTxt11  Vecino/a: Este Pokémon ya no me escucha hablar.
+VecTxt12  Vecino/a: Pero aunque no me escuche, me relaja hablar con él a solas.
+VecTxt13  Vecino/a: Me paso la vida buscando mis gafas de vista.
+VecTxt14  Vecino/a: Ya estoy mayor, y como ya no está conmigo mi Pokémon, nunca las encuentro.
+VecTxt15  Vecino/a: Sé que tenía que salir a hacer algo, pero ya no me acuerdo.
+VecTxt16  Vecino/a: Debería apuntar cada cosa que voy a hacer.
+VecTxt17  Vecino/a: Yo de aquí no me he movido nunca.
+VecTxt18  Vecino/a: Y no me preguntes si me arrepiento, que según el día te contesto una cosa.
+
+
+==============================================================================
+      // Vecinos de las casas   (CasaTxt)
+==============================================================================
+      // VECINOS DE LAS CASAS DE PUEBLO PRELUDIO · prefijo CasaTxt
+      // Misma regla que guion_vecinos_normales.txt: costumbres, nada de "hoy".
+      // Una frase por línea, "lado|texto". El número del PNG sale del orden.
+      // CasaTxt00-01 · casa 1 (mapa 6) · LA DE LA COCINA
+CasaTxt00  Vecino/a: Siempre hago comida para cuatro, aunque en casa somos dos.
+CasaTxt01  Vecino/a: Lo que sobra se lo llevo a la vecina. Ella hace lo mismo y me lo devuelve.
+      // CasaTxt02-03 · casa 1 (mapa 6) · LA NIÑA
+CasaTxt02  Vecino/a: Mi madre dice que si me como la verdura seré entrenadora.
+CasaTxt03  Vecino/a: Yo creo que eso se lo inventa.
+      // CasaTxt04-05 · casa 2 (mapa 8) · EL QUE VUELVE A COMER
+CasaTxt04  Vecino/a: Trabajo fuera del pueblo, pero vuelvo siempre a la hora de comer.
+CasaTxt05  Vecino/a: Por el camino se piensa mejor que en ningún otro sitio.
+      // CasaTxt06-07 · casa 2 (mapa 8) · EL CHAVAL
+CasaTxt06  Vecino/a: Cuando sea mayor tendré un Pokémon que vuele, y así no tendré que andar.
+CasaTxt07  Vecino/a: Mi abuelo dice que eso mismo decía él.
+      // CasaTxt08-09 · casa genérica (mapa 4) · EL DE LA TELE
+CasaTxt08  Vecino/a: Esta casa la construyó mi padre, y todavía cruje en los mismos sitios.
+CasaTxt09  Vecino/a: El día que deje de crujir, me preocupo.
+      // CasaTxt10 · el Stoutland del vecino del Pokémon viejo (mapa 2)
+CasaTxt10  Vecino/a: (El Stoutland abre un ojo, te mira y lo vuelve a cerrar.)
+      // CasaTxt11-12 · Preludio (mapa 2) · EL DEL POKEMON VIEJO, con su Stoutland al lado
+      // (sustituye a N9a-N9b de guion_vecinos_normales.txt, que hablaban de un Pokémon sin nombrar)
+CasaTxt11  Vecino/a: Este Stoutland lleva conmigo desde que era un Lillipup que me mordía los cordones.
+CasaTxt12  Vecino/a: Ahora ya no muerde nada. Pero cuando me ve atarme los zapatos, todavía me mira.
+
+
+==============================================================================
+      // Los tres iniciales escondidos en el pueblo   (IniTxt)
+==============================================================================
+      // LOS TRES INICIALES, ESCONDIDOS EN PUEBLO PRELUDIO · prefijo IniTxt
+      // Provisional: lo que se ve al hablarles mientras no esté montada la forma de hacerlos volver.
+      // Una frase por línea, "lado|texto". El número del PNG sale del orden.
+      // IniTxt00 · Mudkip, en la fuente
+IniTxt00  —: (Mudkip chapotea en la fuente. Te mira y sigue chapoteando.)
+      // IniTxt01 · Fennekin, en la hierba alta
+IniTxt01  —: (Entre la hierba asoma una cola. En cuanto te acercas, se esconde.)
+      // IniTxt02 · Sprigatito, en el columpio
+IniTxt02  —: (Sprigatito se balancea en el columpio y hace como que no te ha visto.)
+      // IniTxt03-05 · al ganar su minijuego, ya en el mapa
+IniTxt03  —: ¡Mudkip se ha encariñado contigo! A partir de ahora te seguirá a donde vayas.
+IniTxt04  —: ¡Fennekin se ha encariñado contigo! A partir de ahora te seguirá a donde vayas.
+IniTxt05  —: ¡Sprigatito se ha encariñado contigo! A partir de ahora te seguirá a donde vayas.
+
+
+==============================================================================
+      // Minijuego de Mudkip   (MiniMudTxt)
+==============================================================================
+      // INSTRUCCIONES DEL MINIJUEGO DE MUDKIP · prefijo MiniMudTxt
+      // Una frase por línea, "lado|texto".
+      // MiniMudTxt00 · la fuente
+MiniMudTxt00  Instrucciones: Pulsa A, S, D o F justo cuando la onda se cierre sobre su círculo.
+
+
+==============================================================================
+      // Minijuego de Fennekin   (MiniFenTxt)
+==============================================================================
+      // INSTRUCCIONES DEL MINIJUEGO DE FENNEKIN · prefijo MiniFenTxt
+      // Una frase por línea, "lado|texto".
+      // MiniFenTxt00 · la cola entre los arbustos
+MiniFenTxt00  Instrucciones: Mueve el martillo con el ratón y dale a la cola de Fennekin cuando la asome.
+
+
+==============================================================================
+      // Minijuego de Sprigatito   (MiniSprTxt)
+==============================================================================
+      // INSTRUCCIONES DEL MINIJUEGO DE SPRIGATITO · prefijo MiniSprTxt
+      // Una frase por línea, "lado|texto".
+      // MiniSprTxt00 · el columpio
+MiniSprTxt00  Instrucciones: Pulsa ESPACIO justo cuando el columpio vuelva hacia ti.
+
+
+==============================================================================
+      // La elección del inicial   (EleTxt)
+==============================================================================
+      // Escena 5 del Acto 0: la elección. En el laboratorio, cuando Kaia trae a los tres.
+      // izq = Arce, izq2 = Lira, der = Kaia. Frases del guion (OSTINATO-ACTO0, p. 14).
+      // Quitadas «He traído uno yo.» / «Has traído uno tú. Sí. Y ella dos.»: aquí los tres los trae Kaia.
+EleTxt00  Arce: Enhorabuena por traerme a los tres bien limpitos y felices.
+EleTxt01  Arce: No los voy a volver a guardar, no hace falta.
+EleTxt02  Arce: Entonces, ¿quieres elegir tú primero, Kaia?
+EleTxt03  Lira: ¿Por qué ella primero?
+EleTxt04  Arce: Porque Kaia ha traído a los tres.
+EleTxt05  Lira: Siempre igual. Bueno, te lo permitiré, Kaia.
+      // (se elige: Mudkip, Fennekin o Sprigatito)
+EleTxt06  Arce: Bien, al menos eres comprensiva.
+EleTxt07  Arce: Entonces, Kaia, ¿quién será tu compañero?
+      // (Salen los tres pokemon)
+EleTxt08  Arce: Muy buena elección.
+EleTxt09  Lira: Me toca a mí entonces. Elegiré a este.
+EleTxt12  (acotación): (Levanta la cabeza. Vuelve a bajarla.)
+      // A continuación habla Arce diciendo que ya están preparadas para empezar con su viaje, recomienda salir por la salida sur del pueblo.
+EleTxt13  Arce: Ya estáis listas para empezar vuestro viaje. Os recomiendo salir por el sur del pueblo.
+
+
+==============================================================================
+      // Opciones de la elección   (EleOpc)
+==============================================================================
+      // Opciones de la elección. 0-2 los iniciales
+EleOpc00  Opción: Mudkip
+EleOpc01  Opción: Fennekin
+EleOpc02  Opción: Sprigatito
+
+
+==============================================================================
+      // El combate contra Lira   (RivTxt)
+==============================================================================
+      // Escena 6 del Acto 0: el combate. En el laboratorio (en el guion era la plaza):
+      // Lira para a Kaia a media sala al irse. izq = Lira, der = Kaia. Guion p. 16.
+RivTxt00  Lira: Kaia, espera un momento.
+RivTxt01  Kaia: ¿Qué pasa?
+RivTxt02  Lira: ¿No esperarás irte ya sin echarme un combate antes?
+RivTxt03  Kaia: ¿Pero aquí?
+RivTxt04  Lira: Sí, claro, ¿dónde si no?
+RivTxt05  Lira: Y te aviso: te ganaré sí o sí.
+RivTxt06  Lira: Y no porque yo sea mejor. Te humillaré. Prepárate.
+RivTxt08  Lira: ...
+RivTxt09  Lira: Vale, eso no me lo esperaba.
+RivTxt10  Lira: No me ha gustado. Pero está bien. Son dos cosas distintas y las dos son verdad.
+      // 11-13 si pierde Kaia (con una pausa antes de la 13)
+RivTxt11  Lira: Te lo he dicho.
+RivTxt12  Lira: No te pongas así, que te lo he dicho antes de empezar. Eso cuenta.
+RivTxt13  Lira: Ha estado bien igual.
+      // 14-18 las dos ramas
+RivTxt14  Lira: Me voy ya. Por el sur.
+RivTxt15  Kaia: ¿Ahora?
+RivTxt16  Lira: Ahora. Mi madre ya lo sabe y ya hemos discutido lo que teníamos que discutir.
+RivTxt17  Lira: Kaia.
+RivTxt18  Lira: Come antes de salir. Que te conozco y te vas sin comer. Y despídete de tu madre.
+      // Despues de esto seguira bloqueada la salida del sur pero pondra un mensaje nuevo de Kaia que diga: deberia de despedirme de mi madre antes de irme.
+      // Kaia ira a casa y hablara con Blanca:
+      // Blanca: Hola hija, te veo contenta
+      // Kaia: Si mama, vengo a despedirme de ti y de paso te presento a mi pokemon
+      // Blanca: (Aparece de una pkeball el mudkip, este dice mudkip(sale el contenedor con el triangulo para el mudkip!))Vaya que bonico, y parece fuerte
+      // Kaia: Si claro, bueno mama, es la hora, me voy
+      // Blanca: Que orgullosa estoy de ti, suerte en tu viaje hija
+      // Kaia: Nos vemos!
+      // Aqui se habilita ya salida al sur
+
+
+==============================================================================
+      // Científicos del laboratorio   (CienTxt)
+==============================================================================
+      // CIENTÍFICOS DEL LABORATORIO · prefijo CienTxt
+      // Curiosidades de la Pokédex, contadas por gente que lleva demasiado tiempo con ellas.
+      // Una frase por línea, "lado|texto". El número del PNG sale del orden.
+      // CienTxt00-01 · el del ordenador
+CienTxt00  Científico/a: Un Slowpoke tarda cinco segundos en darse cuenta de que algo le duele.
+CienTxt01  Científico/a: Llevo tres años intentando cronometrarlo. Nunca me acuerdo de darle al botón.
+      // CienTxt02-03 · el de la máquina
+CienTxt02  Científico/a: Las Poké Balls se inventaron al ver que los Pokémon encogen cuando están débiles.
+CienTxt03  Científico/a: Lo raro es que a nadie se le ocurriera preguntar antes por qué encogían.
+      // CienTxt04-05 · la de las librerías
+CienTxt04  Científico/a: Dicen que un Alakazam tiene un cociente intelectual de cinco mil.
+CienTxt05  Científico/a: Nunca he sabido quién le hizo la prueba, ni si la aprobó el que se la puso.
+      // CienTxt06-08 · el de Vaporeon
+CienTxt06  Científico/a: Según la Pokédex, sus células se parecen tanto al agua que al sumergirse no se ve.
+CienTxt07  Científico/a: Llevo tres semanas intentando encontrarla en la pecera.
+CienTxt08  Científico/a: Creo que está ahí.
+      // CienTxt09 · Vaporeon
+CienTxt09  Científico/a: (El Vaporeon te mira sin parpadear.)
+
+
+==============================================================================
+      // Entrenadores de las rutas 1-3   (EntTxt)
+==============================================================================
+      // Entrenadores de las rutas 1-3. Frases del guion del Acto 0 (tabla de cada ruta).
+      // Por entrenador: antes / despues (la de "al perder", que el guion no tiene "despues").
+      // 00-01 Chaval Tallo (Ruta 1)
+EntTxt00  Entrenador/a: ¿Tú también vas al sur? Es que todo el mundo va al sur.
+EntTxt01  Entrenador/a: Pues nada. Al sur.
+      // 02-03 Excursionista Brote (Ruta 1)
+EntTxt02  Entrenador/a: Llevo dos horas andando y he llegado aquí. Peleemos.
+EntTxt03  Entrenador/a: Es que me paro mucho.
+      // 04-05 Chica Tona (Ruta 2)
+EntTxt04  Entrenador/a: Voy a Vado a por pan. Hay pan más cerca, pero el de Vado es el de Vado.
+EntTxt05  Entrenador/a: Y encima ahora llego tarde al pan.
+      // 06-09 Recadero Bemol (Ruta 2): antes (2), despues (2, con las Pociones en medio)
+EntTxt06  Entrenador/a: ¡Kaia! ¡Hola! Me manda la profesora a traerte una cosa y me he perdido.
+EntTxt07  Entrenador/a: Bueno, perdido no. Sé dónde estoy. No sé dónde estás tú. Estabas.
+EntTxt08  Entrenador/a: ¡Toma, que era esto!
+EntTxt09  Entrenador/a: ¡Ya está! ¡Ya he hecho el recado!
+      // 10-12 Excursionista Ribete (Ruta 2): antes (2), despues
+EntTxt10  Entrenador/a: Estos muretes los hicieron para que las ovejas no se cayeran.
+EntTxt11  Entrenador/a: Las ovejas se caían igual.
+EntTxt12  Entrenador/a: Como yo.
+      // 13-14 Apicultor Panal (Ruta 3)
+EntTxt13  Entrenador/a: Las colmenas son mías. Los bichos no. Los bichos están de paso, como todo el mundo.
+EntTxt14  Entrenador/a: Y eso que les doy de comer.
+      // 15-16 Excursionista Peldaño (Ruta 3)
+EntTxt15  Entrenador/a: Tres escalones. Los ha contado todo el mundo y siempre son tres.
+EntTxt16  Entrenador/a: Es que son tres.
+      // 17-18 Chico Serrín (Ruta 3)
+EntTxt17  Entrenador/a: Mi hermano dice que en Sonaja hay que bailar para ganar. Yo no me lo creo.
+EntTxt18  Entrenador/a: ...Voy a tener que creérmelo.
+      // 19-20 Señora Cera (Ruta 3)
+EntTxt19  Entrenador/a: Subo todos los días. Todos. Y cada día me parece más alto, que eso no puede ser.
+EntTxt20  Entrenador/a: Pues eso.
+
+
+==============================================================================
+Dentro del combate: lo que dice cada entrenador al perder   (PBS/trainers.txt)
+==============================================================================
+Lira (LIRA):           ...
+Lira (LIRA):           ...
+Lira (LIRA):           ...
+Tallo (CHAVAL):        Pues nada. Me iré al sur.
+Brote (EXCURSIONISTA): Es que me paro mucho.
+Tona (CHICA):          Y encima ahora llego tarde al pan.
+Bemol (RECADERO):      ¡Toma, que era esto!
+Ribete (EXCURSIONISTA): Como yo.
+Panal (APICULTOR):     Y eso que les doy de comer.
+Peldaño (EXCURSIONISTA): No me creo que haya perdido.
+      // Serrín (CHICO):       ...Voy a tener que creérmelo.
+Cera (SENORA):         Pues eso.
+
+
+==============================================================================
+La despedida de Blanca, antes de salir por el sur   (AdiosTxt, AdiosPoke)
+==============================================================================
+      // Tras el combate contra Lira, la salida sur sigue cerrada (PuerAvi02) hasta
+      // que Kaia vuelve a casa y habla con Blanca. izq = Blanca, der = Kaia.
+AdiosTxt00  Blanca: Hola, hija. Te veo contenta.
+AdiosTxt01  Kaia: Sí, mamá. Vengo a despedirme de ti, y de paso te presento a mi Pokémon.
+      // (sale de su Poké Ball el inicial de Kaia y dice su nombre, con el bocadillo de pico)
+AdiosPoke00  Mudkip: ¡Mudkip!
+AdiosPoke01  Fennekin: ¡Fennekin!
+AdiosPoke02  Sprigatito: ¡Sprigatito!
+AdiosTxt02  Blanca: Vaya, qué bonico. Y parece fuerte.
+AdiosTxt03  Kaia: Sí, claro. Bueno, mamá, es la hora. Me voy.
+AdiosTxt04  Blanca: Qué orgullosa estoy de ti. Suerte en tu viaje, hija.
+AdiosTxt05  Kaia: ¡Nos vemos!
+      // (aquí se abre ya la salida sur)

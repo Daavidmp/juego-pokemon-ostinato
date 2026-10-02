@@ -9,10 +9,10 @@
 #   delante de la mesa: son los eventos "Mudkip lab", "Fennekin lab" y
 #   "Sprigatito lab" del mapa 7, que salen con su "devuelto" (74, 75, 76) y
 #   se quitan con su "se lo han llevado" (88, 89, 90). Arce habla, Kaia elige
-#   (Var 7, "Starter elegido": 1, 2 o 3), Arce le pregunta que siente (cuatro
-#   respuestas, ninguna buena: Var 65, la 0015 del guion con el +50, solo para
-#   el epilogo) y Lira se queda el de la DERECHA del de Kaia (lo decidio
-#   David): Mudkip -> Fennekin -> Sprigatito -> Mudkip. Var 66 = el de Lira.
+#   (Var 7, "Starter elegido": 1, 2 o 3) y Lira se queda el de la DERECHA
+#   del de Kaia (lo decidio David): Mudkip -> Fennekin -> Sprigatito ->
+#   Mudkip. Var 66 = el de Lira. Al final Arce las manda a salir por el sur.
+#   (La pregunta de que siente Kaia, Var 65, se quito del guion.)
 #   Interruptor 77 (el 0027 del guion): Lira ya ha elegido. El tercero se
 #   queda en el suelo del laboratorio todo el juego.
 #
@@ -20,11 +20,11 @@
 #   LINEA), Lira la para. Hablan con las frases de la escena 6, sale la
 #   animacion "LIRA TE DESAFIA" (estilo del "nuevo rival" del Smash: negro,
 #   rayos, la silueta) y combaten: un Pokemon a nivel 5, se puede perder. Al
-#   acabar, sus frases segun el resultado, se va por la puerta y se abre la
-#   salida sur del pueblo (interruptor 78).
+#   acabar, sus frases segun el resultado y se va por la puerta (interruptor
+#   78). La salida sur sigue cerrada hasta despedirse de Blanca (021).
 #
-#   Textos: EleTxt, EleOpc y RivTxt (recursos/guion_eleccion*.txt y
-#   guion_combate_lira.txt, con recursos/herramientas/textos.ps1).
+#   Textos: EleTxt, EleOpc y RivTxt (recursos/dialogos_ostinato.txt, el guion
+#   maestro, con recursos/herramientas/textos_guion.ps1).
 #===============================================================================
 
 #-------------------------------------------------------------------------------
@@ -196,7 +196,9 @@ module OstinatoEleccion
     dejarlos
     OstDlg.esperar(0.4)
     artes = OstinatoLaboratorio::ARTES
-    OstDlg.run(texto("EleTxt", 0, 5, ["izq", "izq", "izq", "izq2", "izq", "izq2"]), artes)
+    # Arce los recibe, Lira protesta por que elija Kaia primero, y Arce le
+    # pregunta a Kaia quien sera su companero
+    OstDlg.run(texto("EleTxt", 0, 7, ["izq", "izq", "izq", "izq2", "izq", "izq2", "izq", "izq"]), artes)
     i = OstDlg.elegir(["EleOpc00", "EleOpc01", "EleOpc02"])
     $game_variables[VAR_INICIAL] = i + 1
     $game_switches[SW_LLEVADO[i]] = true
@@ -206,14 +208,15 @@ module OstinatoEleccion
     rescue
       pbAddPokemonSilent(ESPECIES[i], NIVEL) rescue nil
     end
-    OstDlg.run(texto("EleTxt", 6, 7, "izq"), artes)
-    $game_variables[VAR_SIENTE] = OstDlg.elegir(["EleOpc03", "EleOpc04", "EleOpc05", "EleOpc06"]) + 1
-    OstDlg.run(texto("EleTxt", 8, 8, "izq"), artes)
+    OstDlg.run(texto("EleTxt", 8, 8, "izq"), artes)      # Muy buena eleccion.
     # Lira coge el de la derecha del de Kaia
     j = (i + 1) % 3
     $game_variables[VAR_LIRA] = j + 1
-    OstDlg.run(texto("EleTxt", 9, 11, ["izq2", "izq", "izq2"]), artes)
+    OstDlg.run(texto("EleTxt", 9, 9, "izq2"), artes)     # Me toca a mi entonces. Elegire a este.
     $game_switches[SW_LLEVADO[j]] = true
+    refrescar
+    # y Arce las manda al sur
+    OstDlg.run(texto("EleTxt", 13, 13, "izq"), artes)
     $game_switches[SW_ELEGIDO] = true
     refrescar
   end
@@ -275,7 +278,7 @@ module OstinatoEleccion
   def self.combate
     acercarse
     OstDlg.esperar(0.3)
-    OstDlg.run(texto("RivTxt", 0, 7, ["izq", "der", "izq", "der", "izq", "izq", "izq", "izq"]), ARTES_COMBATE)
+    OstDlg.run(texto("RivTxt", 0, 6, ["izq", "der", "izq", "der", "izq", "izq", "izq"]), ARTES_COMBATE)
     ganado = combatir
     OstDlg.esperar(0.4)
     if ganado

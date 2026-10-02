@@ -185,3 +185,28 @@ module OstinatoVecinos
     end
   end
 end
+
+#-------------------------------------------------------------------------------
+# Frases en dos pantallas: si una frase no cabia en el cuadro, el generador
+# (recursos/herramientas/textos_guion.ps1) la parte en CODIGO.png y
+# CODIGOb.png (y c, d...). Aqui se meten las continuaciones en el guion, justo
+# detras y con el mismo lado, para que se lean seguidas.
+#-------------------------------------------------------------------------------
+module OstDlg
+  class << self
+    alias ostcont_run run
+    def run(guion, artes, ajustes = nil)
+      lista = []
+      guion.each do |paso|
+        lista.push(paso)
+        next if !paso.is_a?(Array) || !paso[0].is_a?(String)
+        next if ["pausa", "se", "haz", "tv"].include?(paso[0])
+        ["b", "c", "d"].each do |s|
+          break if !pbResolveBitmap(DIR + paso[0] + s)
+          lista.push([paso[0] + s] + paso[1..-1])
+        end
+      end
+      return ostcont_run(lista, artes, ajustes)
+    end
+  end
+end

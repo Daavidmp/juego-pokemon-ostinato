@@ -49,11 +49,19 @@ module OstinatoMiniFennekin
   end
 
   #-----------------------------------------------------------------------------
+  # Este mkxp da el raton en una cuadricula de 640x480 aunque la pantalla
+  # este a 1920x1080 (medido: la esquina de abajo a la derecha da 639,479).
+  # Sin pasarlo a la pantalla real, el martillo no salia del tercio de arriba
+  # a la izquierda.
+  RATON_BASE = [640, 480]
+
   def self.raton
     begin
       x = Input.mouse_x
       y = Input.mouse_y
-      return [x, y] if x && y
+      if x && y
+        return [x * OstMini::ANCHO / RATON_BASE[0], y * OstMini::ALTO / RATON_BASE[1]]
+      end
     rescue
     end
     return [OstMini::ANCHO / 2, OstMini::ALTO / 2]

@@ -644,7 +644,8 @@ module OstinatoDespertar
     ["DespTxt08", "izq"],   # Que te estan esperando desde hace ya tiempo.
     ["DespTxt09", "der"],   # Quien?
     ["DespTxt10", "izq"],   # Lira. Lleva abajo desde las nueve preguntando por ti.
-    ["DespTxt11", "izq"]    # Ha dicho que si no bajas, sube ella y te saca a base de ostias.
+    ["DespTxt11", "izq"],   # Ha dicho que si no bajas, sube ella y te saca a base de ostias.
+    ["DespTxt12", "der"]    # Ok, ahora bajo!
   ]
 
   ARTES = {
@@ -1450,37 +1451,29 @@ module OstinatoLaboratorio
 
   def self.guion
     [
-      ["LabTxt00", "izq"],   # Vaya. Ya estamos todas.
-      ["LabTxt01", "izq2"],   # Le decia yo que no tardabas.
-      ["LabTxt02", "der"],   # Has tardado tu menos, nada mas.
-      ["LabTxt03", "izq2"],   # Yo sali de casa. Tu saliste de la cama.
-      ["LabTxt04", "izq"],   # Dejadlo, que llevo aqui desde las ocho y ese chiste ya me lo se.
-      ["LabTxt05", "izq"],   # Kaia. Como esta tu madre?
-      ["LabTxt06", "der"],   # Fregando.
-      ["LabTxt07", "izq"],   # Entonces esta bien. Dale recuerdos.
-      ["LabTxt08", "izq"],   # Bueno.
-      ["LabTxt09", "izq"],   # Sabeis por que estais aqui, no?
+      ["LabTxt00", "izq"],    # Vaya. Pues ya estamos todas.
+      ["LabTxt01", "izq2"],   # Le habia dicho que ya llegabas, aunque has tardado mas...
+      ["LabTxt02", "der"],    # No he llegado tarde, simplemente tu has llegado antes.
+      ["LabTxt03", "izq2"],   # Cuando yo estaba saliendo de casa, tu todavia seguias sonando con Arceus.
+      ["LabTxt04", "izq"],    # Bueno chicas, no pasa nada, lo importante es que ya estais aqui.
+      ["LabTxt05", "izq"],    # Por cierto Kaia. Como esta tu madre?
+      ["LabTxt06", "der"],    # Bien, sigue tan tacana como siempre.
+      ["LabTxt07", "izq"],    # Me alegro de que este bien. Dale recuerdos.
+      ["LabTxt08", "izq"],    # Bueno, vamos a lo importante.
+      ["LabTxt09", "izq"],    # Sabeis por que estais aqui, no?
       ["LabTxt10", "izq2"],   # Si.
-      ["LabTxt11", "der"],   # Mas o menos.
-      ["LabTxt12", "izq"],   # Mas o menos me vale.
-      ["LabTxt13", "izq2"],   # Profesora, usted ha visto lo de Ciudad Muda?
-      ["LabTxt14", "izq"],   # Lo he visto.
-      ["LabTxt15", "der"],   # Y que es?
-      ["LabTxt16", "izq"],   # No lo se.
-      ["LabTxt17", "izq"],   # Y el que te diga que lo sabe, tampoco.
-      ["LabTxt18", "izq"],   # Hoy no toca eso. Hoy toca lo vuestro.
-      ["LabTxt19", "izq"],   # Mirad la mesa.
-      ["LabTxt20", "der"],   # Son tres.
-      ["LabTxt21", "izq"],   # Una para cada una.
-      ["LabTxt22", "izq"],   # La tercera se queda esperando.
-      ["LabTxt23", "der"],   # Esperando a quien?
-      ["LabTxt24", "izq"],   # A quien venga. Siempre viene alguien.
-      ["LabTxt25", "izq"],   # No os lo penseis mucho, que luego se hace tarde y se me enfria el cafe.
-      ["LabTxt26", "izq2"],   # Yo lo tengo decidido desde los seis anos.
-      ["LabTxt27", "der"],   # Yo no.
-      ["LabTxt28", "izq"],   # Pues mejor.
-      ["LabTxt29", "izq"],   # Los que lo traen decidido de casa son los que se llevan la sorpresa.
-      ["LabTxt30", "izq"]    # Venga. Acercaos.
+      ["LabTxt11", "der"],    # Mas o menos.
+      ["LabTxt12", "izq"],    # Mas o menos me vale.
+      ["LabTxt19", "izq"],    # No os hago esperar entonces, vamos directamente al tema.
+      ["LabTxt31", "izq"],    # Veis esa mesa de ahi?
+      ["LabTxt20", "der"],    # Si, claro, esa con las tres Poke Balls.
+      ["LabTxt21", "izq"],    # Exactamente. Podeis elegir una de las tres cada una.
+      ["LabTxt22", "izq"],    # La tercera se quedara esperando a que llegue otra persona.
+      ["LabTxt25", "izq"],    # No os lo penseis mucho, que luego se hace tarde y se me enfria el cafe...
+      ["LabTxt26", "izq2"],   # Yo ya estoy decidida.
+      ["LabTxt27", "der"],    # Yo no. Dejadme tomarme mi tiempo...
+      ["LabTxt28", "izq"],    # Tranquilas, me quedo aqui esperando.
+      ["LabTxt30", "izq"]     # Acercaos a la mesa para conocer a los tres.
     ] + OstinatoFuga.guion   # y sin soltar el cuadro, la fuga
   end
 
@@ -1629,28 +1622,19 @@ module OstinatoFuga
   def self.guion
     [
       ["haz", proc { acercarse }],     # Kaia y Lira se ponen delante de la mesa
-      ["FugaTxt00", "izq2"],  # Esa.
-      ["FugaTxt01", "der"],   # Aun no las has visto.
-      ["FugaTxt02", "izq2"],  # Ya. Pero esa.
-      ["haz", proc { abrir_primera }], # clic: sale Mudkip y se las queda mirando
-      ["haz", proc { escapar }],       # clic, clic: y los tres se van
+      ["FugaTxt00", "izq2"],  # Ahora que me he acercado, tengo dudas.
+      ["FugaTxt01", "der"],   # Yo tambien. A quien elijo?
+      ["haz", proc { escapar }],       # clic: se abren las tres a la vez y se van
       ["pausa", 1.2],
       ["FugaTxt03", "izq2"],  # ...
-      ["FugaTxt04", "der"],   # Se han ido.
-      ["FugaTxt05", "izq"],   # Ya lo veo.
-      ["FugaTxt06", "izq2"],  # Eso lo pueden hacer?
-      ["FugaTxt07", "izq"],   # Una Poke Ball se abre desde dentro.
-      ["FugaTxt08", "izq"],   # Desde fuera hace falta el boton. Desde dentro, no.
-      ["FugaTxt09", "izq"],   # Llevaban ahi desde ayer. Eso es mucho tiempo.
-      ["FugaTxt10", "izq"],   # Y la puerta esta abierta desde las ocho, como todos los dias.
-      ["FugaTxt11", "izq"],   # No han ido lejos. No pueden. Es un pueblo.
+      ["FugaTxt04", "der"],   # Se acaban de ir en nuestra cara.
+      ["FugaTxt05", "izq"],   # Que liada.
+      ["FugaTxt06", "izq2"],  # Desde cuando los Pokemon se pueden escapar de sus Poke Balls?
+      ["FugaTxt07", "izq"],   # Me acabo de enterar de que pueden hacer eso.
+      ["FugaTxt09", "izq"],   # Y mira que son Pokemon que no suelen ser problematicos.
+      ["FugaTxt11", "izq"],   # Bueno, seguro que no han ido muy lejos.
       ["FugaTxt12", "izq"],   # Traedmelos y hablamos.
-      ["FugaTxt13", "izq2"],  # Los tres?
-      ["FugaTxt14", "izq"],   # Los tres.
-      ["FugaTxt15", "izq2"],  # Y la que traiga mas...?
-      ["FugaTxt16", "izq"],   # No. Los tres, y luego hablais vosotras.
-      ["FugaTxt17", "izq"],   # Yo no reparto nada.
-      ["FugaTxt18", "izq2"],  # Vale. Pues a buscar.
+      ["FugaTxt18", "der"],   # A la orden, jefa.
       ["haz", proc { lira_se_va }]
     ]
   end
@@ -1802,21 +1786,43 @@ module OstinatoFuga
     OstDlg.esperar(0.4)
   end
 
-  # La primera se abre sola. Mudkip se queda quieto mirandolas dos segundos.
-  def self.abrir_primera
-    OstDlg.esperar(0.6)
-    abrir(0)
-    OstDlg.esperar(2.0)
+  # Clic: las tres bolas se abren a la vez. Un solo destello y un solo sonido,
+  # los tres aparecen juntos y gritan casi seguidos.
+  def self.abrir_todas
+    OstDlg.esperar(0.4)
+    pokes = BOLAS.each_index.map { |i| crear_poke(i) }
+    begin
+      pbSEPlay(SONIDO_BOLA, 85)
+    rescue
+    end
+    begin
+      $game_screen.start_flash(Color.new(255, 255, 255, 140), 10)
+    rescue
+    end
+    vaciar_mesa
+    o = 0
+    while o < 255
+      o += 32
+      o = 255 if o > 255
+      pokes.each { |g| g.opacity = o }
+      OstDlg.tick
+    end
+    OstDlg.esperar(0.15)
+    BOLAS.each do |b|
+      begin
+        Pokemon.play_cry(b[2])
+      rescue
+      end
+      OstDlg.esperar(0.18)
+    end
   end
 
-  # Clic, clic. Y los tres se van: saltan de la mesa por la izquierda, bajan
-  # por la columna 15 hasta la alfombra y siguen por ella hasta la puerta. En
-  # fila, cada uno arrancando cuando el de delante ya ha dejado hueco.
+  # Y los tres se van: saltan de la mesa por la izquierda, bajan por la
+  # columna 15 hasta la alfombra y siguen por ella hasta la puerta. En fila,
+  # cada uno arrancando cuando el de delante ya ha dejado hueco.
   def self.escapar
-    abrir(1)
-    OstDlg.esperar(0.25)
-    abrir(2)
-    OstDlg.esperar(0.7)
+    abrir_todas
+    OstDlg.esperar(0.9)
     rutas = []
     BOLAS.each_with_index do |b, i|
       g = evento(ID_POKE + i)
