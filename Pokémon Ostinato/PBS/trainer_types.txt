@@ -424,6 +424,7 @@ BaseMoney = 4
 Name = Rival
 Gender = Female
 BaseMoney = 8
+BattleBGM = Combate Lira
 #-------------------------------
 [CHAVAL]
 Name = Chaval

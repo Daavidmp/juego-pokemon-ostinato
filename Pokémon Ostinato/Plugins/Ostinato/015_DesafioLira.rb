@@ -41,7 +41,13 @@ module OstDesafio
              [[1840, 120], 130, 105], [[1010, 980], 130, 60], [[160, 900], 120, 90]]
   CELDA = [96, 90]                 # tamano de las piececitas (rejilla de triangulos)
 
+  # Si existe el efecto entero (Audio/SE/Desafio), suena solo el; si no, los
+  # golpes sueltos de cada momento
   def self.se(nombre, volumen = 90, tono = 100)
+    if @sting.nil?
+      @sting = (pbResolveAudioSE("Desafio") ? true : false) rescue false
+    end
+    return if @sting && nombre != "Desafio"
     begin
       pbSEPlay(nombre, volumen, tono)
     rescue
@@ -168,7 +174,7 @@ module OstDesafio
       pbBGMStop
     rescue
     end
-    se("Desafio", 100, 100) if pbResolveAudioSE("Desafio") rescue nil
+    se("Desafio", 100, 100)
     antes = OstinatoHD.subir
     vp = Viewport.new(0, 0, Graphics.width, Graphics.height)
     vp.z = 999_999
