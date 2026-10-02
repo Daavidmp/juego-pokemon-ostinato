@@ -27,10 +27,11 @@ module OstCombate
   BASE_ESCALA = 3            # las bases de los fondos antiguos de 512
   ANCHO  = 1920
   ALTO   = 1080
-  BARRA_Y = ALTO - 282       # donde empiezan las barras de abajo
+  BARRA_Y = ALTO - 282       # donde empieza la barra de ataques
+  BARRA2_Y = ALTO - 346      # la barra de mensaje y botones (con sus manchas por arriba)
 
   # centro de los pies de cada lado (como las bases de la v21)
-  PROPIO = [554, 770]
+  PROPIO = [554, 700]
   RIVAL  = [1374, 450]
 
   @activo = false
@@ -237,12 +238,12 @@ class Battle::Scene
     if box
       box.bitmap = OstCombate.bmp("barra_mensaje")
       box.x = 0
-      box.y = OstCombate::BARRA_Y
+      box.y = OstCombate::BARRA2_Y
     end
     w = @sprites["messageWindow"]
     if w
       w.x = 92
-      w.y = OstCombate::BARRA_Y + 66
+      w.y = OstCombate::BARRA2_Y + 128
       w.width = 1030
       w.height = 200
       w.baseColor = Color.new(20, 20, 20)
@@ -351,13 +352,18 @@ end
 #-------------------------------------------------------------------------------
 class Battle::Scene::PokemonDataBox
   # [x, y] de la ficha y, dentro, todo lo demas
-  OST_RIVAL = { :pos => [56, 6], :fondo => "ficha_rival",
-                :nombre => [95, 86, 430, 74], :nivel => [500, 96, 190, 64],
-                :vida => [349, 178, 327, 25], :estado => [120, 172] }
-  OST_PROPIA = { :pos => [1083, 491], :fondo => "ficha_propia",
-                 :nombre => [155, 46, 430, 74], :nivel => [520, 54, 195, 64],
-                 :vida => [426, 133, 316, 30], :numeros => [440, 166, 280, 64],
-                 :exp => [299, 244, 418, 9], :estado => [200, 126] }
+  # (medido sobre las piezas de Descargas\interfaz_combate\piezas2, colocadas
+  # como en estilo_elegido.png)
+  OST_RIVAL = { :pos => [79, 13], :fondo => "ficha_rival",
+                :nombre => [48, 64, 380, 80], :nivel => [462, 80, 210, 72],
+                :nivel_texto => "Lv.%d", :nivel_alin => 1,
+                :vida => [322, 200, 312, 34], :bloques => 8, :estado => [70, 150],
+                :bolitas => [137, 280, 58], :flecha => [61, 340] }
+  OST_PROPIA = { :pos => [1112, 474], :fondo => "ficha_propia",
+                 :nombre => [100, 34, 380, 76], :nivel => [604, 50, 130, 64],
+                 :nivel_texto => "%d", :nivel_alin => 0,
+                 :vida => [382, 140, 298, 26], :numeros => [400, 178, 280, 66],
+                 :exp => [258, 272, 394, 11], :estado => [110, 200] }
   OST_COLORES = [Color.new(70, 200, 80), Color.new(250, 200, 40),
                  Color.new(250, 130, 30), Color.new(230, 40, 40)]
 
@@ -411,6 +417,12 @@ class Battle::Scene::PokemonDataBox
     @ostExp.fill_rect(0, 0, e[2], e[3], Color.new(60, 170, 240))
     @expBar.bitmap = @ostExp
     @sprites["expBar"] = @expBar
+    # el rival: las bolitas de su equipo y la flecha, debajo de la ficha
+    if d[:bolitas]
+      @ostLinea = Sprite.new(viewport)
+      @ostLinea.bitmap = Bitmap.new(720, 420)
+      @sprites["ostLinea"] = @ostLinea
+    end
     @contents = Bitmap.new(@databoxBitmap.width, @databoxBitmap.height)
     self.bitmap  = @contents
     self.visible = false
@@ -421,6 +433,7 @@ class Battle::Scene::PokemonDataBox
   alias ostcomb_dispose dispose
   def dispose
     @ostExp&.dispose
+    @ostLinea.bitmap.dispose if @ostLinea && !@ostLinea.disposed? && @ostLinea.bitmap
     ostcomb_dispose
   end
 
@@ -433,6 +446,7 @@ class Battle::Scene::PokemonDataBox
     @expBar.x = value + (d[:exp] ? d[:exp][0] : 0)
     @hpNumbers.x = value + (d[:numeros] ? d[:numeros][0] : 0)
     @hpPercent.x = value
+    @ostLinea.x = value if @ostLinea
   end
 
   alias ostcomb_y_set y=
@@ -444,6 +458,7 @@ class Battle::Scene::PokemonDataBox
     @expBar.y = value + (d[:exp] ? d[:exp][1] : 0)
     @hpNumbers.y = value + (d[:numeros] ? d[:numeros][1] : 0)
     @hpPercent.y = value
+    @ostLinea.y = value if @ostLinea
   end
 
   alias ostcomb_refresh refresh
@@ -462,8 +477,10 @@ class Battle::Scene::PokemonDataBox
                      Color.new(255, 255, 255), Color.new(0, 0, 0), 3)
     # nivel: negro sobre el blanco
     l = d[:nivel]
-    OstCombate.fuente(b, 54)
-    OstCombate.texto(b, l[0], l[1], l[2], l[3], "Nv.#{@battler.level}", 2, Color.new(20, 20, 20))
+    OstCombate.fuente(b, 66)
+    OstCombate.texto(b, l[0], l[1], l[2], l[3], format(d[:nivel_texto], @battler.level), d[:nivel_alin],
+                     Color.new(20, 20, 20))
+    ost_bolitas
     # estado (el icono de la v21, ampliado)
     if @battler.status != :NONE
       begin
@@ -495,7 +512,7 @@ class Battle::Scene::PokemonDataBox
     if @show_hp_numbers && d[:numeros]
       OstCombate.fuente(@hpNumbers.bitmap, 52)
       OstCombate.texto(@hpNumbers.bitmap, 0, 0, d[:numeros][2], d[:numeros][3],
-                       "#{self.hp.round}/#{@battler.totalhp}", 2, Color.new(20, 20, 20))
+                       "#{self.hp.round}/ #{@battler.totalhp}", 2, Color.new(255, 255, 255), Color.new(0, 0, 0), 3)
     end
     v = d[:vida]
     w = 0
@@ -506,9 +523,58 @@ class Battle::Scene::PokemonDataBox
     idx, _sig, _mezcla = pbHPBarZoneInfo(self.hp, @battler.totalhp, HP_COLOR_COUNT)
     col = OST_COLORES[[idx, 3].min]
     @hpBarDisplay.clear
-    @hpBarDisplay.fill_rect(0, 0, v[2], v[3], col)
-    @hpBarDisplay.fill_rect(0, 0, v[2], [v[3] / 4, 2].max, Color.new([col.red + 50, 255].min, [col.green + 50, 255].min, [col.blue + 50, 255].min))
-    @hpBar.src_rect.width = w
+    claro = Color.new([col.red + 50, 255].min, [col.green + 50, 255].min, [col.blue + 50, 255].min)
+    if d[:bloques]
+      # el rival: la vida en bloques, como en la maqueta; los vacios, grises
+      n = d[:bloques]
+      hueco = 6
+      bw = (v[2] - hueco * (n - 1)) / n
+      llenos = (self.hp <= 0) ? 0 : [(n * self.hp.to_f / @battler.totalhp).ceil, 1].max
+      n.times do |k|
+        x = k * (bw + hueco)
+        c = (k < llenos) ? col : Color.new(70, 70, 70)
+        @hpBarDisplay.fill_rect(x, 0, bw, v[3], c)
+        @hpBarDisplay.fill_rect(x, 0, bw, [v[3] / 4, 2].max, claro) if k < llenos
+      end
+      @hpBar.src_rect.width = v[2]
+    else
+      @hpBarDisplay.fill_rect(0, 0, v[2], v[3], col)
+      @hpBarDisplay.fill_rect(0, 0, v[2], [v[3] / 4, 2].max, claro)
+      @hpBar.src_rect.width = w
+    end
+  end
+
+  alias ostcomb_databox_z_set z=
+  def z=(value)
+    ostcomb_databox_z_set(value)
+    @ostLinea.z = 40 if @ostLinea && !@ostLinea.disposed?   # por detras de los Pokemon
+  end
+
+  def ost_bolitas
+    return if !@ostLinea || @ostLinea.disposed?
+    @ostLinea.z = 40
+    d = ost_datos
+    b = @ostLinea.bitmap
+    b.clear
+    f = OstCombate.bmp("flecha")
+    b.blt(d[:flecha][0], d[:flecha][1], f, f.rect)
+    equipo = []
+    begin
+      equipo = @battler.battle.pbParty(@battler.index)
+    rescue
+    end
+    bx, by, paso = d[:bolitas]
+    lado = 50
+    6.times do |i|
+      pk = equipo[i]
+      if pk && !pk.egg?
+        bm = OstCombate.bmp(pk.fainted? ? "bolita_gris" : "bolita")
+        b.stretch_blt(Rect.new(bx + i * paso, by, lado, lado), bm, bm.rect)
+      else
+        bm = OstCombate.bmp("bolita_gris")
+        b.stretch_blt(Rect.new(bx + i * paso, by, lado, lado), bm, bm.rect, 90)
+      end
+    end
   end
 
   alias ostcomb_refresh_exp refresh_exp
@@ -523,7 +589,8 @@ end
 # Los cuatro botones (Luchar, Mochila, Pokemon, Huir)
 #-------------------------------------------------------------------------------
 class Battle::Scene::CommandMenu
-  OST_BOTONES = [[1400, 882], [1741, 880], [1401, 1007], [1741, 1009]]
+  OST_BOTONES = [[1402, 879], [1738, 882], [1400, 1006], [1741, 1010]]
+  OST_ICONOS  = ["icono_luchar", "icono_mochila", "icono_pokemon", "icono_huir"]
 
   alias ostcomb_initialize initialize
   def initialize(viewport, z)
@@ -531,19 +598,19 @@ class Battle::Scene::CommandMenu
     return ostcomb_initialize(viewport, z) if !@ost
     Battle::Scene::MenuBase.instance_method(:initialize).bind(self).call(viewport)
     self.x = 0
-    self.y = OstCombate::BARRA_Y
+    self.y = OstCombate::BARRA2_Y
     @textos = []
     fondo = Sprite.new(viewport)
-    fondo.bitmap = OstCombate.bmp("barra_comandos")
-    fondo.y = OstCombate::BARRA_Y
+    fondo.bitmap = OstCombate.bmp("barra")
+    fondo.y = OstCombate::BARRA2_Y
     addSprite("fondo", fondo)
     @ostSel = Sprite.new(viewport)
     @ostSel.bitmap = OstCombate.bmp("boton_sel")
     @ostSel.ox = @ostSel.bitmap.width / 2
     @ostSel.oy = @ostSel.bitmap.height / 2
     addSprite("sel", @ostSel)
-    @ostTexto = BitmapSprite.new(OstCombate::ANCHO, 282, viewport)
-    @ostTexto.y = OstCombate::BARRA_Y
+    @ostTexto = BitmapSprite.new(OstCombate::ANCHO, 346, viewport)
+    @ostTexto.y = OstCombate::BARRA2_Y
     addSprite("texto", @ostTexto)
     # zonas para el raton (invisibles)
     @ostZona = Bitmap.new(320, 110)
@@ -585,26 +652,30 @@ class Battle::Scene::CommandMenu
   def refresh
     return ostcomb_refresh if !@ost
     p = OST_BOTONES[@index] || OST_BOTONES[0]
-    @ostSel.x = p[0] + 2
-    @ostSel.y = p[1] - 4
+    @ostSel.x = p[0]
+    @ostSel.y = p[1]
     b = @ostTexto.bitmap
     b.clear
     # la pregunta, en el panel blanco
     if @textos[0]
       OstCombate.fuente(b, 56)
       OstCombate.lineas(b, @textos[0].to_s.gsub("\n", " "), 980).each_with_index do |linea, i|
-        OstCombate.texto(b, 100, 62 + i * 64, 1000, 64, linea, 0, Color.new(20, 20, 20))
+        OstCombate.texto(b, 92, 124 + i * 64, 1000, 64, linea, 0, Color.new(20, 20, 20))
       end
     end
-    OstCombate.fuente(b, 60)
+    # cada boton: su palabra y su icono, en negro (como en la maqueta)
+    OstCombate.fuente(b, 62)
     4.times do |i|
       t = @textos[i + 1]
       next if !t
       q = OST_BOTONES[i]
-      sel = (i == @index)
-      OstCombate.texto(b, q[0] - 150, q[1] - OstCombate::BARRA_Y - 34, 300, 68, t.to_s.upcase, 1,
-                       sel ? Color.new(255, 255, 255) : Color.new(20, 20, 20),
-                       sel ? Color.new(0, 0, 0) : nil, 3)
+      ty = q[1] - OstCombate::BARRA2_Y
+      txt = t.to_s.upcase
+      ic = OstCombate.bmp(OST_ICONOS[i])
+      ancho = b.text_size(txt).width + 14 + ic.width
+      x0 = q[0] - ancho / 2
+      OstCombate.texto(b, x0, ty - 36, ancho, 72, txt, 0, Color.new(15, 15, 15))
+      b.blt(x0 + ancho - ic.width, ty - ic.height / 2, ic, ic.rect)
     end
   end
 end
