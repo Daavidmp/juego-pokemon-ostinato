@@ -1093,3 +1093,31 @@ class PBAnimationPlayerX
     ostcomb_setLineTransform(x1, y1, x2, y2, x3, y3, x4, y4)
   end
 end
+
+#-------------------------------------------------------------------------------
+# El ultimo mensaje ("Has ganado 40$ por vencer") se queda esperando a que
+# pulses, y con el se quedaba el recuadro hasta salir del combate. Aqui se
+# lee un momento, se cierra solo y el recuadro se quita.
+#-------------------------------------------------------------------------------
+class Battle
+  alias ostcomb_pbGainMoney pbGainMoney
+  def pbGainMoney
+    return ostcomb_pbGainMoney if !OstCombate.activo?
+    @ost_sin_pausa = true
+    begin
+      ostcomb_pbGainMoney
+    ensure
+      @ost_sin_pausa = false
+    end
+    @scene.pbShowWindow(Battle::Scene::BLANK) rescue nil
+  end
+
+  alias ostcomb_pbDisplayPaused pbDisplayPaused
+  def pbDisplayPaused(msg, &block)
+    return ostcomb_pbDisplayPaused(msg, &block) if !@ost_sin_pausa
+    pbDisplay(msg, &block)
+    # un poco mas que el resto de mensajes, para que se lea
+    t = System.uptime
+    @scene.pbUpdate while System.uptime - t < 0.6
+  end
+end

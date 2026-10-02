@@ -1,0 +1,96 @@
+POKEMON OSTINATO - Animacion de debilitarse (Adobe Firefly)
+==========================================================
+
+La idea: cuando un Pokemon se debilita, aparece una Poke Ball sobre el,
+se abre, el Pokemon se vuelve blanco y se convierte en una bola de luz,
+la bola entra en la Poke Ball con un destello electrico ("tronador"),
+la ball se cierra y se va.
+
+Para todas:
+  - Formato: cuadrado 1:1 (el mas grande que deje, 2048x2048).
+  - Un solo elemento por imagen, centrado y entero, sin cortar, con
+    margen alrededor.
+  - Sin texto, sin letras, sin marcos.
+  - Guardalas en Descargas\debilitar\ con el nombre que pone en cada una.
+
+Tamano y referencias de cada una (en este orden, porque unas sirven de
+referencia a las siguientes):
+
+  1) ball_cerrada      1:1 cuadrado 2048x2048
+                       Estilo: Descargas\Firefly_Cartel de habilidad ... 617330.png (intensidad alta)
+                       Composicion: ninguna
+  2) ball_abierta      1:1 cuadrado 2048x2048
+                       Estilo: el mismo cartel (intensidad alta)
+                       Composicion: tu ball_cerrada.png (intensidad media, para que sea la misma ball)
+  3) bola_luz          1:1 cuadrado 2048x2048
+                       Estilo: ninguna (es la que marca el color de todas las luces)
+                       Composicion: ninguna
+  4) destello_tronador 1:1 cuadrado 2048x2048
+                       Estilo: tu bola_luz.png (intensidad media)
+                       Composicion: ninguna
+  5) chispas           1:1 cuadrado 2048x2048
+                       Estilo: tu bola_luz.png (intensidad media)
+                       Composicion: ninguna
+  6) rayo_retorno      16:9 horizontal 2688x1536 (o el 16:9 mas grande que deje)
+                       Estilo: tu bola_luz.png (intensidad media)
+                       Composicion: ninguna
+
+Tipo de contenido: "Arte" (no "Foto").
+
+
+1) ball_cerrada.png  -  fondo BLANCO
+------------------------------------
+Una Poke Ball cerrada vista de frente, ligeramente girada, estilo comic
+manga: contorno negro grueso de tinta, mitad superior roja intensa con un
+brillo blanco marcado arriba a la izquierda, mitad inferior blanca, franja
+negra horizontal en el centro y boton central blanco con aro negro grueso.
+Sombreado con trama de puntos de semitono. Colores planos y nitidos, sin
+degradados suaves. Fondo blanco liso.
+
+
+2) ball_abierta.png  -  fondo BLANCO
+------------------------------------
+La misma Poke Ball estilo comic manga, abierta por la bisagra de atras:
+la mitad roja levantada unos 60 grados, y del interior sale un resplandor
+de luz blanca y rojiza intensa con lineas de energia. Contorno negro grueso
+de tinta, trama de puntos de semitono, colores planos y nitidos. Fondo
+blanco liso.
+
+
+3) bola_luz.png  -  fondo NEGRO
+-------------------------------
+Una esfera de luz brillante: nucleo blanco puro muy intenso, halo rojo
+y rosa a su alrededor que se difumina hacia fuera, y unos pocos destellos
+finos en cruz saliendo del centro. Estilo efecto de anime, limpio. Fondo
+negro puro liso, nada mas en la imagen.
+
+
+4) destello_tronador.png  -  fondo NEGRO
+----------------------------------------
+Un estallido de impacto de comic con energia electrica: rayos de luz
+blancos y amarillos saliendo del centro en todas direcciones, con varios
+relampagos en zigzag electricos entre ellos y un nucleo blanco cegador.
+Bordes de los rayos nitidos, estilo anime de efecto de golpe. Fondo negro
+puro liso.
+
+
+5) chispas.png  -  fondo NEGRO
+------------------------------
+Una hoja con 8 chispas de luz sueltas y separadas entre si, cada una una
+estrella de cuatro puntas blanca con un leve brillo amarillo, de varios
+tamanos, sin tocarse unas con otras. Estilo efecto de anime. Fondo negro
+puro liso.
+
+
+6) rayo_retorno.png  -  fondo NEGRO
+-----------------------------------
+Un haz de luz rojo recto y horizontal, como un rayo laser de energia: nucleo
+blanco fino en el centro, rojo intenso alrededor y bordes que se difuminan,
+con pequenas chispas a lo largo. Ocupa todo el ancho de la imagen. Fondo
+negro puro liso.
+(Formato para esta: horizontal 16:9 en vez de cuadrado.)
+
+
+Por que dos fondos: la Poke Ball se recorta sobre blanco (como los demas
+elementos de la interfaz). Los efectos de luz van sobre negro porque se
+pegan "por luz": lo negro desaparece y el brillo se suma a lo de detras.
