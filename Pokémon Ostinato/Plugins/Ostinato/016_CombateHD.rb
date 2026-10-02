@@ -37,9 +37,16 @@ module OstCombate
   @activo = false
   def self.activo?; return @activo; end
 
+  # La animacion de entrada (015) deja la pantalla ya a 1920: el combate la
+  # aprovecha en vez de bajarla y subirla otra vez
+  def self.dejar_subida(antes)
+    @pendiente = antes
+  end
+
   def self.con
     return yield if @activo
-    antes = OstinatoHD.subir
+    antes = @pendiente || OstinatoHD.subir
+    @pendiente = nil
     @antes = antes
     @activo = true
     begin

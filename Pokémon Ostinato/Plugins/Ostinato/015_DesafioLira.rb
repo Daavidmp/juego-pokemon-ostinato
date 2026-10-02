@@ -441,7 +441,9 @@ module OstDesafio
       foto.dispose if foto && !foto.disposed?
       begin; vp.dispose; rescue; end
       begin; vp_pj.dispose; rescue; end
-      OstinatoHD.bajar(antes) if antes
+      # no se baja: el combate sigue a 1920 sin cambiar otra vez de resolucion
+      # (cada cambio deja la pantalla un momento en negro)
+      OstCombate.dejar_subida(antes) if antes
       viewport.color = Color.new(0, 0, 0, 255) if viewport
     end
   end
