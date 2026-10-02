@@ -1,0 +1,19 @@
+# Escena de la profesora Arce, despues de la cinematica (habla ella todo el rato)
+izq|¡Bienvenida al mundo de los Pokémon!
+izq|Me llamo Arce. Aquí me llaman profesora, aunque lo que hago es escuchar.
+izq|Este mundo está lleno de criaturas a las que llamamos Pokémon.
+izq|Llevan con nosotros desde antes de que supiéramos contarlo.
+izq|Mira. Este es uno de ellos.
+izq|Se llama Mudkip. Nació en el río que pasa por detrás de tu pueblo.
+izq|Lleva media mañana aquí y ya sabe dónde guardo la comida. Aprenden deprisa.
+izq|Esta región se llama Cadencia. Aquí la gente dice una cosa curiosa.
+izq|Cuando alguien se entiende bien con su Pokémon, dicen que «hacen coro».
+izq|Es solo una palabra. Llevo cuarenta años estudiándola y aún no sé qué nombra.
+izq|Pero hoy no toca hablar de mí.
+izq|Tú eres Kaia. Vives en Pueblo Preludio, al sur de la región.
+izq|Te gustan los Pokémon desde siempre y te los sabes todos por su nombre.
+izq|Y hay algo de lo que nunca hablas con nadie. Tranquila, hoy no lo sacaré yo.
+izq|Esta es Lira. Tu amiga desde que erais dos crías.
+izq|Nota lo que siente la gente antes de que lo diga. No siempre le viene bien.
+izq|Te está esperando en la puerta. Lleva media hora ahí, en realidad.
+izq|Así que dime: ¿estás preparada para empezar tu aventura?

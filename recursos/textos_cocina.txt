@@ -1,0 +1,23 @@
+# ACTO 2 Y 4 - LA COCINA.  lado|texto
+# izq = Blanca, der = Kaia
+izq|Ya era hora, muchacha.
+izq|Siéntate, anda. Te he guardado lo tuyo.
+der|Gracias, mamá.
+izq|Está recién hecho. Cómetelo caliente, que así está más rico.
+izq|¿Tienes ganas de ir al laboratorio?
+der|Sí.
+der|Y un poco de miedo.
+izq|Normal. Todavía me acuerdo yo de aquella época.
+izq|Qué tiempos más bonitos pasé junto a mis compañeros.
+izq|Pero bueno, come, anda, que te están esperando.
+izq|Y vamos a ver las noticias un poco.
+izq|Que últimamente pasan muchas cosas y no me entero de nada.
+der|Pues enciendo la tele y nos enteramos de algo.
+der|¿Qué es lo que acabamos de ver? ¿Cómo que dejó de hablar?
+der|Mamá, ¿tú tienes idea de qué ha pasado?
+izq|Ni idea, hija.
+izq|Pero he escuchado que cada vez más personas acaban en estado vegetal.
+der|Ostras, qué extraño.
+izq|Son cosas que le pasan a gente mayor, supongo.
+der|Mamá, tenía treinta y cuatro años, si consideras eso mayor.
+izq|Bueno, anda, come, que te están esperando.

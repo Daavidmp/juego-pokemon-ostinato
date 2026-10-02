@@ -1,0 +1,14 @@
+# ACTO 1 - EL DESPERTAR.  lado|texto
+# der = Kaia, izq = su madre (que aun no se ve, sale como ??)
+der|Aissh...
+der|Ya es de día del todo.
+der|Me levanto y lo primero que escucho es el ruido de alguien fregando.
+izq|¿Kaia?
+izq|¿Estás ahí?
+izq|He escuchado el crujido de la cama. Seguro que estás despierta.
+der|Llevo despierta un rato.
+izq|Pues baja a desayunar, anda.
+izq|Que te están esperando desde hace ya tiempo.
+der|¿Quién?
+izq|Lira. Lleva abajo desde las nueve preguntando por ti.
+izq|Ha dicho que si no bajas, sube ella y te saca a base de ostias.

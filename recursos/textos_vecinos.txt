@@ -1,0 +1,20 @@
+# Vecinos de Pueblo Preludio. El lado no se usa: hablan desde el cuadro neutro.
+der|Cuando desde aquí se pueden apreciar las vistas del monte,
+der|eso quiere decir que no va a llover.
+der|Nunca he fallado en mis predicciones.
+der|Siempre tiendo la colada a primera hora.
+der|Más tarde no hay quien la seque, aunque pegue todo el sol.
+der|Me pongo aquí porque se puede ver quién entra y quién sale del pueblo.
+der|No por nada, pero si no fuera por mí, aquí entraría todo el mundo.
+der|Me pongo a hablar con esta planta desde hace ya cinco años.
+der|Ya sé que no me oye. Pero el día que se me olvida, tengo mala suerte.
+der|Aquí hace años que no pica nada.
+der|Tampoco vengo por los peces.
+der|Este Pokémon ya no me escucha hablar.
+der|Pero aunque no me escuche, me relaja hablar con él a solas.
+der|Me paso la vida buscando mis gafas de vista.
+der|Ya estoy mayor, y como ya no está conmigo mi Pokémon, nunca las encuentro.
+der|Sé que tenía que salir a hacer algo, pero ya no me acuerdo.
+der|Debería apuntar cada cosa que voy a hacer.
+der|Yo de aquí no me he movido nunca.
+der|Y no me preguntes si me arrepiento, que según el día te contesto una cosa.

@@ -1,0 +1,33 @@
+# ACTO 6 - EL LABORATORIO.  lado|texto
+# izq = profesora Arce, izq2 = Lira, der = Kaia
+izq|Vaya. Ya estamos todas.
+izq2|Le decía yo que no tardabas.
+der|Has tardado tú menos, nada más.
+izq2|Yo salí de casa. Tú saliste de la cama.
+izq|Dejadlo, que llevo aquí desde las ocho y ese chiste ya me lo sé.
+izq|Kaia. ¿Cómo está tu madre?
+der|Fregando.
+izq|Entonces está bien. Dale recuerdos.
+izq|Bueno.
+izq|Sabéis por qué estáis aquí, ¿no?
+izq2|Sí.
+der|Más o menos.
+izq|Más o menos me vale.
+izq2|Profesora, ¿usted ha visto lo de Ciudad Muda?
+izq|Lo he visto.
+der|¿Y qué es?
+izq|No lo sé.
+izq|Y el que te diga que lo sabe, tampoco.
+izq|Hoy no toca eso. Hoy toca lo vuestro.
+izq|Mirad la mesa.
+der|Son tres.
+izq|Una para cada una.
+izq|La tercera se queda esperando.
+der|¿Esperando a quién?
+izq|A quien venga. Siempre viene alguien.
+izq|No os lo penséis mucho, que luego se hace tarde y se me enfría el café.
+izq2|Yo lo tengo decidido desde los seis años.
+der|Yo no.
+izq|Pues mejor.
+izq|Los que lo traen decidido de casa son los que se llevan la sorpresa.
+izq|Venga. Acercaos.

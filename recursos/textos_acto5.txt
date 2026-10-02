@@ -1,0 +1,33 @@
+# ACTO 5 - LA PUERTA DE CASA.  lado|texto
+# izq = Lira, der = Kaia
+izq|Vaya, te has dormido, como siempre...
+der|Buenos días.
+izq|Llevo aquí desde las nueve.
+der|Ya. Me lo ha dicho mi madre.
+izq|Te lo ha dicho y has tardado otros veinte minutos.
+der|Estaba desayunando.
+izq|Y viendo las noticias.
+der|...
+izq|Se te oía la tele desde el portal.
+izq|Lo del hombre ese que dejó de hablar, ¿no?
+der|Sí.
+izq|Mi padre dice que es cosa del agua.
+izq|Que últimamente está muy sucia y la gente se la bebe.
+izq|Aunque mi padre dice muchas cosas.
+izq|Que después no son.
+der|Ya.
+izq|Bueno. Da igual. Ya estás aquí.
+izq|¿Sabes qué día es hoy?
+der|Jueves.
+izq|Es nuestro día, Kaia.
+izq|Hoy conoceremos a nuestro compañero de aventura.
+der|Lo sé.
+izq|Pues no lo parece.
+der|Es que no me lo creo todavía.
+izq|Pues te lo vas creyendo por el camino.
+izq|Venga, que nos están esperando.
+der|¿Por dónde era?
+izq|Al norte del pueblo. Por si no te acordabas.
+izq|Todo recto, no tiene pérdida.
+der|Me acordaba.
+izq|Claro.
