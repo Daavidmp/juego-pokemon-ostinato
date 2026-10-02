@@ -104,6 +104,12 @@ module OstDlg
       triangulo(lienzo, ax - x0, ay - y0, bx - PICO_MEDIO - x0, bx + PICO_MEDIO - x0, borde - y0, MARCO, 0)
       lienzo.blt(cx - x0, cy - y0, caja, caja.rect)
       caja.dispose
+      # el dibujo del cuadro lleva una sombra fina y oscura por fuera del marco:
+      # donde nace el pico se tapa repintandolo por encima hasta la linea del
+      # marco, asi pico y marco quedan unidos sin raya
+      base2 = abajo ? cy + 19 : cy + PNJ_H - 12
+      medio2 = PICO_MEDIO * (base2 - ay) / (borde - ay).to_f
+      triangulo(lienzo, ax - x0, ay - y0, bx - medio2 - x0, bx + medio2 - x0, base2 - y0, MARCO, 0)
       @pnj_bitmap.dispose if @pnj_bitmap && !@pnj_bitmap.disposed?
       @pnj_bitmap = lienzo
       # el texto, en el hueco del papel; la hoja, en su esquina de siempre
