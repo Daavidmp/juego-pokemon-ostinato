@@ -11,6 +11,9 @@
 #     - el que se debilita, de cerca.
 #   Antes de cada animacion de ataque vuelve al plano general (las
 #   animaciones se colocan contando con el).
+#   Kaia y tu Pokemon nunca suben de su sitio: sus pies (el corte de abajo
+#   de sus sprites de espaldas) siguen siempre pegados a la barra roja; la
+#   camara solo los acerca (crecen hacia arriba) o los mueve de lado.
 #
 #   Como va: la camara solo mueve los sprites del escenario (fondo, Pokemon,
 #   sombras y entrenadores) mientras se dibuja cada fotograma, y despues los
@@ -25,7 +28,6 @@ module OstCamara
   ESPERA = 15                 # segundos sin elegir hasta que la camara se mueve sola
   RIVAL_EN = [1000, 300]      # donde queda el rival en sus primeros planos
   SUELO = OstCombate::BARRA2_Y + 77   # desde aqui la barra de abajo es opaca (sus manchas, no)
-  PIES_Y = SUELO + 20         # el borde de abajo del lado propio, nunca por encima
   MUNDO = /\A(battle_bg2?|pokemon_\d+|shadow_\d+|player_\d+|trainer_\d+)\z/
 
   # metodos de Sprite sin pasar por los de 016 (los Pokemon fingen zoom 1)
@@ -196,11 +198,14 @@ module OstCamara
       y1 = y0 + bg.bitmap.height * SZY.bind(bg).call
       mx = CENTRO[0] / z
       my = CENTRO[1] / z
-      # los pies del lado propio (el corte de abajo de su sprite de espaldas)
-      # siguen escondidos tras la barra
-      fy = [fy, corte_propio - (PIES_Y - CENTRO[1]) / z].min if z > 1.0
       fx = [[fx, x0 + mx].max, x1 - mx].min if x1 - x0 >= 2 * mx
       fy = [[fy, y0 + my].max, y1 - my].min if y1 - y0 >= 2 * my
+      # lo ultimo y por encima de todo: los pies del lado propio (Kaia y su
+      # Pokemon) nunca suben de su sitio; siguen pegados a la barra roja.
+      # Con zoom crecen hacia arriba desde ellos, y como mucho bajan.
+      c = corte_propio
+      fy = [fy, c - (c - CENTRO[1]) / z].min
+      return [fx, fy]
       return [fx, fy]
     end
 
@@ -226,7 +231,7 @@ module OstCamara
           z = @cam[2]
           fx, fy = limitar(@cam[0], @cam[1], z)
           dx = (@temblor > 0) ? (rand * 2 - 1) * @temblor : 0
-          dy = (@temblor > 0) ? (rand * 2 - 1) * @temblor * 0.6 : 0
+          dy = (@temblor > 0) ? rand * @temblor * 0.6 : 0   # solo hacia abajo: nada sube
         end
         sprites.each do |k, s|
           next if !s || !k.is_a?(String) || k !~ MUNDO
@@ -342,8 +347,11 @@ module OstCamara
                 cx = [[cx, bx0 + 480 / zz].max, bx1 - 480 / zz].min
                 cy = [[cy, by0 + 540 / zz].max, by1 - 540 / zz].min
               end
-              # el tuyo: su corte justo por debajo del final del panel, sobre la barra
-              cy = corte_propio(["pokemon_#{idx_propio}"]) - (PIES_Y - 540) / zz if x0 == 0
+              # el tuyo: sus pies en su sitio de siempre, pegados a la barra roja
+              if x0 == 0
+                corte = corte_propio(["pokemon_#{idx_propio}"])
+                cy = corte - (corte - 540) / zz
+              end
               copias.each do |o, c|
                 next if o.disposed?
                 c.bitmap = o.bitmap
