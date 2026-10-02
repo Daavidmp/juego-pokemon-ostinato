@@ -907,7 +907,9 @@ end
 # El cartel de habilidad ("Mar Llamas de Fennekin"), al estilo de la interfaz
 #-------------------------------------------------------------------------------
 class Battle::Scene::AbilitySplashBar
-  OST_Y = [400, 24]           # propio (sale por la izquierda), rival (por la derecha)
+  # propio: a la izquierda, entre las bolitas del rival y la cabeza de tu
+  # Pokemon; rival: arriba a la derecha, por encima de su Pokemon
+  OST_Y = [364, 0]
 
   alias ostcomb_initialize initialize
   def initialize(side, viewport = nil)
@@ -937,12 +939,12 @@ class Battle::Scene::AbilitySplashBar
     return if !@battler
     # el texto, en negro y centrado en lo blanco (lejos de la mancha y la trama,
     # que en el del rival quedan a la derecha)
-    x0 = (@side == 0) ? 125 : 65
-    OstCombate.fuente(self.bitmap, 56)
-    OstCombate.texto(self.bitmap, x0, 58, 470, 62, @battler.abilityName.upcase, 1,
+    x0 = (@side == 0) ? 100 : 40
+    OstCombate.fuente(self.bitmap, 54)
+    OstCombate.texto(self.bitmap, x0, 44, 400, 56, @battler.abilityName.upcase, 1,
                      Color.new(16, 16, 16))
-    OstCombate.fuente(self.bitmap, 32)
-    OstCombate.texto(self.bitmap, x0, 118, 470, 40, _INTL("de {1}", @battler.name).upcase, 1,
+    OstCombate.fuente(self.bitmap, 30)
+    OstCombate.texto(self.bitmap, x0, 98, 400, 34, _INTL("de {1}", @battler.name).upcase, 1,
                      Color.new(200, 30, 40))
   end
 end
