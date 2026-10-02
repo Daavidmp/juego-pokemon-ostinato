@@ -46,8 +46,9 @@ module OstCombate
       return yield
     ensure
       if @temporal
-        # el combate acabo con la pantalla ya bajada (el fundido final)
-        OstUI.salir
+        # el combate acabo con la pantalla ya bajada (el fundido final):
+        # fuera las bandas de 512, del todo
+        OstUI.salir while OstUI.activo?
         @temporal = false
       else
         OstinatoHD.bajar(@antes) if @antes
