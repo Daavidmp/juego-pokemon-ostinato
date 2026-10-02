@@ -31,7 +31,7 @@ module OstCombate
   BARRA2_Y = ALTO - 346      # la barra de mensaje y botones (con sus manchas por arriba)
 
   # centro de los pies de cada lado (como las bases de la v21)
-  PROPIO = [554, 735]        # entero, de pie en el centro de su losa
+  PROPIO = [554, 842]        # el corte de abajo del sprite de espaldas, escondido tras la barra
   RIVAL  = [1374, 418]
 
   @activo = false
@@ -254,34 +254,11 @@ class Battle::Scene
         s.y = ((OstCombate::ALTO - alto) / 2).round
       end
       @sprites["battle_bg2"].x = -OstCombate::ANCHO if @sprites["battle_bg2"]
-      # Las losas, cuadradas con la interfaz: del tamano y en el sitio de los
-      # ovalos de la maqueta, con el Pokemon de pie en su centro. La propia de
-      # los fondos de 512 esta cortada por abajo (la tapaba la barra vieja):
-      # se completa con su reflejo.
+      # Sin losas, como en Pokemon Anil: los Pokemon pisan el suelo del fondo
+      # y llevan su sombra debajo.
       2.times do |side|
-        base = @sprites["base_#{side}"]
-        next if !base || !base.bitmap
-        bm = base.bitmap
-        x0, y0, x1, y1 = OstCombate.caja(bm)
-        if side == 0 && y1 >= bm.height - 2
-          # se dibuja un ovalo entero con sus colores (relleno, filo y borde)
-          relleno = bm.get_pixel((x0 + x1) / 2, y1 - 2)
-          filo    = bm.get_pixel((x0 + x1) / 2, y0 + 3)
-          borde   = bm.get_pixel((x0 + x1) / 2, y0)
-          entero = OstCombate.ovalo(290, 66, relleno, filo, borde)
-          base.bitmap = entero
-          bm = entero
-          x0, y0, x1, y1 = 0, 0, bm.width - 1, bm.height - 1
-        end
-        ancho = OstCombate::LOSAS[side][2]
-        bz = ancho.to_f / [x1 - x0 + 1, 1].max
-        base.zoom_x = bz
-        base.zoom_y = bz
-        base.ox = (x0 + x1) / 2
-        # la animacion de entrada coloca la propia por su borde de abajo
-        base.oy = (side == 0) ? y1 + 1 : (y0 + y1) / 2
-        base.x = OstCombate::LOSAS[side][0]
-        base.y = OstCombate::LOSAS[side][1]
+        base = @sprites.delete("base_#{side}")
+        base.dispose if base && !base.disposed?
       end
     end
     @sprites["cmdBar_bg"].visible = false if @sprites["cmdBar_bg"]
@@ -1079,4 +1056,22 @@ def getSpriteCenter(sprite)
   cy = sprite.src_rect.height / 2
   return [sprite.x + (cx - sprite.ox) * sprite.zoom_x * k,
           sprite.y + (cy - sprite.oy) * sprite.zoom_y * k]
+end
+
+# Y la linea entre atacante y objetivo, que usa la mitad del alto del dibujo:
+# con los Pokemon ampliados, la mitad del alto ampliado. Si no, el objetivo
+# bajaba de golpe en cada ataque.
+class PBAnimationPlayerX
+  alias ostcomb_setLineTransform setLineTransform
+  def setLineTransform(x1, y1, x2, y2, x3, y3, x4, y4)
+    if OstCombate.activo?
+      k = OstCombate::ESCALA
+      [[@usersprite, :u], [@targetsprite, :t]].each do |s, q|
+        next if !s || !s.bitmap || s.bitmap.disposed? || !s.respond_to?(:ost_k)
+        extra = s.bitmap.height * (k - 1) / 2.0
+        q == :u ? (y3 -= extra) : (y4 -= extra)
+      end
+    end
+    ostcomb_setLineTransform(x1, y1, x2, y2, x3, y3, x4, y4)
+  end
 end
