@@ -4,7 +4,7 @@
 #   El combate ya no es un plano fijo:
 #     - el rival saca su Pokemon y la camara se acerca a el;
 #     - al empezar, la pantalla se parte en dos vistas (tu Pokemon y el suyo,
-#       de cerca, con un "VS" en medio);
+#       de cerca, con un "VS" en medio y su sonido);
 #     - si pasan 15 s sin elegir ataque ni nada, la camara se mece despacio
 #       entre los dos (como en X/Y); cualquier tecla la devuelve al general;
 #     - el golpe sacude la camara y la empuja hacia el que lo recibe;
@@ -330,6 +330,9 @@ module OstCamara
         bloquear do
           total.times do |f|
             # entrar (0-10), quieto, salir (92-104)
+            # el tajo al cerrarse los paneles (sale la raya) y el destello con el VS
+            pbSEPlay("Vs sword") if f == 6
+            pbSEPlay("Vs flash") if f == 10
             e = (f < 10) ? f / 10.0 : (f >= 92) ? 1 - (f - 92) / 12.0 : 1.0
             e = 1 - (1 - e) ** 3
             vistas.each do |vp, copias, p, x0|
