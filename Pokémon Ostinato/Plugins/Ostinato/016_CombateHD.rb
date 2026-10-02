@@ -902,40 +902,28 @@ end
 # El cartel de habilidad ("Mar Llamas de Fennekin"), al estilo de la interfaz
 #-------------------------------------------------------------------------------
 class Battle::Scene::AbilitySplashBar
-  OST_Y = [380, 30]           # propio (sale por la izquierda), rival (por la derecha)
+  OST_Y = [400, 24]           # propio (sale por la izquierda), rival (por la derecha)
 
   alias ostcomb_initialize initialize
   def initialize(side, viewport = nil)
     ostcomb_initialize(side, viewport)
     @ost = OstCombate.activo?
     return if !@ost
-    w = 640
-    h = 128
-    @ostBg = Bitmap.new(w, h)
-    # placa negra cortada en diagonal, con el rojo dentro
-    h.times do |y|
-      d = (h - y) * 30 / h
-      x0 = (side == 0) ? 0 : d
-      x1 = (side == 0) ? w - d : w
-      @ostBg.fill_rect(x0, y, x1 - x0, 1, Color.new(0, 0, 0))
-      next if y < 8 || y > h - 9
-      @ostBg.fill_rect(x0 + 8, y, x1 - x0 - 16, 1, Color.new(220, 35, 40))
-    end
-    @bgSprite.bitmap = @ostBg
-    @bgSprite.src_rect = Rect.new(0, 0, w, h)
+    # el cartel de Firefly (habilidad.png); el del rival, volteado: su punta
+    # mira hacia dentro de la pantalla
+    fondo = OstCombate.bmp("habilidad")
+    @bgSprite.bitmap = fondo
+    @bgSprite.src_rect = Rect.new(0, 0, fondo.width, fondo.height)
+    @bgSprite.mirror = (side == 1)
+    @bgSprite.tone = Tone.new(55, 22, 22)   # el rojo vivo de la interfaz, no granate
+    w = fondo.width
     @contents.dispose
-    @contents = Bitmap.new(w, h)
+    @contents = Bitmap.new(w, fondo.height)
     self.bitmap = @contents
-    OstCombate.fuente(self.bitmap, 52)
+    OstCombate.fuente(self.bitmap, 58)
     # la animacion la mueve medio ancho de pantalla: asi acaba pegada a su borde
     self.x = (side == 0) ? -(Graphics.width / 2) : Graphics.width + (Graphics.width / 2 - w)
     self.y = OST_Y[side]
-  end
-
-  alias ostcomb_dispose dispose
-  def dispose
-    ostcomb_dispose
-    @ostBg&.dispose
   end
 
   alias ostcomb_refresh refresh
@@ -943,13 +931,16 @@ class Battle::Scene::AbilitySplashBar
     return ostcomb_refresh if !@ost
     self.bitmap.clear
     return if !@battler
-    alin = (@side == 0) ? 0 : 2
-    OstCombate.fuente(self.bitmap, 52)
-    OstCombate.texto(self.bitmap, 30, 8, 580, 60, @battler.abilityName.upcase, alin,
-                     Color.new(255, 255, 255), Color.new(0, 0, 0), 3)
-    OstCombate.fuente(self.bitmap, 38)
-    OstCombate.texto(self.bitmap, 30, 66, 580, 50, _INTL("de {1}", @battler.name).upcase, alin,
-                     Color.new(255, 255, 255), Color.new(0, 0, 0), 2)
+    # el texto, en la parte roja lisa (lejos de la punta y de la mancha)
+    # centradas en la parte roja lisa (sin la punta)
+    x0 = (@side == 0) ? 20 : 120
+    alin = 1
+    OstCombate.fuente(self.bitmap, 46)
+    OstCombate.texto(self.bitmap, x0, 54, 500, 54, @battler.abilityName.upcase, alin,
+                     Color.new(255, 255, 255), Color.new(120, 0, 12), 3)
+    OstCombate.fuente(self.bitmap, 30)
+    OstCombate.texto(self.bitmap, x0, 104, 500, 40, _INTL("de {1}", @battler.name).upcase, alin,
+                     Color.new(255, 255, 255), Color.new(120, 0, 12), 2)
   end
 end
 

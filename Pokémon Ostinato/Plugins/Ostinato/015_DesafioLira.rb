@@ -160,6 +160,15 @@ module OstDesafio
     escala_foto = foto ? W.to_f / foto.width : 1.0
     piezas = foto ? cristales(foto, GOLPE_C[0] / escala_foto, GOLPE_C[1] / escala_foto) : []
     sueltas = piececitas
+    # la musica del combate espera a que acabe el desafio: se para y suena
+    # al final (pbBattleAnimation la pone antes de la animacion)
+    musica = nil
+    begin
+      musica = $game_system.getPlayingBGM
+      pbBGMStop
+    rescue
+    end
+    se("Desafio", 100, 100) if pbResolveAudioSE("Desafio") rescue nil
     antes = OstinatoHD.subir
     vp = Viewport.new(0, 0, Graphics.width, Graphics.height)
     vp.z = 999_999
@@ -411,6 +420,10 @@ module OstDesafio
       # detras se veria a traves y la tenyiria de morado
       16.times { |f| negro.opacity = [(f + 1) * 16, 255].min; vp_pj.color = Color.new(0, 0, 0, negro.opacity); paso.call }
       viewport.color = Color.new(0, 0, 0, 255) if viewport
+      begin
+        pbBGMPlay(musica) if musica
+      rescue
+      end
     ensure
       vp.ox = 0
       vp.oy = 0
