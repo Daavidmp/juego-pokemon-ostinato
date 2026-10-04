@@ -54,7 +54,10 @@ farolas · farola_blanca_ext1_invertida                         col 5  fila 806 
 farolas · farola_marron_ext1                                   col 6  fila 805  1x5
 farolas · farola_marron_ext1_invertida                         col 7  fila 805  1x5
 teatro grande (2026-10-04) · trozo 1/2 (columnas 0-7)        col 0  fila 810  8x12
-teatro grande (2026-10-04) · trozo 2/2 (columnas 8-11)       col 0  fila 822  4x12
-    12x12 casillas en el mapa: pon el trozo 2 a la derecha del trozo 1.
-    No se atraviesa; la puerta (columnas 5-6 de las dos filas de abajo) si.
-    Las filas altas tapan a Kaia (prioridad 2). Pieza: piezas/teatro_grande.png
+teatro grande (2026-10-04) · trozo 2/2 (columnas 8-12)       col 0  fila 822  5x12
+    13x12 casillas en el mapa (pon el trozo 2 a la derecha del trozo 1); el
+    edificio va desplazado medio tile para que la puerta caiga en el centro de
+    la columna 6. Solo se pisan la puerta (columna 6, fila 10, prioridad 1: tapa
+    al personaje) y su escalon (columna 6, fila 11). Todo lo demas, prioridad 0.
+    En Villa Bambalina: x 2-14, y 0-6 (filas 5-11 de la pieza). Pieza:
+    piezas/teatro_grande.png
