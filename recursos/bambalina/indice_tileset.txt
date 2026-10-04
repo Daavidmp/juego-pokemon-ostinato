@@ -1,4 +1,4 @@
-Villa Bambalina.png · 256 x 25920 px · 810 filas
+Villa Bambalina.png · 256 x 26688 px · 834 filas
 
 Filas 0-717: Exterior1 tal cual (mismos tiles y mismas posiciones).
 Filas 718 en adelante: piezas propias de Villa Bambalina.
@@ -53,3 +53,8 @@ farolas · farola_blanca_ext1                                   col 4  fila 806 
 farolas · farola_blanca_ext1_invertida                         col 5  fila 806  1x4
 farolas · farola_marron_ext1                                   col 6  fila 805  1x5
 farolas · farola_marron_ext1_invertida                         col 7  fila 805  1x5
+teatro grande (2026-10-04) · trozo 1/2 (columnas 0-7)        col 0  fila 810  8x12
+teatro grande (2026-10-04) · trozo 2/2 (columnas 8-11)       col 0  fila 822  4x12
+    12x12 casillas en el mapa: pon el trozo 2 a la derecha del trozo 1.
+    No se atraviesa; la puerta (columnas 5-6 de las dos filas de abajo) si.
+    Las filas altas tapan a Kaia (prioridad 2). Pieza: piezas/teatro_grande.png

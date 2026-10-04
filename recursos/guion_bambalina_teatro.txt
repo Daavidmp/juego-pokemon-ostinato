@@ -1,0 +1,131 @@
+POKEMON OSTINATO - VILLA BAMBALINA Y LA OBRA DEL TEATRO
+Guion para corregir. Mismo formato que dialogos_ostinato.txt: cambia solo lo que
+va detras de los dos puntos. Las lineas con // son acotaciones (lo que pasa).
+
+La obra se llama «La plaza callada». Cuenta en escena lo mismo que el retablo del
+guion del Acto 0: Cadencia estaba callada, llegaron unas luces, cada una con una
+cosa que siente la gente, y desde entonces hubo fiesta. Salen las seis luces una
+a una y se pueden contar, pero NADIE dice cuantas son (la pista que se cobra en el
+gimnasio 2, en el simbolo de los siete huecos y en el final).
+Al final sube una señora que ha perdido a alguien y pregunta cual de las luces
+canta eso. Ninguna le contesta. No se explica nada mas.
+
+
+==============================================================================
+LA ENTRADA DEL PUEBLO   (BamTxt)   izq = Lira, der = Kaia
+==============================================================================
+      // Kaia entra por el sur. Lira la espera junto al cartel del pueblo.
+BamTxt00  Lira: ¡Kaia! Por fin. Ya hemos llegado a Villa Bambalina.
+BamTxt01  Kaia: ¿Me estabas esperando?
+BamTxt02  Lira: No. Bueno, un poco. He llegado hace un rato y sola no sabía qué hacer.
+BamTxt03  Lira: Aquí todo el mundo vive del teatro. Dicen que es el pueblo de las obras por excelencia.
+BamTxt04  Lira: Hasta el panadero ha salido alguna vez de árbol.
+BamTxt05  Kaia: ¿De árbol?
+BamTxt06  Lira: Alguien tiene que hacer de árbol, Kaia.
+BamTxt07  Lira: Al norte del pueblo está el teatro. Es famoso en toda Cadencia.
+BamTxt08  Lira: Hoy estrenan obra nueva. Si te da tiempo, ve a verla.
+BamTxt09  Kaia: ¿Tú no vienes?
+BamTxt10  Lira: Yo me voy a entrenar. Que la próxima vez no me vas a pillar desprevenida.
+      // Lira se va por la salida del este.
+
+
+==============================================================================
+LA PUERTA DEL TEATRO   (TeaTxt)   bocadillo con pico, como los vecinos
+==============================================================================
+      // Delante del teatro hay mucha gente esperando. En la puerta, el taquillero.
+TeaTxt00  Taquillero: ¡Entradas para «La plaza callada», la obra nueva! ¡Empieza enseguida!
+TeaTxt01  Taquillero: Son 10$. ¿Quieres una?
+      // (opciones: Sí / No)
+TeaTxt02  Taquillero: ¡Gracias! Pasa, pasa, que ya está casi lleno.
+      // (si dice que no)
+TeaTxt03  Taquillero: Tú misma. Pero luego no digas que no te avisé.
+      // (si no tiene dinero)
+TeaTxt04  Taquillero: No te llega. Son 10$, ni uno menos.
+      // La gente de la cola, si se les habla:
+TeaTxt05  Señora: Yo vengo a todos los estrenos. Me siento siempre en la misma butaca.
+TeaTxt06  Chico: Mi tía hace de vecina. Sale poco, pero sale.
+TeaTxt07  Señor: La última vez se cayó un decorado. Fue lo mejor de la obra.
+
+
+==============================================================================
+DENTRO DEL TEATRO   (TeaTxt)
+==============================================================================
+      // El patio de butacas está lleno. Kaia sube al balcón y se apoya en la barandilla.
+TeaTxt08  Acomodadora: Abajo ya no queda sitio. Si quieres ver bien, sube al balcón.
+TeaTxt09  Público: ¡Shhh! Que ya empieza.
+      // Se apagan las luces del teatro. Solo queda iluminado el escenario.
+
+
+==============================================================================
+LA OBRA: «LA PLAZA CALLADA»   (ObraTxt)   bocadillo con pico sobre quien habla
+==============================================================================
+      // Sube la Narradora y se pone a un lado del escenario.
+ObraTxt00  Narradora: Hace mucho, Cadencia era una plaza callada.
+ObraTxt01  Narradora: La gente se cruzaba, se saludaba con la cabeza y seguía andando.
+      // Suben el Panadero y la Vecina. Se miran. Abren la boca. No les sale nada.
+ObraTxt02  Panadero: ...
+ObraTxt03  Vecina: ...
+ObraTxt04  Narradora: No es que no quisieran hablar. Es que no sabían cómo.
+      // Sube el Niño corriendo.
+ObraTxt05  Niño: Yo sí sé. ¡Hola!
+ObraTxt06  Narradora: El niño no cuenta. Los niños siempre saben.
+      // (risas del público)
+ObraTxt07  Narradora: Hasta que una noche llegaron unas luces.
+      // Sube la de la luz amarilla, con su farol.
+ObraTxt08  Luz amarilla: Yo traigo la risa. Para cuando algo os haga gracia.
+ObraTxt09  Panadero: ¡Ja! ...Perdón. Es la primera vez.
+      // Sube la de la luz roja.
+ObraTxt10  Luz roja: Yo traigo el enfado. Para cuando algo no sea justo.
+ObraTxt11  Vecina: ¡Por fin! ¡Llevo años queriendo quejarme del pan!
+ObraTxt12  Panadero: ¿Qué le pasa a mi pan?
+      // Sube la de la luz morada.
+ObraTxt13  Luz morada: Yo traigo el miedo. Para que no os acerquéis tanto al río.
+      // Sube la de la luz rosa.
+ObraTxt14  Luz rosa: Yo traigo el cariño. Para cuando alguien os importe.
+ObraTxt15  Vecina: ...Bueno. Su pan tampoco está tan mal.
+      // Sube la de la luz verde.
+ObraTxt16  Luz verde: Yo traigo la sorpresa. Para cuando pase algo que nadie esperaba.
+      // Se cae un trozo del decorado con estruendo.
+ObraTxt17  Narradora: Esto no venía en el guion. Seguimos.
+      // Sube la de la luz azul, mirando el decorado en el suelo.
+ObraTxt18  Luz azul: Y yo traigo la vergüenza. Para cuando os pase eso.
+      // (risas del público) Las luces se colocan en fila al fondo del escenario.
+ObraTxt19  Narradora: Y desde esa noche, la plaza dejó de estar callada.
+ObraTxt20  Narradora: Hubo fiesta. Hubo baile. Y hubo quien se quejaba de la fiesta.
+ObraTxt21  Vecina: ¡Es que a estas horas no se puede ni dormir!
+      // Sube una señora mayor vestida de negro, despacio, y se pone delante de las luces.
+ObraTxt22  Señora de negro: ¿Y lo mío?
+ObraTxt23  Señora de negro: Se me fue alguien. ¿Cuál de vosotras canta eso?
+      // Las luces se miran unas a otras. Ninguna dice nada. Un silencio largo.
+ObraTxt24  Narradora: ...Y colorín colorado.
+      // La señora se queda quieta un momento y baja del escenario.
+      // Se encienden las luces del teatro. Aplausos.
+ObraTxt25  Narradora: ¡Gracias por venir! Mañana repetimos, si el decorado aguanta.
+
+
+==============================================================================
+AL ACABAR   (TeaTxt)
+==============================================================================
+TeaTxt10  Público: ¡Bravo!
+      // Si se habla con el público al salir:
+TeaTxt11  Señor: Lo del decorado lo hacen adrede, ¿eh? Pero cada año se cae uno distinto.
+TeaTxt12  Señora: La del final sale todos los años. Y todos los años se queda sin respuesta.
+      // Kaia, antes de bajar del balcón (cuadro con su retrato):
+TeaTxt13  Kaia: Me ha gustado mucho.
+TeaTxt14  Kaia: Aunque la señora del final se ha quedado sin respuesta.
+
+
+==============================================================================
+LO QUE HACE FALTA DIBUJAR (personajes del mapa, del tamaño de Kaia)
+==============================================================================
+  En el pueblo y la puerta: Taquillero, y gente de cola (pueden salir de ANIL).
+  Dentro: Acomodadora y público sentado (de espaldas, mirando al escenario).
+  En el escenario:
+    - Narradora
+    - Panadero (con delantal)
+    - Vecina
+    - Niño
+    - Las de las luces: una actriz con un farol de color. Basta un mismo
+      personaje con el farol en amarillo, rojo, morado, rosa, verde y azul.
+    - Señora de negro (mayor, vestida de luto, sin farol)
+  Opcional: el trozo de decorado que se cae (un arbol de carton, por ejemplo).

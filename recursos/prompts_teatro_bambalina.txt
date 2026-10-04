@@ -1,0 +1,46 @@
+POKEMON OSTINATO - EL TEATRO NUEVO DE VILLA BAMBALINA (Adobe Firefly)
+=====================================================================
+
+En el juego ocupa el mismo hueco que el de ahora: 12 x 6 casillas (384 x 192 px,
+proporcion 2:1), arriba a la izquierda del pueblo (casillas x 3-14, y 1-6). Asi no
+se mueve nada del mapa.
+
+  - Formato: horizontal 16:9, el mas grande que deje. (Firefly no tiene 2:1; lo
+    recorto yo. Por eso el prompt pide margen arriba y abajo.)
+  - Tipo de contenido: Arte.
+  - Referencia de composicion: Descargas\teatro_bambalina\ref_teatro_actual.png
+    (el teatro de ahora), intensidad media: misma vista y mismas proporciones.
+  - Referencia de estilo: Descargas\teatro_bambalina\ref_estilo_pueblo.png
+    (el pueblo tal como se ve en el juego), intensidad alta.
+  - Guardalo en Descargas\teatro_bambalina\ como teatro_nuevo.png
+
+PROMPT:
+
+Pixel art de videojuego RPG estilo Pokémon de cuarta y quinta generación, vista
+cenital en tres cuartos como en la imagen de referencia: la fachada de frente y el
+tejado visto desde arriba. Un gran teatro de pueblo, majestuoso y lleno de detalle,
+mucho más ancho que alto, en forma de rectángulo apaisado el doble de ancho que de
+alto. Tejado de tejas color burdeos con una pequeña cúpula o torrecilla central con
+una veleta en forma de máscara de teatro. Fachada de piedra clara con columnas,
+molduras doradas y ventanales en arco con cortinas de terciopelo rojo. En el centro,
+una gran entrada con pórtico, frontón triangular decorado con dos máscaras de teatro
+(comedia y tragedia), una marquesina sobre la puerta y una doble puerta de madera
+roja abierta hacia dentro, con escalones delante. A los lados de la entrada, carteles
+de obras pegados en la pared, sin texto legible, y dos farolas de hierro con luz
+cálida. Banderines de colores colgando bajo la cornisa. Contorno oscuro en todo el
+edificio, colores planos, sombreado limpio por bloques de píxeles, sin degradados
+suaves. Un solo edificio centrado, entero y sin cortar, con margen alrededor. Fondo
+blanco liso. Sin texto, sin letras, sin números, sin personajes, sin suelo ni hierba
+alrededor.
+
+SI SALE MAL ALGUNA COSA, CAMBIAR AL FINAL:
+  - Muy alto o cuadrado: «...el edificio es muy bajo y muy ancho, como una tira».
+  - Con suelo o hierba: «...flotando sobre blanco, sin nada debajo».
+  - Con letras en los carteles: quita «carteles de obras» del prompt; los pongo yo.
+
+Cuando lo tengas, lo recorto, lo paso a 384 x 192 en pixel art limpio, lo meto al
+FINAL del tileset (filas nuevas, a partir de la 810, en dos trozos de 8x6 y 4x6 como
+el actual) y le pongo el paso y la prioridad: el edificio no se atraviesa, la puerta
+si, y el tejado pasa por encima de Kaia. Lo que ya esta en el tileset no se mueve, asi
+que el mapa no cambia; el teatro nuevo lo pintas encima del viejo en RPG Maker (o te
+lo cambio yo, si me lo pides).
