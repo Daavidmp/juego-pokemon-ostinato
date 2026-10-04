@@ -1,0 +1,368 @@
+POKEMON OSTINATO - EL INTERIOR DEL TEATRO DE VILLA BAMBALINA (Adobe Firefly)
+==========================================================================
+
+PASO 1: EL MOCK (una imagen de ejemplo de la sala entera, para decidir la
+distribucion; luego se generan las piezas por separado a partir de ella)
+
+  Primer intento: con el pueblo como referencia de estilo, Firefly dibujo la
+  FACHADA. Ahora la referencia es un interior del juego (el laboratorio).
+
+  - Formato: horizontal 4:3, el mas grande que deje.
+  - Tipo de contenido: Arte.
+  - Referencia de ESTILO: Descargas\teatro_interior\ref_interior_juego.png
+    (el laboratorio de Ostinato), intensidad alta.
+  - Referencia de composicion: la misma imagen, intensidad baja (solo para que
+    entienda que es una sala vista desde arriba con borde negro).
+  - NO uses el pueblo ni la fachada del teatro como referencia.
+  - Guardalo en Descargas\teatro_interior\mock.png
+
+PROMPT:
+
+Interior de una sala de teatro vista desde arriba, mapa de interior de
+videojuego RPG estilo Pokémon de cuarta y quinta generación en pixel art, igual
+que el interior de la imagen de referencia: vista cenital, se ve el suelo de la
+sala desde arriba y la pared del fondo de frente, rodeado de borde negro. Estamos
+DENTRO del edificio: no hay fachada, no hay tejado, no hay cielo, no hay calle.
+Arriba del todo, a lo ancho, el escenario: una tarima de madera clara elevada
+con un gran telón de terciopelo rojo recogido a los lados, un decorado pintado
+de una plaza de pueblo y una fila de candilejas doradas en el borde. A cada
+lado, unas escaleras cortas que suben al escenario desde la sala.
+En el centro, el patio de butacas: filas de butacas rojas vistas desde arriba,
+con un pasillo central de alfombra roja.
+Abajo, a lo ancho, un balcón de madera oscura con barandilla dorada que mira
+hacia el escenario, con una escalera a un lado. Abajo del todo, en el centro,
+la puerta de entrada con un felpudo rojo.
+Paredes crema con molduras doradas y apliques de luz cálida, suelo de madera.
+Paleta burdeos, crema, dorado y madera. Contorno oscuro, colores planos,
+sombreado limpio por bloques de píxeles. Sin texto, sin letras, sin personajes.
+
+SI VUELVE A SALIR LA FACHADA: quita la referencia de composicion y pon al
+principio del prompt «Vista desde dentro de la sala, plano de planta de un
+interior,».
+LO QUE VIENE DESPUES (cuando me pases el mock):
+  Con el mock decidimos la distribucion y el tamaño del mapa en casillas, y
+  te voy pasando prompts sueltos, uno por pieza, con el mock como referencia:
+  el suelo, las paredes y molduras, el escenario con el telon, las escaleras
+  del escenario, las butacas (sueltas, para repetir), la alfombra del pasillo,
+  el balcon con su barandilla, la escalera del balcon, la puerta y los
+  apliques. Cada pieza la recorto, la paso a pixel art limpio y la meto en un
+  tileset nuevo.
+
+
+==========================================================================
+EL MOCK (2026-10-04): Descargas\teatro_interior\mock.png
+==========================================================================
+Se queda la distribucion del mock, con un cambio: las paredes de los lados
+van RECTAS (en el mock salen en diagonal por la perspectiva y eso no se puede
+montar con casillas; los interiores de Pokemon las llevan rectas).
+
+EL MAPA: 22 x 19 casillas (cada casilla, 32 px)
+
+      0         1         2
+      0123456789012345678901
+   0  ######################   # borde negro
+   1  #|ppp============ppp|#   | pared lateral   p panel crema con aplique
+   2  #|ppp====TELON===ppp|#   = el escenario del fondo: telon + decorado (12x4)
+   3  #|ppp===DECORADO=ppp|#
+   4  #|ppp============ppp|#
+   5  #|...EEEEEEEEEEEE...|#   E tarima del escenario
+   6  #|.ssEEEEEEEEEEEEss.|#   s escaleras laterales al escenario (2x3)
+   7  #|.ssEEEEEEEEEEEEss.|#
+   8  #|.ssCCCCCCCCCCCCss.|#   C borde del escenario con candilejas
+   9  #|..................|#   . suelo de madera de la sala
+  10  #|.bbbbbbbAAbbbbbbb.|#   b butacas (de espaldas, miran al escenario)
+  11  #|.bbbbbbbAAbbbbbbb.|#   A alfombra roja del pasillo
+  12  #|.bbbbbbbAAbbbbbbb.|#
+  13  #|.bbbbbbbAAbbbbbbb.|#
+  14  #|........AA........|#
+  15  #|eeBBBBBBBBBBBBBBee|#   B barandilla del balcon   e escalera del balcon
+  16  #|ee,,,,,,,,,,,,,,ee|#   , suelo del balcon (madera oscura)
+  17  #|,,,,,,,,,,,,,,,,,,|#
+  18  ##########PP##########   P puerta de entrada con felpudo
+
+  Kaia entra por la puerta (abajo), queda en el balcon y se asoma a la
+  barandilla (fila 16). Los actores suben al escenario por las escaleras de
+  los lados (columnas 3-4 y 17-18). El publico va sentado en las butacas
+  (personajes del mapa).
+
+LAS PIEZAS, POR ORDEN (una imagen cada una):
+  1. El escenario del fondo: telon + decorado            12 x 4
+  2. La pared del fondo a los lados: panel crema          3 x 4
+  3. La tarima del escenario y su borde con candilejas    repetibles
+  4. Las escaleras laterales del escenario                2 x 3
+  5. El suelo de madera de la sala                        repetible
+  6. Las butacas                                          1 x 1 cada una
+  7. La alfombra roja del pasillo                         repetible
+  8. La barandilla del balcon                             repetible + extremos
+  9. La escalera del balcon                               2 x 2
+ 10. El suelo del balcon y la puerta de entrada
+ 11. La pared lateral                                     repetible
+
+
+PIEZA 1: EL ESCENARIO DEL FONDO (telon + decorado) · 12 x 4 casillas
+--------------------------------------------------------------------
+  - Formato: horizontal 16:9 (lo recorto a 3:1).
+  - Tipo de contenido: Arte.
+  - Referencia de estilo: Descargas\teatro_interior\mock.png, intensidad alta.
+  - Referencia de composicion: ninguna.
+  - Guardalo en Descargas\teatro_interior\01_escenario_fondo.png
+
+Pixel art de videojuego RPG estilo Pokémon, la misma sala de la imagen de
+referencia. Solo la pared del fondo del escenario, vista de frente, en una
+tira muy apaisada (tres veces más ancha que alta): un gran telón de terciopelo
+rojo con su bambalina superior de pliegues que cae a lo ancho, las dos cortinas
+recogidas a los lados con cordones dorados, y entre ellas un decorado pintado
+de una plaza de pueblo con casas y árboles. Marco dorado alrededor. Nada de
+suelo ni de tarima debajo, nada de paredes a los lados. Contorno oscuro,
+colores planos, sombreado limpio por bloques de píxeles, sin degradados suaves.
+Fondo blanco liso alrededor, la pieza entera y centrada, sin cortar. Sin texto,
+sin letras, sin personajes.
+
+
+==========================================================================
+PIEZA 1 HECHA: piezas/01_escenario_fondo.png (14 x 7 casillas)
+==========================================================================
+Firefly la dibujo a pixel art de 240x134 (5,73 px por pixel); a x2 exacto el
+escenario mide 440x198 px: 14 casillas de ancho, no 12. Se queda a 14 (forzarla
+a 12 rompe las lineas), y el plano se ajusta:
+
+EL MAPA AHORA: 22 x 20 casillas
+
+      0         1         2
+      0123456789012345678901
+   0  ######################
+   1  #|pp==============pp|#   = escenario del fondo (14x7): marco, telon,
+   2  #|pp==============pp|#     decorado; las patas del telon bajan hasta
+   3  #|pp==============pp|#     la fila 7 y entre ellas se ve la tarima
+   4  #|pp==============pp|#   p pared del fondo (2 de ancho a cada lado)
+   5  #|..==EEEEEEEEEE==..|#   E tarima del escenario (debajo del escenario)
+   6  #|ss==EEEEEEEEEE==ss|#   s escaleras laterales
+   7  #|ss==EEEEEEEEEE==ss|#
+   8  #|ssEEEEEEEEEEEEEEss|#
+   9  #|..CCCCCCCCCCCCCC..|#   C borde del escenario con candilejas
+  10  #|..................|#
+  11  #|.bbbbbbbAAbbbbbbb.|#   b butacas   A alfombra
+  12  #|.bbbbbbbAAbbbbbbb.|#
+  13  #|.bbbbbbbAAbbbbbbb.|#
+  14  #|.bbbbbbbAAbbbbbbb.|#
+  15  #|........AA........|#
+  16  #|eeBBBBBBBBBBBBBBee|#   B barandilla   e escalera del balcon
+  17  #|ee,,,,,,,,,,,,,,ee|#   , suelo del balcon
+  18  #|,,,,,,,,,,,,,,,,,,|#
+  19  ##########PP##########   P puerta
+
+  Escala de todas las piezas: el pixel del dibujo de Firefly, a x2. Por eso las
+  piezas que se repiten (suelos, paredes, barandilla) se piden como TIRAS o
+  BLOQUES repetibles: se cortan al tamaño que haga falta sin deformarlas.
+
+
+PIEZA 2: LA PARED DEL FONDO (a los lados del escenario) · tira repetible
+------------------------------------------------------------------------
+  - Formato: horizontal 16:9.
+  - Tipo de contenido: Arte.
+  - Referencia de estilo: Descargas\teatro_interior\mock.png, intensidad alta.
+  - Referencia de composicion: ninguna.
+  - Guardalo en Descargas\teatro_interior\02_pared.png
+
+Pixel art de videojuego RPG estilo Pokémon, la misma sala de la imagen de
+referencia. Solo un tramo de la pared del fondo de la sala, visto de frente,
+en una tira apaisada que se pueda repetir a lo ancho: pared de color crema con
+paneles rectangulares enmarcados por molduras doradas finas, una cornisa dorada
+arriba y un zócalo de madera burdeos abajo. En el centro de la tira, un aplique
+de pared dorado con una luz cálida encendida. Iluminación plana, sin sombras
+proyectadas. Contorno oscuro, colores planos, sombreado limpio por bloques de
+píxeles, sin degradados suaves. Fondo blanco liso alrededor, la pieza entera y
+centrada, sin cortar. Sin texto, sin letras, sin personajes.
+
+
+==========================================================================
+PIEZA 2 HECHA: la pared, en piezas que se juntan (como en Interior1)
+==========================================================================
+  02_pared_arriba.png   2x2  cornisa y remate de arriba del panel
+  02_pared_medio.png    2x1  panel liso: se repite hacia abajo (alto libre)
+  02_pared_abajo.png    2x2  final del panel y zocalo burdeos
+  02_aplique.png        1x1  sin fondo, para la capa de encima
+  Todas de 2 de ancho y se repiten a lo ancho sin junta (el panel de Firefly
+  media 29 px; se ensancho a 32 repitiendo columnas lisas).
+
+A PARTIR DE AQUI, cada prompt pide una pieza MODULAR: tramos que se repitan
+a lo ancho o a lo alto, y los objetos sueltos aparte.
+
+
+PIEZA 3: LA TARIMA DEL ESCENARIO Y SU BORDE CON CANDILEJAS · tira repetible
+-------------------------------------------------------------------------
+  - Formato: horizontal 16:9.
+  - Tipo de contenido: Arte.
+  - Referencia de estilo: Descargas\teatro_interior\mock.png, intensidad alta.
+  - Guardalo en Descargas\teatro_interior\03_tarima.png
+
+Pixel art de videojuego RPG estilo Pokémon, la misma sala de la imagen de
+referencia, vista desde arriba en vista cenital. Solo un tramo recto de la
+tarima del escenario en una tira apaisada que se pueda repetir a lo ancho: en
+la parte de arriba, el suelo del escenario de tablas de madera clara colocadas
+en horizontal, todas iguales y sin manchas; en la parte de abajo, el borde
+frontal de la tarima, una franja de madera más oscura vista de frente, con una
+fila de candilejas doradas encendidas repartidas a distancias iguales.
+Iluminación plana, sin sombras proyectadas ni círculos de luz. Contorno oscuro,
+colores planos, sombreado limpio por bloques de píxeles, sin degradados suaves.
+Fondo blanco liso alrededor, sin cortar. Sin texto, sin personajes, sin telón.
+
+
+==========================================================================
+PIEZA 3 HECHA: la tarima, en piezas
+==========================================================================
+  03_suelo_escenario.png  2x2  tablas; se repite a lo ancho y a lo alto sin junta
+                               (ventana buscada para que sus bordes casen)
+  03_borde_escenario.png  2x2  final de las tablas + borde frontal; repetible a lo ancho
+  03_candileja.png        1x2  sin fondo, encima del borde (donde se quiera)
+  03_lado_izq / _der      1x2  canto lateral de la tarima, repetible hacia abajo
+  03_esquina_izq / _der   1x2  canto lateral + borde frontal (abajo del todo)
+
+
+PIEZA 4: LA ESCALERA AL ESCENARIO · tramo recto (la otra, en espejo)
+-------------------------------------------------------------------
+  - Formato: vertical 3:4 (mas alta que ancha).
+  - Tipo de contenido: Arte.
+  - Referencia de estilo: Descargas\teatro_interior\mock.png, intensidad alta.
+  - Guardalo en Descargas\teatro_interior\04_escalera.png
+
+Pixel art de videojuego RPG estilo Pokémon, la misma sala de la imagen de
+referencia, vista desde arriba en vista cenital como en los interiores de
+Pokémon. Solo una escalera recta de madera que sube hacia arriba de la imagen,
+estrecha (el doble de alta que de ancha), con cuatro peldaños iguales vistos
+desde arriba y una barandilla de madera torneada en el lado izquierdo, con un
+poste más grueso arriba y otro abajo. Sin suelo alrededor, sin paredes, sin
+escenario. Iluminación plana, sin sombras proyectadas. Contorno oscuro, colores
+planos, sombreado limpio por bloques de píxeles, sin degradados suaves. Fondo
+blanco liso alrededor, la pieza entera y centrada, sin cortar. Sin texto, sin
+personajes.
+
+  (Primer intento mal: salio una escalera vista de lado con un poste enorme.)
+
+PIEZA 4, SEGUNDO INTENTO: LA ESCALERA AL ESCENARIO, COMO LA DEL MOCK
+  - Formato: cuadrado 1:1.
+  - Tipo de contenido: Arte.
+  - Referencia de composicion: Descargas\teatro_interior\ref_escalera.png
+    (la escalera recortada del mock), intensidad ALTA.
+  - Referencia de estilo: Descargas\teatro_interior\mock.png, intensidad alta.
+  - Guardalo en Descargas\teatro_interior\04_escalera.png
+
+Pixel art de videojuego RPG estilo Pokémon, igual que la escalera de la imagen
+de referencia: una escalera de madera clara que sube en diagonal de izquierda a
+derecha, de la sala hasta lo alto del escenario, vista de frente en vista
+cenital de tres cuartos como en los interiores de Pokémon. Cuatro peldaños
+iguales, cada uno un escalón más alto que el anterior, con la huella de madera
+clara y la tabica más oscura. Dos barandillas de madera en diagonal, una
+delante y otra detrás, con balaustres rectos y un poste en cada extremo. Sin
+suelo alrededor, sin pared, sin escenario, sin telón. Iluminación plana, sin
+sombras proyectadas. Contorno oscuro, colores planos, sombreado limpio por
+bloques de píxeles, sin degradados suaves. Fondo blanco liso alrededor, la
+pieza entera y centrada, sin cortar. Sin texto, sin personajes.
+
+  (Segundo intento mal: salio en 3D en vez de pixel art plano.)
+
+PIEZA 4, TERCER INTENTO
+  - Formato: cuadrado 1:1. Tipo de contenido: Arte.
+  - Referencia de ESTILO: Descargas\teatro_interior\03_tarima.png (la tira de la
+    tarima: pixel art plano y nitido, misma madera), intensidad alta.
+  - Referencia de composicion: Descargas\teatro_interior\ref_escalera.png,
+    intensidad media.
+  - Si en "Efectos" aparece "Pixel art" o "Arte de 8 bits", seleccionalo.
+  - Guardalo en Descargas\teatro_interior\04_escalera.png
+
+Sprite de pixel art 2D plano para un tileset de RPG Maker, en el mismo estilo
+exacto que la imagen de referencia: píxeles grandes y visibles, colores planos
+con solo tres o cuatro tonos por material, contorno oscuro de un píxel. Nada de
+3D, nada de render, nada de volumen realista ni perspectiva realista.
+Una escalera de madera clara que sube en diagonal de izquierda a derecha, vista
+de frente desde un poco arriba como en los juegos de Pokémon de Nintendo DS:
+cuatro peldaños iguales en forma de escalón, la huella clara y la tabica más
+oscura, y dos barandillas de madera en diagonal (una delante y otra detrás) con
+balaustres rectos y un poste cuadrado en cada extremo. Sin suelo, sin pared,
+sin escenario. Fondo blanco liso, la pieza entera y centrada. Sin texto.
+
+  (Tercer intento: salio isometrica. La escalera la dibuje yo pixel a pixel.)
+
+PIEZA 4 HECHA: piezas/04_escalera.png (2x3 casillas), dibujada a mano con la
+madera y el contorno de la tarima: sube hacia arriba, peldanos en horizontal,
+barandilla a los dos lados con postes. Simetrica: vale para los dos lados.
+
+
+PIEZA 5: EL SUELO DE MADERA DE LA SALA · bloque repetible
+---------------------------------------------------------
+  - Formato: cuadrado 1:1. Tipo de contenido: Arte.
+  - Referencia de ESTILO: Descargas\teatro_interior\03_tarima.png (funciono
+    bien: pixel art plano), intensidad alta.
+  - Referencia de composicion: ninguna.
+  - Guardalo en Descargas\teatro_interior\05_suelo.png
+
+Sprite de pixel art 2D plano para un tileset de RPG Maker, en el mismo estilo
+exacto que la imagen de referencia: píxeles grandes y visibles, colores planos,
+contorno oscuro. Nada de 3D, nada de perspectiva. Un cuadrado de suelo de
+tablas de madera visto desde arriba en vista cenital, que ocupa toda la imagen
+de borde a borde: tablas verticales todas del mismo ancho, de un tono de madera
+medio, algo más oscuro que la madera de la referencia, con las juntas de las
+tablas escalonadas y alguna veta suave. Sin muebles, sin alfombras, sin
+paredes, sin sombras, sin manchas de luz. Patrón uniforme que se pueda repetir.
+Sin texto.
+
+
+PIEZA 5 HECHA: piezas/05_suelo_sala.png (2x2): tres tablas de 11, 11 y 10 px
+construidas con la linea, ranura, junta y vetas de la imagen de Firefly (sus
+tablas median 12,5 y no cuadraban); se repite sin junta.
+
+PIEZA 6 HECHA: piezas/06_butaca.png (1x1): la de Firefly salio bien de estilo
+pero a otra escala (14,33 px por pixel: 42x46 a la escala del resto); se
+redibujo a 16x16 con su diseno y sus colores.
+
+
+PIEZA 7: LA ALFOMBRA ROJA DEL PASILLO · tira repetible
+------------------------------------------------------
+  - Formato: vertical 9:16. Tipo de contenido: Arte.
+  - Referencia de ESTILO: Descargas\teatro_interior\03_tarima.png, intensidad alta.
+  - Guardalo en Descargas\teatro_interior\07_alfombra.png
+
+Sprite de pixel art 2D plano para un tileset de RPG Maker, en el mismo estilo
+exacto que la imagen de referencia: píxeles grandes y visibles, colores planos,
+contorno oscuro. Nada de 3D ni perspectiva. Una alfombra larga y estrecha vista
+desde arriba, de terciopelo rojo liso, con un ribete dorado fino a cada lado y
+un remate dorado con flecos en los dos extremos de arriba y de abajo. Ocupa casi
+todo el alto de la imagen. Sin suelo alrededor, sin muebles. Fondo blanco liso,
+sin cortar. Sin texto.
+
+
+PIEZA 7 HECHA: la alfombra (2 de ancho), a partir de los colores y franjas de
+la de Firefly: 07_alfombra_arriba (2x1, flecos y remate dorado), 07_alfombra_medio
+(2x1, se repite) y 07_alfombra_abajo (2x1).
+
+
+PIEZA 8: LA BARANDILLA DEL BALCON · tira repetible
+--------------------------------------------------
+  - Formato: horizontal 16:9. Tipo de contenido: Arte.
+  - Referencia de ESTILO: Descargas\teatro_interior\03_tarima.png, intensidad alta.
+  - Referencia de composicion: Descargas\teatro_interior\ref_barandilla.png
+    (la del mock), intensidad media.
+  - Guardalo en Descargas\teatro_interior\08_barandilla.png
+
+Sprite de pixel art 2D plano para un tileset de RPG Maker, en el mismo estilo
+exacto que la imagen de referencia: píxeles grandes y visibles, colores planos,
+contorno oscuro. Nada de 3D ni perspectiva. Un tramo recto y horizontal de la
+barandilla de un balcón de teatro, visto de frente desde un poco arriba como en
+los juegos de Pokémon: arriba un pasamanos de madera oscura; debajo, un friso
+dorado con volutas y espirales que se repiten iguales a lo largo; abajo, el
+frente del balcón de madera oscura con paneles. Con un poste de madera más
+grueso en cada extremo. Patrón regular que se pueda repetir a lo ancho. Fondo
+blanco liso, la pieza entera, sin cortar. Sin texto.
+
+
+PIEZA 8 HECHA: la barandilla (08_barandilla_izq 1x2, _medio 2x2 repetible,
+_der 1x2). Sin la fila de paneles (salia de 3,4 casillas de alto); los huecos
+del friso calado son transparentes.
+
+PIEZAS 9-11, DIBUJADAS AQUI (no hacian falta prompts):
+  10_suelo_balcon.png  2x2  el suelo de la sala, oscurecido
+  10_felpudo.png       2x1  rojo con ribete dorado y flecos (la salida)
+  11_pared_lado_izq / _der  1x1  canto de las paredes laterales, repetible
+  (La escalera del balcon se quita del plano: no hace falta bajar a la sala.)
+
+MONTAJE DE PRUEBA: vista_teatro.png (22 x 20), con todas las piezas.
