@@ -57,7 +57,8 @@ teatro grande (2026-10-04) · trozo 1/2 (columnas 0-7)        col 0  fila 810  8
 teatro grande (2026-10-04) · trozo 2/2 (columnas 8-12)       col 0  fila 822  5x12
     13x12 casillas en el mapa (pon el trozo 2 a la derecha del trozo 1); el
     edificio va desplazado medio tile para que la puerta caiga en el centro de
-    la columna 6. Solo se pisan la puerta (columna 6, fila 10, prioridad 1: tapa
-    al personaje) y su escalon (columna 6, fila 11). Todo lo demas, prioridad 0.
+    la columna 6. Solo se pisan la puerta (columna 6, fila 10) y su escalon
+    (columna 6, fila 11). Prioridad: filas 9 y 10 de las columnas 5-7 a 2 y 1
+    (al fondo de la puerta tapan al personaje entero); todo lo demas, 0.
     En Villa Bambalina: x 2-14, y 0-6 (filas 5-11 de la pieza). Pieza:
     piezas/teatro_grande.png
