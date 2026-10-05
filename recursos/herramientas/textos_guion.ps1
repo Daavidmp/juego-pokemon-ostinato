@@ -22,7 +22,7 @@ $guion = $args[0]
 $destino = $args[1]
 $prefijos = $args[2..($args.Count - 1)]
 
-$PNJ = @("VecTxt", "EntTxt", "CasaTxt", "CienTxt", "AdiosPoke")
+$PNJ = @("VecTxt", "EntTxt", "CasaTxt", "CienTxt", "AdiosPoke", "GenteTxt")
 function Estilo($pre) {
   if ($pre -eq "EscTxt") { return @{ ancho = 692; alto = 105; tam = 34; inter = 39; y0 = 0; filasMax = 2; centrar = $false; tinta = [Drawing.Color]::FromArgb(255, 34, 26, 20) } }
   if ($PNJ -contains $pre) { return @{ ancho = 684; alto = 140; tam = 42; inter = 46; y0 = -1; filasMax = 3; centrar = $true; tinta = [Drawing.Color]::FromArgb(255, 59, 50, 38) } }

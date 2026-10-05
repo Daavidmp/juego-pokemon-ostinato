@@ -439,3 +439,37 @@ AdiosTxt03  Kaia: Sí, claro. Bueno, mamá, es la hora. Me voy.
 AdiosTxt04  Blanca: Qué orgullosa estoy de ti. Suerte en tu viaje, hija.
 AdiosTxt05  Kaia: ¡Nos vemos!
       // (aquí se abre ya la salida sur)
+
+
+==============================================================================
+VILLA BAMBALINA · La taquilla del teatro   (TiqTxt, GenteTxt, BamTxt, TiqOpc)
+==============================================================================
+      // Delante del teatro, la tiquera y mucha gente. Kaia y Lira llegan por detrás.
+      // La gente habla con el bocadillo; la tiquera, Kaia y Lira, con retrato.
+TiqTxt00  Tiquera: ¡Ya está aquí la nueva obra del Teatro Bambalina: «La plaza callada»!
+TiqTxt01  Tiquera: ¡Entradas a la venta! ¡Daos prisa, que vuelan!
+GenteTxt00  Gente: ¡Yo quiero una!
+GenteTxt01  Gente: ¡Quiero verla ya!
+GenteTxt02  Gente: ¡Es mi sueño verla en el estreno!
+GenteTxt03  Gente: ¡Dos para mí, por favor!
+GenteTxt04  Gente: ¡No empujéis!
+BamTxt00  Lira: ¿Qué es todo ese murmullo?
+BamTxt01  Kaia: Parece que estrenan una obra en el teatro.
+      // (la gente entra en el teatro; Kaia y Lira se acercan a la taquilla)
+TiqTxt02  Tiquera: ¿Vosotras también venís a la función?
+BamTxt02  Kaia: ¡Sí! ¿Cuánto cuesta la entrada?
+TiqTxt03  Tiquera: Son 10$ cada una.
+      // (se elige)
+TiqOpc00  Opción: Pagar 10$
+TiqOpc01  Opción: Ahora no
+BamTxt03  Lira: ¿Diez por una obra nueva? ¡Es un chollazo!
+TiqTxt04  Tiquera: ¡Pasad, que ya va a empezar!
+      // (si no paga)
+TiqTxt05  Tiquera: Sin entrada no se puede pasar.
+BamTxt04  Lira: Yo ya tengo la mía. Te espero dentro, Kaia.
+      // (si no tiene dinero)
+TiqTxt06  Tiquera: No te llega. Son 10$, ni uno menos.
+      // (si vuelve a hablarle sin entrada)
+TiqTxt07  Tiquera: ¿Te animas? Son 10$ la entrada.
+      // (con la entrada ya comprada)
+TiqTxt08  Tiquera: ¡Disfruta de la función!

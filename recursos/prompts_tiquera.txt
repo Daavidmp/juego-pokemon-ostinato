@@ -1,0 +1,30 @@
+POKEMON OSTINATO - LA TIQUERA DEL TEATRO: SKIN DEL MAPA (Adobe Firefly)
+=====================================================================
+
+Dibujo: CREDITOS\tiquera_bambalina.kra (recortado en Descargas\tiquera\ref_tiquera.png)
+Skin de referencia: Graphics\Characters\kaia.png (en Descargas\tiquera\ref_skin_kaia.png)
+
+  - Formato: cuadrado 1:1. Tipo de contenido: Arte.
+  - Referencia de ESTILO: Descargas\tiquera\ref_skin_kaia.png, intensidad alta.
+  - Referencia de COMPOSICION: Descargas\tiquera\ref_skin_kaia.png, intensidad alta
+    (para que salga la misma rejilla de 4x4 con las mismas poses).
+  - Guardala en Descargas\tiquera\tiquera_skin.png
+
+PROMPT:
+
+Hoja de sprites de personaje en pixel art para RPG Maker, exactamente igual que
+la imagen de referencia: una rejilla de 4 columnas y 4 filas de un mismo
+personaje pequeño, cabezón y de cuerpo corto, estilo Pokémon de cuarta
+generación, con contorno oscuro de un píxel y colores planos. Fila 1 de frente
+caminando, fila 2 mirando a la izquierda caminando, fila 3 mirando a la derecha
+caminando, fila 4 de espaldas caminando; en cada fila, cuatro pasos (pie
+izquierdo, quieto, pie derecho, quieto). El personaje es una taquillera de
+teatro: pelo castaño oscuro recogido en un moño alto con un palillo de madera,
+dos mechones sueltos a los lados de la cara, ojos marrones; americana de color
+burdeos con ribetes dorados, camisa color crema con un pañuelo negro anudado al
+cuello, un broche dorado en la solapa; pantalón azul marino; zapatos oscuros.
+Lleva un rollo de entradas de color crema en una mano. Todos los fotogramas del
+mismo tamaño y alineados en la rejilla. Fondo verde liso. Sin texto.
+
+SI NO SALE LA REJILLA BIEN: pide solo la fila de frente («cuatro poses de
+frente caminando, en fila») y luego las otras tres por separado; las monto yo.
