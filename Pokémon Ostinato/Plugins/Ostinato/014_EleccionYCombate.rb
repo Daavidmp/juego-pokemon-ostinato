@@ -54,35 +54,41 @@ module OstDlg
     caja.y = (datos[2] * e).to_i
     caja.z = 20
     caja.opacity = 0
-    # el papel del recuadro va de y=651 a y=813: las filas se reparten ahi
-    muchas = opciones.length > 3
-    paso = muchas ? 38 : 48
+    # el papel del recuadro va de y=650 a y=813 (centro, 731): las filas se
+    # centran ahi en alto, con mas aire cuando son pocas. Las letras de los
+    # PNG de opcion van de y=20 a y=56; se recortan de 16 a 60.
+    n = opciones.length
+    muchas = n > 3
+    paso = { 1 => 0, 2 => 58, 3 => 50 }[n] || 38
     esc  = muchas ? 0.86 : 1.0
-    y0   = muchas ? 656 : 662
+    alto = ((n - 1) * paso + 36 * esc)
+    y0   = (731 - alto / 2 - 4 * esc).round
+    x0   = datos[1] + 150
     filas = []
     opciones.each_with_index do |png, i|
       s = Sprite.new(vp)
       s.bitmap = bmp(DIR + png + ".png")
-      s.src_rect = Rect.new(0, 0, s.bitmap.width, 50) if s.bitmap
+      s.src_rect = Rect.new(0, 16, s.bitmap.width, 44) if s.bitmap
       s.zoom_x = s.zoom_y = e * esc
-      s.x = ((datos[3] + 34) * e).to_i
+      s.x = (x0 * e).to_i
       s.y = ((y0 + i * paso) * e).to_i
       s.z = 22
       s.opacity = 0
       filas.push(s)
     end
-    # la hojita del pergamino hace de flecha
-    hoja = Sprite.new(vp)
-    hoja.bitmap = bmp(DIR + datos[5])
-    hoja.zoom_x = hoja.zoom_y = e * 0.8
-    hoja.z = 23
-    hoja.opacity = 0
+    # la flecha de elegir (la hoja de "seguir" no sale mientras se elige)
+    flecha = Sprite.new(vp)
+    flecha.bitmap = bmp(DIR + "DlgFlecha.png")
+    flecha.zoom_x = flecha.zoom_y = e * esc
+    flecha.z = 23
+    flecha.opacity = 0
     sel = 0
     colocar = proc do |t|
-      filas.each_with_index { |s, i| s.opacity = (i == sel) ? caja.opacity : (caja.opacity * 0.45).to_i }
-      hoja.x = ((datos[3] - 4 + Math.sin(t * 0.12) * 3) * e).to_i
-      hoja.y = ((y0 + sel * paso + 2) * e).to_i
-      hoja.opacity = caja.opacity
+      filas.each_with_index { |s, i| s.opacity = (i == sel) ? caja.opacity : (caja.opacity * 0.5).to_i }
+      vaiven = (1 - Math.cos(t * 2 * Math::PI / 54.0)) * 2.5
+      flecha.x = ((x0 - 36 + vaiven) * e).to_i
+      flecha.y = ((y0 + sel * paso + 6 * esc) * e).to_i
+      flecha.opacity = caja.opacity
     end
     begin
       while caja.opacity < 255
@@ -115,7 +121,7 @@ module OstDlg
       end
     ensure
       filas.each { |s| soltar(s) }
-      soltar(hoja); soltar(caja); soltar(cara)
+      soltar(flecha); soltar(caja); soltar(cara)
       begin; vp.dispose; rescue; end
       hd_bajar(estado)
     end
