@@ -589,7 +589,8 @@ module OstDlg
         caja.opacity  = o
         texto.opacity = o
         hoja.opacity  = o
-        arte.each_value { |s| s.opacity = o }
+        # solo baja los que se ven: los que no han salido siguen a 0
+        arte.each_value { |s| s.opacity = o if s.opacity > o }
         tick
       end
     ensure
