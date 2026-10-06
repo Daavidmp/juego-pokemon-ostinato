@@ -1,11 +1,13 @@
 #===============================================================================
 # Pokemon Ostinato - La taquilla del teatro de Villa Bambalina
 #
-#   Delante del teatro (mapa 12) esta la tiquera con mucha gente alrededor.
+#   Delante del teatro (mapa 12) esta la tiquera con mucha gente alrededor
+#   (24 vecinos, de las skins del tamano de Kaia que ya usa el juego).
 #   La primera vez que Kaia sube a la explanada del teatro:
 #     - la tiquera anuncia la obra nueva y la gente grita que quiere verla;
 #     - Lira llega con Kaia: "Que es todo ese murmullo?";
-#     - la gente entra en el teatro y solo quedan ellas;
+#     - entran tres personas, la pantalla funde a negro y al volver solo
+#       queda la tiquera;
 #     - la tiquera les cobra 10$ la entrada (se elige pagar o no).
 #   Sin entrada, la puerta del teatro no deja pasar (barrera invisible) y la
 #   tiquera vuelve a ofrecerla. Con entrada, la puerta lleva dentro (mapa 13),
@@ -31,7 +33,13 @@ module OstTaquilla
   GENTE = [
     [961, "mujer1",    5, 8], [962, "anciano1",  6, 8], [963, "hombre1",   7, 8],
     [964, "chaval1",   9, 8], [965, "chica1",   10, 8], [966, "anciana1", 11, 8],
-    [967, "veterano",  6, 9], [968, "montanero", 10, 9]
+    [967, "veterano",  6, 9], [968, "montanero", 10, 9],
+    [970, "anciano2",  4, 7], [971, "chaval2",   5, 7], [972, "mujer2",    6, 7],
+    [973, "nina",     10, 7], [974, "pescador", 11, 7], [975, "criadora", 12, 7],
+    [976, "campista",  4, 8], [977, "ornitologo", 12, 8], [978, "chaval3",  4, 9],
+    [979, "veterana",  5, 9], [980, "operario",  7, 9], [981, "asistente", 9, 9],
+    [982, "campistaa", 11, 9], [983, "anciana2", 3, 7], [984, "chica1",   13, 7],
+    [985, "anciano1", 13, 8]
   ]
   # quien grita cada frase de la gente
   GRITOS = [["GenteTxt00", 961], ["GenteTxt01", 964], ["GenteTxt02", 966],
@@ -116,17 +124,24 @@ module OstTaquilla
     OstMapa.mirarse(lira, $game_player)
     dialogo([["BamTxt00", "izq2"], ["BamTxt01", "der"]])
     # la gente entra en el teatro
+    # entran los tres que estan mas cerca de la puerta; luego, a negro, y al
+    # volver ya no queda nadie mas que la tiquera
+    cerca = GENTE.sort_by { |_id, _s, x, y| (x - PUERTA[0]).abs + (y - PUERTA[1]).abs }.first(3)
     rutas = []
-    GENTE.each_with_index do |(id, _s, _x, _y), i|
+    cerca.each_with_index do |(id, _s, _x, _y), i|
       g = ev(id)
       next if !g
       g.through = true
       g.move_speed = 4
       pasos = OstMapa.camino(g, PUERTA[0], PUERTA[1]) || []
-      rutas.push([g, pasos, 1 + i * 18])
+      rutas.push([g, pasos, 1 + i * 16])
     end
     OstinatoFuga.mover_juntos(rutas)
-    GENTE.each { |id, _s, _x, _y| borrar(id) }
+    cerca.each { |id, _s, _x, _y| borrar(id) }
+    pbFadeOutIn do
+      GENTE.each { |id, _s, _x, _y| borrar(id) }
+      OstDlg.esperar(0.4)
+    end
     $game_switches[SW_VISTA] = true
     # Kaia y Lira se acercan a la taquilla
     ir($game_player, 8, 8, PBMoveRoute::TURN_UP)

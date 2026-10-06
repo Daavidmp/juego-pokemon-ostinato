@@ -28,3 +28,25 @@ mismo tamaño y alineados en la rejilla. Fondo verde liso. Sin texto.
 
 SI NO SALE LA REJILLA BIEN: pide solo la fila de frente («cuatro poses de
 frente caminando, en fila») y luego las otras tres por separado; las monto yo.
+
+
+SEGUNDO INTENTO: MAS SENCILLA, COMO LA DE KAIA (2026-10-06)
+-----------------------------------------------------------
+La primera salio con demasiado detalle en la cara. Ahora:
+  - Formato: cuadrado 1:1. Tipo de contenido: Arte.
+  - Referencia de ESTILO: Descargas\tiquera\ref_skin_kaia_x4.png (la de Kaia
+    ampliada x4, sin suavizar), intensidad ALTA.
+  - Referencia de COMPOSICION: la misma, intensidad alta.
+
+Hoja de sprites de personaje en pixel art para RPG Maker, en el mismo estilo
+exacto que la imagen de referencia: rejilla de 4 columnas y 4 filas, mismas
+poses y mismo tamaño de personaje que la referencia, píxeles grandes y bien
+visibles. Personaje chibi diminuto: cabeza grande y cuerpo corto de dos cabezas.
+Cara MUY sencilla, como la de la referencia: solo dos ojos pequeños de color y
+un punto de boca, sin nariz, sin cejas, sin sombras ni brillos en la cara.
+Pocos colores planos y un contorno oscuro de un píxel. Fila 1 de frente
+caminando, fila 2 hacia la izquierda, fila 3 hacia la derecha, fila 4 de
+espaldas. El personaje: una taquillera de teatro con el pelo castaño oscuro
+recogido en un moño alto con un palillo de madera, americana burdeos con un
+ribete dorado, pañuelo negro al cuello, pantalón azul marino y zapatos oscuros.
+Fondo verde liso. Sin texto.
