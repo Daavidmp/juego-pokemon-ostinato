@@ -87,6 +87,12 @@ fuga, vecinos, salida) · 007 Farolas · 008 Pantallas512 · 009 PrologoDeDia ·
 Switches propios: 72 fuga terminada · 73 los tres se han escapado · 74/75/76 Mudkip/Fennekin/
 Sprigatito devuelto al laboratorio · 78 salida sur abierta · 84 fuera del pueblo (fin del prólogo) ·
 85/86/87 Mudkip/Fennekin/Sprigatito te sigue · 101-104 escenas del prólogo vistas.
+80 taquilla vista · 81 entrada comprada · 82 Kaia y Lira sentadas en el teatro (024_ButacasTeatro;
+la gente sentada son ids 1000+, Lira 990; tras sentarse llama a OstObra.empezar si existe).
+83 obra del teatro vista (025_ObraTeatro: "La plaza callada" a 1920x1080 con camara, luz, foco y subtitulos;
+piezas en Graphics/Titles/Obra/ con recursos/obra/construir.py; se prueba sin motor con recursos/obra/sim_obra.rb
++ pintar_sim.py, que dibujan un fotograma por subtitulo). Sonidos que faltan: Audio/SE/Obra murmullo, Obra shhh,
+Obra risas, Obra aplausos, Obra golpe (suenan solos cuando existan).
 
 
 ================================================================================

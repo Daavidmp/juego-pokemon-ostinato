@@ -22,8 +22,10 @@ $guion = $args[0]
 $destino = $args[1]
 $prefijos = $args[2..($args.Count - 1)]
 
-$PNJ = @("VecTxt", "EntTxt", "CasaTxt", "CienTxt", "AdiosPoke", "GenteTxt")
+$PNJ = @("VecTxt", "EntTxt", "CasaTxt", "CienTxt", "AdiosPoke", "GenteTxt", "BamVec")
 function Estilo($pre) {
+  # la obra del teatro (025): subtitulo abajo, centrado, con el nombre en dorado y sombra
+  if ($pre -eq "ObraTxt" -or $pre -eq "ObraPub") { return @{ ancho = 1560; alto = 132; tam = 46; inter = 58; y0 = 8; filasMax = 2; centrar = $false; centrarX = $true; nombre = $true; tinta = [Drawing.Color]::FromArgb(255, 250, 242, 222); oro = [Drawing.Color]::FromArgb(255, 240, 196, 92) } }
   if ($pre -eq "EscTxt") { return @{ ancho = 692; alto = 105; tam = 34; inter = 39; y0 = 0; filasMax = 2; centrar = $false; tinta = [Drawing.Color]::FromArgb(255, 34, 26, 20) } }
   if ($PNJ -contains $pre) { return @{ ancho = 684; alto = 140; tam = 42; inter = 46; y0 = -1; filasMax = 3; centrar = $true; tinta = [Drawing.Color]::FromArgb(255, 59, 50, 38) } }
   return @{ ancho = 704; alto = 108; tam = 38; inter = 46; y0 = 13; filasMax = 2; centrar = $false; tinta = [Drawing.Color]::FromArgb(255, 59, 50, 38) }
@@ -46,7 +48,7 @@ function Reparte($texto, $letra, $anchoMax) {
   return ,$res
 }
 
-function Pinta($lineas, $est, $salida) {
+function Pinta($lineas, $est, $salida, $nom = $null) {
   $bmp = New-Object Drawing.Bitmap $est.ancho, $est.alto, ([Drawing.Imaging.PixelFormat]::Format32bppArgb)
   $gr = [Drawing.Graphics]::FromImage($bmp)
   $gr.SmoothingMode = [Drawing.Drawing2D.SmoothingMode]::AntiAlias
@@ -54,10 +56,28 @@ function Pinta($lineas, $est, $salida) {
   $pincel = New-Object Drawing.SolidBrush $est.tinta
   $letra = New-Object Drawing.Font "Cambria", $est.tam, ([Drawing.FontStyle]::Regular), ([Drawing.GraphicsUnit]::Pixel)
   if ($est.centrar) { $yy = [int](($est.alto - $lineas.Count * $est.inter) / 2 - $est.tam * 0.06) } else { $yy = $est.y0 }
+  $sombra = New-Object Drawing.SolidBrush ([Drawing.Color]::FromArgb(230, 10, 6, 14))
+  $primera = $true
   foreach ($l in $lineas) {
-    $gr.DrawString($l, $letra, $pincel, (New-Object Drawing.PointF 0, $yy), $formato)
+    $xx = 0
+    if ($est.centrarX) { $xx = [int](($est.ancho - $gm.MeasureString($l, $letra, 10000, $formato).Width) / 2) }
+    if ($est.nombre) { foreach ($d in @(@(3, 3), @(2, 0), @(0, 2))) { $gr.DrawString($l, $letra, $sombra, (New-Object Drawing.PointF ($xx + $d[0]), ($yy + $d[1])), $formato) } }
+    $cab = if ($nom) { "${nom}:" } else { $null }
+    if ($primera -and $cab -and $l.StartsWith($cab)) {
+      # el nombre de quien habla en dorado y el resto en crema
+      $oro = New-Object Drawing.SolidBrush $est.oro
+      $gr.DrawString($cab, $letra, $oro, (New-Object Drawing.PointF $xx, $yy), $formato)
+      $resto = $l.Substring($cab.Length)
+      $wcab = $gm.MeasureString("$cab" + "x", $letra, 10000, $formato).Width - $gm.MeasureString("x", $letra, 10000, $formato).Width
+      $gr.DrawString($resto, $letra, $pincel, (New-Object Drawing.PointF ($xx + $wcab), $yy), $formato)
+      $oro.Dispose()
+    } else {
+      $gr.DrawString($l, $letra, $pincel, (New-Object Drawing.PointF $xx, $yy), $formato)
+    }
+    $primera = $false
     $yy += $est.inter
   }
+  $sombra.Dispose()
   $gr.Dispose(); $letra.Dispose(); $pincel.Dispose()
   $bmp.Save($salida, [Drawing.Imaging.ImageFormat]::Png)
   $bmp.Dispose()
@@ -101,12 +121,13 @@ function Partir($texto, $letra, $est) {
   return ,$res
 }
 
-$patron = '^([A-Za-z]+)(\d\d)\s+[^:]+:\s?(.*)$'
+$patron = '^([A-Za-z]+)(\d\d)\s+([^:]+):\s?(.*)$'
 foreach ($l in [IO.File]::ReadAllLines($guion, [Text.Encoding]::UTF8)) {
   if ($l -notmatch $patron) { continue }
-  $pre = $Matches[1]; $num = $Matches[2]; $texto = $Matches[3].Trim()
+  $pre = $Matches[1]; $num = $Matches[2]; $nom = $Matches[3].Trim(); $texto = $Matches[4].Trim()
   if ($prefijos -notcontains $pre) { continue }
   $est = Estilo $pre
+  if ($est.nombre) { $texto = "${nom}: $texto" } else { $nom = $null }
   $letra = New-Object Drawing.Font "Cambria", $est.tam, ([Drawing.FontStyle]::Regular), ([Drawing.GraphicsUnit]::Pixel)
   $pantallas = Partir $texto $letra $est
   $letra.Dispose()
@@ -116,7 +137,7 @@ foreach ($l in [IO.File]::ReadAllLines($guion, [Text.Encoding]::UTF8)) {
   $trozos = $pantallas.Count
   for ($t = 0; $t -lt $trozos; $t++) {
     $suf = @("", "b", "c", "d")[$t]
-    Pinta $pantallas[$t] $est "$destino\$codigo$suf.png"
+    Pinta $pantallas[$t] $est "$destino\$codigo$suf.png" $(if ($t -eq 0) { $nom } else { $null })
   }
   $nota = if ($trozos -gt 1) { "  ($trozos pantallas: " + (($pantallas | ForEach-Object { $_ -join ' / ' }) -join '  ||  ') + ")" } else { "" }
   "{0}  {1}{2}" -f $codigo, $texto, $nota

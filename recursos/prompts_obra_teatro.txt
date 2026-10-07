@@ -1,0 +1,116 @@
+POKEMON OSTINATO - LA OBRA «LA PLAZA CALLADA»: PIEZAS PARA ADOBE FIREFLY
+2026-10-07 (segunda version)
+=====================================================================
+
+COMO VA LA ESCENA
+-----------------
+La vista desde la butaca se monta con el MISMO escenario del mapa 13 ampliado
+x3 (no se pide fondo a Firefly). Abajo, la fila de delante: butacas del mapa
+y gente de espaldas con sus skins, a x5 porque estan mas cerca. Los actores
+son skins del juego (64x64 por cuadro) a la misma escala que el escenario y
+entran por las dos puertas del decorado. Maqueta: Descargas\obra\maqueta_vista_butaca.png
+
+Por eso cada personaje nuevo se pide en DOS pasos:
+  A. su skin del juego (rejilla 4x4, como la tiquera): andar en 4 direcciones
+  B. una fila de poses de actuar, usando la skin A como referencia
+
+Ajustes de Firefly:
+  A: formato 1:1. Tipo Arte. ESTILO y COMPOSICION: Descargas\obra\referencias\
+     ref_personaje_kaia_x4.png, las dos en intensidad alta.
+  B: formato 16:9. Tipo Arte. ESTILO: la skin A que te haya salido, alta.
+     Composicion: ninguna.
+  Objetos: formato 1:1. Tipo Arte. ESTILO: referencias\ref_escenario_mapa.png, alta.
+Guarda todo en Descargas\obra\ con el nombre de cada pieza.
+
+=====================================================================
+1. NARRADORA
+=====================================================================
+A -> narradora_skin.png
+
+Hoja de sprites de personaje en pixel art para RPG Maker, en el mismo estilo exacto que la imagen de referencia: rejilla de 4 columnas y 4 filas, mismas poses y mismo tamaño de personaje que la referencia, píxeles grandes y bien visibles. Personaje chibi diminuto: cabeza grande y cuerpo corto de dos cabezas. Cara MUY sencilla, como la de la referencia: solo dos ojos pequeños de color y un punto de boca, sin nariz, sin cejas, sin sombras ni brillos en la cara. Pocos colores planos y un contorno oscuro de un píxel. Fila 1 de frente caminando, fila 2 hacia la izquierda, fila 3 hacia la derecha, fila 4 de espaldas. El personaje: una narradora de teatro: mujer joven, pelo largo y negro recogido en una trenza sobre un hombro, vestido largo azul noche con estrellitas doradas en el bajo y un chal dorado. Fondo verde liso. Sin texto.
+
+B -> narradora_poses.png
+
+Pixel art para RPG Maker, el MISMO personaje exacto que la imagen de referencia, mismo tamaño, mismos colores y mismo estilo, píxeles grandes y contorno oscuro de un píxel. Una sola fila de 4 poses de frente, del mismo tamaño que los personajes de la referencia, alineadas por los pies y bien separadas: 1 con una mano abierta extendida hacia un lado, presentando algo; 2 la otra mano, hacia el otro lado; 3 haciendo una reverencia, inclinada hacia delante con una mano en el pecho; 4 con las manos juntas delante y la cabeza un poco baja. Fondo verde liso. Sin texto.
+
+=====================================================================
+2. PANADERO
+=====================================================================
+A -> panadero_skin.png
+
+Hoja de sprites de personaje en pixel art para RPG Maker, en el mismo estilo exacto que la imagen de referencia: rejilla de 4 columnas y 4 filas, mismas poses y mismo tamaño de personaje que la referencia, píxeles grandes y bien visibles. Personaje chibi diminuto: cabeza grande y cuerpo corto de dos cabezas. Cara MUY sencilla, como la de la referencia: solo dos ojos pequeños de color y un punto de boca, sin nariz, sin cejas, sin sombras ni brillos en la cara. Pocos colores planos y un contorno oscuro de un píxel. Fila 1 de frente caminando, fila 2 hacia la izquierda, fila 3 hacia la derecha, fila 4 de espaldas. El personaje: un panadero de pueblo: hombre mayor y regordete, bigote gris, gorro blanco de panadero, camisa crema remangada, delantal blanco con harina y pantalón marrón. Fondo verde liso. Sin texto.
+
+B -> panadero_poses.png
+
+Pixel art para RPG Maker, el MISMO personaje exacto que la imagen de referencia, mismo tamaño, mismos colores y mismo estilo, píxeles grandes y contorno oscuro de un píxel. Una sola fila de 4 poses de frente, del mismo tamaño que los personajes de la referencia, alineadas por los pies y bien separadas: 1 quieto con una barra de pan bajo el brazo; 2 ofreciendo la barra de pan con los brazos estirados hacia delante; 3 sorprendido, con las dos manos levantadas y la boca abierta; 4 con un brazo extendido hacia la derecha, dando la mano. Fondo verde liso. Sin texto.
+
+=====================================================================
+3. VECINA
+=====================================================================
+A -> vecina_skin.png
+
+Hoja de sprites de personaje en pixel art para RPG Maker, en el mismo estilo exacto que la imagen de referencia: rejilla de 4 columnas y 4 filas, mismas poses y mismo tamaño de personaje que la referencia, píxeles grandes y bien visibles. Personaje chibi diminuto: cabeza grande y cuerpo corto de dos cabezas. Cara MUY sencilla, como la de la referencia: solo dos ojos pequeños de color y un punto de boca, sin nariz, sin cejas, sin sombras ni brillos en la cara. Pocos colores planos y un contorno oscuro de un píxel. Fila 1 de frente caminando, fila 2 hacia la izquierda, fila 3 hacia la derecha, fila 4 de espaldas. El personaje: una vecina de pueblo de mediana edad: pelo castaño en un moño bajo, pañuelo verde en la cabeza, vestido granate hasta los tobillos y delantal de cuadros. Fondo verde liso. Sin texto.
+
+B -> vecina_poses.png
+
+Pixel art para RPG Maker, el MISMO personaje exacto que la imagen de referencia, mismo tamaño, mismos colores y mismo estilo, píxeles grandes y contorno oscuro de un píxel. Una sola fila de 4 poses de frente, del mismo tamaño que los personajes de la referencia, alineadas por los pies y bien separadas: 1 quieta con una barra de pan en los brazos; 2 con una mano en el pecho y la cabeza un poco baja; 3 enfadada, señalando con el dedo y el otro puño cerrado; 4 con un brazo extendido hacia la izquierda, cogiendo la mano de alguien. Fondo verde liso. Sin texto.
+
+=====================================================================
+4. NINO OBRA
+=====================================================================
+A -> nino_obra_skin.png
+
+Hoja de sprites de personaje en pixel art para RPG Maker, en el mismo estilo exacto que la imagen de referencia: rejilla de 4 columnas y 4 filas, mismas poses y mismo tamaño de personaje que la referencia, píxeles grandes y bien visibles. Personaje chibi diminuto: cabeza grande y cuerpo corto de dos cabezas. Cara MUY sencilla, como la de la referencia: solo dos ojos pequeños de color y un punto de boca, sin nariz, sin cejas, sin sombras ni brillos en la cara. Pocos colores planos y un contorno oscuro de un píxel. Fila 1 de frente caminando, fila 2 hacia la izquierda, fila 3 hacia la derecha, fila 4 de espaldas. El personaje: un niño pequeño de pueblo: pelo castaño revuelto, camiseta amarilla, pantalón corto azul con tirantes y zapatillas rojas. Fondo verde liso. Sin texto.
+
+B -> nino_obra_poses.png
+
+Pixel art para RPG Maker, el MISMO personaje exacto que la imagen de referencia, mismo tamaño, mismos colores y mismo estilo, píxeles grandes y contorno oscuro de un píxel. Una sola fila de 5 poses de frente, del mismo tamaño que los personajes de la referencia, alineadas por los pies y bien separadas: 1 con los brazos abiertos y la boca muy abierta, gritando; 2 sentado en el suelo abrazándose las rodillas; 3 y 4 riéndose a carcajadas con los ojos cerrados en arco, en dos posturas un poco distintas; 5 dando un paso atrás asustado, con las manos delante. Fondo verde liso. Sin texto.
+
+=====================================================================
+5. LUZ
+=====================================================================
+A -> luz_skin.png
+
+Hoja de sprites de personaje en pixel art para RPG Maker, en el mismo estilo exacto que la imagen de referencia: rejilla de 4 columnas y 4 filas, mismas poses y mismo tamaño de personaje que la referencia, píxeles grandes y bien visibles. Personaje chibi diminuto: cabeza grande y cuerpo corto de dos cabezas. Cara MUY sencilla, como la de la referencia: solo dos ojos pequeños de color y un punto de boca, sin nariz, sin cejas, sin sombras ni brillos en la cara. Pocos colores planos y un contorno oscuro de un píxel. Fila 1 de frente caminando, fila 2 hacia la izquierda, fila 3 hacia la derecha, fila 4 de espaldas. El personaje: una actriz que hace de luz: túnica larga y suelta gris perla con la capucha echada hacia atrás, pelo plateado corto, descalza, y en las manos un farol de hierro oscuro con el cristal y la luz de dentro de color BLANCO brillante. Fondo verde liso. Sin texto.
+
+B -> luz_poses.png
+
+Pixel art para RPG Maker, el MISMO personaje exacto que la imagen de referencia, mismo tamaño, mismos colores y mismo estilo, píxeles grandes y contorno oscuro de un píxel. Una sola fila de 4 poses de frente, del mismo tamaño que los personajes de la referencia, alineadas por los pies y bien separadas: 1 sujetando el farol con las dos manos a la altura del pecho; 2 igual, con el brillo del farol más grande; 3 cantando, con la cabeza levantada, los ojos cerrados y el farol en alto por encima de la cabeza; 4 callada, con la cabeza baja y el farol bajado junto a la cadera. Fondo verde liso. Sin texto.
+
+OJO: una sola actriz con el farol BLANCO; los seis colores los pongo yo.
+
+=====================================================================
+6. SENORA NEGRO
+=====================================================================
+A -> senora_negro_skin.png
+
+Hoja de sprites de personaje en pixel art para RPG Maker, en el mismo estilo exacto que la imagen de referencia: rejilla de 4 columnas y 4 filas, mismas poses y mismo tamaño de personaje que la referencia, píxeles grandes y bien visibles. Personaje chibi diminuto: cabeza grande y cuerpo corto de dos cabezas. Cara MUY sencilla, como la de la referencia: solo dos ojos pequeños de color y un punto de boca, sin nariz, sin cejas, sin sombras ni brillos en la cara. Pocos colores planos y un contorno oscuro de un píxel. Fila 1 de frente caminando, fila 2 hacia la izquierda, fila 3 hacia la derecha, fila 4 de espaldas. El personaje: una señora mayor de luto: pelo blanco en un moño, vestido largo completamente negro con cuello alto, velo negro fino sobre el pelo y chal negro. Fondo verde liso. Sin texto.
+
+B -> senora_negro_poses.png
+
+Pixel art para RPG Maker, el MISMO personaje exacto que la imagen de referencia, mismo tamaño, mismos colores y mismo estilo, píxeles grandes y contorno oscuro de un píxel. Una sola fila de 4 poses de frente, del mismo tamaño que los personajes de la referencia, alineadas por los pies y bien separadas: 1 con las manos juntas delante; 2 con una mano en el pecho y la cabeza baja; 3 con la cabeza levantada mirando hacia arriba; 4 con los dos brazos levantados, colgando un farol apagado de un gancho por encima de su cabeza. Fondo verde liso. Sin texto.
+
+=====================================================================
+7. PUESTO PAN -> puesto_pan.png
+=====================================================================
+Pixel art estilo Pokémon de cuarta y quinta generación para RPG Maker, en el mismo estilo exacto que la imagen de referencia: píxeles grandes y bien visibles, contorno oscuro, sombreado limpio y pocos colores. Sin texto ni marcas de agua. Vista de frente de un puesto de pan de atrezo de teatro, del tamaño de dos o tres personajes de ancho: un mostrador de madera bajo con un toldo de rayas rojas y blancas y, encima, barras de pan y hogazas redondas en cestas de mimbre. Se nota que es un decorado pintado. Un solo objeto centrado sobre fondo blanco liso.
+
+=====================================================================
+8. ARBOL CARTON -> arbol_carton.png
+=====================================================================
+Pixel art estilo Pokémon de cuarta y quinta generación para RPG Maker, en el mismo estilo exacto que la imagen de referencia: píxeles grandes y bien visibles, contorno oscuro, sombreado limpio y pocos colores. Sin texto ni marcas de agua. Vista de frente de un árbol de cartón de atrezo de teatro, un poco más alto que dos personajes: silueta plana recortada con la copa redonda verde y el tronco marrón, pintada a mano, con el borde del cartón visible y una base de madera que lo sostiene de pie. Un solo objeto centrado sobre fondo blanco liso.
+
+=====================================================================
+9. FAROL APAGADO -> farol_apagado.png
+=====================================================================
+Pixel art estilo Pokémon de cuarta y quinta generación para RPG Maker, en el mismo estilo exacto que la imagen de referencia: píxeles grandes y bien visibles, contorno oscuro, sombreado limpio y pocos colores. Sin texto ni marcas de agua. Un farol de mano antiguo de hierro oscuro con asa arriba, apagado: el cristal gris oscuro y frío, sin luz dentro, con una vela consumida. Visto de frente, del tamaño de la cabeza de un personaje. Un solo objeto centrado sobre fondo blanco liso.
+
+=====================================================================
+SONIDOS (Firefly, efectos de sonido) -> Descargas\obra\sonidos\
+=====================================================================
+  Las notas de las luces salen de la marimba de Mudkip (SE «Mudkip nota 1..8»).
+  - risas_publico: audience of a small village theatre laughing warmly together for two seconds, indoor hall reverb
+  - aplausos: warm applause of a small theatre audience, about forty people, five seconds, fading out naturally
+  - shhh: a few people in a theatre audience whispering shhh, quiet
+  - golpe_decorado: a large cardboard and wooden stage prop falling over onto a wooden stage floor, hollow thud and rattle
+  - murmullo_sala: quiet murmur of a theatre audience waiting before a show, loopable

@@ -473,3 +473,35 @@ TiqTxt06  Tiquera: No te llega. Son 10$, ni uno menos.
 TiqTxt07  Tiquera: ¿Te animas? Son 10$ la entrada.
       // (con la entrada ya comprada)
 TiqTxt08  Tiquera: ¡Disfruta de la función!
+
+
+==============================================================================
+VILLA BAMBALINA · Los vecinos del pueblo   (BamVec)   bocadillo con pico
+==============================================================================
+      // Propuestas de Claude para la gente de fondo: corrígelas a tu gusto.
+      // La abuela de la fuente
+BamVec00  Abuela: Esta fuente la pusieron para un decorado. Gustó tanto que se quedó.
+BamVec01  Abuela: Ahora todo el mundo se hace fotos aquí y nadie se acuerda de la obra.
+      // El de las telas, en el primer puesto
+BamVec02  Tendero: ¡Telas, pinturas y pelucas! Todo lo que necesita un buen actor.
+      // El panadero, en el segundo puesto
+BamVec03  Panadero: ¿Que si he hecho de árbol? Tres veces. Y una de roca.
+BamVec04  Panadero: La roca fue mi mejor papel. Ni pestañeé.
+      // La vecina de la casa del oeste
+BamVec05  Vecina: Mi hijo quiere ser actor. Yo le digo que primero aprenda a estarse quieto.
+      // El chaval de los puestos de abajo
+BamVec06  Chaval: De mayor quiero ser el que mueve los focos. Los actores sudan mucho.
+      // El del taller de decorados
+BamVec07  Carpintero: En este taller hacemos los decorados del teatro.
+BamVec08  Carpintero: Si en la obra se cae alguno, no es culpa nuestra. Casi nunca.
+      // El montañero de la salida del este
+BamVec09  Montañero: Por ese camino se va a la Ruta 2. Vengo de allí y me he perdido el estreno.
+      // La campista del Centro Pokémon
+BamVec10  Campista: En el Centro Pokémon te curan el equipo gratis. El miedo escénico, no.
+      // La chica de la tienda
+BamVec11  Chica: En la tienda venden caramelos para la garganta. Aquí se gastan muchísimo.
+      // El niño que ensaya
+BamVec12  Niño: ¡Estoy ensayando! Hago de Pokémon salvaje. ¡Grrr!
+      // El anciano del retablo
+BamVec13  Anciano: Ese retablo es más viejo que yo. Cuenta cómo llegaron las luces a Cadencia.
+BamVec14  Anciano: Cada vez que lo miro me fijo en algo distinto.

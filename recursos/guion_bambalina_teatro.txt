@@ -48,84 +48,101 @@ TeaTxt07  Señor: La última vez se cayó un decorado. Fue lo mejor de la obra.
 
 
 ==============================================================================
-DENTRO DEL TEATRO   (TeaTxt)
+DENTRO DEL TEATRO   (TeaTxt)   version aprobada el 2026-10-07
 ==============================================================================
-      // El patio de butacas está lleno. Kaia sube al balcón y se apoya en la barandilla.
-TeaTxt08  Acomodadora: Abajo ya no queda sitio. Si quieres ver bien, sube al balcón.
-TeaTxt09  Público: ¡Shhh! Que ya empieza.
-      // Se apagan las luces del teatro. Solo queda iluminado el escenario.
+      // Kaia y Lira ya estan sentadas en el patio de butacas (024_ButacasTeatro).
+      // Al sentarse, la pantalla pasa a la vista desde la butaca: el escenario de
+      // frente, siempre el mismo, con los respaldos de la fila de delante abajo.
+      // Durante la obra el texto sale como SUBTITULO abajo: "Narradora: ...".
+ObraPub00  Público: ¡Shhh! Que empieza.
+      // Se apagan las luces de la sala. Solo queda el escenario.
 
 
 ==============================================================================
-LA OBRA: «LA PLAZA CALLADA»   (ObraTxt)   bocadillo con pico sobre quien habla
+LA OBRA: «LA PLAZA CALLADA»   (ObraTxt)   subtitulo abajo
 ==============================================================================
-      // Sube la Narradora y se pone a un lado del escenario.
-ObraTxt00  Narradora: Hace mucho, Cadencia era una plaza callada.
-ObraTxt01  Narradora: La gente se cruzaba, se saludaba con la cabeza y seguía andando.
-      // Suben el Panadero y la Vecina. Se miran. Abren la boca. No les sale nada.
-ObraTxt02  Panadero: ...
-ObraTxt03  Vecina: ...
-ObraTxt04  Narradora: No es que no quisieran hablar. Es que no sabían cómo.
-      // Sube el Niño corriendo.
-ObraTxt05  Niño: Yo sí sé. ¡Hola!
-ObraTxt06  Narradora: El niño no cuenta. Los niños siempre saben.
-      // (risas del público)
-ObraTxt07  Narradora: Hasta que una noche llegaron unas luces.
-      // Sube la de la luz amarilla, con su farol.
-ObraTxt08  Luz amarilla: Yo traigo la risa. Para cuando algo os haga gracia.
-ObraTxt09  Panadero: ¡Ja! ...Perdón. Es la primera vez.
-      // Sube la de la luz roja.
-ObraTxt10  Luz roja: Yo traigo el enfado. Para cuando algo no sea justo.
-ObraTxt11  Vecina: ¡Por fin! ¡Llevo años queriendo quejarme del pan!
-ObraTxt12  Panadero: ¿Qué le pasa a mi pan?
-      // Sube la de la luz morada.
-ObraTxt13  Luz morada: Yo traigo el miedo. Para que no os acerquéis tanto al río.
-      // Sube la de la luz rosa.
-ObraTxt14  Luz rosa: Yo traigo el cariño. Para cuando alguien os importe.
-ObraTxt15  Vecina: ...Bueno. Su pan tampoco está tan mal.
-      // Sube la de la luz verde.
-ObraTxt16  Luz verde: Yo traigo la sorpresa. Para cuando pase algo que nadie esperaba.
-      // Se cae un trozo del decorado con estruendo.
-ObraTxt17  Narradora: Esto no venía en el guion. Seguimos.
-      // Sube la de la luz azul, mirando el decorado en el suelo.
-ObraTxt18  Luz azul: Y yo traigo la vergüenza. Para cuando os pase eso.
-      // (risas del público) Las luces se colocan en fila al fondo del escenario.
-ObraTxt19  Narradora: Y desde esa noche, la plaza dejó de estar callada.
-ObraTxt20  Narradora: Hubo fiesta. Hubo baile. Y hubo quien se quejaba de la fiesta.
-ObraTxt21  Vecina: ¡Es que a estas horas no se puede ni dormir!
-      // Sube una señora mayor vestida de negro, despacio, y se pone delante de las luces.
-ObraTxt22  Señora de negro: ¿Y lo mío?
-ObraTxt23  Señora de negro: Se me fue alguien. ¿Cuál de vosotras canta eso?
-      // Las luces se miran unas a otras. Ninguna dice nada. Un silencio largo.
-ObraTxt24  Narradora: ...Y colorín colorado.
-      // La señora se queda quieta un momento y baja del escenario.
-      // Se encienden las luces del teatro. Aplausos.
-ObraTxt25  Narradora: ¡Gracias por venir! Mañana repetimos, si el decorado aguanta.
+      // PROLOGO. Sala a oscuras. Un foco sobre la Narradora, a un lado.
+ObraTxt00  Narradora: Buenas noches. Esta historia pasó aquí mismo, en una plaza como esta.
+ObraTxt01  Narradora: Pasó hace tanto tiempo que ya nadie la vio. Por eso hay que seguir contándola.
+ObraTxt02  Narradora: En aquella época, en Cadencia no sonaba nada.
+ObraTxt03  Narradora: La gente sentía lo mismo que vosotros. Pero todo se les quedaba dentro, como una piedra en el zapato.
+      // ESCENA I · LA MAÑANA. Se ilumina la plaza. El Panadero abre su puesto. Llega la Vecina.
+ObraTxt04  Panadero: Buenos días.
+ObraTxt05  Vecina: Buenos días.
+ObraTxt06  Narradora: Así se saludaban cada mañana. Llevaban cuarenta años diciéndose lo mismo.
+      // La Vecina coge el pan, pero no se va.
+ObraTxt07  Vecina: Esta noche he soñado algo.
+ObraTxt08  Panadero: ¿Y qué era?
+ObraTxt09  Vecina: No sé decirlo. Me ha dejado un hueco aquí.
+      // Se lleva la mano al pecho.
+ObraTxt10  Panadero: Llévese el pan, que se le enfría.
+      // Entra el Niño corriendo. Se para en medio, abre la boca para gritar y no
+      // le sale nada. Se sienta en el suelo.
+ObraTxt11  Narradora: Hasta los niños jugaban en silencio.
+      // ESCENA II · LA NOCHE DE LAS LUCES. Anochece. A lo lejos suena una nota.
+ObraTxt12  Narradora: Una noche, del monte bajaron unas luces.
+ObraTxt13  Narradora: Nadie sabía de dónde venían. Solo que venían cantando.
+      // Entra la luz amarilla. Suena su nota.
+ObraTxt14  Luz amarilla: Soy lo que se os escapa cuando algo os hace gracia.
+ObraTxt15  Luz amarilla: Os presto la risa. Pero no os la puedo dejar para siempre: dura lo que dura.
+ObraTxt16  Niño: ¡Ja, ja, ja! ¡Me sale sola!
+      // Entra la luz roja.
+ObraTxt17  Luz roja: Soy el calor que os sube a la cara cuando algo no es justo.
+ObraTxt18  Luz roja: Usadme poco. Quemo al que me lleva y al que tiene delante.
+ObraTxt19  Vecina: ¡Cuarenta años! ¡Cuarenta años comiendo pan quemado sin decir nada!
+ObraTxt20  Panadero: ¿Quemado? ¿Y por qué no me lo había dicho?
+ObraTxt21  Vecina: ¡Porque no podía!
+      // Entra la luz morada. El Niño, que estaba al borde del escenario, da un paso atras.
+ObraTxt22  Luz morada: Soy el frío que os frena antes del barranco.
+ObraTxt23  Luz morada: No me queráis. Pero tampoco me echéis: sin mí no llegaríais a viejos.
+      // Entra la luz rosa.
+ObraTxt24  Luz rosa: Soy lo que os pesa cuando alguien se aparta de vuestro lado.
+ObraTxt25  Luz rosa: Os ato a quien queréis. Por eso, a veces, duelo.
+ObraTxt26  Panadero: Mañana le hago una barra sin quemar. Solo para usted.
+ObraTxt27  Vecina: ...Gracias.
+      // Le coge la mano. Entra la luz verde.
+ObraTxt28  Luz verde: Soy lo que no esperabais.
+      // Se cae un arbol de carton del decorado. Estruendo.
+ObraTxt29  Luz verde: ...Como eso.
+      // Entra la luz azul, mirando el arbol tirado en el suelo.
+ObraTxt30  Luz azul: Y yo soy el color de las mejillas cuando todos os miran.
+ObraTxt31  Luz azul: Llego siempre tarde. Justo después de que pase algo.
+      // Risas del publico.
+      // ESCENA III · EL PRIMER CORO
+ObraTxt32  Narradora: Aquella noche, por primera vez, la plaza sonó.
+ObraTxt33  Narradora: Las luces cantaron juntas, y la gente cantó con ellas.
+ObraTxt34  Narradora: Así nació lo que en Cadencia llamamos «hacer coro».
+      // Suenan todas las notas a la vez. La gente baila.
+      // ESCENA IV · LA SEÑORA DE NEGRO. La musica se corta de golpe. Entra despacio.
+ObraTxt35  Señora de negro: Qué bonito suena todo.
+ObraTxt36  Señora de negro: Mi marido subió al monte esta tarde. Quería ser el primero en veros llegar.
+ObraTxt37  Señora de negro: No ha bajado.
+      // Las luces bajan la voz.
+ObraTxt38  Señora de negro: Tengo algo aquí dentro que no es risa, ni rabia, ni miedo.
+ObraTxt39  Señora de negro: Se parece al cariño, pero duele hacia atrás.
+ObraTxt40  Señora de negro: ¿Cuál de vosotras canta esto?
+      // Las luces le cantan su nota una detras de otra. Ninguna encaja y se van
+      // callando. Silencio largo.
+ObraTxt41  Narradora: Ninguna le contestó.
+ObraTxt42  Narradora: Ella colgó un farol en la plaza, junto a los de las luces. Y no lo encendió.
+ObraTxt43  Narradora: Todavía sigue ahí, apagado, esperando a quien sepa cantar lo que ella sentía.
+      // Oscuro. Silencio. Despues, los aplausos.
+ObraTxt44  Narradora: Gracias por venir.
 
 
 ==============================================================================
-AL ACABAR   (TeaTxt)
+AL ENCENDERSE LA SALA   (TeaTxt)   cuadro con retratos, sobre la misma vista
 ==============================================================================
-TeaTxt10  Público: ¡Bravo!
-      // Si se habla con el público al salir:
+TeaTxt13  Kaia: Lira... ¿Tú sabes cómo suena eso?
+TeaTxt14  Lira: No. Pero lo tenía delante y casi no podía respirar.
+TeaTxt15  Kaia: ¿Lo notabas desde aquí?
+TeaTxt16  Lira: Desde que ha entrado.
+      // Si se habla con el publico al salir:
 TeaTxt11  Señor: Lo del decorado lo hacen adrede, ¿eh? Pero cada año se cae uno distinto.
 TeaTxt12  Señora: La del final sale todos los años. Y todos los años se queda sin respuesta.
-      // Kaia, antes de bajar del balcón (cuadro con su retrato):
-TeaTxt13  Kaia: Me ha gustado mucho.
-TeaTxt14  Kaia: Aunque la señora del final se ha quedado sin respuesta.
 
 
 ==============================================================================
-LO QUE HACE FALTA DIBUJAR (personajes del mapa, del tamaño de Kaia)
+LO QUE HACE FALTA DIBUJAR
 ==============================================================================
-  En el pueblo y la puerta: Taquillero, y gente de cola (pueden salir de ANIL).
-  Dentro: Acomodadora y público sentado (de espaldas, mirando al escenario).
-  En el escenario:
-    - Narradora
-    - Panadero (con delantal)
-    - Vecina
-    - Niño
-    - Las de las luces: una actriz con un farol de color. Basta un mismo
-      personaje con el farol en amarillo, rojo, morado, rosa, verde y azul.
-    - Señora de negro (mayor, vestida de luto, sin farol)
-  Opcional: el trozo de decorado que se cae (un arbol de carton, por ejemplo).
+  Todo esta en recursos/prompts_obra_teatro.txt (prompts de Firefly).
