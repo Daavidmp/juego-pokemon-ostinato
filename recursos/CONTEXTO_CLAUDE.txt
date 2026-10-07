@@ -1,5 +1,5 @@
 POKÉMON OSTINATO · CONTEXTO DE TRABAJO CON CLAUDE
-Actualizado: 2026-09-30
+Actualizado: 2026-10-07
 
 Para retomar en otro dispositivo: pásale este fichero a Claude al empezar ("lee recursos/CONTEXTO_CLAUDE.txt").
 
@@ -194,3 +194,53 @@ Música: Suno (Instrumental). Prompt tipo:
   con salidas N (Ruta 6), NE (Ruta 9, 3 árboles de Tala) y S (Ruta 4). Cartel del Local en castellano.
 - Pendiente de alinear: v4-03-GUION-I (l.964), v4-06-CONSTRUCCION (T-062) y la biblia todavía
   describen el gimnasio 1 como escenario de calle.
+
+
+================================================================================
+8. VILLA BAMBALINA Y EL TEATRO (2026-10-07)
+================================================================================
+Flujo: Ruta 2 -> Villa Bambalina (mapa 12) -> taquilla (022, SW 80/81) -> dentro del teatro (mapa 13)
+-> Kaia se sienta (024, SW 82) -> la obra (025, SW 83) -> vuelve al mapa con Kaia y Lira sentadas.
+
+- VECINOS DE BAMBALINA: 11 eventos del mapa 12 (ids 4-14) con OstinatoVecinos.hablar("BamVec", a, b).
+  Las frases las propuso Claude (seccion BamVec de recursos/dialogos_ostinato.txt): que David las revise.
+  Estan lejos de la explanada del teatro para no estorbar a la escena de la taquilla (y 7-10).
+
+- PATIO DE BUTACAS (024_ButacasTeatro.rb, mapa 13):
+  · 48 personas sentadas creadas en marcha (ids 1000+), Lira (990) espera en el pasillo (15,15).
+  · Las butacas del dibujo NO van a la rejilla (filas cada 40 px, butacas cada 34): la gente se coloca
+    con x_offset/y_offset al pixel y las butacas se vuelven a pintar por encima de cada fila
+    (Graphics/Titles/TeaButaca0-4.png, recortadas del propio mapa) con su z entre filas.
+  · En las filas (y 14-17 de los dos bloques) solo se anda de lado; Kaia sube o baja unos pixeles
+    para caer en el hueco entre filas (tabla PASILLO_Y).
+  · Butaca de Kaia (11,15): sale "ENTER SENTARSE" (TeaSentarse.png, la letra de la tecla ESPACIO);
+    con Enter se sienta, Lira se sienta en (12,15) y se llama a OstObra.empezar.
+  · Ajustes a ojo arriba del fichero: SENT_DY (lo que se hunde la gente) y CAPA_DZ.
+
+- LA OBRA "LA PLAZA CALLADA" (025_ObraTeatro.rb):
+  · Guion aprobado por David en recursos/guion_bambalina_teatro.txt (ObraPub00, ObraTxt00-44,
+    TeaTxt13-16). Prologo + 4 escenas, unos 4-5 minutos. Seis luces que NADIE cuenta en voz alta;
+    al final la senora de negro cuelga un farol APAGADO (el septimo hueco, para cobrarlo mas adelante).
+  · Vista desde la butaca a 1920x1080 (OstMini.pantalla). El escenario es siempre el mismo dibujo;
+    cambian la camara (cx, cy, zoom 1-1,85), la luz (SALA, PENUMBRA, DIA, NOCHE, FIESTA, DUELO: tono
+    de todos los sprites), el foco (foco.png, alumbra a quien sigue) y los halos de cada luz.
+  · Texto como SUBTITULO abajo ("Nombre: ..." con el nombre en dorado), se pasa con Enter. Estilo
+    "ObraTxt"/"ObraPub" de recursos/herramientas/textos_guion.ps1:
+      powershell -File textos_guion.ps1 <guion_bambalina_teatro.txt> <Graphics\Titles> ObraTxt ObraPub
+  · Piezas: Graphics/Titles/Obra/, generadas con recursos/obra/construir.py desde Descargas\obra\
+    (escenario de Firefly reducido a su rejilla, poses de cada personaje alineadas por los pies, las
+    seis luces tenidas desde el blanco puro del farol, atrezo, notas, foco y banda).
+    Prompts de Firefly en recursos/prompts_obra_teatro.txt. Skins de mapa de los personajes nuevos en
+    Graphics/Characters: narradora, panadero, vecina, nino_obra, luz, senora_negro.
+  · PROBAR SIN ABRIR EL JUEGO: recursos/obra/sim_obra.rb (imitaciones de RGSS, pulsa Enter solo,
+    corre la obra entera y guarda el estado de cada sprite) + pintar_sim.py (dibuja un fotograma por
+    subtitulo en hojas de contacto). Ruby 3.2 sacado con dpkg -x (ver seccion 6).
+  · PENDIENTE: los sonidos. Suenan solos en cuanto existan en Audio/SE con estos nombres:
+    "Obra murmullo", "Obra shhh", "Obra risas", "Obra aplausos", "Obra golpe" (prompts al final de
+    prompts_obra_teatro.txt). Las notas de las luces ya usan la marimba de Mudkip.
+  · PENDIENTE: que David la pruebe en el juego (ritmo de camara, oscuridad de noche/duelo). Para verla
+    otra vez: SW 83 = OFF en debug.
+
+- COMPILAR PLUGINS SIN ABRIR EL JUEGO: Data/PluginScripts.rxdata es [nombre, meta, [[fichero.rb,
+  zlib(codigo con LF)], ...]]; se reescribe con el marshal de pkmn-devkit (asi se hizo con 024 y 025).
+

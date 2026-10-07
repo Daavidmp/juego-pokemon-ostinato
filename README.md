@@ -29,6 +29,10 @@ Los scripts propios del juego son un plugin de Essentials, en texto, en
 | `006_Prologo` | El cuadro de diálogo y el prólogo: despertar, cocina, telediario, Lira en la puerta, laboratorio y la fuga de los tres iniciales |
 | `007_Farolas` | Las farolas de Villa Bambalina, que se encienden al caer la noche |
 | `008_Pantallas512` | Centra las pantallas de menú y los combates de Sky, que son de 512x384 |
+| `022_TaquillaTeatro` | La taquilla del teatro de Villa Bambalina |
+| `023_EscalerasTeatro` | Las escaleras del vestíbulo del teatro |
+| `024_ButacasTeatro` | El patio de butacas: la gente sentada, pasar entre filas y sentarse |
+| `025_ObraTeatro` | La obra «La plaza callada», vista desde la butaca |
 
 Al arrancar en modo depuración, Essentials recompila los plugins en
 `Data/PluginScripts.rxdata`, que es lo que lee el juego normal: después de tocar
