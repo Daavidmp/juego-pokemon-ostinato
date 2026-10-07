@@ -1,46 +1,134 @@
-POKEMON OSTINATO - EL TEATRO NUEVO DE VILLA BAMBALINA (Adobe Firefly)
-=====================================================================
+﻿POKEMON OSTINATO - TEATRO DE VILLA BAMBALINA (INTERIOR), PIEZAS DE TILESET
+==========================================================================
+Empezado el 2026-10-06 (skill diseno-ostinato). Se rehace desde cero, pieza a
+pieza, al estilo de Interior1: pixel art de 16x16 por casilla ampliado x2 (cada
+pixel del dibujo = 2 px del juego), vista cenital de frente de Pokemon 4a/5a gen,
+contorno oscuro de 1 pixel, colores planos con 2-3 tonos.
 
-En el juego ocupa el mismo hueco que el de ahora: 12 x 6 casillas (384 x 192 px,
-proporcion 2:1), arriba a la izquierda del pueblo (casillas x 3-14, y 1-6). Asi no
-se mueve nada del mapa.
+Referencias (Descargas\teatro_piezas):
+  ref_estilo_interior1.png  trozo de Interior1 ampliado (estilo; manda)
+  ref_sala.png              la sala que se quiere (composicion y colores)
+El escenario de ref_sala gusta: se conserva su diseno.
 
-  - Formato: horizontal 16:9, el mas grande que deje. (Firefly no tiene 2:1; lo
-    recorto yo. Por eso el prompt pide margen arriba y abajo.)
-  - Tipo de contenido: Arte.
-  - Referencia de composicion: Descargas\teatro_bambalina\ref_teatro_actual.png
-    (el teatro de ahora), intensidad media: misma vista y mismas proporciones.
-  - Referencia de estilo: Descargas\teatro_bambalina\ref_estilo_pueblo.png
-    (el pueblo tal como se ve en el juego), intensidad alta.
-  - Guardalo en Descargas\teatro_bambalina\ como teatro_nuevo.png
+PLAN DE PIEZAS (una imagen por paso)
+  1. Suelos y paredes: parquet del patio, suelo oscuro del vestibulo, pared
+     crema con zocalo burdeos y moldura dorada, remate de arriba y esquinas.
+  2. Escenario: tarima, frente con focos, telon rojo y decorado del pueblo.
+  3. Escaleras laterales del escenario (izquierda y derecha).
+  4. Butaca (1 casilla), alfombra del pasillo y felpudo de la entrada.
+  5. Barandilla dorada del anfiteatro (tramo repetible y dos remates).
+  6. Escalera recta que baja (y la de caracol si se quiere).
+  7. Apliques de pared y detalles.
+
+----------------------------------------------------------------------------
+PASO 1 - SUELOS Y PAREDES
+Modelo: Gemini (Nano Banana). Formato 1:1.
+Referencias: 1) ref_estilo_interior1.png (estilo)  2) ref_sala.png (colores)
 
 PROMPT:
 
-Pixel art de videojuego RPG estilo Pokémon de cuarta y quinta generación, vista
-cenital en tres cuartos como en la imagen de referencia: la fachada de frente y el
-tejado visto desde arriba. Un gran teatro de pueblo, majestuoso y lleno de detalle,
-mucho más ancho que alto, en forma de rectángulo apaisado el doble de ancho que de
-alto. Tejado de tejas color burdeos con una pequeña cúpula o torrecilla central con
-una veleta en forma de máscara de teatro. Fachada de piedra clara con columnas,
-molduras doradas y ventanales en arco con cortinas de terciopelo rojo. En el centro,
-una gran entrada con pórtico, frontón triangular decorado con dos máscaras de teatro
-(comedia y tragedia), una marquesina sobre la puerta y una doble puerta de madera
-roja abierta hacia dentro, con escalones delante. A los lados de la entrada, carteles
-de obras pegados en la pared, sin texto legible, y dos farolas de hierro con luz
-cálida. Banderines de colores colgando bajo la cornisa. Contorno oscuro en todo el
-edificio, colores planos, sombreado limpio por bloques de píxeles, sin degradados
-suaves. Un solo edificio centrado, entero y sin cortar, con margen alrededor. Fondo
-blanco liso. Sin texto, sin letras, sin números, sin personajes, sin suelo ni hierba
-alrededor.
+Hoja de tileset de RPG Maker en pixel art, con el estilo EXACTO de la primera imagen (PokÃ©mon de quinta generaciÃ³n: pÃ­xeles grandes y nÃ­tidos, cada casilla de 16x16 pÃ­xeles, contorno oscuro de un pÃ­xel, colores planos con dos o tres tonos, vista desde arriba de frente, nada de isomÃ©trico). Fondo verde liso. Dibuja solo estas piezas, separadas entre sÃ­ por un poco de verde, cada una ocupando casillas cuadradas enteras: 1) un cuadrado de 4x4 casillas de suelo de tarima de madera color miel, con tablas verticales y juntas, que se pueda repetir sin que se note la costura; 2) un cuadrado de 4x4 casillas del mismo suelo pero mÃ¡s oscuro y marrÃ³n; 3) un tramo de pared de teatro de 4 casillas de ancho y 3 de alto, vista de frente: arriba una cornisa burdeos, en medio un panel color crema con moldura dorada, y abajo un zÃ³calo burdeos oscuro; 4) la misma pared en el lateral izquierdo y en el lateral derecho de la sala, como una franja fina vista desde arriba con el borde burdeos. Colores como los de la segunda imagen. Sin texto, sin sombras sobre el fondo, sin muebles.
 
-SI SALE MAL ALGUNA COSA, CAMBIAR AL FINAL:
-  - Muy alto o cuadrado: «...el edificio es muy bajo y muy ancho, como una tira».
-  - Con suelo o hierba: «...flotando sobre blanco, sin nada debajo».
-  - Con letras en los carteles: quita «carteles de obras» del prompt; los pongo yo.
+Resultado paso 1 (2026-10-06): Gemini hizo casillas de 25 px y pinto una rejilla
+negra encima. Se borro la rejilla (borrar_lineas.cs) y se llevo a 16 px por
+casilla con su paleta (casilla16.cs): suelo_claro.png, suelo_oscuro.png, pared.png.
+En los prompts siguientes se pide "sin lineas de cuadricula".
 
-Cuando lo tengas, lo recorto, lo paso a 384 x 192 en pixel art limpio, lo meto al
-FINAL del tileset (filas nuevas, a partir de la 810, en dos trozos de 8x6 y 4x6 como
-el actual) y le pongo el paso y la prioridad: el edificio no se atraviesa, la puerta
-si, y el tejado pasa por encima de Kaia. Lo que ya esta en el tileset no se mueve, asi
-que el mapa no cambia; el teatro nuevo lo pintas encima del viejo en RPG Maker (o te
-lo cambio yo, si me lo pides).
+----------------------------------------------------------------------------
+PASO 2 - ESCENARIO
+Modelo: Gemini (Nano Banana). Formato 16:9 (o el mas ancho que haya).
+Referencias: 1) ref_estilo_interior1.png (estilo)  2) ref_escenario.png (el diseno que gusta)
+
+PROMPT:
+
+Redibuja el escenario de teatro de la segunda imagen como pieza de tileset de RPG Maker en pixel art, con el estilo EXACTO de la primera imagen (PokÃ©mon de quinta generaciÃ³n: pÃ­xeles grandes y nÃ­tidos, casillas de 16x16 pÃ­xeles, contorno oscuro de un pÃ­xel, colores planos con dos o tres tonos, vista desde arriba de frente). Conserva el diseÃ±o de la segunda imagen: telÃ³n rojo recogido a los lados con cordÃ³n dorado, bambalina roja arriba, el decorado pintado del pueblo con casas y Ã¡rboles al fondo, la tarima de madera clara y el frente del escenario con una fila de focos dorados encendidos. Sin las paredes ni las escaleras de los lados: solo el escenario, de unas 14 casillas de ancho y 10 de alto. Fondo verde liso alrededor. Sin lÃ­neas de cuadrÃ­cula, sin texto.
+
+Resultado paso 2: escenario de 14x10 casillas muy bien. Se paso a 16 px por
+casilla tomando el color del centro de cada bloque (con promedio los focos
+perdian el brillo): escenario.png.
+
+----------------------------------------------------------------------------
+PASO 3 - ESCALERAS LATERALES DEL ESCENARIO
+Modelo: Gemini (Nano Banana). Imagen a EDITAR: ref_escenario_nuevo.png (el
+escenario ya hecho, con hueco verde a los lados). Formato 16:9.
+
+PROMPT:
+
+Edita esta imagen: no cambies NADA del escenario. AÃ±ade solo dos escaleras de madera pegadas a los lados del escenario, una a la izquierda y otra a la derecha, que suban desde el suelo hasta la tarima: cada una de unas 3 casillas de ancho y 4 de alto, con peldaÃ±os de madera clara y una barandilla de madera con balaustres en el lado de fuera, vistas desde arriba de frente como el escenario, con el mismo estilo de pixel art (pÃ­xeles grandes y nÃ­tidos, contorno oscuro de un pÃ­xel, colores planos). La escalera de la derecha igual que la de la izquierda pero en espejo. El resto del fondo, verde liso. Sin lÃ­neas de cuadrÃ­cula, sin texto.
+
+PASO 2b - TELONES QUE NO PAREZCAN RECORTADOS (antes del paso 3)
+Dientes de sierra del paso 2: arreglados (pixel real 3,58 + suavizar.cs).
+Modelo: Gemini (Nano Banana). Imagen a EDITAR: la del escenario que salio
+(Firefly_Redibuja el escenario... 534028.png). Mismo formato.
+
+PROMPT:
+
+Edita esta imagen: no cambies nada salvo los telones. Ahora parecen recortados: el borde de fuera de cada telÃ³n es una lÃ­nea recta pegada al marco y se cortan de golpe. Haz que cada telÃ³n lateral tenga forma de tela de verdad: el borde exterior con pliegues y algo de volumen que asome un poco por fuera del marco, recogido con el cordÃ³n dorado, y que caiga hasta la tarima con el bajo ondulado apoyado en el suelo. Que la bambalina roja de arriba no sea un rectÃ¡ngulo liso: con pliegues colgantes en ondas y un fleco dorado abajo. Mismo estilo de pixel art (pÃ­xeles grandes y nÃ­tidos, contorno oscuro de un pÃ­xel, colores planos), mismo tamaÃ±o y misma posiciÃ³n de todo lo demÃ¡s. Fondo verde liso. Sin lÃ­neas de cuadrÃ­cula, sin texto.
+
+Resultado paso 2b: telones bien; escenario 16x10 sin dientes de sierra.
+Resultado paso 3: Gemini dibujo las escaleras laterales de perfil y en diagonal
+(no casan con la vista cenital ni llegan a la tarima). Se dibujo a mano una
+escalera DE FRENTE en el centro, con la paleta del escenario
+(escalera_frente.cs); el escenario pasa a 16x11 casillas con la escalera.
+
+----------------------------------------------------------------------------
+PASO 4 - BUTACA, ALFOMBRA DEL PASILLO Y FELPUDO
+Modelo: Gemini (Nano Banana). Formato 1:1.
+Referencias: 1) ref_estilo_interior1.png (estilo)  2) ref_sala.png (colores)
+
+PROMPT:
+
+Hoja de tileset de RPG Maker en pixel art, con el estilo EXACTO de la primera imagen (PokÃ©mon de quinta generaciÃ³n: pÃ­xeles grandes y nÃ­tidos, casillas de 16x16 pÃ­xeles, contorno oscuro de un pÃ­xel, colores planos con dos o tres tonos, vista desde arriba de frente). Fondo verde liso. Dibuja, separadas por verde: 1) una fila de 4 butacas de teatro de terciopelo rojo vistas desde atrÃ¡s y un poco desde arriba, cada butaca ocupando exactamente una casilla, con respaldo redondeado y patas oscuras; 2) un tramo de alfombra roja de pasillo de 2 casillas de ancho y 4 de alto con un ribete dorado a los lados, que se pueda repetir hacia abajo, y sus dos remates de arriba y de abajo con flecos dorados; 3) un felpudo rojo de entrada de 2 casillas de ancho y 1 de alto con borde dorado. Colores como los de la segunda imagen. Sin lÃ­neas de cuadrÃ­cula, sin sombras sobre el fondo, sin texto.
+
+
+PASO 3b - ESCALERAS LATERALES CON MAS DETALLE (sobre la guia dibujada a mano)
+Modelo: Gemini (Nano Banana). Imagen a EDITAR: ref_escaleras_guia.png (el
+escenario con las dos escaleras hechas a mano). Formato 16:9 (o mantener proporcion).
+
+PROMPT:
+
+Edita esta imagen: no cambies NADA del escenario (telones, decorado, tarima, focos) ni el fondo verde. Redibuja solo las dos escaleras de los lados con más calidad y detalle, en la MISMA posición, con el MISMO tamaño y la MISMA forma: seis peldaños de madera clara que suben desde el suelo hasta el borde de la tarima, vistos desde arriba de frente como en los juegos de Pokémon de quinta generación, con la cara lateral de madera oscura en escalón por debajo y un pasamanos de madera torneada con balaustres que baja en diagonal y empieza en un poste. Mismo estilo de pixel art que el escenario: píxeles grandes y nítidos, contorno oscuro de un píxel, colores planos con dos o tres tonos, sin degradados. La escalera de la derecha es la de la izquierda en espejo. Sin líneas de cuadrícula, sin texto.
+
+PASO 3c - ESCALERAS LATERALES GENERADAS, BIEN INTEGRADAS (lo que pide el usuario)
+Modelo: Gemini (Nano Banana). Formato 16:9.
+Imagenes: 1) ref_escenario_nuevo.png = la que se EDITA (escenario sin escaleras)
+          2) ref_escalera_interior1.png = como se dibuja una escalera de lado en
+             el estilo de Pokemon (la de Interior1)
+
+PROMPT:
+
+Edita la primera imagen: no cambies NADA del escenario (telones, decorado, tarima, focos, tamaño ni posición). Añade una escalera a cada lado del escenario, construida EXACTAMENTE como la escalera de la segunda imagen (así se dibujan las escaleras de lado en los juegos de Pokémon vistos desde arriba): peldaños como tiras verticales de madera clara, una al lado de otra, cada una un poco más alta que la anterior; debajo, la cara lateral de madera oscura con forma de escalón; y encima, un pasamanos de madera que sube en diagonal siguiendo los peldaños. La escalera de la izquierda arranca en el suelo, a la izquierda del escenario, y sube hacia la derecha hasta quedar a la altura de la tarima, pegada a su borde izquierdo; la de la derecha es igual en espejo. Cada escalera de unas 4 casillas de ancho, con peldaños anchos para que pase una persona. Misma vista que el escenario, de frente desde arriba, NADA de perspectiva ni de perfil. Mismo pixel art que el escenario: píxeles grandes y nítidos, contorno oscuro de un píxel, colores planos de la misma madera del escenario. Fondo verde liso. Sin líneas de cuadrícula, sin texto.
+
+Resultado paso 3c: Gemini hizo las escaleras de lado bien (el usuario le pidio despues quitar las barandillas). La imagen venia algo estirada en horizontal (pixel 3,46 x 3,59): se corrigio y se paso a 20x11 casillas sin dientes de sierra: escenario.png (con escaleras).
+
+
+Resultado paso 4: Gemini copio de mas cosas de Interior1 (plantas, tele...), pero
+las piezas pedidas estaban bien: butacas.png (4 de 1 casilla), alf_arriba/medio/
+abajo.png (alfombra 2 de ancho, el medio se repite), felpudo.png (2x1).
+Aviso para los siguientes: decir "no copies objetos de la primera imagen, solo su estilo".
+
+----------------------------------------------------------------------------
+PASO 5 - BARANDILLA DORADA DEL ANFITEATRO
+Modelo: Gemini (Nano Banana). Formato 1:1.
+Referencias: 1) ref_estilo_interior1.png (estilo)  2) ref_sala.png (como es la barandilla)
+
+PROMPT:
+
+Hoja de tileset de RPG Maker en pixel art, con el ESTILO exacto de la primera imagen (Pokémon de quinta generación: píxeles grandes y nítidos, casillas de 16x16 píxeles, contorno oscuro de un píxel, colores planos con dos o tres tonos, vista desde arriba de frente). No copies ningún objeto de la primera imagen, solo su estilo. Fondo verde liso. Dibuja solo la barandilla del anfiteatro de la segunda imagen, la que separa la sala de butacas del vestíbulo de abajo, vista de frente: un pasamanos de madera oscura arriba, debajo un panel con adornos dorados en espiral sobre fondo burdeos, y debajo la cara del desnivel en madera oscura. Dibuja: 1) un tramo recto de 4 casillas de ancho y 2 de alto que se pueda repetir a lo ancho sin que se note la costura; 2) el remate izquierdo con un poste de madera, de 1 casilla de ancho y 2 de alto; 3) el remate derecho igual en espejo. Separadas por verde. Sin líneas de cuadrícula, sin texto.
+
+Resultado paso 5: tramo de barandilla 4x2 (se repite a lo ancho: el adorno cabe
+3 veces justas), remates con poste a cada lado: barandilla_tramo/izq/der.png.
+
+----------------------------------------------------------------------------
+PASO 6 - ESCALERA QUE BAJA DEL ANFITEATRO AL VESTIBULO
+Modelo: Gemini (Nano Banana). Formato 16:9.
+Imagenes: 1) ref_barandilla_nueva.png = la que se EDITA (suelo de la sala arriba,
+             barandilla, suelo del vestibulo abajo, hueco a la derecha)
+          2) ref_escalera_interior1.png = como se dibuja una escalera de lado
+
+PROMPT:
+
+Edita la primera imagen: no cambies NADA de lo que hay (suelos, barandilla, postes, tamaño ni posición). A la derecha del poste derecho de la barandilla añade una escalera de madera que baje desde el suelo claro de la sala hasta el suelo oscuro del vestíbulo de abajo, construida EXACTAMENTE como la escalera de la segunda imagen (así se dibujan las escaleras de lado en los juegos de Pokémon vistos desde arriba): peldaños como tiras verticales de madera, cada una un poco más baja que la anterior hacia la derecha, la cara lateral de madera oscura con forma de escalón por debajo, y un pasamanos de madera oscura que baja en diagonal y empieza en el poste de la barandilla. De unas 4 casillas de ancho, con peldaños anchos para que pase una persona. Misma vista de frente desde arriba, NADA de perspectiva ni de perfil. Mismo pixel art: píxeles grandes y nítidos, contorno oscuro de un píxel, colores planos de la misma madera. No copies nada más de la segunda imagen. Sin líneas de cuadrícula, sin texto.
+
+Resultado paso 6: Gemini lo hizo mal. Se reutilizo la escalera derecha del escenario (paso 3c), que leida al reves baja hacia la derecha: escalera_baja.png (3x4 casillas), junto al poste derecho de la barandilla.
+

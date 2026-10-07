@@ -26,7 +26,7 @@ module OstTaquilla
   PRECIO      = 10
   PUERTA      = [8, 5]           # la puerta del teatro
   ESCALON     = [8, 6]           # la casilla de delante (la barrera)
-  DENTRO      = [14, 21]         # la alfombrilla roja de dentro del teatro
+  DENTRO      = [14, 29]         # la alfombrilla roja de dentro del teatro
   TIQUERA     = [9, 7]
   ID_TIQ      = 960
   ID_LIRA     = 969
