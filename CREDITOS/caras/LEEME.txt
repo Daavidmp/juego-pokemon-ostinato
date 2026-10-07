@@ -1,0 +1,55 @@
+CARAS DE LA PROFESORA ARCE
+==========================
+
+Cada gesto en su archivo, para que no se pierda ninguno dentro del .kra.
+Todos son PNG con transparencia: se arrastran a Krita y entran como capa
+en su sitio, sin recolocar nada.
+
+
+arce_*.png   (2484 x 1200)
+-------------------------
+La capa de Arce ENTERA con esa cara. Es lo que usa el generador de la
+escena. Para editar un gesto, abre el que corresponda, pinta, y guarda.
+
+  arce_normal.png   los dos ojos abiertos, sonrisa suave
+  arce_guino.png    un ojo cerrado (rehecho el 16/09, cejas afinadas)
+  arce_rie.png      los dos ojos cerrados en arco, boca abierta
+  arce_seria.png    cejas rectas, boca plana, mirada al frente
+  arce_parpadeo.png los dos ojos cerrados, la boca de la normal
+
+
+cara_*.png   (201 x 182)
+------------------------
+Solo el trozo de cara, recortado en x 449..649, y 600..781 del lienzo.
+Para verlas de un vistazo y comparar gestos. No las usa el generador.
+
+
+EL CONVENIO
+-----------
+En "laboratorio intro.kra":
+
+  - La capa de Arce lleva la cara NORMAL. Siempre.
+  - Cada gesto va en SU PROPIA capa, oculta, encima de ella.
+  - Cada capa de gesto solo lleva el trozo de cara, con la piel de
+    alrededor (para que tape entera a la normal), y NADA fuera de
+    x 464..632, y 618..772.
+
+Si se pinta el gesto directamente sobre la capa de Arce, la cara normal
+desaparece del archivo. Pasó el 16/09 con el guiño.
+
+
+DONDE VA CADA UNA
+-----------------
+  guino    0  (bienvenida)  13 (hoy no lo sacare yo)  17 (estas preparada)
+  rie      6  (aprenden deprisa)  16 (lleva media hora ahi)
+  seria    9  (y aun no se que nombra)  10 (hoy no toca hablar de mi)
+           15 (no siempre le viene bien)
+  normal   el resto
+  parpadeo automatico, solo encima de la normal: 5 fotogramas cada
+           95-190, o sea cada 2,5-4,5 s con un hueco irregular
+
+
+FALTA UNA
+---------
+  mirada_baja    pupilas pegadas al parpado de abajo, cejas un poco arriba
+                 -> pantallas 4 y 5 (Mudkip esta en el suelo)
