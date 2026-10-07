@@ -7,6 +7,11 @@
 #   camara (se acerca a quien habla), la luz (sala, dia, noche, foco) y los
 #   actores, que entran y salen por las dos puertas del decorado.
 #
+#   Al volver al mapa, Tacet (la villana) se levanta de la primera fila, dice
+#   que la obra es un fraude (TacTxt, con su retrato DlgTacet.png de
+#   CREDITOS/villana.kra, volteado) y se va sola por el pasillo. Sin musica de
+#   villana. Interruptor 91 = se ha ido. Su skin es provisional (TACET_SKIN).
+#
 #   Lo que dicen sale como subtitulo abajo ("Narradora: ...") y se pasa con
 #   Enter. Al acabar, Kaia y Lira hablan con su cuadro de siempre y se vuelve
 #   al mapa. Interruptor 83 = obra vista.
@@ -70,6 +75,10 @@ module OstObra
   NOCHE  = [-105, -92, -18, 30]
   DUELO  = [-150, -140, -95, 90]
   FIESTA = [-55, -45, 0, 10]
+
+  TACET_SKIN  = "cientifica"     # provisional, hasta que tenga la suya
+  TACET_ARTES = { "izq" => ["DlgTacet.png", 40, 465, "DlgNomTacet"] }
+  TACET_TEXTO = ["TacTxt00", "TacTxt01", "TacTxt02", "TacTxt03"]
 
   ARTES = {
     "izq" => ["DlgLira.png", 174, 465, "DlgNomLira"],
@@ -215,9 +224,40 @@ module OstObra
     $game_switches[SW_VISTA] = true
     begin
       OstMini.pantalla(nil) { |vp, telon| funcion(vp, telon) }
+      tacet
     rescue StandardError => e
       echoln("OstObra: #{e.class}: #{e.message}\n#{e.backtrace[0, 5].join("\n")}") rescue nil
     end
+  end
+
+  #-----------------------------------------------------------------------------
+  # Tacet, en la primera fila: la de esa butaca era ella todo el rato
+  #-----------------------------------------------------------------------------
+  def self.tacet
+    return if $game_switches[OstButacas::SW_TACET]
+    return if !$game_map || $game_map.map_id != OstButacas::MAPA
+    k, j = OstButacas::TACET
+    g = $game_map.events[OstButacas::ID_GENTE + k * 10 + j]
+    return if !g
+    g.character_name = TACET_SKIN
+    OstDlg.esperar(0.8)
+    # se levanta al hueco de delante de su fila y se gira hacia la sala
+    x, y = OstButacas.butaca(k, j)
+    g.ost_pasillo = true
+    OstButacas.deslizar(g, 0, OstButacas.desfase(x, y), 0.35)
+    g.ost_ofs = nil
+    g.instance_variable_set(:@direction_fix, false)
+    g.instance_variable_set(:@walk_anime, true)
+    g.turn_down
+    OstDlg.esperar(0.5)
+    OstDlg.run(TACET_TEXTO.map { |c| [c, "izq"] }, TACET_ARTES)
+    # y se va sola por el pasillo del centro hasta la puerta del patio
+    g.through = false
+    pasos = OstMapa.camino(g, 14, 18) || []
+    g.through = true
+    OstinatoLaboratorio.mover(g, pasos + [PBMoveRoute::DOWN])
+    $game_switches[OstButacas::SW_TACET] = true
+    OstMapa.quitar(g)
   end
 
   def self.funcion(vp, telon)

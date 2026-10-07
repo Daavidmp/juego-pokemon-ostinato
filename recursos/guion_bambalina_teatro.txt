@@ -143,6 +143,18 @@ TeaTxt12  Señora: La del final sale todos los años. Y todos los años se queda
 
 
 ==============================================================================
+TÁCET EN LA PRIMERA FILA   (TacTxt)   cuadro con su retrato, a la izquierda
+==============================================================================
+      // Propuesta de Claude (corrígela): el primer cameo de Tácet, el del guion v4,
+      // pero sola y sin decir cuántas luces hay. Al volver al mapa, después de que
+      // hablen Kaia y Lira, se levanta de la primera fila. Sin música de villana.
+TacTxt00  Tácet: Un fraude.
+TacTxt01  Tácet: Cuatrocientas veces se ha repuesto esta obra en este pueblo. Cuatrocientas veces con el mismo hueco.
+TacTxt02  Tácet: Una luz para cada cosa que se siente. Y a lo único que de verdad duele, un farol apagado y un aplauso.
+TacTxt03  Tácet: Lo peor es que suena precioso. Por eso nadie se queja.
+      // Se va del teatro sola, por el pasillo del centro.
+
+==============================================================================
 LO QUE HACE FALTA DIBUJAR
 ==============================================================================
   Todo esta en recursos/prompts_obra_teatro.txt (prompts de Firefly).

@@ -241,6 +241,12 @@ Flujo: Ruta 2 -> Villa Bambalina (mapa 12) -> taquilla (022, SW 80/81) -> dentro
   · PENDIENTE: que David la pruebe en el juego (ritmo de camara, oscuridad de noche/duelo). Para verla
     otra vez: SW 83 = OFF en debug.
 
+- TACET AL ACABAR LA OBRA (025, OstObra.tacet; SW 91 = se ha ido): de vuelta en el mapa, la persona de la
+  butaca (0,4) (primera fila, al lado del pasillo central) era Tacet. Se levanta, dice TacTxt00-03 (propuesta de
+  Claude: la obra es un fraude, sin decir cuantas luces hay; adapta el primer cameo del guion v4 pero SOLA, sin
+  Sordina ni Fermata) con su retrato DlgTacet.png (CREDITOS/villana.kra, volteado) y se va sola por el pasillo.
+  Sin musica de villana. Skin PROVISIONAL: "cientifica" (constante TACET_SKIN de 025).
+
 - COMPILAR PLUGINS SIN ABRIR EL JUEGO: Data/PluginScripts.rxdata es [nombre, meta, [[fichero.rb,
   zlib(codigo con LF)], ...]]; se reescribe con el marshal de pkmn-devkit (asi se hizo con 024 y 025).
 

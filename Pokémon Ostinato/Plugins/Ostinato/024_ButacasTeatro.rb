@@ -25,6 +25,8 @@ module OstButacas
   MAPA        = 13
   SW_ENTRADA  = 81
   SW_SENTADAS = 82
+  SW_TACET    = 91     # Tacet se ha ido del teatro: su butaca queda vacia
+  TACET       = [0, 4] # su butaca: primera fila, la de al lado del pasillo central
   ID_GENTE    = 1000
   ID_LIRA     = 990
 
@@ -126,6 +128,7 @@ module OstButacas
     5.times do |k|
       10.times do |j|
         next if [k, j] == KAIA || [k, j] == LIRA
+        next if [k, j] == TACET && $game_switches[SW_TACET]
         g = crear(ID_GENTE + k * 10 + j, "Publico", SKINS[(n * 7 + k) % SKINS.length], 0, 0, 8, true)
         sentar(g, k, j)
         n += 1
