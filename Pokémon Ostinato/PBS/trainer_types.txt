@@ -460,3 +460,13 @@ BaseMoney = 16
 Name = Señora
 Gender = Female
 BaseMoney = 24
+#-------------------------------
+[SECUAZ_CHICO]
+Name = Secuaz
+Gender = Male
+BaseMoney = 10
+#-------------------------------
+[SECUAZ_CHICA]
+Name = Secuaz
+Gender = Female
+BaseMoney = 10

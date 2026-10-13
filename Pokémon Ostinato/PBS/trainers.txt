@@ -181,3 +181,14 @@ LoseText = Pues eso.
 Pokemon = COMBEE,10
 Pokemon = ODDISH,9
 Pokemon = WHISMUR,9
+#-------------------------------
+# Ruta 4: los dos secuaces del Silenciador (026/028). Uno detras del otro.
+[SECUAZ_CHICO,Secuaz]
+LoseText = Eso ha sido suerte.
+Pokemon = POOCHYENA,10
+Pokemon = ZUBAT,10
+#-------------------------------
+[SECUAZ_CHICA,Secuaz]
+LoseText = Tsk. Vale.
+Pokemon = PURRLOIN,11
+Pokemon = STUNKY,12

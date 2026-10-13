@@ -1,0 +1,61 @@
+POKEMON OSTINATO - INTERIOR DEL TUNEL DE LA RUTA 4 (tileset nuevo) (2026-10-13)
+Construido como las cuevas de Pokemon Anil (Cueva1): fuera negro, salas rodeadas por un MARCO
+de muro, suelo + manchas, canal como el estanque de Anil, desniveles, escaleras, bocas y objetos.
+La oscuridad y las luces van en el juego: las piezas con luz normal.
+Referencias: Descargas\tunel_ruta4_interior\referencias\
+Guardar en: Descargas\tunel_ruta4_interior\
+Firefly, tipo Arte en todos.
+
+EXCLUIR (todos):
+3D, 3D render, isometric, perspective, realistic lighting, glossy, smooth shading, gradients, blur, dark scene, night, shadows covering everything, text, letters, graffiti words, watermark, people, characters
+
+------------------------------------------------------------------------------
+1 suelo.png | 1:1 | estilo ref_entrada_tunel.png (alta) | composicion: ninguna
+Flat 2D pixel art floor texture for a 16-bit Game Boy Advance Pokémon game, same pixel style as the reference: old grey concrete floor of an abandoned sewer tunnel seen straight from above, made of large square slabs with thin dark joints, small cracks, worn edges and faint damp stains, evenly lit, a seamless repeating tile that fills the whole image. Only flat colors, 3 or 4 shades of grey, crisp large square pixels, no objects.
+
+------------------------------------------------------------------------------
+2 suelo_manchas.png | 1:1 | estilo ref_entrada_tunel.png (alta) | composicion: ninguna
+Flat 2D pixel art sprites for a 16-bit Game Boy Advance Pokémon game, same pixel style as the reference: a set of separate small floor details for an abandoned concrete sewer tunnel, seen from above, each one well apart from the others: a few cracks, two dark damp stains, three small shallow water puddles with a light reflection, a few dry leaves, a patch of moss, small pebbles. Only flat colors, dark 1 pixel outline where needed, crisp large square pixels. On a plain solid green background.
+
+------------------------------------------------------------------------------
+3 muro_marco.png | 4:3 | estilo ref_entrada_tunel.png (alta) | composicion ref_anil_muro.png (alta)
+Flat 2D pixel art tileset piece for a 16-bit Game Boy Advance Pokémon game, same pixel style as the reference and built exactly like a classic Pokémon cave wall frame: a rectangular ring of old concrete tunnel wall seen in the classic top-down 3/4 view, with an empty rectangular hole in the middle. The top side of the ring shows the flat top of the wall and below it a tall front face of weathered grey concrete panels with vertical seams, cracks, rust streaks and moss at the bottom; the left and right sides show the top of the wall going down; the bottom side shows only the top edge of the wall. Rounded outer corners, a thin dark outline. Outside the ring pure solid black, the hole in the middle plain solid green. Evenly lit, flat colors, crisp large square pixels.
+
+------------------------------------------------------------------------------
+4 canal_marco.png | 4:3 | estilo ref_entrada_tunel.png (alta) | composicion ref_anil_piezas.png (media)
+Flat 2D pixel art tileset piece for a 16-bit Game Boy Advance Pokémon game, same pixel style as the reference: a long rectangular drainage channel of murky green-grey water running through a concrete sewer floor, seen in the classic top-down 3/4 view, with a raised concrete curb all around it and a short inner wall face visible on the top edge, small ripples and light reflections on the water, a rusty drain pipe pouring a thin stream of water at one end. Evenly lit, flat colors, dark 1 pixel outline, crisp large square pixels. On a plain solid green background.
+
+------------------------------------------------------------------------------
+5 desnivel_marco.png | 4:3 | estilo ref_entrada_tunel.png (alta) | composicion ref_anil_piezas.png (media)
+Flat 2D pixel art tileset piece for a 16-bit Game Boy Advance Pokémon game, same pixel style as the reference: a raised concrete walkway platform of an old sewer tunnel seen in the classic top-down 3/4 view, rectangular, with its flat top made of concrete slabs, a visible front face one tile tall along the bottom side with a thin rusty metal railing on its edge, side edges, and a short concrete staircase of three steps cut into the front face. Evenly lit, flat colors, dark 1 pixel outline, crisp large square pixels. On a plain solid green background.
+
+------------------------------------------------------------------------------
+6 salida_luz.png | 1:1 | estilo ref_entrada_tunel.png (alta) | composicion: ninguna
+Flat 2D pixel art sprite for a 16-bit Game Boy Advance Pokémon game, same pixel style as the reference: a wide old concrete staircase seen from above in the classic top-down 3/4 view, going up and away from the viewer towards a bright white daylight opening at the top, framed by cracked concrete walls with moss and ivy hanging from the top edge, a few leaves blown in on the steps. Flat colors, dark 1 pixel outline, crisp large square pixels. On a plain solid green background.
+
+------------------------------------------------------------------------------
+7 boca_oscura.png | 1:1 | estilo ref_entrada_tunel.png (alta) | composicion: ninguna
+Flat 2D pixel art sprite for a 16-bit Game Boy Advance Pokémon game, same pixel style as the reference: a semicircular arched tunnel opening in a weathered concrete wall seen from the front in the classic top-down 3/4 view, the inside pitch black, a rusty metal frame around the arch, a broken warning lamp above it, a shallow drainage gutter running into the darkness. Flat colors, dark 1 pixel outline, crisp large square pixels. On a plain solid green background.
+
+------------------------------------------------------------------------------
+8-14 objetos | 1:1 | estilo ref_entrada_tunel.png (alta) | composicion: ninguna
+(prompt entero de cada uno en la respuesta de Claude: misma plantilla con el objeto dentro)
+ 8 lampara_pared  an old caged tunnel wall lamp with a warm yellow bulb, mounted on a small concrete wall section
+ 9 tuberias       three horizontal rusty metal pipes running along a short concrete wall section, with brackets, a valve wheel and a small leak dripping
+10 rejilla        a square rusty iron drain grate set into the concrete floor, with dark water visible below
+11 escombros      a small pile of broken concrete chunks, bricks and a bent metal rod
+12 bidones        two old rusty metal oil drums, one standing and one lying on its side, with a small stain under them
+13 valla_obra     two red and white striped construction barriers standing side by side, a little worn
+14 escalera_mano  a metal wall ladder going up to a closed round hatch in the ceiling, attached to a concrete wall section
+
+==============================================================================
+2026-10-13 (tarde) CAMBIO PARA TODO LO QUE QUEDA
+Hecho: muro_marco (14x10) y pilar (3x4). Ref. de ESTILO en todo lo que queda: muro_marco.png
+(intensidad maxima), en vez de ref_entrada_tunel.png. Excluir nuevo:
+3D, 3D render, depth, perspective, isometric, realistic, realistic lighting, glossy, smooth shading, gradients, blur, dark scene, night, frame, ring, text, letters, watermark, people, characters
+Prompts completos en la respuesta de Claude de esta fecha.
+
+==============================================================================
+MAQUETA DEL MAPA ENTERO (2026-10-13)
+Firefly 16:9, Arte. Estilo: piezas\prueba_tunel_completo.png (maxima).
+Composicion: referencias\anil_tunel_roca.png (media). Prompt en la respuesta de Claude de esta fecha.

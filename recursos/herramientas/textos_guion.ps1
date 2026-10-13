@@ -22,7 +22,7 @@ $guion = $args[0]
 $destino = $args[1]
 $prefijos = $args[2..($args.Count - 1)]
 
-$PNJ = @("VecTxt", "EntTxt", "CasaTxt", "CienTxt", "AdiosPoke", "GenteTxt", "BamVec")
+$PNJ = @("VecTxt", "EntTxt", "CasaTxt", "CienTxt", "AdiosPoke", "GenteTxt", "BamVec", "TalTxt")
 function Estilo($pre) {
   # la obra del teatro (025): subtitulo abajo, centrado, con el nombre en dorado y sombra
   if ($pre -eq "ObraTxt" -or $pre -eq "ObraPub") { return @{ ancho = 1560; alto = 132; tam = 46; inter = 58; y0 = 8; filasMax = 2; centrar = $false; centrarX = $true; nombre = $true; tinta = [Drawing.Color]::FromArgb(255, 250, 242, 222); oro = [Drawing.Color]::FromArgb(255, 240, 196, 92) } }

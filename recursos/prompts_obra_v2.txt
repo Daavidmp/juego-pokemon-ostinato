@@ -1,0 +1,85 @@
+POKEMON OSTINATO - «LA PLAZA CALLADA» v2: PERSONAJES PARA ADOBE FIREFLY (2026-10-12)
+==============================================================================
+REGLA: todos los personajes con las MISMAS dimensiones y el MISMO estilo que
+Characters/kaia.png y Characters/luz.png: hoja 256x256, rejilla 4x4 de cuadros
+de 64x64, chibi de dos cabezas, cara de dos ojos y punto de boca, contorno
+oscuro de un pixel, pocos colores planos. Tambien las POSES de la obra van a
+ese tamaño (las de Graphics/Titles/Obra eran de otro estilo y se rehacen).
+
+Referencias en Descargas\obra2\referencias\
+  ref_kaia_luz_x4.png      Kaia y luz.png a x4 sobre verde (para personajes nuevos)
+  skin_<nombre>_x4.png     la skin que ya existe de cada actor, a x4 (para sus poses)
+Guarda lo que salga en Descargas\obra2\ con el nombre que pone cada pieza.
+
+------------------------------------------------------------------------------
+A. SKINS NUEVAS (andar en 4 direcciones)
+   Firefly: 1:1, Arte. ESTILO y COMPOSICION = ref_kaia_luz_x4.png, las dos altas.
+------------------------------------------------------------------------------
+Plantilla (cambia solo la ultima frase, «El personaje: ...»):
+
+Pixel art character sprite sheet for RPG Maker, in EXACTLY the same style and size as the reference image: a grid of 4 columns and 4 rows, each frame the same size as one frame of the reference, the character the same height as the reference characters. Tiny chibi character, big head and a short body two heads tall. VERY simple face like the reference: only two small coloured eyes and a dot mouth, no nose, no eyebrows, no shading or highlights on the face. Few flat colours and a dark 1-pixel outline, big crisp square pixels, no blur, no anti-aliasing. Row 1 walking towards the viewer, row 2 walking left, row 3 walking right, row 4 walking away, 4 walking frames per row like the reference. Flat solid green #00FF00 background. No text. The character: ...
+
+alcalde.png ->
+The character: the mayor of a small village, a short round middle-aged man with a bushy grey moustache and a bald top with grey hair on the sides, a dark green waistcoat over a white shirt, a red and gold mayor's sash across the chest, brown trousers and black shoes, a rolled paper in one hand.
+
+tramoyista.png ->
+The character: a young theatre stagehand dressed all in black so the audience should not see him, black cap, black long-sleeved shirt and trousers, a tool belt, grey gloves, a coil of rope on one shoulder.
+
+------------------------------------------------------------------------------
+B. POSES DE ACTUAR (todas a tamaño de skin)
+   Firefly: 1:1, Arte. ESTILO y COMPOSICION = skin_<nombre>_x4.png del actor
+   (o la skin nueva de A, ampliada x4 sobre verde), las dos altas.
+------------------------------------------------------------------------------
+Plantilla (cambia solo la lista de poses):
+
+Pixel art for RPG Maker, the SAME character as the reference image, same size, same colours, same chibi proportions and same simple face, big crisp square pixels and a dark 1-pixel outline. A grid of 4 columns and 4 rows like the reference, every frame the same size as one frame of the reference and the character the same height, all facing the viewer, feet on the same line in each row. Row 1 and 2: the poses listed below, one per frame, in order; leave the remaining frames empty. Flat solid green #00FF00 background. No text. The poses: ...
+
+narradora_poses.png ->
+1 one open hand stretched out to the side, presenting; 2 the other hand to the other side; 3 a small bow with a hand on the chest; 4 hands together in front, head slightly down; 5 pointing up towards the sky.
+
+panadero_poses.png ->
+1 standing holding a long loaf under his arm; 2 handing the loaf forward with both arms; 3 surprised, both hands up and mouth open; 4 reaching one arm to the right, holding someone's hand; 5 blushing, looking down, hands behind his back; 6 dancing with arms up.
+
+vecina_poses.png ->
+1 holding a loaf in her arms; 2 one hand on her chest, head slightly down; 3 angry, pointing a finger, other fist closed; 4 reaching one arm to the left, holding someone's hand; 5 blushing, covering her face with both hands; 6 dancing with arms up.
+
+nino_obra_poses.png ->
+1 fallen flat on his face on the floor; 2 sitting on the floor hugging his knees; 3 and 4 laughing hard with eyes closed in arcs, two slightly different poses; 5 stopping suddenly on tiptoe, arms waving for balance; 6 dancing jumping with arms up.
+
+luz_poses.png ->
+1 holding the lantern with both hands at chest height; 2 singing, head up, eyes closed, lantern held high above the head; 3 leaning down to tickle someone with the lantern; 4 quiet, head down, lantern lowered by the hip; 5 dancing, spinning with the lantern out to the side.
+(una sola actriz con el farol BLANCO; los colores los pongo yo)
+
+senora_negro_poses.png ->
+1 hands together in front; 2 one hand on the chest, head down; 3 head up, looking at the sky; 4 both arms raised, hanging a lantern from a hook above her head; 5 shaking her head no, one hand lifted to refuse something; 6 standing still, alone, head slightly down.
+
+alcalde_poses.png ->
+1 standing on tiptoe making a speech, one arm raised, paper in the other hand; 2 mouth open with nothing coming out, looking at the paper; 3 turning the paper upside down, confused; 4 ringing a bell with a rope, big smile; 5 looking around awkwardly, scratching the back of his head; 6 dancing with arms up.
+
+tramoyista_poses.png ->
+1 running bent over, trying not to be seen; 2 lifting a big cardboard tree in his arms; 3 dragging it away walking sideways; 4 a tiny embarrassed bow with the cap in his hand.
+
+------------------------------------------------------------------------------
+C. ATREZO NUEVO
+   Firefly: 1:1, Arte. ESTILO = skin_luz_x4.png alta.
+------------------------------------------------------------------------------
+campana.png ->
+Pixel art for RPG Maker, same style as the reference, big crisp pixels and a dark 1-pixel outline: a small village square bell, theatre prop, a bronze bell hanging from a wooden frame with a rope, about as tall as two characters of the reference, seen from the front. A single object centred on flat solid green #00FF00 background. No text.
+
+------------------------------------------------------------------------------
+SI SALE MAL
+  - Los personajes salen mas grandes o con mas detalle que Kaia: añadir
+    "low resolution, each frame only 64 by 64 pixels, same pixel size as the reference".
+  - Cara con nariz o sombras: repetir "only two dots for eyes and a dot mouth".
+  - Las poses salen de lado o mezcladas: pedir solo 4 poses por imagen.
+
+==============================================================================
+2026-10-12 - OJOS COMO LOS DE KAIA Y LUZ (sustituye a "VERY simple face...")
+==============================================================================
+Medido en kaia.png / luz.png a x8: cada ojo es una columna alta de 2 px de
+ancho y 3-4 de alto: arriba una linea gruesa de pestañas (oscura, o del color
+del ojo), debajo el iris oscuro con UN pixel blanco de brillo al lado; los dos
+ojos bien separados a media cara; boca de 1-2 px justo debajo; sin nariz.
+Frase que va ahora en todos los prompts (la "EYES" de la respuesta de Claude):
+
+The face exactly like the reference characters: two tall eyes, each 2 pixels wide and 3 to 4 pixels tall, set wide apart in the middle of the face; each eye has a thick dark upper eyelash line on top, a dark coloured iris below it and a single bright white highlight pixel beside the iris, so the eyes look alive and shiny; a tiny 1 to 2 pixel mouth just below, no nose, no eyebrows, no shading on the face.

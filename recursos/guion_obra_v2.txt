@@ -1,0 +1,80 @@
+POKEMON OSTINATO - «LA PRIMERA NOTA», la funcion del Teatrinho (VERSION 6, 2026-10-12)
+==============================================================================
+Es la intro del juego (Downloads\video final\PELICULA.mp4) puesta en el
+escenario del teatro, con la MISMA narracion, palabra por palabra, y con Pipo
+(el niño) en lugar de Kaia en el final. Los textos estan sacados de los
+subtitulos de la pelicula. // = lo que pasa en escena.
+
+REPARTO (todo skins de 64x64 como Kaia; nadie se pone delante de nadie)
+  Narradora (voz y foco, en su esquina)
+  El Nucleo (atrezo colgado)            - FALTA (nucleo.png)
+  Seis esferas (atrezo colgado)         - FALTA (esfera.png, una blanca; los colores los pongo yo)
+  Los Resonantes, colgados de hilos: Cresselia, Darkrai, Zapdos, Mewtwo,
+    Yveltal, Lunala (los de la pelicula; Followers del juego, ya estan)
+  Los primeros hombres y mujeres: Bruno, Rosa, el alcalde, la vecina de
+    negro... (ya estan) con sus Pokemon
+  Los Silenciadores (3)                 - FALTA (silenciador.png)
+  Pipo y Pichu (ya estan)
+  Telon, fondos de cima (noche) y plaza (ya estan)
+
+==============================================================================
+LA OBRA
+==============================================================================
+      // Sala a oscuras. Una gota de luz cae del techo al escenario. El telon se abre.
+ObraTxt00  Narradora: ...La primera nota.
+      // Escenario negro con estrellas (fondo cima, sin colina). Del techo baja el
+      // Nucleo colgado de un hilo. Late. A su alrededor salen las seis esferas.
+ObraTxt01  Narradora: Y de aquella primera vibración...
+ObraTxt02  Narradora: ...el universo comenzó a cobrar forma.
+      // Las esferas giran alrededor del Nucleo, cada una de su color.
+ObraTxt03  Narradora: Pero las emociones no debían quedarse estáticas...
+ObraTxt04  Narradora: ...flotando en el vacío.
+      // El Nucleo brilla hasta cegar. Destello blanco.
+ObraTxt05  Narradora: El universo exigía que tomaran carne y alma...
+ObraTxt06  Narradora: ...que cobrasen una forma imponente.
+      // Donde estaba cada esfera baja un Resonante colgado de sus hilos, uno a
+      // uno, cada uno en su sitio de la fila de arriba.
+ObraTxt07  Narradora: Cada sentimiento antiguo se convirtió en una entidad viva y poderosa... Los Resonantes.
+ObraTxt08  Narradora: Guardianes titánicos del mundo, nacidos de la primera armonía...
+ObraTxt09  Narradora: ...y destinados a sostener el equilibrio de la creación.
+      // Rayos de luz cruzan el escenario. Los seis cantan.
+ObraTxt10  Narradora: Y por un instante... el universo entero cantó al unísono.
+      // La luz se calma. Abajo, el suelo del valle. Entran los primeros hombres y
+      // mujeres con sus Pokemon, cada uno a su marca. Pipo y Pichu entre ellos.
+ObraTxt11  Narradora: Y cuando la tierra finalmente se calmó...
+ObraTxt12  Narradora: ...surgieron los hombres y mujeres.
+ObraTxt13  Narradora: Pequeñas almas que habitaban en los valles, buscando un significado en el silencio del mundo.
+      // Miran arriba. Uno a uno levantan los brazos. Sus Pokemon tambien.
+ObraTxt14  Narradora: No estaban solos. Aprendieron a escuchar la gran melodía...
+ObraTxt15  Narradora: ...y a sintonizar sus almas con las bestias celestiales a través de los Acordes.
+      // Bajan hilos de luz de cada Resonante a la gente. Musica, notas.
+ObraTxt16  Narradora: Un puente eterno... que unió por primera vez la voluntad de los mortales con el poder de los dioses.
+      // Se corta la musica de golpe.
+ObraTxt17  Narradora: Pero donde hay sonido, donde hay vida y alegría... siempre acecha el silencio.
+      // Entran tres sombras por las puertas del decorado. Por donde pasan, todo
+      // se pone gris y se queda quieto: la gente, los Pokemon, los Resonantes.
+ObraTxt18  Narradora: Llegaron sin ser invitados... Los Silenciadores.
+ObraTxt19  Narradora: Una plaga fría y absoluta destinada a apagar la música del alma.
+ObraTxt20  Narradora: Amenazando con romper el gran acorde... y borrar para siempre la melodía del mundo.
+      // Oscuro casi total. Un solo foco: Pipo, solo en el centro. Los demas, piedra.
+      // Pipo mira alrededor. Pichu, gris, a su lado.
+ObraTxt21  Pipo: ¿Pichu?
+      // Pipo se sienta, cierra los ojos y tararea una nota. Muy bajito. La misma.
+      // Salen notas de el, pocas. Luego mas.
+ObraTxt22  Narradora: Pero mientras haya alguien dispuesto a escuchar...
+      // Pichu se mueve y repite la nota. Las notas se multiplican. Las sombras
+      // retroceden hacia los lados.
+ObraTxt23  Narradora: ...la música nunca muere del todo.
+      // Destello blanco. Vuelve la luz: todos de pie otra vez, los Resonantes
+      // arriba, la gente abajo, Pipo en el centro. Las sombras quietas en el borde.
+      // Se cierra el telon. Aplausos.
+
+==============================================================================
+AL ENCENDERSE LA SALA (propuesta, para corregir)
+==============================================================================
+TeaTxt13  Kaia: Lira... ¿has contado cuántos eran?
+TeaTxt14  Lira: ¿Los bichos gordos? Seis. Como siempre.
+TeaTxt15  Kaia: ¿Siempre son seis?
+TeaTxt16  Lira: Kaia, es una obra. No le busques tres pies al gato.
+      // Tacet, en la primera fila: «Seis. Siempre seis. Y nadie se pregunta por
+      // qué el acorde no cierra.»

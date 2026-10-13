@@ -1,0 +1,34 @@
+POKEMON OSTINATO - ENTRENADOR NUEVO (parecido a una persona real) - 2026-10-09
+
+Referencias (Descargas\entrenador_nuevo\):
+  - ref_estilo_kaia.png : Kaia de cuerpo entero (de EscKaia.png) -> ESTILO, intensidad alta.
+  - foto.jpeg           : la persona -> referencia de COMPOSICION/parecido, intensidad baja-media.
+Firefly: cuadrado 1:1, tipo Arte. Si solo admite una referencia, usar la de Kaia
+y fiarse de la descripcion del prompt.
+
+Rasgos sacados de la foto: pelo castano muy rizado y voluminoso con reflejos
+dorados; gafas de pasta negra rectangulares; ojos verdes avellana; cejas
+oscuras y marcadas; barba de pocos dias; sonrisa enorme y gamberra, sacando la
+lengua; cara alargada, nariz recta; piel clara con algo de color.
+
+PROMPT: (ver la respuesta de Claude del 2026-10-09; copiado aqui abajo)
+
+Full body character design of a young man Pokémon trainer, drawn in EXACTLY
+the same art style as the reference girl: hand-drawn anime illustration in the
+style of official Pokémon Scarlet and Violet character art, clean dark brown
+ink outline of even thickness, flat cel colours with one soft shadow tone,
+small pink blush on the cheeks, simple shapes, same head-to-body proportions
+and same line quality, plain white background, no text.
+He is about 20 years old, slim, with a big mop of very curly, voluminous
+chestnut brown hair full of loose curls with golden highlights falling over
+his forehead and ears; black rectangular plastic glasses; green-hazel eyes;
+thick dark eyebrows; light stubble on the jaw; a long face with a straight
+nose. Huge cheeky grin with the tip of his tongue sticking out, playful and
+mischievous.
+Outfit, casual Pokémon trainer: an oversized lilac and white T-shirt with a
+simple black doodle print, an open short-sleeved olive green overshirt, loose
+beige cargo trousers rolled up at the ankles, chunky white and purple
+sneakers, a small crossbody bag with a Poké Ball keychain.
+Pose: standing facing the viewer, one hand giving a thumbs up and the other
+holding a Poké Ball, relaxed and confident, full figure visible from head to
+shoes, centred.

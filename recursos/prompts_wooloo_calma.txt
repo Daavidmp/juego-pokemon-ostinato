@@ -1,0 +1,12 @@
+POKEMON OSTINATO - EL WOOLOO SE CALMA (animacion al derrotarlo) (2026-10-13)
+Guardar lo generado en Descargas\wooloo_jefe\calma\.
+
+Idea: al dejarlo sin vida no se debilita. Cae un haz de luz calida desde arriba sobre
+el Wooloo, suben motas de luz, el aura se deshace y lo oscuro se va aclarando hasta
+su color de siempre. Un anillo de luz sale de el, bala normal y termina el combate.
+
+1 haz_luz.png ...... 9:16, Arte, sin referencia. Fondo negro puro (se suma la luz).
+2 motas_luz.png .... 16:9, Arte, sin referencia. Fondo negro puro (las recorto yo).
+3 anillo_luz.png ... 1:1,  Arte, sin referencia. Fondo negro puro.
+4 Efecto (Suno) .... "Luz calma" -> Audio/SE.
+Los prompts completos estan en la respuesta de Claude de esta fecha.

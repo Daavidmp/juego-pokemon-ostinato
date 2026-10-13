@@ -1,0 +1,87 @@
+POKEMON OSTINATO - ENTRADA DEL TUNEL DE CRISTAL (ruta4, mapa 14) - 2026-10-09
+==========================================================================
+
+Donde va: salida de arriba del mapa 14, el camino de tierra de 3 casillas
+(cols 14-16, fila 0) entre los dos cortados (cols 12 y 18). La entrada ocupa
+6 casillas de ancho (cols 12-17) x 4 de alto (filas 0-3); la boca mira hacia
+abajo, al camino, y dentro baja una escalera al sitio subterraneo.
+
+Estilo: Exterior de la ruta (tileset 24, pixel 16 bits pintado a x2).
+Referencia: Descargas\tunel_ruta4\ref_ruta4_arriba.png
+
+FIREFLY
+  - Formato: horizontal 4:3. Tipo de contenido: Arte.
+  - Referencia de ESTILO (intensidad alta): ref_ruta4_arriba.png
+  - Referencia de composicion: ninguna.
+  - Guardar en Descargas\tunel_ruta4\tunel_N.png
+
+PROMPT:
+
+A single game object sprite for a Pokémon Diamond / Pokémon Black and White
+style top-down RPG, pixel art drawn exactly like the reference image: the
+entrance to an underground passage, shaped like a transparent glass tunnel
+that comes out of the ground. A long half-cylinder tube of light blue glass
+panels held by thin white metal arches, seen from the front and from above,
+its round mouth facing straight down towards the viewer. Through the glass you
+can see the inside: a wide stone staircase going down into darkness, with
+small warm lamps on the side walls. The glass has bright white highlight
+streaks and a soft cyan tint, and you can see the ground faintly through it.
+At the base, a low stone curb where the tube meets the grass, a short dirt
+path leading into the mouth, and a soft dark shadow under the arches.
+The object is about twice as wide as it is tall, centred, alone, on a flat
+solid pure green #00FF00 background, no ground around it, no trees, no
+characters. Straight front-facing top-down view aligned to a square tile grid,
+NOT isometric, NOT diagonal, no perspective vanishing point. Dark 1-pixel
+outline, flat colours, clean block shading, light from the top left, big
+crisp square pixels, no blur, no gradients, no anti-aliasing, no text.
+
+SI SALE MAL
+  - Isometrico o girado: anadir al principio "Flat orthographic top-down game
+    sprite, front view,".
+  - Pixel diminuto: anadir "low resolution 16-bit sprite, chunky pixels,
+    limited palette".
+  - Cristal opaco o gris: anadir "clearly see-through glass, the stairs inside
+    are fully visible".
+  - Sale una estacion entera o un edificio: anadir "only the small entrance
+    tube, about the size of a small shed".
+
+==========================================================================
+VERSION 2 (2026-10-09): el usuario lo quiere como el tunel de la Turboabuela
+(Dandadan): boca de tunel viejo de hormigon, oscuro y abandonado, tipo
+alcantarillado, metida en el cortado. Sustituye a la del tubo de cristal.
+Mismos ajustes de Firefly (4:3, Arte, ref_ruta4_arriba.png alta).
+
+PROMPT:
+
+A single game object sprite for a Pokémon Diamond / Pokémon Black and White
+style top-down RPG, pixel art drawn exactly like the reference image: the
+mouth of an old abandoned concrete tunnel built into a rocky earth cliff, like
+a creepy Japanese mountain road tunnel that leads down into the sewers. A
+semicircular arched entrance framed by weathered grey concrete blocks with
+cracks, dark stains, rust streaks and moss, a small blank plaque above the
+arch, and a pitch black inside where you can only see the first metres of a
+wet concrete floor with a shallow drainage channel and a faint flickering
+yellow lamp deep inside. Ivy and weeds hanging over the top, a bent rusty
+metal railing on one side, puddles and scattered leaves at the entrance.
+Seen from the front and slightly from above, the arch facing straight down
+towards the viewer, about twice as wide as it is tall, centred, alone, on a
+flat solid pure green #00FF00 background, no trees, no characters. Straight
+front-facing top-down view aligned to a square tile grid, NOT isometric, NOT
+diagonal. Dark 1-pixel outline, flat colours, clean block shading, light from
+the top left, big crisp square pixels, no blur, no gradients, no text.
+
+SI SALE MAL
+  - Demasiado alegre o limpio: anadir "eerie, decayed, gloomy atmosphere".
+  - Sale una alcantarilla redonda en el suelo: anadir "the tunnel is a vertical
+    arch in the cliff wall, you walk into it".
+  - Isometrico / pixel diminuto: como en la version 1.
+
+==========================================================================
+VERSION 3 (2026-10-09): EDITAR el trozo real de la ruta para que encaje 100%.
+  - Imagen base: Descargas\tunel_ruta4\base_editar.png (mapa 14, cols 7-22,
+    filas 0-8, 1024x576, 64 px por casilla).
+  - Firefly: subirla como imagen a editar (o referencia de composicion alta +
+    estilo alta con la misma imagen). Formato 16:9.
+  - El tunel ocupa la mitad de arriba entre las dos franjas marrones.
+
+PROMPT: (en la respuesta de Claude del 2026-10-09)

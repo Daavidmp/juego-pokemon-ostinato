@@ -21,8 +21,13 @@ module OstDesafio
   DIR = "Graphics/Titles/Desafio/"
   W = 1920
   H = 1080
-  # tipo de entrenador => dibujo del personaje
-  RIVALES = { :LIRA => "lira" }
+  # tipo de entrenador => [dibujo del personaje (y su halo, DIBUJO_halo), fondo, bollo].
+  # Si el fondo o el bollo de un rival no existen todavia, se usan los de Lira.
+  RIVALES = {
+    :LIRA         => ["lira", "fondo", "bollo"],
+    :SECUAZ_CHICO => ["secuaz_chico", "fondo_secuaces", "bollo_secuaces"],
+    :SECUAZ_CHICA => ["secuaz_chica", "fondo_secuaces", "bollo_secuaces"]
+  }
 
   # las grietas: [imagen, donde cae el golpe en pantalla, donde esta el golpe
   # dentro de la imagen (a 1920x1080), zoom]
@@ -54,8 +59,10 @@ module OstDesafio
     end
   end
 
-  def self.bmp(nombre)
-    return OstMini.bmp(DIR + nombre + ".png")
+  def self.bmp(nombre, si_no = nil)
+    b = OstMini.bmp(DIR + nombre + ".png")
+    b = OstMini.bmp(DIR + si_no + ".png") if !b && si_no
+    return b
   end
 
   # Filas de un poligono convexo: [[y, x0, x1], ...] recortadas a w x h
@@ -189,7 +196,7 @@ module OstDesafio
       s
     end
     centrado = proc do |nombre, z|
-      s = nuevo.call(bmp(nombre), z)
+      s = nuevo.call(nombre.is_a?(Array) ? bmp(nombre[0], nombre[1]) : bmp(nombre), z)
       s.ox = s.bitmap.width / 2
       s.oy = s.bitmap.height / 2
       s
@@ -197,7 +204,8 @@ module OstDesafio
     begin
       OstMini.temblar(0)
       # el fondo y, encima, la lamina negra (un bitmap al que se le hacen huecos)
-      fondo = centrado.call("fondo", 1)
+      arte = RIVALES[tipo] || RIVALES[:LIRA]
+      fondo = centrado.call([arte[1], "fondo"], 1)
       fondo.x = W / 2
       fondo.y = H / 2
       lamina_b = Bitmap.new(W, H)
@@ -206,7 +214,7 @@ module OstDesafio
 
       # el personaje y el letrero, escondidos
       pj = Sprite.new(vp_pj)            # en su propia capa: los temblores no la mueven
-      pj.bitmap = bmp(RIVALES[tipo] || "lira")
+      pj.bitmap = bmp(arte[0])
       sprites.push(pj)
       pj.ox = pj.bitmap.width / 2
       pj.oy = pj.bitmap.height
@@ -217,7 +225,7 @@ module OstDesafio
       # su halo fucsia (con su forma) detras, para que no se pierda en el negro,
       # y un foco de luz tenue a su espalda
       halo = Sprite.new(vp_pj)
-      halo.bitmap = bmp("lira_halo")
+      halo.bitmap = bmp(arte[0] + "_halo")
       sprites.push(halo)
       halo.ox = halo.bitmap.width / 2
       halo.oy = halo.bitmap.height - 40
@@ -233,7 +241,7 @@ module OstDesafio
       foco.zoom_x = 1.6
       foco.zoom_y = 1.3
       foco.opacity = 0
-      bollo = centrado.call("bollo", 7)
+      bollo = centrado.call([arte[2], "bollo"], 7)
       bollo.x = BOLLO_X
       bollo.y = BOLLO_Y
       bollo.visible = false

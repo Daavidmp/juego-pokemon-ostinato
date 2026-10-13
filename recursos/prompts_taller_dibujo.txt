@@ -1,0 +1,12 @@
+POKEMON OSTINATO - TALLER DE DIBUJO DE VILLA BAMBALINA (2026-10-12)
+Casa de abajo a la izquierda del mapa 12 (la del tejado de paja con el caballete).
+Referencias en Descargas\taller_dibujo\referencias\. Guardar lo generado en Descargas\taller_dibujo\.
+
+1 fondo_taller.png ... 16:9, Arte. Estilo: ref_estilo_bambalina.png (alta).
+2 atril.png .......... 1:1, Arte. Estilo: ref_estilo_bambalina.png (alta).
+3 paleta.png ......... 1:1, Arte. Estilo: ref_estilo_bambalina.png (alta).
+4 herramientas.png ... 1:1, Arte. Estilo: ref_estilo_interfaz.png (media).
+5 marco_ranura.png ... 1:1, Arte. Estilo: ref_estilo_bambalina.png (alta).
+6 pintora.png (skin) . 1:1, Arte. Estilo y composicion: ref_kaia_x4.png (alta).
+Musica (Suno): Taller de dibujo.
+Los prompts completos estan en la respuesta de Claude de esta fecha.

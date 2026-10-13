@@ -1,0 +1,12 @@
+POKEMON OSTINATO - RUTA 4: COMBATE CONTRA LOS SECUACES (2026-10-12)
+Referencias en Descargas\secuaces_combate\referencias\. Guardar lo generado en Descargas\secuaces_combate\.
+
+1 fondo_ruta4.png ........ 16:9, Arte. Estilo: fondo_combate_bambalina.png (alta). Composicion: ruta4_camino.png (baja).
+                           -> Graphics/Battlebacks/ruta4_bg.png (1920x1080). Lo demas (base0/base1/message) ya esta.
+2 fondo_secuaces.png ..... 16:9, Arte. Estilo: desafio_fondo_lira.png (media).
+                           -> Graphics/Titles/Desafio/fondo_secuaces.png
+3 bollo_secuaces.png ..... 16:9, Arte. Estilo: desafio_bollo_lira.png (alta).
+                           -> Graphics/Titles/Desafio/bollo_secuaces.png
+Musica (Suno): "Combate secuaces" -> Audio/BGM/Combate secuaces.ogg
+Mientras no esten, el juego usa los de Lira (fondo, bollo, musica) y el fondo de combate del mapa.
+Los prompts completos estan en la respuesta de Claude de esta fecha.

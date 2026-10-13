@@ -59,84 +59,64 @@ ObraPub00  Público: ¡Shhh! Que empieza.
 
 
 ==============================================================================
-LA OBRA: «LA PLAZA CALLADA»   (ObraTxt)   subtitulo abajo
+LA OBRA: «LA PRIMERA NOTA» (la intro del juego), version 6   (ObraTxt)   subtitulo abajo
 ==============================================================================
-      // PROLOGO. Sala a oscuras. Un foco sobre la Narradora, a un lado.
-ObraTxt00  Narradora: Buenas noches. Esta historia pasó aquí mismo, en una plaza como esta.
-ObraTxt01  Narradora: Pasó hace tanto tiempo que ya nadie la vio. Por eso hay que seguir contándola.
-ObraTxt02  Narradora: En aquella época, en Cadencia no sonaba nada.
-ObraTxt03  Narradora: La gente sentía lo mismo que vosotros. Pero todo se les quedaba dentro, como una piedra en el zapato.
-      // ESCENA I · LA MAÑANA. Se ilumina la plaza. El Panadero abre su puesto. Llega la Vecina.
-ObraTxt04  Panadero: Buenos días.
-ObraTxt05  Vecina: Buenos días.
-ObraTxt06  Narradora: Así se saludaban cada mañana. Llevaban cuarenta años diciéndose lo mismo.
-      // La Vecina coge el pan, pero no se va.
-ObraTxt07  Vecina: Esta noche he soñado algo.
-ObraTxt08  Panadero: ¿Y qué era?
-ObraTxt09  Vecina: No sé decirlo. Me ha dejado un hueco aquí.
-      // Se lleva la mano al pecho.
-ObraTxt10  Panadero: Llévese el pan, que se le enfría.
-      // Entra el Niño corriendo. Se para en medio, abre la boca para gritar y no
-      // le sale nada. Se sienta en el suelo.
-ObraTxt11  Narradora: Hasta los niños jugaban en silencio.
-      // ESCENA II · LA NOCHE DE LAS LUCES. Anochece. A lo lejos suena una nota.
-ObraTxt12  Narradora: Una noche, del monte bajaron unas luces.
-ObraTxt13  Narradora: Nadie sabía de dónde venían. Solo que venían cantando.
-      // Entra la luz amarilla. Suena su nota.
-ObraTxt14  Luz amarilla: Soy lo que se os escapa cuando algo os hace gracia.
-ObraTxt15  Luz amarilla: Os presto la risa. Pero no os la puedo dejar para siempre: dura lo que dura.
-ObraTxt16  Niño: ¡Ja, ja, ja! ¡Me sale sola!
-      // Entra la luz roja.
-ObraTxt17  Luz roja: Soy el calor que os sube a la cara cuando algo no es justo.
-ObraTxt18  Luz roja: Usadme poco. Quemo al que me lleva y al que tiene delante.
-ObraTxt19  Vecina: ¡Cuarenta años! ¡Cuarenta años comiendo pan quemado sin decir nada!
-ObraTxt20  Panadero: ¿Quemado? ¿Y por qué no me lo había dicho?
-ObraTxt21  Vecina: ¡Porque no podía!
-      // Entra la luz morada. El Niño, que estaba al borde del escenario, da un paso atras.
-ObraTxt22  Luz morada: Soy el frío que os frena antes del barranco.
-ObraTxt23  Luz morada: No me queráis. Pero tampoco me echéis: sin mí no llegaríais a viejos.
-      // Entra la luz rosa.
-ObraTxt24  Luz rosa: Soy lo que os pesa cuando alguien se aparta de vuestro lado.
-ObraTxt25  Luz rosa: Os ato a quien queréis. Por eso, a veces, duelo.
-ObraTxt26  Panadero: Mañana le hago una barra sin quemar. Solo para usted.
-ObraTxt27  Vecina: ...Gracias.
-      // Le coge la mano. Entra la luz verde.
-ObraTxt28  Luz verde: Soy lo que no esperabais.
-      // Se cae un arbol de carton del decorado. Estruendo.
-ObraTxt29  Luz verde: ...Como eso.
-      // Entra la luz azul, mirando el arbol tirado en el suelo.
-ObraTxt30  Luz azul: Y yo soy el color de las mejillas cuando todos os miran.
-ObraTxt31  Luz azul: Llego siempre tarde. Justo después de que pase algo.
-      // Risas del publico.
-      // ESCENA III · EL PRIMER CORO
-ObraTxt32  Narradora: Aquella noche, por primera vez, la plaza sonó.
-ObraTxt33  Narradora: Las luces cantaron juntas, y la gente cantó con ellas.
-ObraTxt34  Narradora: Así nació lo que en Cadencia llamamos «hacer coro».
-      // Suenan todas las notas a la vez. La gente baila.
-      // ESCENA IV · LA SEÑORA DE NEGRO. La musica se corta de golpe. Entra despacio.
-ObraTxt35  Señora de negro: Qué bonito suena todo.
-ObraTxt36  Señora de negro: Mi marido subió al monte esta tarde. Quería ser el primero en veros llegar.
-ObraTxt37  Señora de negro: No ha bajado.
-      // Las luces bajan la voz.
-ObraTxt38  Señora de negro: Tengo algo aquí dentro que no es risa, ni rabia, ni miedo.
-ObraTxt39  Señora de negro: Se parece al cariño, pero duele hacia atrás.
-ObraTxt40  Señora de negro: ¿Cuál de vosotras canta esto?
-      // Las luces le cantan su nota una detras de otra. Ninguna encaja y se van
-      // callando. Silencio largo.
-ObraTxt41  Narradora: Ninguna le contestó.
-ObraTxt42  Narradora: Ella colgó un farol en la plaza, junto a los de las luces. Y no lo encendió.
-ObraTxt43  Narradora: Todavía sigue ahí, apagado, esperando a quien sepa cantar lo que ella sentía.
-      // Oscuro. Silencio. Despues, los aplausos.
-ObraTxt44  Narradora: Gracias por venir.
-
+      // Sala a oscuras. Una gota de luz cae del techo al escenario. El telon se abre.
+ObraTxt00  Narradora: ...La primera nota.
+      // Escenario negro con estrellas (fondo cima, sin colina). Del techo baja el
+      // Nucleo colgado de un hilo. Late. A su alrededor salen las seis esferas.
+ObraTxt01  Narradora: Y de aquella primera vibración...
+ObraTxt02  Narradora: ...el universo comenzó a cobrar forma.
+      // Las esferas giran alrededor del Nucleo, cada una de su color.
+ObraTxt03  Narradora: Pero las emociones no debían quedarse estáticas...
+ObraTxt04  Narradora: ...flotando en el vacío.
+      // El Nucleo brilla hasta cegar. Destello blanco.
+ObraTxt05  Narradora: El universo exigía que tomaran carne y alma...
+ObraTxt06  Narradora: ...que cobrasen una forma imponente.
+      // Donde estaba cada esfera baja un Resonante colgado de sus hilos, uno a
+      // uno, cada uno en su sitio de la fila de arriba.
+ObraTxt07  Narradora: Cada sentimiento antiguo se convirtió en una entidad viva y poderosa... Los Resonantes.
+ObraTxt08  Narradora: Guardianes titánicos del mundo, nacidos de la primera armonía...
+ObraTxt09  Narradora: ...y destinados a sostener el equilibrio de la creación.
+      // Rayos de luz cruzan el escenario. Los seis cantan.
+ObraTxt10  Narradora: Y por un instante... el universo entero cantó al unísono.
+      // La luz se calma. Abajo, el suelo del valle. Entran los primeros hombres y
+      // mujeres con sus Pokemon, cada uno a su marca. Pipo y Pichu entre ellos.
+ObraTxt11  Narradora: Y cuando la tierra finalmente se calmó...
+ObraTxt12  Narradora: ...surgieron los hombres y mujeres.
+ObraTxt13  Narradora: Pequeñas almas que habitaban en los valles, buscando un significado en el silencio del mundo.
+      // Miran arriba. Uno a uno levantan los brazos. Sus Pokemon tambien.
+ObraTxt14  Narradora: No estaban solos. Aprendieron a escuchar la gran melodía...
+ObraTxt15  Narradora: ...y a sintonizar sus almas con las bestias celestiales a través de los Acordes.
+      // Bajan hilos de luz de cada Resonante a la gente. Musica, notas.
+ObraTxt16  Narradora: Un puente eterno... que unió por primera vez la voluntad de los mortales con el poder de los dioses.
+      // Se corta la musica de golpe.
+ObraTxt17  Narradora: Pero donde hay sonido, donde hay vida y alegría... siempre acecha el silencio.
+      // Entran tres sombras por las puertas del decorado. Por donde pasan, todo
+      // se pone gris y se queda quieto: la gente, los Pokemon, los Resonantes.
+ObraTxt18  Narradora: Llegaron sin ser invitados... Los Silenciadores.
+ObraTxt19  Narradora: Una plaga fría y absoluta destinada a apagar la música del alma.
+ObraTxt20  Narradora: Amenazando con romper el gran acorde... y borrar para siempre la melodía del mundo.
+      // Oscuro casi total. Un solo foco: Pipo, solo en el centro. Los demas, piedra.
+      // Pipo mira alrededor. Pichu, gris, a su lado.
+ObraTxt21  Pipo: ¿Pichu?
+      // Pipo se sienta, cierra los ojos y tararea una nota. Muy bajito. La misma.
+      // Salen notas de el, pocas. Luego mas.
+ObraTxt22  Narradora: Pero mientras haya alguien dispuesto a escuchar...
+      // Pichu se mueve y repite la nota. Las notas se multiplican. Las sombras
+      // retroceden hacia los lados.
+ObraTxt23  Narradora: ...la música nunca muere del todo.
+      // Destello blanco. Vuelve la luz: todos de pie otra vez, los Resonantes
+      // arriba, la gente abajo, Pipo en el centro. Las sombras quietas en el borde.
+      // Se cierra el telon. Aplausos.
 
 ==============================================================================
 AL ENCENDERSE LA SALA   (TeaTxt)   cuadro con retratos, sobre la misma vista
 ==============================================================================
-TeaTxt13  Kaia: Lira... ¿Tú sabes cómo suena eso?
-TeaTxt14  Lira: No. Pero lo tenía delante y casi no podía respirar.
-TeaTxt15  Kaia: ¿Lo notabas desde aquí?
-TeaTxt16  Lira: Desde que ha entrado.
+TeaTxt13  Kaia: Lira... Me ha encantado esta obra.
+TeaTxt14  Lira: A mí también.
+TeaTxt15  Kaia: Aunque no he entendido muy bien el mensaje que quiere transmitir.
+TeaTxt16  Lira: Kaia, es una obra. No le busques tres pies al gato.
       // Si se habla con el publico al salir:
 TeaTxt11  Señor: Lo del decorado lo hacen adrede, ¿eh? Pero cada año se cae uno distinto.
 TeaTxt12  Señora: La del final sale todos los años. Y todos los años se queda sin respuesta.
@@ -148,10 +128,10 @@ TÁCET EN LA PRIMERA FILA   (TacTxt)   cuadro con su retrato, a la izquierda
       // Propuesta de Claude (corrígela): el primer cameo de Tácet, el del guion v4,
       // pero sola y sin decir cuántas luces hay. Al volver al mapa, después de que
       // hablen Kaia y Lira, se levanta de la primera fila. Sin música de villana.
-TacTxt00  Tácet: Un fraude.
-TacTxt01  Tácet: Cuatrocientas veces se ha repuesto esta obra en este pueblo. Cuatrocientas veces con el mismo hueco.
-TacTxt02  Tácet: Una luz para cada cosa que se siente. Y a lo único que de verdad duele, un farol apagado y un aplauso.
-TacTxt03  Tácet: Lo peor es que suena precioso. Por eso nadie se queja.
+TacTxt00  Tácet: Vaya bodrio de obra.
+TacTxt01  Tácet: Sabía que la iban a contar mal. Siempre igual.
+TacTxt02  Tácet: Siempre omiten la realidad más cruel en todas las historias.
+TacTxt03  Tácet: Me voy de aquí.
       // Se va del teatro sola, por el pasillo del centro.
 
 ==============================================================================

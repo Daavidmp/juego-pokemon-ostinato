@@ -1,0 +1,17 @@
+POKEMON OSTINATO - RUTA 4: DECORACION NUEVA (2026-10-13)
+Van al FINAL del tileset 24 "ciudad Preludio" (ExteriorBosqueCeleste).
+Referencias en Descargas\ruta4_deco\referencias\:
+  ref_bambalina_puestos.png  estilo (los puestos y la fuente de Villa Bambalina)
+  ref_ruta4_mapa.png         como es la ruta 4 (camino, cesped, terraplen, pinos)
+Todas: Firefly 1:1, Arte, referencia de estilo ref_bambalina_puestos.png (alta).
+Guardar lo generado en Descargas\ruta4_deco\.
+
+1 caravana_a.png ...... carromato de feriantes de madera, 4x3 casillas
+2 caravana_b.png ...... caravana de titiriteros con escenario plegable, 5x3 casillas
+3 campo_batalla.png ... campo de combate pintado en la tierra, 8x6 casillas
+4 hoguera.png ......... hoguera con troncos para sentarse, 3x2 casillas
+5 farolillos.png ...... cuerda con farolillos entre dos postes, 4x2 casillas
+6 cajas_barriles.png .. cajas y barriles apilados, 2x2 casillas
+7 mesa_picnic.png ..... mesa de picnic con bancos, 3x2 casillas
+8 cartel_ruta.png ..... poste con cartel de madera, 1x2 casillas
+Los prompts completos estan en la respuesta de Claude de esta fecha.

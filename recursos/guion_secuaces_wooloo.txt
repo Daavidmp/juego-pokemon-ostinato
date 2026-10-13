@@ -1,0 +1,58 @@
+POKEMON OSTINATO - VILLA BAMBALINA: LOS SECUACES Y EL WOOLOO (2026-10-12, propuesta de Claude)
+Mismo formato que dialogos_ostinato.txt: cambia solo lo que va detras de los dos puntos.
+// = lo que pasa. izq = secuaz chico, izq2 = secuaz chica, der = Kaia.
+
+      // Despues de la obra y de Tacet. Al salir del teatro, en la fuente de la plaza,
+      // dos secuaces tienen acorralado a un Wooloo. Kaia se acerca.
+SecTxt00  Secuaz: Venga, bicho. Baila para mí. Solo una vez.
+SecTxt01  Secuaz: No va a balar. Está muerto de miedo.
+SecTxt02  Secuaz: Pues que baile de miedo. Me vale igual. Jajajajaja.
+SecTxt03  Kaia: ¡Eh! Dejadlo en paz.
+SecTxt04  Secuaz: Mira, una que sale del teatro con ganas de dar lecciones.
+SecTxt05  Secuaz: Ja, ja, ja. ¿Y qué vas a hacer? ¿Nos vas a decir que nos vayamos y no molestemos?
+SecTxt06  Secuaz: Déjala, es una niña estúpida. Ya que está aquí, que mire.
+SecTxt07  Secuaz: Es buen momento para probar el invento de la jefa.
+SecTxt08  Secuaz: ¿El Silenciador? ¿Aquí, en medio de la plaza?
+SecTxt09  Secuaz: Sí, ¿por qué no? No hay nadie aquí que nos impida hacer lo que queramos.
+      // Lo enciende. La onda alcanza al Wooloo, que se va oscureciendo y gruñe.
+SecTxt10  Secuaz: Uy. Eso no venía en el manual.
+SecTxt11  Secuaz: Funciona. Apúntalo para la jefa.
+SecTxt12  Secuaz: Ja, ja, ja. Suerte con eso, niña.
+      // Se van corriendo por la salida del este.
+SecTxt13  Kaia: ...¿Wooloo? Eh. Tranquilo. Soy yo.
+      // Cartel ENTER CALMAR. Al pulsar, combate de jefe.
+      // Si gana:
+SecTxt14  Kaia: Ya está. Ya pasó. Ya está.
+SecTxt15  Kaia: (Parece que no tiene dueño.)
+      // ME de Pokemon conseguido; Wooloo se une al equipo.
+      // Si pierde:
+SecTxt16  Kaia: Uf. Todavía no, es muy fuerte. Voy a intentarlo otra vez.
+SecTxt17  Narrador: ¡Wooloo se ha unido a tu equipo!
+SecTxt18  Kaia: ¿Te vienes conmigo? Así nadie podrá burlarse de ti otra vez.
+
+      // RUTA 4 (mapa 14). Con el Wooloo ya calmado se puede salir por el este de
+      // Villa Bambalina. Un poco mas adelante, en el camino, estan los dos secuaces.
+      // izq = secuaz chico, izq2 = secuaz chica, der = Kaia.
+      // Si se intenta salir por el este antes de tiempo: antes de la escena del Wooloo
+      // (sin haber ido al teatro o sin haber pasado por la fuente), SecTxt19; con el
+      // Wooloo silenciado y sin calmar, SecTxt20.
+SecTxt19  Kaia: Antes de seguir debería explorar un poco más el pueblo.
+SecTxt20  Kaia: (No puedo irme y dejar así al Wooloo.)
+      // Kaia llega al camino donde estan los secuaces. Se dan la vuelta.
+SecTxt21  Secuaz: ¿Pero qué...? ¿Esa no es la niña de la plaza?
+SecTxt22  Secuaz: Y lleva al Wooloo con ella. Tan tranquilo. Como si nada.
+SecTxt23  Secuaz: Eso no puede ser. El Silenciador no falla nunca.
+SecTxt24  Secuaz: Pues ha fallado. Y la jefa va a querer saber por qué.
+SecTxt25  Kaia: No ha fallado. Lo he calmado yo.
+SecTxt26  Secuaz: ¿Tú? Venga ya. Apártate, que esto lo arreglo yo en un momento.
+      // Combate contra el secuaz chico. Si gana Kaia:
+SecTxt27  Secuaz: No, no, no. Eso ha sido suerte. Pura suerte.
+SecTxt28  Secuaz: Quita de en medio. Si quieres que algo salga bien, hazlo tú misma.
+      // Combate contra la secuaz chica. Si gana Kaia:
+SecTxt29  Secuaz: ...Vale. Ya está. Nos vamos.
+SecTxt30  Secuaz: La jefa se va a enterar de esto, niña.
+SecTxt31  Secuaz: Y la próxima vez no vamos a ser nosotros los que vengamos.
+      // Se van corriendo por el camino.
+SecTxt32  Kaia: (La jefa... ¿Quién será?)
+      // Si Kaia pierde cualquiera de los dos combates (se cura el equipo):
+SecTxt33  Secuaz: Ja, ja, ja. Vuelve cuando sepas lo que haces.
