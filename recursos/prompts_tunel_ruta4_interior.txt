@@ -59,3 +59,39 @@ Prompts completos en la respuesta de Claude de esta fecha.
 MAQUETA DEL MAPA ENTERO (2026-10-13)
 Firefly 16:9, Arte. Estilo: piezas\prueba_tunel_completo.png (maxima).
 Composicion: referencias\anil_tunel_roca.png (media). Prompt en la respuesta de Claude de esta fecha.
+
+==============================================================================
+2026-10-14 EMPEZAR DE NUEVO: el usuario no quiere las piezas sueltas. Flujo como el teatro:
+boceto del mapa entero a escala de juego -> pixel x2 -> se trocea entero en un tileset nuevo.
+Firefly 16:9 Arte. Estilo: referencias\ref_entrada_tunel.png (alta).
+Composicion: referencias\anil_tunel_roca.png (media). Prompt en la respuesta de Claude de esta fecha.
+VERSION CON PLANO (2026-10-14): referencias\plano_tunel_43x24.png = plano a escala exacta
+(1376x768 = 43x24 casillas de 32 px). Firefly 16:9 Arte; composicion = plano (maxima),
+estilo = ref_entrada_tunel.png (alta). Colores del plano: beige = canto del muro, gris oscuro =
+cara del muro (2 casillas), cuadricula = losas (1 casilla), verde azulado = canal, blanco = luz,
+verde = hierba, amarillo = lamparas, marron = tuberias/barandillas/puentes.
+
+==============================================================================
+2026-10-14 TILESET POR PIEZAS A PARTIR DEL BOCETO (mapa 15 / tileset 39 ya hechos del boceto)
+Referencias: Descargas\tunel_ruta4_interior\piezas_v2\referencias\
+  boceto_tunel.png = ESTILO (maxima) en todas; ref_NN_*.png = COMPOSICION (alta), una por pieza.
+Firefly, tipo Arte. Guardar en Descargas\tunel_ruta4_interior\piezas_v2\.
+Prompts completos en la respuesta de Claude de esta fecha.
+
+==============================================================================
+2026-10-14 PARTE 1 DEL TUNEL (imagen unica, se entra por ABAJO desde la ruta 4)
+Plano: referencias\plano_parte1_24x43.png (768x1376 = 24x43 casillas). Firefly 9:16 Arte.
+Composicion: el plano (maxima). Estilo: piezas_v2\referencias\boceto_tunel.png (maxima).
+Prompt en la respuesta de Claude de esta fecha. Las piezas sueltas de piezas_v2 se guardan para luego.
+2026-10-14 (2) PLANO CON OBJETOS MARCADOS + PROMPT DETALLADO. Modelo recomendado dentro de Firefly:
+Nano Banana Pro (Gemini 3 Pro Image); si no, Nano Banana; despues GPT Image. Imagen 1 = plano, imagen 2 = boceto_tunel.
+Medidas de Anil (Tunel Roca): pasos de 5-8 casillas de ancho lo mas comun; mucho suelo libre; objetos pegados a muros.
+
+==============================================================================
+2026-10-14 PARTE 1 HECHA (mapa 15, tileset 39, 24x43; entrada por abajo desde la boca de la ruta 4).
+PARTE 2: referencias\plano_parte2_43x24.png (1376x768 = 43x24). Se entra por ABAJO (pasadizo oscuro
+que viene del arco de la parte 1). Sin salida: arco tapado por un derrumbe arriba a la derecha.
+Cosas nuevas: sala inundada con pasarela, tramo de carretera con asfalto/raya amarilla/coche/conos/
+losas caidas, oficina de mantenimiento (taquillas, cuadro electrico, mesa, silla, archivador).
+Modelo: Nano Banana Pro, 16:9, imagen 1 = plano, imagen 2 = piezas_v2\referencias\boceto_tunel.png
+(o el parte1.png). Prompt en la respuesta de Claude de esta fecha.

@@ -78,7 +78,7 @@ if FileTest.exist?("HERRAMIENTA.rb")
   end
 
   class << Graphics
-    alias_method :_herramienta_update, :update
+    alias_method :_herramienta_update, :update unless method_defined?(:_herramienta_update)
     def update
       _herramienta_update
       H.tick
@@ -86,8 +86,8 @@ if FileTest.exist?("HERRAMIENTA.rb")
   end
 
   class << Input
-    alias_method :_herramienta_trigger, :trigger?
-    alias_method :_herramienta_press, :press?
+    alias_method :_herramienta_trigger, :trigger? unless method_defined?(:_herramienta_trigger)
+    alias_method :_herramienta_press, :press? unless method_defined?(:_herramienta_press)
     def trigger?(k); return true if H.disparada?(k); _herramienta_trigger(k); end
     def press?(k);   return true if H.pulsada?(k) || H.disparada?(k); _herramienta_press(k); end
   end
