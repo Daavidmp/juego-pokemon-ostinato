@@ -66,6 +66,28 @@ SnapEdges = true
 Name = teatro interior
 SnapEdges = true
 #-------------------------------
+[014]
+Name = ruta4
+Outdoor = true
+ShowArea = true
+SnapEdges = true
+#-------------------------------
+[015]
+Name = Tunel ruta 4
+SnapEdges = true
+#-------------------------------
+[016]
+Name = Tunel ruta 4 (2)
+SnapEdges = true
+#-------------------------------
+[017]
+Name = Tunel ruta 4 (3)
+SnapEdges = true
+#-------------------------------
+[018]
+Name = Tunel ruta 4 (4)
+SnapEdges = true
+#-------------------------------
 [043]
 Name = Habitacion Kaia
 SnapEdges = true

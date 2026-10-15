@@ -1,0 +1,24 @@
+PARTES 3 Y 4 DEL TUNEL DE LA RUTA 4 (mapas 17 y 18, tilesets 48 y 49) - 2026-10-15
+
+Se entra por ABAJO (la carretera que viene de la boca de arriba de la parte 2, mapa 16 (17-18, 4))
+y se sale por la DERECHA (la via del anden se mete en una boca oscura). La via lleva a la parte 4.
+
+Orden (desde esta carpeta, con el juego y RPG Maker cerrados):
+  python3 plano3.py      el plano a escala (plano_parte3_43x24.png, 43x24 casillas de 32 px)
+                         -> Firefly (Nano Banana Pro, 16:9): imagen 1 el plano, imagen 2 la parte 2
+  mapa17_1376.png        la imagen de Firefly (2752x1536, 64 px por casilla) reducida a la mitad
+  python3 paso17.py      que casillas se pisan (sale del plano corregido con lo que dibujo Firefly)
+  python3 build17.py     tileset 48 + TunelRuta4_3.png, Map017, saltos con el 16, MapInfos
+  python3 ambiente17.py  agua_17, brillo_17 y oscuro_17 de Graphics/Pictures/Tunel (029_TunelVivo)
+Un tile por casilla en la capa 0, prioridad 0 y paso 0/15, igual que los mapas 15 y 16.
+ver_paso.py pinta el paso encima del mapa para comprobarlo (rojo bloqueado, verde se pisa).
+
+PARTE 4, LA ULTIMA (mapa 18, tileset 49 "Tunel ruta 4 (4)"):
+Se entra por la IZQUIERDA (la via de la parte 3) y se sale por ARRIBA (escalera a la calle).
+Caminos que se dividen: estacion -> galeria de arriba o pasillo de abajo -> sala del techo hundido ->
+pasarela sobre el foso -> plataforma de salida; desde ella el pasillo del este baja a la sala de bombas.
+Dos objetos como eventos (no van en el dibujo): Cuerda Huida (23,3) y Superpocion (32,20).
+PENDIENTE: la escalera de arriba (36-39, 0-1) aun no lleva a ningun mapa (falta decidir cual).
+  python3 plano4.py / paso18.py / build18.py / ambiente18.py   (lo comun en montar.py)
+OJO con Firefly: con la parte 3 entera como imagen 2 copiaba su distribucion. Para la 4 la imagen 2 fue solo
+un recorte de textura (ref_estilo_recorte.png) y el prompt dice que la imagen 1 manda.

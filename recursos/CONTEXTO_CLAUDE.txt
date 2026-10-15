@@ -250,3 +250,18 @@ Flujo: Ruta 2 -> Villa Bambalina (mapa 12) -> taquilla (022, SW 80/81) -> dentro
 - COMPILAR PLUGINS SIN ABRIR EL JUEGO: Data/PluginScripts.rxdata es [nombre, meta, [[fichero.rb,
   zlib(codigo con LF)], ...]]; se reescribe con el marshal de pkmn-devkit (asi se hizo con 024 y 025).
 
+
+================================================================================
+9. EL TUNEL DE LA RUTA 4 (mapas 15, 16, 17)
+================================================================================
+- Cada parte es UNA imagen de Firefly a escala (plano de casillas de 32 px -> Nano Banana Pro) troceada en un
+  tileset propio: un tile por casilla, capa 0, prioridad 0, paso 0/15. Mapa 15 y 16 en el tileset 39, mapa 17
+  (parte 3, 43x24) en el 48. Mapa 18 en el 49. Ambiente en 029_TunelVivo (oscuridad con huecos de luz, agua, gotas, motas, BGS):
+  cada mapa necesita su entrada en OstTunel::MAPAS y sus agua_N, brillo_N y oscuro_N.
+- Parte 3 (mapa 17): entra por abajo desde la boca de carretera del 16 (17-18, 4) y sale por la derecha por la via.
+- Parte 4 (mapa 18, tileset 49, la ultima): entra por la izquierda (la via) y sale por la escalera de arriba, que
+  AUN NO LLEVA A NINGUN MAPA. Caminos que se dividen y dos objetos (Cuerda Huida, Superpocion).
+  Scripts de las dos en recursos/tunel_partes3y4/ (ver LEEME.txt).
+- NEGRO EN LOS BORDES: todo mapa nuevo necesita SnapEdges = true en PBS/map_metadata.txt Y en
+  Data/map_metadata.dat (el .dat se puede escribir sin abrir el juego con el marshal del devkit). 14-18 ya lo tienen.
+

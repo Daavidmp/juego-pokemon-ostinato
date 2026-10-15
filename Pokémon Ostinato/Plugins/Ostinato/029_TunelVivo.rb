@@ -1,5 +1,5 @@
 #===============================================================================
-# Pokemon Ostinato - El tunel de la ruta 4 (mapas 15 y 16), vivo
+# Pokemon Ostinato - El tunel de la ruta 4 (mapas 15 a 18), vivo
 #
 #   Encima del mapa, en el mismo viewport (como las farolas de 007):
 #   - el agua se mueve (ondula) y le corren reflejos de luz por encima;
@@ -36,6 +36,25 @@ module OstTunel
       :lamparas => [[400, 81, :calida], [177, 369, :calida], [560, 1075, :parpadea], [545, 705, :fria]],
       :charcos  => [[288, 431], [223, 471], [440, 300], [700, 800]],
       :entrada  => nil
+    },
+    # parte 3: el arroyo, y la luz del dia que entra por un agujero del techo
+    # sobre la hierba (va como :entrada: sus rayos y sus motas)
+    17 => {
+      :agua     => [676, 230],
+      :lamparas => [[110, 110, :calida], [335, 110, :calida], [592, 110, :parpadea], [72, 430, :calida],
+                    [880, 82, :calida], [1073, 82, :calida], [1265, 82, :calida], [912, 432, :calida],
+                    [1232, 432, :fria]],
+      :charcos  => [[128, 378], [585, 210], [545, 575]],
+      :entrada  => [480, 330]
+    },
+    # parte 4, la ultima: la estacion, la sala del techo hundido y la escalera
+    # de salida, por donde entra la luz de la calle (va como :entrada)
+    18 => {
+      :agua     => [802, 646],
+      :lamparas => [[145, 48, :calida], [752, 48, :parpadea], [80, 370, :calida], [400, 368, :calida],
+                    [558, 302, :calida], [815, 240, :calida], [1103, 145, :calida], [880, 592, :fria]],
+      :charcos  => [[240, 655], [1232, 640], [1195, 340], [1255, 300]],
+      :entrada  => [1215, 230]
     }
   }
 
