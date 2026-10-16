@@ -49,13 +49,14 @@ def salto(eid, nombre, x, y, a_mapa, dx, dy, dir):
         if c['code'] == 201: c['parameters'] = [0, a_mapa, dx, dy, dir, 1]
     return e
 
-def objeto(eid, x, y, item):
+def objeto(eid, x, y, item, cantidad=1, grafico='Object ball'):
     """La bola de un objeto: se recoge con pbItemBall y no vuelve a salir (interruptor local A)."""
-    cmds = [rpg.event_command(111, 0, [12, w('pbItemBall(:%s)' % item)]),
+    llamada = 'pbItemBall(:%s)' % item if cantidad == 1 else 'pbItemBall(:%s, %d)' % (item, cantidad)
+    cmds = [rpg.event_command(111, 0, [12, w(llamada)]),
             rpg.event_command(123, 1, [w('A'), 0]),
             rpg.event_command(0, 1, []),
             rpg.event_command(412, 0, [])]
-    p1 = rpg.event_page(cmds, graphic=rpg.page_graphic(w('Object ball')), trigger=0)
+    p1 = rpg.event_page(cmds, graphic=rpg.page_graphic(w(grafico)), trigger=0)
     p2 = rpg.event_page([], condition=rpg.page_condition(self_switch_valid=True, self_switch_ch=w('A')))
     p2['graphic']['character_name'] = w('')
     return rpg.event(eid, w('Objeto ' + item), x, y, [p1, p2])

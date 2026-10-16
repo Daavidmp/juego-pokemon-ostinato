@@ -56,6 +56,8 @@ for k, x in enumerate(range(5, 12)):              # abajo: vuelve a la boca de l
     ev[k + 1] = salto(k + 1, 'BajarParte2', x, 23, 16, 17 if x <= 8 else 18, 5, 2)
 for k, y in enumerate(range(17, 20)):              # derecha: la via sigue a la parte 4
     ev[8 + k] = salto(8 + k, 'SeguirParte4', 41, y, 18, 1, 17, 6)
+from montar import objeto
+ev[11] = objeto(11, 32, 4, 'TM70', 1, 'Object ball MT')    # bola amarilla del campamento
 m['events'] = ev
 P.save_map(MAPA, m)
 

@@ -265,3 +265,25 @@ Flujo: Ruta 2 -> Villa Bambalina (mapa 12) -> taquilla (022, SW 80/81) -> dentro
 - NEGRO EN LOS BORDES: todo mapa nuevo necesita SnapEdges = true en PBS/map_metadata.txt Y en
   Data/map_metadata.dat (el .dat se puede escribir sin abrir el juego con el marshal del devkit). 14-18 ya lo tienen.
 
+
+================================================================================
+10. BOLAS DE OBJETOS (2026-10-16)
+================================================================================
+15 bolas entre Pueblo Preludio y el tunel. Las rojas ("Object ball") son objetos y las amarillas
+("Object ball MT", hecha pintando la roja) son MT. Lista, sitios y el script que las pone (con sus
+comprobaciones) en recursos/bolas/ (LEEME.txt). Criterio de David: pocas, utiles al principio, y en
+sitios donde las pondria un Pokemon de verdad (sin salida, detras de casas, rincones). OJO: build17.py y
+build18.py rehacen los eventos de los mapas 17 y 18 e incluyen sus bolas.
+
+
+================================================================================
+11. LOS OJOS DEL TUNEL: los Pokemon salvajes sin hierba (2026-10-16)
+================================================================================
+030_OjosTunel.rb, mapas 15-18. Ojos que brillan en casillas oscuras (alfa de oscuro_N.png >= 170), envueltos
+en una sombra de niebla (niebla_ojos.png); parpadean y miran a los lados. Si Kaia se acerca a 3,5 casillas
+los ojos se abren de golpe, suena Exclaim, Kaia se queda quieta y el Pokemon va hacia ella por donde se pisa;
+al llegar, nube (nube.png) y WildBattle.start. Si nadie se acerca, al rato se van. Como mucho 2 a la vez.
+Tabla de especies por mapa en ESPECIES (tipo de ojos 0 amarillos Zubat/Woobat, 1 rojos Rattata/Zorua,
+2 lilas Gastly/Sableye, 3 cian Tympole/Wooper, que solo salen en AGUA). Niveles 8-12.
+Prueba sin motor: recursos/bolas/prueba_ojos.rb (camino por el laberinto del mapa 18 y reparto de especies).
+

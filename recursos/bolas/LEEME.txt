@@ -1,0 +1,12 @@
+BOLAS DE OBJETOS DEL PRINCIPIO DEL JUEGO (2026-10-16)
+
+Roja ("Object ball") = objeto; amarilla ("Object ball MT", la roja pintada de amarillo) = MT.
+Evento estandar de Essentials: pbItemBall(:OBJETO[, cantidad]) y la pagina 2 con el interruptor local A,
+para que no vuelva a salir. La lista con el sitio de cada una esta en poner_bolas.py (BOLAS):
+15 en total (13 aqui + Cuerda Huida y Superpocion del tunel 4, que estan en build18.py).
+
+Como se eligieron los sitios: rincones.py busca casillas alcanzables, apartadas del camino principal
+entre entradas y con pared o arboles por dos o tres lados, sin cortar ningun paso; luego se miro cada
+una de cerca (recorte.py) para que quede donde la pondria un juego de Pokemon de verdad.
+poner_bolas.py comprueba antes de escribir que la casilla se pisa, que no hay otro evento, que se
+llega y que no corta el paso; si la bola ya esta, no la repite.
