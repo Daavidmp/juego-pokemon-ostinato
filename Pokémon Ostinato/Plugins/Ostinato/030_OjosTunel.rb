@@ -11,18 +11,22 @@
 #   - Si nadie se acerca, al rato se apagan y salen en otro sitio.
 #   Los de ojos cian (Pokemon de agua) solo salen junto al agua.
 #   Arte en Graphics/Pictures/Tunel/: ojos.png (4 parejas x 4 fotogramas de
-#   24x12), niebla_ojos.png y nube.png (5 fotogramas).
+#   24x12), sombra_ojos.png (la sombra de humo, 4 fotogramas de 84x60 con los
+#   huecos de los ojos en 42,33) y nube.png (5 fotogramas).
 #===============================================================================
 module OstOjos
   DIR       = "Graphics/Pictures/Tunel/"
   MAX       = 2             # ojos a la vez en un mapa
   DETECTA   = 3.5           # casillas a las que te ven
   LEJOS     = 7             # no salen a menos de estas casillas de Kaia
-  OSCURO    = 170           # alfa de oscuro_N.png a partir de la que es "oscuro"
+  OSCURO    = 195           # alfa de oscuro_N.png (max 242) a partir de la que es "oscuro"
   VELOCIDAD = 4.0           # casillas por segundo cuando van a por Kaia
   VIDA      = [18, 30]      # segundos que se quedan si nadie se acerca
   ESPERA    = [4, 9]        # segundos entre una aparicion y la siguiente
   CW, CH    = 24, 12        # cuadro de una pareja de ojos en ojos.png
+  SW, SH    = 84, 60        # cuadro de la sombra en sombra_ojos.png
+  SOJO      = [42, 33]      # donde caen los ojos dentro de la sombra
+  ZOJOS     = 1.4           # los ojos, a la separacion de los huecos de la sombra
 
   # tipo de ojos (fila de ojos.png): 0 amarillos, 1 rojos, 2 lilas, 3 cian (agua)
   # [tipo, especie, nivel minimo, nivel maximo, peso]
@@ -141,7 +145,10 @@ module OstOjos
       when :espera
         o[:parpadeo] -= 1
         if o[:parpadeo] <= 0
-          o[:parpadeo] = 90 + rand(150); o[:lado] = (rand(3) == 0 ? 20 : 0)
+          # parpadea cada 2-5 segundos; a veces dos veces seguidas
+          o[:parpadeo] = (rand(3) == 0 && !o[:doble]) ? 22 : 120 + rand(180)
+          o[:doble] = (o[:parpadeo] == 22)
+          o[:lado] = (rand(3) == 0 ? 20 : 0)
         end
         if !ocupado && !@bloqueado && Math.hypot(o[:x] - px, o[:y] - py) <= DETECTA
           o[:estado] = :alerta; o[:t] = 0; @bloqueado = true
@@ -200,7 +207,7 @@ module OstOjos
     if @vp != vp
       soltar; @vp = vp
     end
-    @b_ojos ||= bmp("ojos.png"); @b_niebla ||= bmp("niebla_ojos.png"); @b_nube ||= bmp("nube.png")
+    @b_ojos ||= bmp("ojos.png"); @b_niebla ||= bmp("sombra_ojos.png"); @b_nube ||= bmp("nube.png")
     @spr ||= {}
     vivos = (@ojos || []).map(&:object_id)
     @spr.keys.each do |k|
@@ -216,10 +223,11 @@ module OstOjos
       niebla.bitmap = @b_niebla; ojos.bitmap = @b_ojos; nube.bitmap = @b_nube
       cx = (o[:x] * 32 + 16 - ox).round
       cy = (o[:y] * 32 + 16 - oy).round
-      # la niebla, que respira un poco
+      # la sombra de humo: 4 fotogramas en bucle, con los ojos en sus huecos
       if @b_niebla
-        niebla.ox = @b_niebla.width / 2; niebla.oy = @b_niebla.height / 2
-        niebla.x = cx; niebla.y = cy - 6 + (Math.sin(o[:t] / 20.0) * 1.5).round
+        niebla.src_rect.set(((o[:t] / 12) % 4) * SW, 0, SW, SH)
+        niebla.ox = SOJO[0]; niebla.oy = SOJO[1]
+        niebla.x = cx; niebla.y = cy - 12
         niebla.z = 1504
       end
       # los ojos: abiertos, parpadeando o mirando de lado
@@ -227,15 +235,16 @@ module OstOjos
         cuadro = 0
         if o[:estado] == :espera
           p = o[:parpadeo]
-          cuadro = (p <= 3 || (p > 9 && p <= 12)) ? 1 : (p <= 9 ? 2 : 0)
-          cuadro = 3 if o[:lado] > 0 && p > 40 && p < 40 + o[:lado] * 3
+          # el parpadeo: medio cerrados, cerrados, medio cerrados (16 fotogramas)
+          cuadro = (p <= 4 || (p > 11 && p <= 16)) ? 1 : (p <= 11 ? 2 : 0)
+          cuadro = 3 if o[:lado] > 0 && p > 50 && p < 50 + o[:lado] * 3
         end
         ojos.src_rect.set(cuadro * CW, o[:tipo] * CH, CW, CH)
         ojos.ox = CW / 2; ojos.oy = CH / 2
         ojos.x = cx; ojos.y = cy - 12
         ojos.blend_type = 1
         ojos.z = 1505
-        ojos.zoom_x = ojos.zoom_y = (o[:estado] == :alerta ? 1.25 : 1.0)
+        ojos.zoom_x = ojos.zoom_y = ZOJOS * (o[:estado] == :alerta ? 1.2 : 1.0)
       end
       a = case o[:estado]
           when :aparece then o[:t] * 7

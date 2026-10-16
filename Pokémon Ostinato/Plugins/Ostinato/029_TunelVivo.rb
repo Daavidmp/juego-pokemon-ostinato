@@ -138,7 +138,7 @@ class OstTunelVivo
       @kaia.ox = @kaia.bitmap.width / 2
       @kaia.oy = @kaia.bitmap.height / 2
       @kaia.zoom_x = @kaia.zoom_y = 0.75
-      @kaia.opacity = 70
+      @kaia.opacity = 110
     end
     # bitmaps de los efectos pequenos (se comparten)
     @b_onda = OstTunel.bmp("onda.png")

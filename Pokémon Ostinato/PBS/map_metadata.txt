@@ -74,18 +74,22 @@ SnapEdges = true
 #-------------------------------
 [015]
 Name = Tunel ruta 4
+BattleBack = tunel
 SnapEdges = true
 #-------------------------------
 [016]
 Name = Tunel ruta 4 (2)
+BattleBack = tunel
 SnapEdges = true
 #-------------------------------
 [017]
 Name = Tunel ruta 4 (3)
+BattleBack = tunel
 SnapEdges = true
 #-------------------------------
 [018]
 Name = Tunel ruta 4 (4)
+BattleBack = tunel
 SnapEdges = true
 #-------------------------------
 [043]
