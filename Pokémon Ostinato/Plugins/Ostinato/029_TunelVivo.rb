@@ -16,7 +16,12 @@
 module OstTunel
   DIR = "Graphics/Pictures/Tunel/"
   BGS = "Tunel ambiente"
-  BGS_VOLUMEN = 55
+  BGS_VOLUMEN = 40     # por debajo de la musica (BGM "Tunel ruta 4", en los mapas)
+  # el circulo de luz alrededor de Kaia, como en las cuevas de Pokemon:
+  # dentro no hay oscuridad; el borde es escalonado (PASO) y se oscurece en BORDE
+  RADIO = 80
+  BORDE = 16
+  PASO  = 4
 
   # Todo en pixeles del mapa (32 por casilla).
   #   :agua      donde va la imagen agua_N (x, y)
@@ -107,8 +112,12 @@ class OstTunelVivo
     @niebla.opacity = 60
     @niebla.blend_type = 1
     # la oscuridad, con sus huecos de luz
-    @oscuro = sprite("oscuro_#{map.map_id}.png", 1500)
-    @fijos.push([@oscuro, 0, 0]) if @oscuro
+    @oscuro_src = OstTunel.bmp("oscuro_#{map.map_id}.png")
+    if @oscuro_src
+      @oscuro = Sprite.new(@vp)
+      @oscuro.bitmap = Bitmap.new(Graphics.width, Graphics.height)
+      @oscuro.z = 1500
+    end
     # las lamparas
     @lamparas = []
     datos[:lamparas].each do |x, y, tipo|
@@ -140,6 +149,7 @@ class OstTunelVivo
       @kaia.zoom_x = @kaia.zoom_y = 0.75
       @kaia.opacity = 110
     end
+
     # bitmaps de los efectos pequenos (se comparten)
     @b_onda = OstTunel.bmp("onda.png")
     @b_gota = OstTunel.bmp("gota.png")
@@ -176,7 +186,7 @@ class OstTunelVivo
       @niebla.bitmap.dispose if @niebla.bitmap
       @niebla.dispose
     end
-    [@b_onda, @b_gota, @b_mota].each { |b| b.dispose if b && !b.disposed? }
+    [@b_onda, @b_gota, @b_mota, @oscuro_src].each { |b| b.dispose if b && !b.disposed? }
     @disposed = true
   end
 
@@ -188,6 +198,7 @@ class OstTunelVivo
     return if @disposed
     @t += 1
     @fijos.each { |s, x, y| s.x = sx(x); s.y = sy(y) }
+    oscuridad
     @agua.update if @agua
     if @agua
       # el agua respira: un poco mas clara y mas oscura
@@ -335,6 +346,38 @@ class OstTunelVivo
       pbSEPlay("Tunel gota #{1 + rand(3)}", vol, 85 + rand(30)) if vol > 8
     end
   rescue
+  end
+
+  # La oscuridad del trozo de mapa que se ve, con el circulo de luz de Kaia
+  # recortado: dentro, nada; en el borde, escalones de PASO px que se van
+  # oscureciendo hasta la oscuridad que hubiera alli (las lamparas la bajan).
+  def oscuridad
+    return if !@oscuro || !@oscuro_src
+    b = @oscuro.bitmap
+    b.clear
+    mx = (@map.display_x / @sub).round; my = (@map.display_y / @suby).round
+    b.blt(0, 0, @oscuro_src, Rect.new(mx, my, b.width, b.height))
+    return if !$game_player
+    cx = $game_player.screen_x
+    cy = $game_player.screen_y - 16
+    r = OstTunel::RADIO; bo = OstTunel::BORDE; pa = OstTunel::PASO
+    ext = r + bo
+    y = -ext
+    while y < ext
+      x = -ext
+      while x < ext
+        d = Math.sqrt((x + pa / 2.0) ** 2 + (y + pa / 2.0) ** 2)
+        if d < r
+          b.clear_rect(cx + x, cy + y, pa, pa)
+        elsif d < ext
+          # el mismo trozo de oscuridad, pero mas flojo cuanto mas cerca de Kaia
+          b.clear_rect(cx + x, cy + y, pa, pa)
+          b.blt(cx + x, cy + y, @oscuro_src, Rect.new(mx + cx + x, my + cy + y, pa, pa), (255 * (d - r) / bo).round)
+        end
+        x += pa
+      end
+      y += pa
+    end
   end
 
   # motas de polvo flotando en la luz (y las gotitas de las salpicaduras)

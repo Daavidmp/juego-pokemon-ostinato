@@ -34,6 +34,47 @@ module OstCombate
   PROPIO = [554, 842]        # el corte de abajo del sprite de espaldas, escondido tras la barra
   RIVAL  = [1374, 418]
 
+  # Combates dobles (maqueta de recursos/entrenadores_tunel/maqueta_doble.py):
+  # los Pokemon a x2 (a x3 no caben cuatro) y cada uno en su sitio; los
+  # rivales, por la fila de abajo de su dibujo (sus pies), no por el borde
+  # de la imagen, para que pisen el suelo del fondo.
+  DOBLE_ESCALA = 2
+  DOBLE = [[314, 842], [1300, 605], [714, 890], [900, 550]]   # indice 0..3: [x, y]
+  DOBLE_FICHA = 0.62         # las fichas, mas pequenas, enteras y sin tapar a nadie
+  DOBLE_FICHAS = [[1411, 530], [24, 70], [1411, 334], [24, 249]]
+  # Fondos con el suelo mas abajo (el tunel): el Pokemon y el entrenador
+  # rivales tambien se apoyan por los pies, y aqui
+  SUELO_MAPAS = [15, 16, 17, 18]
+  SUELO_RIVAL_Y = 470
+  SUELO_ENTRENADOR_Y = 461
+
+  def self.suelo?
+    return $game_map && SUELO_MAPAS.include?($game_map.map_id)
+  end
+
+  # filas vacias que tiene un dibujo por debajo de lo que se ve (sus pies)
+  def self.vacio_abajo(bm)
+    return 0 if !bm || bm.disposed?
+    @vacio ||= {}
+    @vacio.clear if @vacio.size > 64
+    return @vacio[bm.object_id] if @vacio.key?(bm.object_id)
+    n = 0
+    (bm.height - 1).downto(0) do |y|
+      lleno = false
+      0.step(bm.width - 1, 2) do |x|
+        if bm.get_pixel(x, y).alpha > 0
+          lleno = true
+          break
+        end
+      end
+      break if lleno
+      n += 1
+    end
+    n = 0 if n >= bm.height
+    @vacio[bm.object_id] = n
+    return n
+  end
+
   @activo = false
   def self.activo?; return @activo; end
 
@@ -210,6 +251,7 @@ class Battle::Scene
     def pbBattlerPosition(index, sideSize = 1)
       return ostcomb_pbBattlerPosition(index, sideSize) if !OstCombate.activo?
       k = OstCombate::ESCALA
+      return OstCombate::DOBLE[index].clone if sideSize == 2 && OstCombate::DOBLE[index]
       ret = ((index & 1) == 0) ? OstCombate::PROPIO.clone : OstCombate::RIVAL.clone
       case sideSize
       when 2
@@ -231,6 +273,7 @@ class Battle::Scene
         ret = [OstCombate::PROPIO[0] - 40, OstCombate::BARRA2_Y + 110]
       else
         ret = [OstCombate::RIVAL[0], OstCombate::RIVAL[1] + TRAINER_FOE_OFFSET_Y * k]
+        ret[1] = OstCombate::SUELO_ENTRENADOR_Y if OstCombate.suelo?
       end
       case sideSize
       when 2
@@ -344,7 +387,17 @@ end
 #-------------------------------------------------------------------------------
 module OstCombateZoom
   def ost_k
-    return (OstCombate.activo?) ? OstCombate::ESCALA : 1
+    return 1 if !OstCombate.activo?
+    return OstCombate::DOBLE_ESCALA if @sideSize && @sideSize > 1
+    return OstCombate::ESCALA
+  end
+
+  # el rival, apoyado por sus pies (dobles, y fondos con el suelo mas abajo)
+  def ost_suelo_y
+    return nil if !OstCombate.activo? || !@index || @index.even?
+    return OstCombate::DOBLE[@index][1] if @sideSize == 2 && OstCombate::DOBLE[@index]
+    return OstCombate::SUELO_RIVAL_Y if OstCombate.suelo? && (!@sideSize || @sideSize == 1)
+    return nil
   end
 
   def zoom_x=(v)
@@ -364,7 +417,7 @@ module OstCombateZoom
   def ost_escalar_posicion
     return if !OstCombate.activo?
     p = Battle::Scene.pbBattlerPosition(@index, @sideSize)
-    k = OstCombate::ESCALA
+    k = ost_k
     if instance_variable_defined?(:@spriteX) && self.is_a?(Battle::Scene::BattlerSprite)
       @spriteX = p[0] + (@spriteX - p[0]) * k
       @spriteY = p[1] + (@spriteY - p[1]) * k
@@ -387,6 +440,9 @@ class Battle::Scene::BattlerSprite
   def pbSetPosition
     ostcomb_pbSetPosition
     ost_escalar_posicion if @_iconBitmap
+    suelo = @_iconBitmap ? ost_suelo_y : nil
+    # la imagen se ancla por abajo: su fila de abajo con dibujo, en el suelo
+    self.y = suelo + OstCombate.vacio_abajo(@_iconBitmap.bitmap) * ost_k if suelo
   end
 end
 
@@ -396,6 +452,8 @@ class Battle::Scene::BattlerShadowSprite
   def pbSetPosition
     ostcomb_pbSetPosition
     ost_escalar_posicion if @_iconBitmap
+    suelo = @_iconBitmap ? ost_suelo_y : nil
+    self.y = suelo if suelo      # la sombra, centrada en los pies
   end
 end
 
@@ -440,9 +498,12 @@ class Battle::Scene::PokemonDataBox
     @databoxBitmap = AnimatedBitmap.new(OstCombate::DIR + d[:fondo])
     @spriteX = d[:pos][0]
     @spriteY = d[:pos][1]
-    # en dobles, una ficha debajo de otra
-    paso = (@battler.index.even?) ? -150 : 150
-    @spriteY += (@battler.index / 2) * paso if sideSize > 1
+    @ost_esc = 1.0
+    # en dobles, mas pequenas y una encima de otra, sin salirse de la pantalla
+    if sideSize > 1 && OstCombate::DOBLE_FICHAS[@battler.index]
+      @ost_esc = OstCombate::DOBLE_FICHA
+      @spriteX, @spriteY = OstCombate::DOBLE_FICHAS[@battler.index]
+    end
     @spriteBaseX = 0
   end
 
@@ -469,8 +530,8 @@ class Battle::Scene::PokemonDataBox
     @ostExp.fill_rect(0, 0, e[2], e[3], Color.new(60, 170, 240))
     @expBar.bitmap = @ostExp
     @sprites["expBar"] = @expBar
-    # el rival: las bolitas de su equipo, debajo de la ficha
-    if d[:bolitas]
+    # el rival: las bolitas de su equipo, debajo de la ficha (en dobles no)
+    if d[:bolitas] && @ost_esc == 1.0
       @ostLinea = Sprite.new(viewport)
       @ostLinea.bitmap = Bitmap.new(720, 420)
       @sprites["ostLinea"] = @ostLinea
@@ -480,6 +541,9 @@ class Battle::Scene::PokemonDataBox
     self.visible = false
     self.z       = DATABOX_BASE_Z + ((@battler.index / 2) * 5)
     OstCombate.fuente(self.bitmap, 64)
+    if @ost_esc != 1.0
+      [self, @hpBar, @expBar, @hpNumbers].each { |sp| sp.zoom_x = sp.zoom_y = @ost_esc }
+    end
   end
 
   alias ostcomb_dispose dispose
@@ -494,9 +558,10 @@ class Battle::Scene::PokemonDataBox
     return ostcomb_x_set(value) if !@ost
     Sprite.instance_method(:x=).bind(self).call(value)
     d = ost_datos
-    @hpBar.x = value + d[:vida][0]
-    @expBar.x = value + (d[:exp] ? d[:exp][0] : 0)
-    @hpNumbers.x = value + (d[:numeros] ? d[:numeros][0] : 0)
+    e = @ost_esc || 1.0
+    @hpBar.x = value + (d[:vida][0] * e).round
+    @expBar.x = value + ((d[:exp] ? d[:exp][0] : 0) * e).round
+    @hpNumbers.x = value + ((d[:numeros] ? d[:numeros][0] : 0) * e).round
     @hpPercent.x = value
     @ostLinea.x = value if @ostLinea
   end
@@ -506,9 +571,10 @@ class Battle::Scene::PokemonDataBox
     return ostcomb_y_set(value) if !@ost
     Sprite.instance_method(:y=).bind(self).call(value)
     d = ost_datos
-    @hpBar.y = value + d[:vida][1]
-    @expBar.y = value + (d[:exp] ? d[:exp][1] : 0)
-    @hpNumbers.y = value + (d[:numeros] ? d[:numeros][1] : 0)
+    e = @ost_esc || 1.0
+    @hpBar.y = value + (d[:vida][1] * e).round
+    @expBar.y = value + ((d[:exp] ? d[:exp][1] : 0) * e).round
+    @hpNumbers.y = value + ((d[:numeros] ? d[:numeros][1] : 0) * e).round
     @hpPercent.y = value
     @ostLinea.y = value if @ostLinea
   end
@@ -1114,9 +1180,9 @@ class PBAnimationPlayerX
   alias ostcomb_setLineTransform setLineTransform
   def setLineTransform(x1, y1, x2, y2, x3, y3, x4, y4)
     if OstCombate.activo?
-      k = OstCombate::ESCALA
       [[@usersprite, :u], [@targetsprite, :t]].each do |s, q|
         next if !s || !s.bitmap || s.bitmap.disposed? || !s.respond_to?(:ost_k)
+        k = s.ost_k
         extra = s.bitmap.height * (k - 1) / 2.0
         q == :u ? (y3 -= extra) : (y4 -= extra)
       end

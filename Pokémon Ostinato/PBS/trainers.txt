@@ -192,3 +192,37 @@ Pokemon = ZUBAT,10
 LoseText = Tsk. Vale.
 Pokemon = PURRLOIN,11
 Pokemon = STUNKY,12
+#-------------------------------
+# Tunel de la ruta 4 (mapas 15-18). Los campistas, combate doble.
+[ESPELEOLOGA,Sima]
+LoseText = Apuntado: en este tramo hay una entrenadora que pega fuerte.
+Pokemon = ROGGENROLA,11
+Pokemon = ZUBAT,10
+#-------------------------------
+[OPERARIO_TUNEL,Fusible]
+LoseText = Pues no era la bombilla. Ni yo.
+Pokemon = MAGNEMITE,11
+Pokemon = TIMBURR,11
+#-------------------------------
+[FOTOGRAFO,Diafragma]
+LoseText = Ha salido movida. Como todas.
+Pokemon = WOOBAT,11
+Pokemon = MAREEP,12
+#-------------------------------
+[HERMANOS_CAMPISTAS,Lía y Nico]
+LoseText = Vale, vale. Puedes quedarte a secarte un rato.
+Pokemon = LOTAD,11
+Pokemon = SEEDOT,11
+Pokemon = SKWOVET,12
+Pokemon = ROOKIDEE,12
+#-------------------------------
+[CHAVAL_LINTERNA,Pipo]
+LoseText = Bueno... dos cromos también están bien.
+Pokemon = WOOPER,10
+Pokemon = LITWICK,11
+#-------------------------------
+[MONTANERO_VETERANO,Cumbre]
+LoseText = Pasa. Y abrígate, que arriba sopla.
+Pokemon = MACHOP,12
+Pokemon = NOSEPASS,12
+Pokemon = ONIX,13

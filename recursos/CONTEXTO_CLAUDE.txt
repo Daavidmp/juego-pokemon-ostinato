@@ -277,13 +277,43 @@ build18.py rehacen los eventos de los mapas 17 y 18 e incluyen sus bolas.
 
 
 ================================================================================
-11. LOS OJOS DEL TUNEL: los Pokemon salvajes sin hierba (2026-10-16)
+11. LOS POKEMON SALVAJES DEL TUNEL (sin hierba) (2026-10-16)
 ================================================================================
-030_OjosTunel.rb, mapas 15-18. Ojos que brillan en casillas oscuras (alfa de oscuro_N.png >= 170), envueltos
-en una sombra de niebla (niebla_ojos.png); parpadean y miran a los lados. Si Kaia se acerca a 3,5 casillas
-los ojos se abren de golpe, suena Exclaim, Kaia se queda quieta y el Pokemon va hacia ella por donde se pisa;
-al llegar, nube (nube.png) y WildBattle.start. Si nadie se acerca, al rato se van. Como mucho 2 a la vez.
-Tabla de especies por mapa en ESPECIES (tipo de ojos 0 amarillos Zubat/Woobat, 1 rojos Rattata/Zorua,
-2 lilas Gastly/Sableye, 3 cian Tympole/Wooper, que solo salen en AGUA). Niveles 8-12.
-Prueba sin motor: recursos/bolas/prueba_ojos.rb (camino por el laberinto del mapa 18 y reparto de especies).
+030_PokemonTunel.rb, mapas 15-18. Los Pokemon andan por el tunel con su sprite de seguidor
+(Graphics/Characters/Followers/ESPECIE), como en Escarlata/Purpura; se crean en marcha (ids 700+), como mucho 3
+a la vez, lejos de Kaia, con fundido. Comportamiento por especie cuando Kaia esta a 4 casillas: curioso se
+acerca, miedoso huye, agresivo persigue. Tocarse (en cualquier sentido) = WildBattle.start (evento con disparo
+"contacto con evento"). Los de agua (Tympole, Wooper) no salen de las orillas (AGUA). Tabla en ESPECIES.
+Antes se probo con "ojos en la oscuridad" con sombra de humo: a David no le gusto, se quito entero.
+Prueba sin motor: recursos/bolas/prueba_pk.rb.
+
+
+================================================================================
+12. MUSICA DEL TUNEL (2026-10-16)
+================================================================================
+- Audio/BGM/Tunel ruta 4.ogg (de "Dungeon Discovery", Suno): musica de los mapas 15-18 (autoplay, 80 %).
+  El BGS "Tunel ambiente" de 029 baja a 40 para no pisarla.
+- Audio/BGM/Combate entrenador tunel.ogg (de "Abandoned Tunnel"): TrainerBattleBGM de los mapas 15-18
+  (map_metadata txt y dat). Los tipos de entrenador con BattleBGM propio en trainer_types.txt mandan sobre esto.
+- Audio/BGM/Combate salvaje tunel.ogg (de "Tunel Profund"): WildBattleBGM de los mapas 15-18.
+- Preparar cualquier cancion: recursos/musica/bucle.py entrada salida.ogg "Titulo" [prueba.mp3]
+  (bucle por espectro ajustado a pulsos enteros, fundido de 60 ms, -16 LUFS, LOOPSTART/LOOPLENGTH).
+
+
+================================================================================
+13. ENTRENADORES DEL TUNEL (2026-10-16)
+================================================================================
+6 combates (frases TunEnt en dialogos_ostinato.txt, propuestas de Claude). Tipos y equipos en PBS/trainer_types.txt
+y PBS/trainers.txt Y en Data/trainer_types.dat y trainers.dat (escritos con Ruby: recursos/entrenadores_tunel/
+escribir_dat.rb + entrenadores.json). Eventos "Trainer(N)" como los de las rutas (017).
+  15 (15,34) Espeleologa Sima · 16 (16,33) Operario Fusible · 16 (12,7) Fotografo Diafragma
+  17 (34,12) Campistas Lia y Nico: COMBATE DOBLE de un solo entrenador (setBattleRule double, o 1v2 si Kaia solo
+     tiene un Pokemon); Nico (34,13) es un evento que solo habla · 17 (18,16) Chaval Pipo · 18 (33,10) Montanero Cumbre
+Dibujos: Graphics/Trainers/<TIPO>.png (figura de ~124 px, reducida eligiendo el color mas repetido: sin mezclas)
+y Graphics/Characters/<nombre>.png; scripts en recursos/entrenadores_tunel/.
+OJO: build17.py / build18.py rehacen los eventos de los mapas 17 y 18: si se vuelven a ejecutar, hay que volver a
+poner los entrenadores. COMBATE DOBLE en 016 (2026-10-16): con dos por lado los Pokemon van a x2 (ost_k por sprite) en OstCombate::DOBLE
+y las fichas a 0,62 en DOBLE_FICHAS (sin bolitas). Los rivales se apoyan por la fila de abajo de su dibujo
+(vacio_abajo) en dobles y, en los mapas SUELO_MAPAS (tunel), tambien en individuales (SUELO_RIVAL_Y 470) y su
+entrenador mas abajo (SUELO_ENTRENADOR_Y). Prueba sin motor: recursos/entrenadores_tunel/prueba_doble.rb.
 

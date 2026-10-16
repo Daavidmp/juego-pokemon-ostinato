@@ -75,21 +75,29 @@ SnapEdges = true
 [015]
 Name = Tunel ruta 4
 BattleBack = tunel
+TrainerBattleBGM = Combate entrenador tunel
+WildBattleBGM = Combate salvaje tunel
 SnapEdges = true
 #-------------------------------
 [016]
 Name = Tunel ruta 4 (2)
 BattleBack = tunel
+TrainerBattleBGM = Combate entrenador tunel
+WildBattleBGM = Combate salvaje tunel
 SnapEdges = true
 #-------------------------------
 [017]
 Name = Tunel ruta 4 (3)
 BattleBack = tunel
+TrainerBattleBGM = Combate entrenador tunel
+WildBattleBGM = Combate salvaje tunel
 SnapEdges = true
 #-------------------------------
 [018]
 Name = Tunel ruta 4 (4)
 BattleBack = tunel
+TrainerBattleBGM = Combate entrenador tunel
+WildBattleBGM = Combate salvaje tunel
 SnapEdges = true
 #-------------------------------
 [043]

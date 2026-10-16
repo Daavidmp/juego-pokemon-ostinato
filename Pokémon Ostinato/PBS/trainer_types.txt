@@ -470,3 +470,33 @@ BaseMoney = 10
 Name = Secuaz
 Gender = Female
 BaseMoney = 10
+#-------------------------------
+[ESPELEOLOGA]
+Name = Espeleóloga
+Gender = Female
+BaseMoney = 22
+#-------------------------------
+[OPERARIO_TUNEL]
+Name = Operario
+Gender = Male
+BaseMoney = 22
+#-------------------------------
+[FOTOGRAFO]
+Name = Fotógrafo
+Gender = Male
+BaseMoney = 22
+#-------------------------------
+[HERMANOS_CAMPISTAS]
+Name = Campistas
+Gender = Mixed
+BaseMoney = 16
+#-------------------------------
+[CHAVAL_LINTERNA]
+Name = Chaval
+Gender = Male
+BaseMoney = 12
+#-------------------------------
+[MONTANERO_VETERANO]
+Name = Montañero
+Gender = Male
+BaseMoney = 30

@@ -91,7 +91,7 @@ class OstDebilitar
     @abierta_bm = pbResolveBitmap(DIR + "ball_#{ball}_open") ? bm("ball_#{ball}_open") : bm("ball_POKEBALL_open")
     @ball = nuevo(@ball_bm, @z + 6, 16, 32)
     @ball.src_rect = Rect.new(0, 0, 32, 64)
-    @ball.zoom_x = @ball.zoom_y = K
+    @ball.zoom_x = @ball.zoom_y = (@poke.respond_to?(:ost_k) ? @poke.ost_k : K)
     @todo.push(@ball_bm, @abierta_bm)
     # el resplandor detras del Pokemon y la bola de luz (halo rojo, centro blanco)
     @halo = nuevo(bm("ballBurst_particle"), @poke.z - 1)   # detras del Pokemon

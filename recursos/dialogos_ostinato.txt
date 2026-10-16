@@ -505,3 +505,28 @@ BamVec12  Niño: ¡Estoy ensayando! Hago de Pokémon salvaje. ¡Grrr!
       // El anciano del retablo
 BamVec13  Anciano: Ese retablo es más viejo que yo. Cuenta cómo llegaron las luces a Cadencia.
 BamVec14  Anciano: Cada vez que lo miro me fijo en algo distinto.
+
+==============================================================================
+TUNEL DE LA RUTA 4 · Entrenadores   (TunEnt)   bocadillo con pico
+==============================================================================
+      // Propuestas de Claude: corrigelas. Antes / despues de cada combate.
+      // Parte 1 · Espeleologa Sima (cartografia el tunel)
+TunEnt00  Sima: ¡Cuidado, que estoy midiendo! Este túnel no sale en ningún mapa. Bueno, en el mío sí.
+TunEnt01  Sima: Apuntado: en este tramo hay una entrenadora que pega fuerte.
+      // Parte 2 · Operario Fusible (arregla las lamparas que parpadean)
+TunEnt02  Fusible: ¿Tú también vienes por las lámparas? Llevo tres días cambiando bombillas y siguen parpadeando.
+TunEnt03  Fusible: Pues no era la bombilla. Ni yo.
+      // Parte 2 · Fotografo Diafragma (fotos de sitios abandonados)
+TunEnt04  Diafragma: ¡No te muevas! Con esta luz sales genial. ¿Un combate? ¡Mejor, foto de acción!
+TunEnt05  Diafragma: Ha salido movida. Como todas.
+      // Parte 3 · Campistas Lia y Nico (combate doble; habla Lia, la mayor)
+TunEnt06  Lía: ¡Alto! Este campamento es nuestro desde la tormenta. Si quieres pasar, contra los dos.
+TunEnt07  Lía: Vale, vale. Puedes quedarte a secarte un rato.
+TunEnt08  Nico: Mi hermana manda. Yo solo monto la tienda.
+      // Parte 3 · Chaval Pipo (se ha colado por una apuesta)
+TunEnt09  Pipo: ¡No se lo digas a nadie! Es una apuesta: si llego al final del túnel, me dan tres cromos.
+TunEnt10  Pipo: Bueno... dos cromos también están bien.
+      // Parte 4 · Montanero Cumbre (el "jefe" del tunel, junto a la pasarela)
+TunEnt11  Cumbre: Treinta años cruzando este túnel. Si no puedes conmigo, el monte te va a comer.
+TunEnt12  Cumbre: Pasa. Y abrígate, que arriba sopla.
+
