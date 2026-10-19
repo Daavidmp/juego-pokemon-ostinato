@@ -115,7 +115,7 @@ class OstTunelVivo
     @oscuro_src = OstTunel.bmp("oscuro_#{map.map_id}.png")
     if @oscuro_src
       @oscuro = Sprite.new(@vp)
-      @oscuro.bitmap = Bitmap.new(Graphics.width, Graphics.height)
+      @oscuro.bitmap = Bitmap.new(*tam_pantalla)
       @oscuro.z = 1500
     end
     # las lamparas
@@ -351,8 +351,21 @@ class OstTunelVivo
   # La oscuridad del trozo de mapa que se ve, con el circulo de luz de Kaia
   # recortado: dentro, nada; en el borde, escalones de PASO px que se van
   # oscureciendo hasta la oscuridad que hubiera alli (las lamparas la bajan).
+  # lo que mide el mapa en pantalla: el viewport, no Graphics.width (con las
+  # pantallas de Sky, 008, Graphics.width dice 512 y la oscuridad salia cortada)
+  def tam_pantalla
+    r = @vp ? @vp.rect : nil
+    return [r.width, r.height] if r && r.width > 0 && r.height > 0
+    return [Settings::SCREEN_WIDTH, Settings::SCREEN_HEIGHT]
+  end
+
   def oscuridad
     return if !@oscuro || !@oscuro_src
+    w, h = tam_pantalla
+    if @oscuro.bitmap.width != w || @oscuro.bitmap.height != h
+      @oscuro.bitmap.dispose
+      @oscuro.bitmap = Bitmap.new(w, h)
+    end
     b = @oscuro.bitmap
     b.clear
     mx = (@map.display_x / @sub).round; my = (@map.display_y / @suby).round

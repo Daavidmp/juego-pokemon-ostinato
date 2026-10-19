@@ -530,3 +530,36 @@ TunEnt10  Pipo: Bueno... dos cromos también están bien.
 TunEnt11  Cumbre: Treinta años cruzando este túnel. Si no puedes conmigo, el monte te va a comer.
 TunEnt12  Cumbre: Pasa. Y abrígate, que arriba sopla.
 
+==============================================================================
+RUTA 4 · El campo de futbol: OkarPalace y Damian   (ColTxt)   con dibujos
+==============================================================================
+      // Fuera de guion. Propuestas de Claude: corrigelas. OkarPalace (gafas) y Damian a la
+      // izquierda, Kaia a la derecha. Al hablarles por primera vez estan hablando del festival:
+ColTxt00  OkarPalace: Damian, ya es oficial. El festival de este verano trae a Quevedo.
+ColTxt01  Damian: ¿Quevedo? ¿En serio?
+ColTxt02  OkarPalace: Y a La Pantera, y a Lucho RK. Y todavía faltan nombres por anunciar.
+ColTxt03  Damian: Uf. Eso va a ser una locura.
+ColTxt04  OkarPalace: Pues compra la entrada ya. Va todo el grupo, solo faltas tú.
+ColTxt05  Damian: Es que no sé si me llega el dinero, tío.
+ColTxt06  OkarPalace: Ahora están más baratas. Cuando suban, te vas a arrepentir.
+ColTxt07  Damian: Vale, vale. Esta noche la compro. Palabra.
+      // Kaia, que les ha hablado, les corta:
+ColTxt08  Kaia: Perdonad... ¿interrumpo?
+ColTxt09  Damian: ¡Qué va! Justo nos faltaba alguien. Somos dos y así no hay partido.
+ColTxt10  OkarPalace: Pero con Pokémon sí que salen las cuentas. Un dos contra dos: tú con los tuyos y nosotros con los nuestros.
+ColTxt11  Damian: Te aviso: en nuestro campo no hemos perdido nunca.
+ColTxt12  Kaia: Pues ya va siendo hora.
+      // Al ganarles:
+ColTxt13  Damian: ¿Qué ha pasado? Si iba ganando yo.
+ColTxt14  OkarPalace: No ibas ganando en ningún momento.
+ColTxt15  Kaia: Ha estado reñido. Casi me pilláis.
+ColTxt16  OkarPalace: Casi. Y tú, Damian, la entrada esta noche. Que te conozco.
+ColTxt17  Damian: Que sí, pesado. Con lo que me cuesta perder, encima.
+
+==============================================================================
+RUTA 4 · El campo de futbol, despues   (CamTxt)   bocadillo con pico
+==============================================================================
+      // Si les vuelves a hablar
+CamTxt02  OkarPalace: Mañana revancha, ¿eh? Que no se te olvide.
+CamTxt03  Damian: Yo voy a entrenar. Bueno, después de merendar.
+

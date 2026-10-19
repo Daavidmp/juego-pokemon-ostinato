@@ -43,18 +43,21 @@ Name = ruta1
 Outdoor = true
 ShowArea = true
 SnapEdges = true
+BattleBack = ruta1
 #-------------------------------
 [010]
 Name = ruta2
 Outdoor = true
 ShowArea = true
 SnapEdges = true
+BattleBack = ruta2
 #-------------------------------
 [011]
 Name = ruta3
 Outdoor = true
 ShowArea = true
 SnapEdges = true
+BattleBack = ruta3
 #-------------------------------
 [012]
 Name = Villa Banvalina
@@ -71,6 +74,7 @@ Name = ruta4
 Outdoor = true
 ShowArea = true
 SnapEdges = true
+BattleBack = ruta4
 #-------------------------------
 [015]
 Name = Tunel ruta 4

@@ -226,3 +226,14 @@ LoseText = Pasa. Y abrígate, que arriba sopla.
 Pokemon = MACHOP,12
 Pokemon = NOSEPASS,12
 Pokemon = ONIX,13
+#-------------------------------
+[COLEGAS,OkarPalace y Damian]
+Items = MEGARING
+LoseText = Vale. En nuestro propio campo, encima.
+Pokemon = TOGEKISS,14
+Pokemon = VICTINI,14
+Pokemon = GALLADE,15
+    Item = GALLADITE
+Pokemon = GROOKEY,14
+Pokemon = TYPHLOSION,15
+Pokemon = ZERAORA,15

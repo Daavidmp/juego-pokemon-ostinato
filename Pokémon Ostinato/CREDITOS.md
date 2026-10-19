@@ -177,6 +177,37 @@ fuga del laboratorio.
   completa en `gen9_credits.txt` de ese repositorio (Pokémon Gen 9 Overworld
   sprites) **antes de publicar**.
 
+### Pokémon animados en combate
+
+Tiras de cuadros de cada Pokémon (de frente, de espaldas y variocolor) que se
+mueven en los combates. Se usan solo en combate (`033_PokemonAnimados.rb`); en
+los menús siguen los fijos.
+
+- **En el proyecto:** `Graphics/Pokemon/Animados/` (Front, Back, Front shiny, Back shiny)
+- **Origen:** Pokémon Anil V4.13, que los trae con el plugin «[DBK] Animated
+  Pokémon System» de Lucidious89. Las velocidades de animación también son las
+  de Anil (su `pokemon_metrics.txt`).
+- **Autores de los sprites:** Gen 1-5 · Luka S.J. Gen 6-9 · todos los que
+  colaboraron en los Sprite Projects de Smogon (X/Y, Sol/Luna, Espada/Escudo y
+  Escarlata/Púrpura). Plugin original en español «Sprites Animados»: Tenshi of
+  War, DPertierra, Skyflyer, Hellfire_raptor, Antiant, AshnixsLaw, AyanoCloud,
+  Azrita, BR0DE0, Caruban, Creobnil, DanEx, Diegotoon20, dimbly, ekurepu, Ebaru,
+  EricLostie, Falcon7, Federico97_ez, Fleimer_, Franark122k, Hellfire0raptor,
+  HM100, HyperactiveFlummi, iametrine, Involuntary-Twitch, ItsYugen, jinta,
+  justnyxnow, KingOfThe-X-Roads, kiriaura, Legitimate Username, localghost,
+  lucasomi, MallowOut, mangalos810, MCH4R1Z4RD, N-Kin, NoelleMBrooks, Noobiess,
+  Nolo33, OldSoulja, OmegalingYT, PKMarioG, PomPomKing, Poki Papillon,
+  PumpkinPastel, RetroNC, RadicalCharizard, seleccion, SelenaArmorclaw,
+  SkidMarc25, Snivy101, Sopita_Yorita, SoulWardenInfinity, TheAetherPlayer,
+  TheCynicalPoet, Typhlito, uppababy. Otros: Lucidious89, Regis, Rod,
+  Kayzering, LcorpOfficial. (Lista tal cual en el `meta.txt` del plugin en Anil.)
+
+### Símbolo de la megaevolución
+
+- **En el proyecto:** `Graphics/Animations/Mega/simbolo.png` (lo usa `Plugins/Ostinato/034_MegaEvolucion.rb`)
+- **Origen:** el icono de megaevolución del plugin «Deluxe Battle Kit» de **Lucidious89**,
+  tal como lo usa Pokémon Anil V4.13 (`Graphics/Plugins/Deluxe Battle Kit/Mega/icon.png`).
+
 ---
 
 ## Motor

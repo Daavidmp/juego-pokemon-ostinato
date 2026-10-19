@@ -500,3 +500,9 @@ BaseMoney = 12
 Name = Montañero
 Gender = Male
 BaseMoney = 30
+#-------------------------------
+[COLEGAS]
+Name = Entrenadores
+Gender = Male
+BaseMoney = 30
+BattleBGM = Combate OkarPalace y Damian

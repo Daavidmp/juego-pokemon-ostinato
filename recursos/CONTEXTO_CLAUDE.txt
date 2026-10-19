@@ -314,6 +314,133 @@ y Graphics/Characters/<nombre>.png; scripts en recursos/entrenadores_tunel/.
 OJO: build17.py / build18.py rehacen los eventos de los mapas 17 y 18: si se vuelven a ejecutar, hay que volver a
 poner los entrenadores. COMBATE DOBLE en 016 (2026-10-16): con dos por lado los Pokemon van a x2 (ost_k por sprite) en OstCombate::DOBLE
 y las fichas a 0,62 en DOBLE_FICHAS (sin bolitas). Los rivales se apoyan por la fila de abajo de su dibujo
-(vacio_abajo) en dobles y, en los mapas SUELO_MAPAS (tunel), tambien en individuales (SUELO_RIVAL_Y 470) y su
-entrenador mas abajo (SUELO_ENTRENADOR_Y). Prueba sin motor: recursos/entrenadores_tunel/prueba_doble.rb.
+(vacio_abajo) en dobles y, en los mapas SUELO_MAPAS (tunel), tambien en individuales (SUELO_RIVAL_Y 560, x SUELO_RIVAL_X 1010) y su
+entrenador mas abajo (SUELO_ENTRENADOR_Y 551). Prueba sin motor: recursos/entrenadores_tunel/prueba_doble.rb.
 
+FONDO NUEVO DEL COMBATE DEL TUNEL (2026-10-16): Graphics/Battlebacks/tunel_bg.png es ahora una sala con la pared de
+fondo de frente y un charco de luz en el suelo a la derecha (Firefly, 1376x768 llevado a 1920x1080). El de antes era un
+pasillo con la boca negra justo detras del rival: no habia suelo donde apoyarlo y parecia que flotaba. Con este, los pies
+del rival van en (1010, 560) y el entrenador en (1010, 551): a la izquierda de tu ficha, en el suelo libre, para que se
+vean los pies y la sombra (en el charco de luz, mas arriba, la ficha de tu Pokemon le tapaba los pies y parecia flotar).
+
+
+================================================================================
+14. DEBILITARSE UN SALVAJE (2026-10-16)
+================================================================================
+031_DebilitarSalvaje.rb (OstDebilitarSalvaje): los de entrenador vuelven a su ball (019); los salvajes "caen y se
+apagan": grito grave y sacudida hacia atras, se le doblan las patas (los que vuelan, tipo Volador o Levitacion, aletean
+y caen dando tumbos), se aplastan contra el suelo con un rebote y la sombra se ensancha, se ponen grises y se deshacen
+de abajo arriba en motas de polvo de su color (una copia quieta del dibujo recortada desde abajo), y la sombra se encoge.
+150 fotogramas. Deja pasar al Wooloo jefe (OstJefe, 026). Videos de muestra en Descargas\debilitar_salvaje.
+
+
+================================================================================
+15. REVISION DEL TUNEL Y DEL COMBATE (2026-10-16)
+================================================================================
+- OSCURIDAD DEL TUNEL (029): su bitmap se hacia de Graphics.width, que durante las pantallas de Sky (008, combates y
+  menus) vale 512: al volver de un combate la oscuridad medía 512 y quedaba una franja sin oscurecer a la derecha.
+  Ahora mide lo que el viewport del mapa (tam_pantalla) y se rehace si cambia.
+- TUS POKEMON NUNCA SIN LA BARRA: van cortados por debajo y el corte se esconde tras la barra roja.
+  * pbShowWindow (016): sin otra ventana, la barra del mensaje queda puesta (la v21 dejaba fotogramas sin ninguna
+    al acabar el combate y Mudkip se veia partido en el aire).
+  * TargetMenu (016): elegir objetivo en dobles es ahora como el menu de los cuatro botones (misma barra, pregunta
+    "¿A quien ataca X?", un boton por Pokemon en su sitio del campo; los que no se pueden elegir, en gris). El de la
+    v21 quitaba la barra y ponia sus botones de 512.
+  * DOBLE[2] (tu segundo Pokemon en dobles) a y 842 como el primero: a 890 se le veia solo media cabeza.
+- Pruebas por codigo en cada fotograma (scripts en el scratchpad de la sesion): ningun Pokemon propio ni Kaia con el
+  borde de abajo por encima de la barra (OstCamara::SUELO) y ninguno visible sin barra, en combate salvaje, contra
+  entrenador, doble y cambiando de Pokemon.
+
+
+================================================================================
+16. POKEMON ANIMADOS EN COMBATE Y PRIORIDADES DEL TUNEL (2026-10-16)
+================================================================================
+- 033_PokemonAnimados.rb: en combate, los Pokemon usan las tiras de Graphics/Pokemon/Animados/ (las de Pokemon Anil,
+  plugin "[DBK] Animated Pokemon System"; creditos en CREDITOS.md). La tira se trocea al sacar al Pokemon en cuadros
+  ampliados x2 (OstTira, que hace de AnimatedBitmap), asi que 016/018/019/031 ven un bitmap de siempre. Velocidad por
+  especie = la de Anil (VELOCIDAD; velocidad/2*60 ms por cuadro; dormido x3 mas lento, congelado quieto). Los pies se
+  dejan donde los tenia el dibujo fijo (sus metrics), salvo en dobles y en el tunel, donde 016 ya apoya por los pies.
+  Sin tira (o variocolor sin tira variocolor) se queda el dibujo fijo. Menus, Pokedex, etc.: siguen los fijos.
+  Trocear tarda 40-100 ms (240 ms Lugia), una vez al sacar a cada Pokemon.
+- Prioridades y paso del tunel (mapas 15-18): ver CLAUDE.md. Script: recursos/tunel_prioridades/aplicar.rb.
+
+17. PICTURES EN ALTA Y ENTRENADORES DOBLES (2026-10-17)
+- Los pictures de entrenador ya no se pasan a 144 de alto (se perdia la cara y los detalles): se sacan del dibujo
+  original con recursos/picture_hd.cs (quita el fondo blanco, reduce con calidad) a 3 veces el tamano de antes
+  (individual 384x432, pareja 624x432, figura de 384 de alto, pies 6 px sobre el borde). 016 los dibuja a su tamano:
+  OstCombate.zoom_entrenador da zoom 1 a los de 288 de alto o mas, y x3 a los viejos de 144.
+  Uso: Add-Type -ReferencedAssemblies System.Drawing -Path picture_hd.cs; [Hd]::Hacer(entrada, salida, 384, 624, 432, 6)
+- Hecho: COLEGAS (OkarPalace y Damian). Pendiente: los del tunel, cuyos originales (Descargas\entrenadores_tunel\
+  *_combate.png) estan en el otro PC.
+- Doble contra UN entrenador: su picture va en DOBLE_ENTRENADOR [1100, 584], entre sus dos Pokemon y en su suelo
+  (antes se quedaba en el sitio del individual y flotaba). Lo marca OstCombate.rival_doble?.
+- Parejas en un solo picture (OstCombate::PAREJAS: COLEGAS, HERMANOS_CAMPISTAS): los mensajes del combate van en
+  plural ("te desafian", "sacan a", "han perdido"): el verbo detras del nombre gana una "n".
+- COLEGAS: clase "Entrenadores", nombre "OkarPalace y Damian" (OkarPalace = el de gafas, izquierda; Damian = derecha).
+  Equipo alternado para que cada uno saque por su lado: Togekiss, Victini, Gallade (Galladita, Mega Aro), Grookey,
+  Typhlosion, Zeraora. Ruta 4 (mapa 14), campo de futbol. Falta: characters y el evento.
+
+18. MEGAEVOLUCION (2026-10-19, Plugins/Ostinato/034_MegaEvolucion.rb; la anterior se borro entera)
+- Unos 7 s, en un viewport propio encima del combate (z base + 1000) y por fotogramas a 60. ACCION salta.
+  "MegaEvolution": corte a negro; si es de Kaia, su pantalla (abajo); el combate copiado, oscureciendose y
+  acercandose; la megapiedra (icono del objeto, x6) cae, se agrieta y se parte en 10 trozos (celdas por codigo)
+  que giran en espiral alrededor, por delante y por detras; el Pokemon se pone blanco y todo queda en blanco.
+  Si es de un rival: sobre el combate tal cual (sin negro), una linea fina cruza la pantalla y se abre en franja (FRANJA 320 px, en un viewport propio que
+  recorta) con el entrenador dentro, de cintura para arriba (lo dibujado a zoom entero para que el 45 % de arriba
+  llene la franja; centrado por lo dibujado), entra por la derecha y frena en el centro con un destello, y se cierra. Un salvaje no tiene nada.
+  "MegaEvolution2" (forma nueva): sale con anillos, chispas, golpe de zoom y temblor; el simbolo (x4) aparece
+  encima de la cabeza quieto, fundiendose, como en Pokemon Anil; y la escena se funde.
+- Pantalla de Kaia sobre el fondo del combate (oscurecido), hecha como los sprites del juego (una tira de cuadros):
+  kaia_mega.png, 6 cuadros de 916x768 a tamano real, pegada al borde de abajo, a ritmo fijo (CUADROS_KAIA): de
+  frente, coge el colgante, lo sostiene, se concentra con los ojos cerrados (ahi se activa: destello, halo, estrella
+  de luz que gira y 8 destellos que rodean la piedra), lo alza; al final la piedra estalla en luz y a blanco.
+- La tira: colgante_firefly.cs (la hoja original de Firefly con su colgante, salvo el pecho de los cuadros 5 y 6,
+  de la retocada; la gema azul a arcoiris con sus luces) y kaia_suave.cs (cuadros alineados en horizontal con los
+  desplazamientos de tira_pixel.cs; lineas de dentro mas finas; mascara limpia: fondo unido al borde o verde puro,
+  sin motas, sin el borde mezclado con el verde pero con la linea oscura; color del borde hacia fuera antes de
+  ampliar; x2 con suavizado y mascara recortada: contorno curvo sin restos). Centros de la gema en OstMega::COLGANTE.
+  Las lineas a mano de colgante_pixel.cs quedaban fatal (ya no se usan para la tira).
+- simbolo.png: el icono de megaevolucion de Pokemon Anil (Deluxe Battle Kit, Lucidious89; en CREDITOS.md), x4.
+  Las demas piezas (destello, chispa, anillo, brillo, estrella) las saca mega_piezas.cs.
+- Probado escondido con Gallade propio (video en Descargas\megaevolucion_v7.mp4, 1080p, con los sonidos).
+- OJO: la escena de combate tiene z 99999. Viewport#flash no avanza sin viewport.update: usar un sprite blanco.
+  Graphics.snap_to_bitmap fuera de OstCamara.dibujar saca la escena SIN camara.
+
+19. DESAFIO DE OKARPALACE Y DAMIAN Y CAMARA DE LOS DOBLES (2026-10-19)
+- 015_DesafioLira: RIVALES[:COLEGAS] con colegas.png (de Descargas\oscar_david_referencias\oscar_david_dibujo.png, a
+  900 de alto), colegas_halo.png y texto_COLEGAS.png ("OKARPALACE Y DAMIAN / TE DESAFIAN"), hechos con
+  recursos/herramientas/desafio_piezas.cs (Personaje, Halo y Letrero, en el estilo de los de Lira y los secuaces).
+- 018_CamarasCombate: al sacar varios a la vez (dobles) la camara va al punto medio con el zoom justo para que
+  quepan todos (a_pokemon_varios); antes solo apuntaba al primero.
+- Encuadres por lo dibujado (OstCamara.caja: los pixeles visibles del sprite, sin el margen de su cuadro):
+  a_pokemon_varios centra el grupo en la pantalla con MARGEN 520 a cada lado (las fichas de vida llegan a x 470).
+  La pantalla partida (dividida) en un doble parte cada mitad en dos recuadros de 480 (uno por Pokemon, de izquierda
+  a derecha como en el combate) con una raya fina entre ellos; cada uno centrado en su recuadro y a un tamano que
+  ocupa el 60 % de su ancho (como mucho 1,45; en individuales 1,7, como antes). Los tuyos, pegados a la barra.
+  En el VS, los del rival se apoyan en una misma linea (PIE_RIVAL, el 80 % de SUELO) para quedar alineados; el zoom
+  de cada recuadro nunca baja de lo que hace falta para que el fondo lo cubra entero (si no, se veia el combate de
+  detras, como una parte repetida) ni de lo que deja sus pies en la linea sin salirse del fondo por arriba.
+- Estetica propia de OkarPalace y Damian (calle, grafiti, ropa azul marino/gris/crema con rojo): fondo_colegas (pared de
+  grafitis de noche, Firefly, sin el humo), bollo_colegas (la mancha de Lira en dorado: Tono 38; la de spray no gusto), luz
+  calida de farola en colegas_halo y colegas_foco (015 coge DIBUJO_foco si existe; si no, foco.png) y letrero
+  blanco/crema con sombra marron oscura (800 de ancho). Todo con desafio_piezas.cs (Bollo, Fondo, Tenir, Pegatina, Halo y Letrero con colores).
+- Entrada "fotos con flash" (OstDesafio::FOTOS = [:COLEGAS]; el corte de musica no gusto): sobre el juego tal cual
+  (la foto del mapa), tres disparos con flash; en cada uno cae una polaroid de ellos posando (colegas_foto_1..3: poses
+  de Firefly sobre verde, en su marco con su pared detras, con desafio_piezas.cs Polaroid) hasta su sitio de la
+  maqueta (izquierda girada 10, derecha -12, centro encima -2). Un ultimo click: salen volando y en el flash, ellos.
+  Sonido del disparo: Audio/SE/Foto (de Descargas\Anime_video_game_cam_#2, recortado a 0,32 s). Sin cristales; el sting
+  suena desde que salen ellos: Audio/SE/Desafio_entrada (Desafio.ogg desde 2,10 s, lo que suena alli en ese momento).
+
+20. ENTRADA A LOS COMBATES SALVAJES (2026-10-19): la de Pokemon Anil, que es la de Essentials (destellos y
+  cuadrados que tapan el mapa; luego todo entra deslizandose). Se probo una borrosa con briznas de hierba y no gusto
+  (copia en el scratchpad, mega2/035_EntradaSalvaje_hierba.rb). OJO: al borrar un plugin hay que tocar otro para que
+  el modo debug recompile PluginScripts.rxdata.
+- 035_TransicionesAncho: SnakeSquares de Essentials colocaba los cuadrados cada 64 px sin ensanchar (pensado para 512):
+  con el mapa de Ostinato (682 de ancho) quedaba sin tapar la franja derecha. RisingSplash: el negro, a todo el ancho.
+- 016_CombateHD: el rival de los individuales se apoya por los pies en el suelo del fondo en TODOS los mapas (antes solo
+  en el tunel, SUELO_MAPAS): en los demas salia flotando a la altura pensada para las losas, que ya no hay. Ahora
+  OstCombate.suelo? es cierto salvo en SIN_SUELO (vacio). Suelo en SUELO_RIVAL_Y 576 (560 flotaba un pelin), x 1010;
+  los pies del rival PIES_EN_SOMBRA (10) por debajo del centro de su sombra.
+- Entrenadores normales: la de Essentials, como en Pokemon Anil (destellos, dos Poke Balls cruzandose, cunas negras;
+  tapa la pantalla entera). Anil solo tiene VS propio (Intro Versus, custom_vs_TIPO + custom_background_TIPO) para los
+  importantes; aqui los importantes llevan el "te desafia" (015).

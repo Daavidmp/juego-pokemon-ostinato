@@ -20,7 +20,7 @@ eval(zoom)
 class Fake; include OstCombateZoom; def initialize(i, s); @index, @sideSize = i, s; end; end
 fail "k doble" unless Fake.new(1, 2).ost_k == 2 && Fake.new(1, 1).ost_k == 3
 fail "suelo doble" unless Fake.new(3, 2).ost_suelo_y == 550 && Fake.new(1, 2).ost_suelo_y == 605
-fail "suelo individual tunel" unless Fake.new(1, 1).ost_suelo_y == 470
+fail "suelo individual tunel" unless Fake.new(1, 1).ost_suelo_y == 560
 fail "propio sin suelo" unless Fake.new(0, 2).ost_suelo_y.nil?
 $game_map.map_id = 9
 fail "fuera del tunel" unless Fake.new(1, 1).ost_suelo_y.nil? && Fake.new(1, 2).ost_suelo_y == 605

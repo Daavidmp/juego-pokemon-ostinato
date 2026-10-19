@@ -20,6 +20,12 @@ module Settings
 end
 
 module OstDlg
+  # quien dice cada frase cuando hablan dos (nombre del evento en el mapa);
+  # las que no salen aqui, del evento al que se le ha hablado
+  HABLA = {
+    # el campo de la ruta 4 (017, OstEntrenador.colegas): lo de despues
+    "CamTxt02" => "OkarPalace", "CamTxt03" => "Damian"
+  }
   PNJ_Y       = 623
   PNJ_W       = 933
   PNJ_H       = 211
@@ -154,9 +160,23 @@ module OstinatoVecinos
   class << self
     alias ostpnj_hablar hablar
     def hablar(prefijo, desde, hasta = nil)
-      ev = nil
+      hasta ||= desde
+      # frases de una pareja: cada una sale del que la dice (OstDlg::HABLA)
+      if !@ost_ev && (desde..hasta).any? { |k| OstDlg::HABLA[sprintf("%s%02d", prefijo, k)] }
+        (desde..hasta).each do |k|
+          nombre = OstDlg::HABLA[sprintf("%s%02d", prefijo, k)]
+          @ost_ev = nombre && $game_map.events.values.find { |e| e.name == nombre }
+          begin
+            hablar(prefijo, k, k)
+          ensure
+            @ost_ev = nil
+          end
+        end
+        return
+      end
+      ev = @ost_ev
       begin
-        ev = pbMapInterpreter.get_self
+        ev ||= pbMapInterpreter.get_self
       rescue
         ev = nil
       end

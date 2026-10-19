@@ -21,12 +21,16 @@ module OstDesafio
   DIR = "Graphics/Titles/Desafio/"
   W = 1920
   H = 1080
-  # tipo de entrenador => [dibujo del personaje (y su halo, DIBUJO_halo), fondo, bollo].
+  # tipo de entrenador => [dibujo del personaje (y su halo, DIBUJO_halo, y si tiene, su foco de luz, DIBUJO_foco), fondo, bollo].
   # Si el fondo o el bollo de un rival no existen todavia, se usan los de Lira.
+  # rivales que en vez de romper la pantalla la empiezan con tres fotos con flash: sobre el juego caen tres
+  # polaroids de ellos posando (DIBUJO_foto_1..3); si existe Audio/SE/Foto, es el sonido del disparo
+  FOTOS = [:COLEGAS]
   RIVALES = {
     :LIRA         => ["lira", "fondo", "bollo"],
     :SECUAZ_CHICO => ["secuaz_chico", "fondo_secuaces", "bollo_secuaces"],
-    :SECUAZ_CHICA => ["secuaz_chica", "fondo_secuaces", "bollo_secuaces"]
+    :SECUAZ_CHICA => ["secuaz_chica", "fondo_secuaces", "bollo_secuaces"],
+    :COLEGAS      => ["colegas", "fondo_colegas", "bollo_colegas"]   # OkarPalace y Damian (los dos en un dibujo; calle y grafiti)
   }
 
   # las grietas: [imagen, donde cae el golpe en pantalla, donde esta el golpe
@@ -171,7 +175,7 @@ module OstDesafio
     rescue
     end
     escala_foto = foto ? W.to_f / foto.width : 1.0
-    piezas = foto ? cristales(foto, GOLPE_C[0] / escala_foto, GOLPE_C[1] / escala_foto) : []
+    piezas = (foto && !FOTOS.include?(tipo)) ? cristales(foto, GOLPE_C[0] / escala_foto, GOLPE_C[1] / escala_foto) : []
     sueltas = piececitas
     # la musica del combate espera a que acabe el desafio: se para y suena
     # al final (pbBattleAnimation la pone antes de la animacion)
@@ -181,7 +185,7 @@ module OstDesafio
       pbBGMStop
     rescue
     end
-    se("Desafio", 100, 100)
+    se("Desafio", 100, 100) if !FOTOS.include?(tipo)   # la de las fotos lleva sus propios disparos
     antes = OstinatoHD.subir
     vp = Viewport.new(0, 0, Graphics.width, Graphics.height)
     vp.z = 999_999
@@ -234,7 +238,7 @@ module OstDesafio
       halo.z = -1
       halo.blend_type = 1
       halo.opacity = 0
-      foco = centrado.call("foco", 3)
+      foco = centrado.call([arte[0] + "_foco", "foco"], 3)   # el de cada rival si lo tiene (DIBUJO_foco)
       foco.blend_type = 1
       foco.x = PERSONAJE_X
       foco.y = 560
@@ -327,6 +331,60 @@ module OstDesafio
         Input.update
       end
 
+      if FOTOS.include?(tipo)
+        # --- 1. tres fotos con flash sobre el juego: en cada disparo cae una polaroid de ellos posando -----
+        # (DIBUJO_foto_1..3; donde se queda cada una: centro, giro y ancho, como en la maqueta)
+        mapa = nil
+        if foto
+          mapa = nuevo.call(foto, 9)                    # el juego tal cual, debajo de las fotos
+          mapa.zoom_x = mapa.zoom_y = escala_foto
+        end
+        sitios = [[440, 560, 10, 600], [1470, 620, -12, 600], [960, 470, -2, 700]]
+        fotos = []
+        3.times do |n|
+          b = bmp("#{arte[0]}_foto_#{n + 1}")
+          next if !b
+          pbSEPlay("Foto", 100, 100) rescue nil if pbResolveAudioSE("Foto")
+          if !pbResolveAudioSE("Foto")
+            pbSEPlay("Battle catch click", 100, 120 + n * 5) rescue nil
+            pbSEPlay("Anim/PRSFX- Flash", 90, 100 + n * 10) rescue nil
+          end
+          blanco.opacity = 255
+          s = nuevo.call(b, 13 + n)
+          s.ox = b.width / 2
+          s.oy = b.height / 2
+          fotos.push(s)
+          x1, y1, a1, w1 = sitios[n]
+          z1 = w1 / b.width.to_f
+          # sale grande desde la camara (casi la pantalla entera) y cae girando hasta su sitio
+          20.times do |f|
+            u = OstMini.sale((f + 1) / 20.0)
+            s.zoom_x = s.zoom_y = 1.15 * (1 - u) + z1 * u
+            s.x = (W / 2 + (x1 - W / 2) * u).round
+            s.y = (H / 2 + (y1 - H / 2) * u).round
+            s.angle = a1 * u
+            blanco.opacity = [255 - f * 28, 0].max
+            paso.call
+          end
+          OstMini.temblar(3)
+          (n == 2 ? 40 : 16).times { paso.call }
+        end
+        # un ultimo click: las fotos salen volando y en el flash aparecen ellos de verdad (sigue en el 2)
+        pbSEPlay("Battle catch click", 100, 140) rescue nil
+        10.times do |f|
+          fotos.each_with_index do |s, i|
+            lado = [-1, 1, 0][i] || 0
+            s.x += lado * (30 + f * 14)
+            s.y += (lado == 0 ? 30 : 10) + f * 10
+            s.angle += lado * 3
+          end
+          paso.call
+        end
+        fotos.each { |s| s.visible = false }
+        mapa.visible = false if mapa
+        pbSEPlay("Anim/PRSFX- Flash", 100, 120) rescue nil
+        blanco.opacity = 255
+      else
       # --- 1. se raja poco a poco ----------------------------------------------
       golpe = proc do |g, zoom, sonido, fuerza|
         se(sonido, 100, 100)
@@ -372,7 +430,10 @@ module OstDesafio
       cristal.each { |q| q[0].visible = false }
       8.times { paso.call }            # un instante de negro
 
+      end
       # --- 2. de golpe, el personaje -----------------------------------------------
+      # en la entrada de las fotos, el sonido de los demas desde aqui (el sting a partir de que salen: Desafio_entrada)
+      pbSEPlay("Desafio_entrada", 100, 100) rescue nil if FOTOS.include?(tipo) && pbResolveAudioSE("Desafio_entrada")
       # sale de golpe como una silueta blanca y enseguida toma su color; no se mueve
       se("Vs flash", 100, 100)
       t_pj = t

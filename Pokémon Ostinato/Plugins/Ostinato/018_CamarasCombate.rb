@@ -4,7 +4,8 @@
 #   El combate ya no es un plano fijo:
 #     - el rival saca su Pokemon y la camara se acerca a el;
 #     - al empezar, la pantalla se parte en dos vistas (tu Pokemon y el suyo,
-#       de cerca, con un "VS" en medio y su sonido);
+#       de cerca, con un "VS" en medio y su sonido; en un doble, cada mitad
+#       en dos recuadros, uno por Pokemon);
 #     - si pasan 15 s sin elegir ataque ni nada, la camara se mece despacio
 #       entre los dos (como en X/Y); cualquier tecla la devuelve al general;
 #     - el golpe sacude la camara y la empuja hacia el que lo recibe;
@@ -28,6 +29,7 @@ module OstCamara
   ESPERA = 15                 # segundos sin elegir hasta que la camara se mueve sola
   RIVAL_EN = [1000, 300]      # donde queda el rival en sus primeros planos
   SUELO = OstCombate::BARRA2_Y + 77   # desde aqui la barra de abajo es opaca (sus manchas, no)
+  PIE_RIVAL = (SUELO * 0.8).round # en el VS, los pies de los Pokemon del rival (todos en la misma linea)
   MUNDO = /\A(battle_bg2?|pokemon_\d+|shadow_\d+|player_\d+|trainer_\d+)\z/
 
   # metodos de Sprite sin pasar por los de 016 (los Pokemon fingen zoom 1)
@@ -50,6 +52,7 @@ module OstCamara
 
   class << self
     attr_accessor :escena
+    attr_accessor :extras
 
     def activa?
       return @escena && OstCombate.activo? && !@escena.instance_variable_get(:@disposed)
@@ -88,6 +91,64 @@ module OstCamara
         @vel = vel
       else
         apuntar(p[0], p[1], z, vel)
+      end
+    end
+
+    # lo dibujado de verdad de un Pokemon (sin el margen transparente de su
+    # cuadro), en el mundo: [izquierda, derecha, arriba, abajo]
+    def caja(idx)
+      s = sprites && sprites["pokemon_#{idx}"]
+      return nil if !s || s.disposed? || !s.bitmap || s.bitmap.disposed?
+      b = s.bitmap; r = s.src_rect
+      @cajas ||= {}
+      clave = [b.object_id, r.x, r.y, r.width, r.height]
+      c = @cajas[clave]
+      if !c
+        x0 = r.width; x1 = -1; y0 = r.height; y1 = -1
+        (0...r.height).step(2) do |y|
+          (0...r.width).step(2) do |x|
+            next if b.get_pixel(r.x + x, r.y + y).alpha < 40
+            x0 = x if x < x0; x1 = x if x > x1; y0 = y if y < y0; y1 = y if y > y1
+          end
+        end
+        c = (x1 < 0) ? [0, r.width, 0, r.height] : [x0, x1 + 2, y0, y1 + 2]
+        @cajas.clear if @cajas.length > 64
+        @cajas[clave] = c
+      end
+      zx = SZX.bind(s).call; zy = SZY.bind(s).call
+      bx = SX.bind(s).call - s.ox * zx
+      by = SY.bind(s).call - s.oy * zy
+      bx, c0, c1 = s.mirror ? [bx, r.width - c[1], r.width - c[0]] : [bx, c[0], c[1]]
+      return [bx + c0 * zx, bx + c1 * zx, by + c[2] * zy, by + c[3] * zy]
+    end
+
+    # varios Pokemon a la vez (los dos de un doble): centrados en la pantalla y
+    # con el mismo margen a cada lado (por los bordes de sus dibujos, no por sus
+    # centros), con el zoom justo para que quepan (como mucho z, el de uno solo)
+    MARGEN = 520                # las fichas de vida llegan a x 470: asi no se pegan a ellas
+    def a_pokemon_varios(idxs, z, vel = 0.12)
+      return a_pokemon(idxs[0], z, vel) if idxs.length < 2
+      @mecer = false
+      l = nil; r = nil; ys = []
+      idxs.each do |i|
+        k = caja(i)
+        if !k
+          c = punto(i)
+          k = [c[0] - 120, c[0] + 120, c[1] - 120, c[1] + 120]
+        end
+        l = [l || k[0], k[0]].min
+        r = [r || k[1], k[1]].max
+        ys.push((k[2] + k[3]) / 2.0)
+      end
+      z = [z.to_f, (1920.0 - 2 * MARGEN) / (r - l)].min
+      z = [z, 1.0].max
+      mx = (l + r) / 2.0
+      my = ys.sum / ys.length.to_f
+      if idxs[0].odd?
+        @meta = [mx, my - (RIVAL_EN[1] - CENTRO[1]) / z, z]
+        @vel = vel
+      else
+        apuntar(mx, my, z, vel)
       end
     end
 
@@ -255,6 +316,19 @@ module OstCamara
             SYS.bind(s).call(ny)
           end
         end
+        # piezas que no estan en la escena pero viven en el mundo (la megaevolucion)
+        if camara && @extras
+          @extras.each do |s|
+            next if !s || s.disposed?
+            x = SX.bind(s).call; y = SY.bind(s).call
+            zx = SZX.bind(s).call; zy = SZY.bind(s).call
+            guardados.push([s, x, y, zx, zy])
+            SXS.bind(s).call(((x - fx) * z + CENTRO[0] + dx).round)
+            SYS.bind(s).call(((y - fy) * z + CENTRO[1] + dy).round)
+            SZXS.bind(s).call(zx * z)
+            SZYS.bind(s).call(zy * z)
+          end
+        end
       rescue StandardError
         # una camara que falla no rompe el dibujo: todo a su sitio y plano general
         guardados.each do |s, x, y, zx, zy|
@@ -277,19 +351,31 @@ module OstCamara
     end
 
     #---------------------------------------------------------------------------
-    # La pantalla partida en dos: tu Pokemon a la izquierda, el suyo a la
-    # derecha, de cerca, con una raya negra en diagonal y un VS en medio.
+    # La pantalla partida en dos: tus Pokemon a la izquierda, los suyos a la
+    # derecha, de cerca, con una raya negra en diagonal y un VS en medio. En un
+    # doble cada mitad se parte en dos recuadros (uno por Pokemon, en el orden
+    # en que estan en el combate), con su raya entre ellos.
     #---------------------------------------------------------------------------
-    def dividida(idx_propio, idx_rival)
+    def dividida(propios, rivales)
       return if !activa?
       sp = sprites
-      return if !sp["pokemon_#{idx_propio}"] || !sp["pokemon_#{idx_rival}"]
-      z = 1.7
+      propios = Array(propios).select { |i| sp["pokemon_#{i}"] }
+      rivales = Array(rivales).select { |i| sp["pokemon_#{i}"] }
+      return if propios.empty? || rivales.empty?
+      # de izquierda a derecha como se ven en el combate
+      propios = propios.sort_by { |i| punto(i)[0] }
+      rivales = rivales.sort_by { |i| punto(i)[0] }
+      huecos = []
+      [[propios, 0], [rivales, 960]].each do |lista, x0|
+        w = 960 / lista.length
+        lista.each_with_index { |idx, j| huecos.push([idx, x0 + j * w, w, x0 == 0]) }
+      end
+      z = (huecos.length > 2) ? 1.45 : 1.7
       vistas = []
-      [[idx_propio, 0], [idx_rival, 960]].each do |idx, x0|
+      huecos.each do |idx, x0, w, propio|
         # solo hasta la barra de abajo: sigue a la vista, con su mensaje, y tu
         # Pokemon queda apoyado en ella (nunca partido)
-        vp = Viewport.new(x0 + (x0 == 0 ? -960 : 960), 0, 960, SUELO)
+        vp = Viewport.new(x0 + (propio ? -960 : 960), 0, w, SUELO)
         vp.z = 100500
         copias = []
         ["battle_bg", "shadow_#{idx}", "pokemon_#{idx}"].each do |k|
@@ -297,15 +383,39 @@ module OstCamara
           next if !o || o.disposed?
           copias.push([o, Sprite.new(vp)])
         end
-        p = punto(idx)
-        vistas.push([vp, copias, p, x0])
+        # centrado a lo ancho por lo dibujado, apoyado por abajo (sus pies) y a un tamano parecido: que
+        # ocupe el 60 % del ancho del recuadro (como mucho z, para que uno pequeno no salga enorme; como
+        # poco, lo justo para que el fondo cubra el recuadro entero: si no, se ve el combate de detras)
+        k = caja(idx)
+        if k
+          zi = [z, w * 0.6 / [k[1] - k[0], 1].max].min
+          pc = [(k[0] + k[1]) / 2.0, k[3]]
+        else
+          zi = z
+          pc = punto(idx)
+        end
+        bg = sp["battle_bg"]
+        if bg && !bg.disposed? && bg.bitmap
+          zi = [zi, 1.0, w / (bg.bitmap.width * SZX.bind(bg).call), SUELO / (bg.bitmap.height * SZY.bind(bg).call)].max
+          # los suyos: lo justo para que sus pies lleguen a PIE_RIVAL sin que el recuadro se salga del fondo
+          # por arriba (si no, el limite lo bajaria y dejaria de estar alineado con el otro)
+          zi = [zi, PIE_RIVAL / [pc[1] - SY.bind(bg).call, 1].max].max if !propio && k
+        end
+        vistas.push([vp, copias, pc, x0, w, propio, idx, zi])
       end
-      raya = Sprite.new
-      raya.bitmap = raya_bitmap
-      raya.z = 100510
-      raya.ox = raya.bitmap.width / 2
-      raya.x = 960
-      raya.opacity = 0
+      # la raya del centro, y en un doble una mas fina entre los dos de cada lado
+      rayas = [[960, 1.0]]
+      huecos.each { |_i, x0, _w, _p| rayas.push([x0, 0.6]) if x0 != 0 && x0 != 960 }
+      rayas = rayas.map do |x, ancho|
+        r = Sprite.new
+        r.bitmap = raya_bitmap
+        r.z = 100510
+        r.ox = r.bitmap.width / 2
+        r.x = x
+        r.zoom_x = ancho
+        r.opacity = 0
+        r
+      end
       vs = Sprite.new
       vs.bitmap = Bitmap.new(200, 124)   # la letra no pasa de 96: se dibuja a 96 y se amplia
       OstCombate.fuente(vs.bitmap, 96)
@@ -335,24 +445,26 @@ module OstCamara
             pbSEPlay("Vs flash") if f == 10
             e = (f < 10) ? f / 10.0 : (f >= 92) ? 1 - (f - 92) / 12.0 : 1.0
             e = 1 - (1 - e) ** 3
-            vistas.each do |vp, copias, p, x0|
-              fuera = (x0 == 0) ? -960 : 960
+            vistas.each do |vp, copias, p, x0, w, propio, idx, zi|
+              fuera = propio ? -960 : 960
               vp.rect.x = (x0 + fuera * (1 - e)).round
               # un empujon lento hacia dentro mientras esta quieto
-              zz = z * (1 + 0.06 * [f - 10, 0].max / 82.0)
+              zz = zi * (1 + 0.06 * [f - 10, 0].max / 82.0)
+              # los suyos, con los pies en la misma linea (PIE_RIVAL), asi quedan alineados entre ellos
               cx, cy = p
-              cy -= 60
+              cy -= (PIE_RIVAL - 540) / zz
               bg = sp["battle_bg"]
               if bg && !bg.disposed? && bg.bitmap
                 bx0 = SX.bind(bg).call; by0 = SY.bind(bg).call
                 bx1 = bx0 + bg.bitmap.width * SZX.bind(bg).call
                 by1 = by0 + bg.bitmap.height * SZY.bind(bg).call
-                cx = [[cx, bx0 + 480 / zz].max, bx1 - 480 / zz].min
-                cy = [[cy, by0 + 540 / zz].max, by1 - 540 / zz].min
+                cx = [[cx, bx0 + (w / 2) / zz].max, bx1 - (w / 2) / zz].min
+                # lo de arriba (y 0) y lo de abajo (SUELO) del recuadro, dentro del fondo
+                cy = [[cy, by0 + 540 / zz].max, by1 - (SUELO - 540) / zz].min
               end
               # el tuyo: sus pies en su sitio de siempre, pegados a la barra roja
-              if x0 == 0
-                corte = corte_propio(["pokemon_#{idx_propio}"])
+              if propio
+                corte = corte_propio(["pokemon_#{idx}"])
                 cy = corte - (corte - 540) / zz
               end
               copias.each do |o, c|
@@ -366,13 +478,14 @@ module OstCamara
                 c.tone = o.tone
                 c.color = o.color
                 c.visible = o.visible
-                c.x = ((SX.bind(o).call - cx) * zz + 480).round
+                c.x = ((SX.bind(o).call - cx) * zz + w / 2).round
                 c.y = ((SY.bind(o).call - cy) * zz + 540).round
                 c.zoom_x = SZX.bind(o).call * zz
                 c.zoom_y = SZY.bind(o).call * zz
               end
             end
-            raya.opacity = (f < 8) ? 0 : (f >= 92) ? 255 * (1 - (f - 92) / 12.0) : 255
+            op = (f < 8) ? 0 : (f >= 92) ? 255 * (1 - (f - 92) / 12.0) : 255
+            rayas.each { |r| r.opacity = op }
             if f >= 10 && f < 92
               q = [(f - 10) / 6.0, 1.0].min
               vs.opacity = 255 * q
@@ -386,12 +499,13 @@ module OstCamara
           end
         end
       ensure
-        vistas.each do |vp, copias, _p, _x|
+        vistas.each do |vp, copias|
           copias.each { |_o, c| c.dispose }
           vp.dispose
         end
-        [raya, vs, destello].each do |s|
-          s.bitmap.dispose if s.bitmap && s != raya
+        rayas.each(&:dispose)
+        [vs, destello].each do |s|
+          s.bitmap.dispose if s.bitmap
           s.dispose
         end
       end
@@ -447,27 +561,27 @@ class Battle::Scene
     return ret
   end
 
-  # Sacar Pokemon: el del rival, de cerca; al empezar, la pantalla partida
+  # Sacar Pokemon: el del rival, de cerca (en un doble, los dos); al empezar, la pantalla partida
   alias ostcam_pbSendOutBattlers pbSendOutBattlers
   def pbSendOutBattlers(sendOuts, startBattle = false)
     return ostcam_pbSendOutBattlers(sendOuts, startBattle) if !OstCamara.activa? || sendOuts.empty?
     OstCamara.a_general_ya
     ostcam_pbSendOutBattlers(sendOuts, startBattle)
     if @battle.opposes?(sendOuts[0][0])
-      OstCamara.a_pokemon(sendOuts[0][0], 1.45, 0.1)
+      OstCamara.a_pokemon_varios(sendOuts.map { |s| s[0] }, 1.45, (sendOuts.length > 1) ? 0.18 : 0.1)
       45.times { pbUpdate }
       OstCamara.general(0.1)
     elsif startBattle
-      rival = @battle.battlers.find { |b| b && b.opposes?(sendOuts[0][0]) && !b.fainted? }
+      rivales = @battle.battlers.select { |b| b && b.opposes?(sendOuts[0][0]) && !b.fainted? }.map(&:index)
       OstCamara.a_general_ya
       begin
-        OstCamara.dividida(sendOuts[0][0], rival.index) if rival
+        OstCamara.dividida(sendOuts.map { |s| s[0] }, rivales) if !rivales.empty?
       rescue StandardError => e
         # una camara que falla no puede cortar el combate
         echoln("OstCamara: #{e.class}: #{e.message}")
       end
     else
-      OstCamara.a_pokemon(sendOuts[0][0], 1.3, 0.1)
+      OstCamara.a_pokemon_varios(sendOuts.map { |s| s[0] }, 1.3, 0.1)
       30.times { pbUpdate }
       OstCamara.general(0.1)
     end

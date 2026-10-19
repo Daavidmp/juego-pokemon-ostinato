@@ -1,0 +1,49 @@
+PROMPTS DE FIREFLY: CHARACTERS DE OKARPALACE Y DAMIAN (ruta 4, campo de futbol)
+
+Firefly no sabe hacer la hoja 4x4 de andar: sale mal. Se le pide solo una fila de 4 vistas quietas
+(de frente, izquierda, derecha y de espaldas) y la hoja de 256x256 la monto yo: troceo, paso a pixel y
+saco los pasos de andar de cada vista.
+
+Ajustes en Firefly:
+- Relacion de aspecto: Panoramica (16:9)
+- Referencia de ESTILO (no de composicion): Descargas\oscar_david_referencias\ref_character_kaia.png
+- Intensidad del estilo: alta
+- Un personaje por imagen (no los dos juntos)
+
+------------------------------------------------------------------------------------------
+OKARPALACE (el de gafas, el de la izquierda del picture)
+------------------------------------------------------------------------------------------
+Pixel art overworld character sprite for a Pokémon Black and White style game, chibi proportions
+with a big head (head about one third of the body height), exactly like the reference sprite. A
+character turnaround in ONE horizontal row of exactly 4 separate copies of the SAME boy, evenly
+spaced, same size, all standing still with feet together and arms down: 1) facing the viewer,
+2) facing left in profile, 3) facing right in profile, 4) seen from behind. The boy: teenager,
+short black hair with a faded undercut on the sides, black rectangular glasses, black hoodie with
+the hood down, a beige and cream backpack with cream straps, loose light grey cargo trousers with
+side pockets, grey and white trainers. Clean 1 pixel dark outline, flat colours with one shade,
+limited palette, crisp hard pixels, no anti-aliasing, top-down three-quarter view like a Pokémon
+overworld sprite. Plain pure white background, nothing else: no shadows on the floor, no text, no
+grid lines, no frames, no Poké Ball in his hand.
+
+------------------------------------------------------------------------------------------
+DAMIAN (el de la derecha del picture)
+------------------------------------------------------------------------------------------
+Pixel art overworld character sprite for a Pokémon Black and White style game, chibi proportions
+with a big head (head about one third of the body height), exactly like the reference sprite. A
+character turnaround in ONE horizontal row of exactly 4 separate copies of the SAME boy, evenly
+spaced, same size, all standing still with feet together and arms down: 1) facing the viewer,
+2) facing left in profile, 3) facing right in profile, 4) seen from behind. The boy: teenager,
+short messy brown hair, brown eyes, slightly tanned skin, a loose navy blue hoodie with the hood
+down, black cargo trousers with side pockets, black and white trainers. Clean 1 pixel dark outline,
+flat colours with one shade, limited palette, crisp hard pixels, no anti-aliasing, top-down
+three-quarter view like a Pokémon overworld sprite. Plain pure white background, nothing else: no
+shadows on the floor, no text, no grid lines, no frames.
+
+------------------------------------------------------------------------------------------
+Si sale mal
+------------------------------------------------------------------------------------------
+- Salen 3 o 6 copias: anade al principio "EXACTLY FOUR figures, no more, no less".
+- Las vistas de lado miran las dos al mismo lado: me vale igual, la otra la saco en espejo.
+- Sale realista o con mucho detalle: sube la intensidad del estilo y anade "very low resolution,
+  about 32 pixels tall each".
+- Sale con suelo o sombra: anade "floating on pure white, no ground".
