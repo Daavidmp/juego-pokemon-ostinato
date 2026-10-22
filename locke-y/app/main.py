@@ -136,8 +136,11 @@ def encaje():
     return s, round((w - 1920 * s) / 2), round((h - 1080 * s) / 2)
 
 
-def tarea(mensaje, error=False, fin=False):
-    vivo['tarea'] = {'mensaje': mensaje, 'error': error, 'fin': fin}
+def tarea(mensaje, error=False, fin=False, paso=None, pct=None):
+    """paso: 1 herramientas, 2 randomización, 3 abrir el juego (la pantalla de progreso los muestra)."""
+    anterior = vivo['tarea'] or {}
+    vivo['tarea'] = {'mensaje': mensaje, 'error': error, 'fin': fin, 'pct': pct,
+                     'paso': paso or anterior.get('paso'), 'random': anterior.get('random', False)}
 
 
 def descargar(repo, patron, destino, nombre):
@@ -150,10 +153,11 @@ def descargar(repo, patron, destino, nombre):
 
     def progreso(bloques, tam, total):
         if total > 0:
-            tarea(f'Descargando {nombre} {rel["tag_name"]}… {min(100, bloques * tam * 100 // total)} %')
+            pct = min(100, bloques * tam * 100 // total)
+            tarea(f'Descargando {nombre} {rel["tag_name"]}…', paso=1, pct=pct)
     try:
         urllib.request.urlretrieve(asset['browser_download_url'], zip_tmp, progreso)
-        tarea(f'Descomprimiendo {nombre}…')
+        tarea(f'Descomprimiendo {nombre}…', paso=1)
         shutil.rmtree(destino, ignore_errors=True)
         with zipfile.ZipFile(zip_tmp) as z:
             entradas = z.infolist()
@@ -226,13 +230,13 @@ def randomizar(j, opciones, avanzado):
         malas = set(opciones) - OPCIONES
         if malas:
             raise RuntimeError(f'Opciones desconocidas: {malas}')
-        tarea('Preparando los ajustes…')
+        tarea('Preparando los ajustes…', paso=2)
         correr([jv, '-cp', str(jar), str(APP / 'LockeSettings.java'), str(ajustes)]
                + [f'{k}={v}' for k, v in opciones.items()], jar.parent)
     salida = TOOLS / 'salida'
     shutil.rmtree(salida, ignore_errors=True)
     salida.mkdir(parents=True)
-    tarea('Randomizando el juego… (puede tardar un par de minutos)')
+    tarea('Randomizando el juego… (puede tardar un par de minutos)', paso=2)
     correr([jv, '-jar', str(jar), 'cli', '-i', j['ruta'], '-o', str(salida / 'y'),
             '-s', str(ajustes), '-d', '-l'], jar.parent)
     romfs = next(salida.rglob('romfs'))
@@ -277,11 +281,14 @@ def en_segundo_plano(nombre, fn, *args):
         except Exception as e:
             traceback.print_exc()
             tarea(f'{nombre}: {e}', error=True, fin=True)
-    tarea(f'{nombre}…')
+    vivo['tarea'] = None
+    tarea(f'{nombre}…', paso=1)
     threading.Thread(target=envoltura, daemon=True).start()
 
 
 def preparar(j, opciones, vidas_ini, randomizar_juego, avanzado):
+    vivo['tarea']['random'] = randomizar_juego
+    tarea('Preparando el emulador y el randomizador…', paso=1)
     herramientas()
     if randomizar_juego:
         randomizar(j, opciones, avanzado)
@@ -291,7 +298,7 @@ def preparar(j, opciones, vidas_ini, randomizar_juego, avanzado):
         nuevo_locke(j, vidas_ini)
         j['preparado'] = True
         guardar()
-    tarea('Abriendo el juego…')
+    tarea('Abriendo el juego con el layout…', paso=3)
     lanzar(j)
 
 
@@ -415,7 +422,8 @@ def foto_estado():
         return {
             'juegos': [{'id': j['id'], 'nombre': j['nombre'], 'ruta': j['ruta'], 'preparado': j.get('preparado', False),
                         'random': j.get('random'), 'vidas': vidas(j) if j.get('preparado') else None,
-                        'vidas_iniciales': j.get('vidas_iniciales'), 'medallas': sum(j.get('medallas', []))}
+                        'vidas_iniciales': j.get('vidas_iniciales'), 'medallas': sum(j.get('medallas', [])),
+                        'registro': (DATOS / 'juegos' / j['id'] / 'randomizacion.log').exists()}
                        for j in biblio['juegos']],
             'activo': activo, 'jugando': jugando(), 'conectado': vivo['conectado'], 'tarea': vivo['tarea'],
             'equipo': [p and {**p, 'muerto': p['id'] in muertos} for p in vivo['equipo']],
@@ -532,6 +540,11 @@ class Servidor(BaseHTTPRequestHandler):
             with lock:
                 buscar(d['id'])['preparado'] = False
                 guardar()
+        elif ruta == '/api/registro':
+            log = DATOS / 'juegos' / d['id'] / 'randomizacion.log'
+            if not log.exists():
+                raise RuntimeError('Este juego no tiene registro: no se ha randomizado')
+            os.startfile(log)
         elif ruta == '/api/preparar':
             j = buscar(d['id'])
             en_segundo_plano('Preparar el juego', preparar, j, d.get('opciones', {}), d.get('vidas', 25),
