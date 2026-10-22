@@ -319,6 +319,48 @@ def seguimiento():
         time.sleep(1)
 
 
+def corregir(atajo):
+    """F7 −1 vida, F8 +1 vida, F9 marca la siguiente medalla, Mayús+F9 desmarca la última."""
+    with lock:
+        j = buscar(vivo['activo'])
+        if atajo == 'menos':
+            j['ajuste_vidas'] -= 1
+        elif atajo == 'mas':
+            j['ajuste_vidas'] += 1
+        elif atajo == 'medalla' and False in j['medallas']:
+            j['medallas'][j['medallas'].index(False)] = True
+        elif atajo == 'quitar_medalla' and True in j['medallas']:
+            j['medallas'][len(j['medallas']) - 1 - j['medallas'][::-1].index(True)] = False
+        guardar()
+
+
+def atajos():
+    """Atajos globales de Windows, registrados solo mientras hay un juego abierto."""
+    import ctypes.wintypes as wt
+    u = ctypes.windll.user32
+    TECLAS = {1: (0, 0x76, 'menos'), 2: (0, 0x77, 'mas'), 3: (0, 0x78, 'medalla'),
+              4: (0x0004, 0x78, 'quitar_medalla')}           # 0x76..0x78 = F7..F9, 0x0004 = Mayús
+    MOD_NOREPEAT, WM_HOTKEY, PM_REMOVE = 0x4000, 0x0312, 1
+    registrados = False
+    msg = wt.MSG()
+    while True:
+        if jugando() and not registrados:
+            for i, (mod, tecla, _) in TECLAS.items():
+                u.RegisterHotKey(None, i, mod | MOD_NOREPEAT, tecla)
+            registrados = True
+        elif not jugando() and registrados:
+            for i in TECLAS:
+                u.UnregisterHotKey(None, i)
+            registrados = False
+        while u.PeekMessageW(ctypes.byref(msg), None, 0, 0, PM_REMOVE):
+            if msg.message == WM_HOTKEY and msg.wParam in TECLAS:
+                try:
+                    corregir(TECLAS[msg.wParam][2])
+                except RuntimeError:
+                    pass
+        time.sleep(0.05)
+
+
 def huella_capa():
     """Lo que se ve en la capa: si cambia, hay que volver a pintarla."""
     e = foto_estado()
@@ -581,6 +623,8 @@ def main():
         return abrir_ventana_app()
     threading.Thread(target=seguimiento, daemon=True).start()
     threading.Thread(target=pintor_capa, daemon=True).start()
+    if os.name == 'nt':
+        threading.Thread(target=atajos, daemon=True).start()
     print(f'Pokelocke en {URL}  ·  overlay para OBS: {URL}/overlay')
     if '--sin-ventana' not in sys.argv:       # --sin-ventana: solo el servidor (pruebas u OBS)
         abrir_ventana_app()

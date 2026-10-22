@@ -210,30 +210,17 @@
     </div>
   </section>
 
-  <!-- En partida -->
+  <!-- En partida: el juego va a pantalla completa con el layout; aquí solo se recuerdan los atajos -->
   <section class="vista" id="v-partida">
     <div class="cabecera">
       <h1 id="j-nombre">En partida</h1>
       <span class="estado" id="e-conexion">Juego</span>
     </div>
-    <p class="nota">El juego está abierto con el layout encima. Para volver a la biblioteca, cierra Azahar (Esc sale de la pantalla completa).</p>
     <div class="bloque">
-      <h2>Vidas</h2>
-      <div style="display: flex; align-items: center; gap: 12px;">
-        <button class="gris" id="b-menos" aria-label="Quitar una vida">−</button>
-        <div class="vidas" id="vidas">–</div>
-        <button class="gris" id="b-mas" aria-label="Añadir una vida">+</button>
-      </div>
-      <p class="nota">Las muertes se cuentan solas: un Pokémon del equipo a 0 PS resta una vida.</p>
-    </div>
-    <div class="bloque">
-      <h2>Medallas</h2>
-      <div class="medallas" id="medallas"></div>
-      <p class="nota">Pulsa una medalla para marcarla. El líder sale en color en el layout.</p>
-    </div>
-    <div class="bloque">
-      <h2>Equipo</h2>
-      <div class="equipo" id="equipo"></div>
+      <h2>Atajos mientras juegas</h2>
+      <p style="margin: 0 0 6px;"><code>F7</code> quita una vida · <code>F8</code> añade una vida</p>
+      <p style="margin: 0 0 6px;"><code>F9</code> marca la siguiente medalla · <code>Mayús</code>+<code>F9</code> desmarca la última</p>
+      <p class="nota" style="margin: 10px 0 0;">Las muertes se cuentan solas. Para volver a la biblioteca, cierra el juego (Esc sale de la pantalla completa).</p>
     </div>
   </section>
 </main>
@@ -241,7 +228,6 @@
 <div id="tarea" role="status"><div class="rueda" aria-hidden="true"></div><p id="tarea-texto"></p><button class="gris" id="b-cerrar-tarea" hidden>Cerrar</button></div>
 
 <script>
-const MEDALLAS = ['Insecto', 'Muro', 'Lucha', 'Planta', 'Voltio', 'Hada', 'Psique', 'Iceberg'];
 const $ = (id) => document.getElementById(id);
 const esc = (t) => String(t).replace(/[&<>"]/g, (c) => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;'}[c]));
 let ultimo = null, preparando = null, pintadoJuegos = '', errorCerrado = null;
@@ -299,16 +285,10 @@ function pintar(e) {
   if (e.jugando && e.activo) {
     preparando = null;
     vista('partida');
-    $('j-nombre').textContent = e.activo.nombre;
+    $('j-nombre').textContent = `${e.activo.nombre} · ${e.activo.vidas}/${e.activo.vidas_iniciales} vidas`;
     const c = $('e-conexion');
     c.className = 'estado ' + (e.conectado ? 'si' : 'no');
     c.textContent = e.conectado ? 'Leyendo el juego' : 'Esperando al juego…';
-    $('vidas').textContent = `${e.activo.vidas}/${e.activo.vidas_iniciales}`;
-    $('medallas').innerHTML = MEDALLAS.map((m, i) =>
-      `<button class="${e.activo.medallas[i] ? 'ganada' : ''}" data-i="${i}" aria-pressed="${e.activo.medallas[i]}"><img src="/assets/medalla-${i + 1}.png" alt="">${m}</button>`).join('');
-    $('equipo').innerHTML = e.equipo.map((p) => p
-      ? `<div><img src="/arte/${p.especie}" alt="" onerror="this.style.display='none'"><br><strong>${esc(p.huevo ? 'Huevo' : p.mote)}</strong><br>Nv. ${p.nivel} · ${p.ps}/${p.psmax} PS${p.muerto ? '<br><span style="color: var(--rojo);">Muerto</span>' : ''}</div>`
-      : '<div class="nota">Vacío</div>').join('');
     return;
   }
   if (preparando) { vista('preparar'); return; }
@@ -359,12 +339,6 @@ $('b-continuar').onclick = () => api('/api/preparar', {
   opciones: opciones(), avanzado: $('p-avanzado').checked,
 });
 $('b-cerrar-tarea').onclick = () => { errorCerrado = ultimo.tarea.mensaje; $('tarea').className = ''; };
-$('b-menos').onclick = () => api('/api/vidas', {delta: -1});
-$('b-mas').onclick = () => api('/api/vidas', {delta: 1});
-$('medallas').onclick = (ev) => {
-  const b = ev.target.closest('button');
-  if (b) api('/api/medalla', {i: b.dataset.i, valor: !ultimo.activo.medallas[b.dataset.i]});
-};
 actualizar();
 setInterval(actualizar, 1000);
 </script>

@@ -27,8 +27,9 @@ se descargan en versión portable dentro de `tools/`.
 4. Se abre Azahar a pantalla completa con **las dos pantallas ya colocadas en los huecos del
    layout**, y el layout encima. El layout no coge el foco: el teclado va al juego y la pantalla
    táctil se puede pulsar a través del hueco. Al cerrar Azahar se cierra el layout.
-5. Mientras juegas, la ventana de la biblioteca muestra el panel de la partida, con las vidas
-   (− y + para corregir) y las medallas (clic para marcar).
+5. Mientras juegas, corrige el locke con el teclado, sin salir del juego:
+   **F7** quita una vida, **F8** añade una, **F9** marca la siguiente medalla y **Mayús+F9**
+   desmarca la última. Los atajos solo están activos con un juego abierto.
 6. Para el stream, captura la pantalla completa en OBS. Si prefieres montar tú las capturas, el
    overlay está en `http://localhost:8765/overlay` (fuente de navegador, 1920×1080) y los huecos son:
 
@@ -48,7 +49,7 @@ colocan a la misma escala.
 - **Equipo**: se lee de la memoria del juego cada segundo, mediante el servidor RPC de Azahar,
   que la app activa. Los huecos vacíos salen en negro.
 - **Vidas**: cada Pokémon que llega a 0 PS resta una vida, una sola vez aunque luego lo revivas.
-- **Medallas**: de momento se marcan a mano en el panel de la partida. Falta localizar en memoria
+- **Medallas**: de momento se marcan con F9 (Mayús+F9 para desmarcar). Falta localizar en memoria
   dónde guarda el juego las medallas.
 
 ## Arte del equipo
