@@ -1,2 +1,8 @@
 assets/equipo-*.jpg
 assets/equipo-*.png
+# todo lo que genera o descarga el lanzador se queda en el PC
+tools/
+rom/
+datos/
+fanart/
+__pycache__/

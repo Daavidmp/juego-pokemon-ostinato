@@ -1,0 +1,313 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pokelocke · lanzador</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bungee&family=Rubik:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root { --fondo: #0b1230; --panel: #141d45; --borde: #2a3566; --texto: #eef1fb; --suave: #aeb7dc; --azul: #3b8bff; --rojo: #ff3b55; --ok: #3ddc84; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--fondo); color: var(--texto); font: 15px/1.5 Rubik, system-ui, sans-serif; }
+  main { max-width: 980px; margin: 0 auto; padding: 28px 16px 60px; display: flex; flex-direction: column; gap: 20px; }
+  h1 { margin: 0; font: 34px/1 Bungee, sans-serif; }
+  h1 span { color: var(--rojo); }
+  h2 { margin: 0 0 12px; font: 18px/1.2 Bungee, sans-serif; letter-spacing: .5px; }
+  section { background: var(--panel); border: 1px solid var(--borde); border-radius: 18px 6px 18px 6px; padding: 18px 20px; }
+  .fila { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+  .rejilla { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px 18px; }
+  label { display: flex; flex-direction: column; gap: 4px; font-weight: 500; }
+  label.check { flex-direction: row; align-items: center; gap: 8px; font-weight: 400; }
+  select, input[type=number] { font: inherit; color: var(--texto); background: var(--fondo); border: 1px solid var(--borde); border-radius: 8px; padding: 8px 10px; min-height: 40px; }
+  button { font: 700 15px Rubik, sans-serif; color: #fff; background: var(--azul); border: 0; border-radius: 10px; padding: 10px 16px; min-height: 44px; cursor: pointer; }
+  button.rojo { background: var(--rojo); }
+  button.gris { background: #2a3566; }
+  button:disabled { opacity: .45; cursor: not-allowed; }
+  .estado { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 999px; background: var(--fondo); font-size: 14px; }
+  .si::before { content: '●'; color: var(--ok); }
+  .no::before { content: '●'; color: var(--rojo); }
+  .nota { color: var(--suave); font-size: 14px; margin: 6px 0 0; }
+  code { background: var(--fondo); padding: 1px 6px; border-radius: 6px; }
+  #tarea { position: sticky; top: 0; z-index: 2; padding: 10px 14px; border-radius: 10px; background: #1d2a63; display: none; }
+  #tarea.error { background: #5c1424; }
+  .medallas { display: grid; grid-template-columns: repeat(8, minmax(0, 1fr)); gap: 8px; }
+  .medallas button { background: var(--fondo); border: 2px solid var(--borde); padding: 6px; display: flex; flex-direction: column; align-items: center; gap: 4px; font-weight: 500; font-size: 12px; }
+  .medallas button.ganada { border-color: #ffcb05; }
+  .medallas img { width: 40px; height: 40px; object-fit: contain; }
+  .medallas button:not(.ganada) img { filter: grayscale(1) brightness(.5); }
+  .equipo { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 8px; }
+  .equipo div { background: var(--fondo); border: 1px solid var(--borde); border-radius: 10px; padding: 8px; text-align: center; font-size: 13px; min-height: 110px; }
+  .equipo img { width: 64px; height: 64px; object-fit: contain; }
+  .vidas { font: 44px/1 Bungee, sans-serif; min-width: 90px; text-align: center; }
+  @media (max-width: 640px) { .medallas, .equipo { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+</style>
+</head>
+<body>
+<main>
+  <h1>MEGA POKELOCKE <span>Y</span></h1>
+  <div id="tarea" role="status"></div>
+
+  <section>
+    <h2>1 · Preparación</h2>
+    <div class="fila">
+      <span class="estado" id="e-java">Java</span>
+      <span class="estado" id="e-azahar">Azahar</span>
+      <button class="gris" id="b-azahar">Descargar Azahar</button>
+      <span class="estado" id="e-upr">Randomizador</span>
+      <button class="gris" id="b-upr">Descargar randomizador</button>
+    </div>
+    <div class="fila" style="margin-top: 12px;">
+      <label style="flex: 1; min-width: 260px;">ROM de Pokémon Y (descifrada)
+        <select id="rom"></select>
+      </label>
+    </div>
+    <p class="nota">Pon tu ROM descifrada (<code>.3ds</code>, <code>.cci</code>, <code>.cxi</code> o <code>.cia</code>) en la carpeta <code>locke-y/rom/</code>. Azahar y el randomizador se descargan dentro de <code>locke-y/tools/</code>: no se instala nada en el PC.</p>
+  </section>
+
+  <section>
+    <h2>2 · Randomización</h2>
+    <form id="opciones" class="rejilla">
+      <label>Pokémon salvajes
+        <select name="wildPokemonMod">
+          <option value="UNCHANGED">Sin cambios</option>
+          <option value="RANDOM">Aleatorios en cada encuentro</option>
+          <option value="AREA_MAPPING" selected>Aleatorios por zona</option>
+          <option value="GLOBAL_MAPPING">Cambio 1 por 1 en todo el juego</option>
+        </select>
+      </label>
+      <label>Qué salvajes salen
+        <select name="wildPokemonRestrictionMod">
+          <option value="NONE">Cualquiera</option>
+          <option value="SIMILAR_STRENGTH" selected>De fuerza parecida al original</option>
+          <option value="TYPE_THEME_AREAS">Cada zona de un tipo</option>
+        </select>
+      </label>
+      <label>Iniciales
+        <select name="startersMod">
+          <option value="UNCHANGED">Sin cambios</option>
+          <option value="COMPLETELY_RANDOM">Totalmente aleatorios</option>
+          <option value="RANDOM_WITH_TWO_EVOLUTIONS" selected>Aleatorios con dos evoluciones</option>
+        </select>
+      </label>
+      <label>Legendarios y Pokémon de regalo
+        <select name="staticPokemonMod">
+          <option value="UNCHANGED">Sin cambios</option>
+          <option value="RANDOM_MATCHING" selected>Aleatorios (legendario por legendario)</option>
+          <option value="SIMILAR_STRENGTH">Aleatorios de fuerza parecida</option>
+          <option value="COMPLETELY_RANDOM">Totalmente aleatorios</option>
+        </select>
+      </label>
+      <label>Entrenadores
+        <select name="trainersMod">
+          <option value="UNCHANGED">Sin cambios</option>
+          <option value="RANDOM" selected>Equipos aleatorios</option>
+          <option value="DISTRIBUTED">Aleatorios y repartidos</option>
+          <option value="TYPE_THEMED">Cada entrenador de un tipo</option>
+          <option value="TYPE_THEMED_ELITE4_GYMS">Solo gimnasios y Alto Mando de un tipo</option>
+        </select>
+      </label>
+      <label>Nivel de los entrenadores (%)
+        <input type="number" name="trainersLevelModifier" value="0" min="-50" max="50" step="5">
+      </label>
+      <label>Tipos
+        <select name="typesMod">
+          <option value="UNCHANGED" selected>Sin cambios</option>
+          <option value="RANDOM_FOLLOW_EVOLUTIONS">Aleatorios (siguen la evolución)</option>
+          <option value="COMPLETELY_RANDOM">Totalmente aleatorios</option>
+        </select>
+      </label>
+      <label>Habilidades
+        <select name="abilitiesMod">
+          <option value="UNCHANGED" selected>Sin cambios</option>
+          <option value="RANDOMIZE">Aleatorias</option>
+        </select>
+      </label>
+      <label>Estadísticas base
+        <select name="baseStatisticsMod">
+          <option value="UNCHANGED" selected>Sin cambios</option>
+          <option value="SHUFFLE">Barajadas</option>
+          <option value="RANDOM">Aleatorias</option>
+        </select>
+      </label>
+      <label>Evoluciones
+        <select name="evolutionsMod">
+          <option value="UNCHANGED" selected>Sin cambios</option>
+          <option value="RANDOM">Aleatorias</option>
+          <option value="RANDOM_EVERY_LEVEL">Evoluciona en cada nivel</option>
+        </select>
+      </label>
+      <label>Movimientos que aprenden
+        <select name="movesetsMod">
+          <option value="UNCHANGED" selected>Sin cambios</option>
+          <option value="RANDOM_PREFER_SAME_TYPE">Aleatorios (mejor de su tipo)</option>
+          <option value="COMPLETELY_RANDOM">Totalmente aleatorios</option>
+          <option value="METRONOME_ONLY">Solo Metrónomo</option>
+        </select>
+      </label>
+      <label>Objetos del suelo
+        <select name="fieldItemsMod">
+          <option value="UNCHANGED" selected>Sin cambios</option>
+          <option value="SHUFFLE">Barajados</option>
+          <option value="RANDOM">Aleatorios</option>
+          <option value="RANDOM_EVEN">Aleatorios equilibrados</option>
+        </select>
+      </label>
+      <label>Intercambios del juego
+        <select name="inGameTradesMod">
+          <option value="UNCHANGED" selected>Sin cambios</option>
+          <option value="RANDOMIZE_GIVEN">Aleatorio lo que te dan</option>
+          <option value="RANDOMIZE_GIVEN_AND_REQUESTED">Aleatorio lo que te dan y lo que piden</option>
+        </select>
+      </label>
+      <label>Ratio de captura mínimo
+        <select name="minimumCatchRateLevel">
+          <option value="0" selected>Normal</option>
+          <option value="1">Un poco más fácil</option>
+          <option value="2">Más fácil</option>
+          <option value="3">Mucho más fácil</option>
+          <option value="4">Captura asegurada</option>
+        </select>
+      </label>
+      <label class="check"><input type="checkbox" name="blockWildLegendaries" checked> Sin legendarios salvajes</label>
+      <label class="check"><input type="checkbox" name="trainersUsePokemonOfSimilarStrength" checked> Entrenadores con Pokémon de fuerza parecida</label>
+    </form>
+    <div class="fila" style="margin-top: 16px;">
+      <button id="b-random">Randomizar</button>
+      <button class="gris" id="b-quitar">Jugar sin randomizar</button>
+      <button class="gris" id="b-upr-completo">Opciones avanzadas (UPR completo)</button>
+      <label class="check"><input type="checkbox" id="avanzado"> Usar los ajustes avanzados</label>
+    </div>
+    <p class="nota" id="random-actual"></p>
+    <p class="nota">Opciones avanzadas: se abre el Universal Pokemon Randomizer. Configúralo, guarda los ajustes con <em>Save Settings</em> en <code>locke-y/datos/avanzado.rnqs</code>, marca «Usar los ajustes avanzados» y pulsa Randomizar. El registro de la randomización queda en <code>datos/randomizacion.log</code>.</p>
+  </section>
+
+  <section>
+    <h2>3 · Locke</h2>
+    <div class="fila">
+      <label>Vidas al empezar <input type="number" id="vidas-iniciales" value="25" min="1" max="99"></label>
+      <button class="rojo" id="b-nuevo">Empezar un locke nuevo</button>
+      <button id="b-jugar">Jugar</button>
+    </div>
+    <p class="nota">«Empezar un locke nuevo» pone las vidas, borra las muertes y las medallas. Para seguir una partida otro día, pulsa solo «Jugar».</p>
+  </section>
+
+  <section>
+    <h2>4 · En partida</h2>
+    <div class="fila">
+      <span class="estado" id="e-conexion">Juego</span>
+      <span class="nota" style="margin: 0;">Overlay para OBS (fuente de navegador, 1920×1080): <code>http://localhost:8765/overlay</code></span>
+    </div>
+    <div class="fila" style="margin-top: 14px;">
+      <button class="gris" id="b-menos" aria-label="Quitar una vida">−</button>
+      <div class="vidas" id="vidas">–</div>
+      <button class="gris" id="b-mas" aria-label="Añadir una vida">+</button>
+      <span class="nota" style="margin: 0;">Las muertes se cuentan solas: un Pokémon del equipo a 0 PS resta una vida. Usa − y + para corregir a mano.</span>
+    </div>
+    <h2 style="margin-top: 18px;">Medallas</h2>
+    <div class="medallas" id="medallas"></div>
+    <p class="nota">Pulsa una medalla para marcarla o desmarcarla. El líder sale en color en el overlay.</p>
+    <h2 style="margin-top: 18px;">Equipo</h2>
+    <div class="equipo" id="equipo"></div>
+  </section>
+</main>
+
+<script>
+const MEDALLAS = ['Insecto', 'Muro', 'Lucha', 'Planta', 'Voltio', 'Hada', 'Psique', 'Iceberg'];
+const $ = (id) => document.getElementById(id);
+const esc = (t) => String(t).replace(/[&<>"]/g, (c) => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;'}[c]));
+let ultimo = null;
+
+async function api(ruta, datos) {
+  const r = await fetch(ruta, {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(datos || {})});
+  const j = await r.json();
+  if (j.error) alert(j.error);
+  actualizar();
+  return j;
+}
+
+function opciones() {
+  const f = $('opciones');
+  const o = {};
+  for (const el of f.elements) {
+    if (!el.name) continue;
+    o[el.name] = el.type === 'checkbox' ? String(el.checked) : el.value;
+  }
+  o.trainersLevelModified = String(Number(o.trainersLevelModifier) !== 0);
+  o.useMinimumCatchRate = String(Number(o.minimumCatchRateLevel) > 0);
+  if (o.useMinimumCatchRate === 'false') o.minimumCatchRateLevel = '1';
+  return o;
+}
+
+function marca(id, ok, texto) {
+  const el = $(id);
+  el.className = 'estado ' + (ok ? 'si' : 'no');
+  el.textContent = texto;
+}
+
+function pintar(e) {
+  ultimo = e;
+  const h = e.herramientas;
+  marca('e-java', !!h.java, h.java ? 'Java listo' : 'Falta Java');
+  marca('e-azahar', h.azahar, h.azahar ? 'Azahar listo' : 'Falta Azahar');
+  marca('e-upr', h.upr, h.upr ? 'Randomizador listo' : 'Falta el randomizador');
+  $('b-azahar').textContent = h.azahar ? 'Actualizar Azahar' : 'Descargar Azahar';
+  $('b-upr').textContent = h.upr ? 'Actualizar randomizador' : 'Descargar randomizador';
+
+  const sel = $('rom');
+  const actual = sel.value;
+  if (sel.dataset.lista !== h.roms.join('|')) {
+    sel.dataset.lista = h.roms.join('|');
+    sel.innerHTML = h.roms.length ? h.roms.map((r) => `<option>${esc(r)}</option>`).join('') : '<option value="">No hay ninguna ROM en locke-y/rom/</option>';
+    if (h.roms.includes(actual)) sel.value = actual;
+  }
+  const hayRom = h.roms.length > 0;
+  const ocupado = e.tarea && !e.tarea.fin;
+  $('b-random').disabled = !(hayRom && h.upr && h.azahar && h.java) || ocupado;
+  $('b-upr-completo').disabled = !(h.upr && h.java);
+  $('b-quitar').disabled = !h.azahar;
+  $('b-jugar').disabled = !(hayRom && h.azahar);
+  $('avanzado').disabled = !h.avanzado;
+
+  $('random-actual').textContent = e.random
+    ? `Randomización activa: ${e.random.avanzado ? 'ajustes avanzados' : 'menú propio'} · ${e.random.rom} · ${e.random.fecha}`
+    : 'Sin randomización: se jugará el juego original.';
+
+  const t = $('tarea');
+  t.style.display = e.tarea ? 'block' : 'none';
+  if (e.tarea) { t.textContent = e.tarea.mensaje; t.className = e.tarea.error ? 'error' : ''; }
+
+  marca('e-conexion', e.conectado, e.conectado ? 'Conectado al juego' : 'Juego no conectado');
+  $('vidas').textContent = `${e.vidas}/${e.vidas_iniciales}`;
+  $('medallas').innerHTML = MEDALLAS.map((m, i) =>
+    `<button class="${e.medallas[i] ? 'ganada' : ''}" data-i="${i}" aria-pressed="${e.medallas[i]}"><img src="/assets/medalla-${i + 1}.png" alt="">${m}</button>`).join('');
+  $('equipo').innerHTML = e.equipo.map((p) => p
+    ? `<div><img src="/arte/${p.especie}" alt="" onerror="this.style.display='none'"><br><strong>${esc(p.huevo ? 'Huevo' : p.mote)}</strong><br>Nv. ${p.nivel} · ${p.ps}/${p.psmax} PS${p.muerto ? '<br><span style="color: var(--rojo);">Muerto</span>' : ''}</div>`
+    : '<div class="nota">Vacío</div>').join('');
+}
+
+async function actualizar() {
+  try { pintar(await (await fetch('/api/estado')).json()); }
+  catch (err) { $('tarea').style.display = 'block'; $('tarea').className = 'error'; $('tarea').textContent = 'El lanzador está cerrado: vuelve a abrir Pokelocke.bat'; }
+}
+
+$('b-azahar').onclick = () => api('/api/descargar', {que: 'azahar'});
+$('b-upr').onclick = () => api('/api/descargar', {que: 'upr'});
+$('b-random').onclick = () => api('/api/randomizar', {rom: $('rom').value, opciones: opciones(), avanzado: $('avanzado').checked});
+$('b-quitar').onclick = () => api('/api/quitar_random');
+$('b-upr-completo').onclick = () => api('/api/upr_completo');
+$('b-jugar').onclick = () => api('/api/jugar', {rom: $('rom').value});
+$('b-nuevo').onclick = () => {
+  if (confirm('¿Empezar un locke nuevo? Se borran las muertes y las medallas.')) api('/api/nuevo', {vidas: $('vidas-iniciales').value});
+};
+$('b-menos').onclick = () => api('/api/vidas', {delta: -1});
+$('b-mas').onclick = () => api('/api/vidas', {delta: 1});
+$('medallas').onclick = (ev) => {
+  const b = ev.target.closest('button');
+  if (b) api('/api/medalla', {i: b.dataset.i, valor: !ultimo.medallas[b.dataset.i]});
+};
+actualizar();
+setInterval(actualizar, 1000);
+</script>
+</body>
+</html>
