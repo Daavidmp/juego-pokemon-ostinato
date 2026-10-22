@@ -1,39 +1,52 @@
-"""Pokelocke: lanzador del juego, seguimiento del locke y overlay para OBS.
+"""Pokelocke: biblioteca de juegos, randomizador, Azahar con el layout del stream y seguimiento del locke.
 
 Todo vive dentro de locke-y/ y no se instala nada en el sistema:
-  tools/   Azahar portable, Universal Pokemon Randomizer ZX y caché de arte (no se sube a git)
-  rom/     tu ROM descifrada de Pokémon Y (no se sube a git)
-  datos/   partida del locke, ajustes y log de la randomización (no se sube a git)
+  tools/   Azahar portable, Universal Pokemon Randomizer ZX, perfil de Edge, caché de arte (no se sube a git)
+  datos/   biblioteca, lockes, ajustes y mods randomizados de cada juego (no se sube a git)
   fanart/  arte propio por especie: 658.png, 658.jpg... (no se sube a git)
-Arranque: Pokelocke.bat  →  lanzador en http://localhost:8765, overlay en /overlay
+
+Pokelocke.exe (o Pokelocke.bat) abre la biblioteca. Con --capa abre solo la capa del layout
+que va encima de Azahar mientras se juega.
 """
 import configparser
+import ctypes
+import hashlib
 import json
 import os
 import re
 import shutil
 import subprocess
+import sys
 import threading
 import time
 import traceback
 import urllib.request
-import webbrowser
 import zipfile
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 
 import juego
 
-RAIZ = Path(__file__).resolve().parent.parent
+if getattr(sys, 'frozen', False):          # Pokelocke.exe, junto a app/ dentro de locke-y/
+    RAIZ = Path(sys.executable).resolve().parent
+else:
+    RAIZ = Path(__file__).resolve().parent.parent
 APP, WEB, ASSETS = RAIZ / 'app', RAIZ / 'app' / 'web', RAIZ / 'assets'
-TOOLS, ROMS, DATOS, FANART = RAIZ / 'tools', RAIZ / 'rom', RAIZ / 'datos', RAIZ / 'fanart'
+TOOLS, DATOS, FANART = RAIZ / 'tools', RAIZ / 'datos', RAIZ / 'fanart'
 CACHE_ARTE = TOOLS / 'arte'
-ESTADO = DATOS / 'estado.json'
+CAPA_PNG = TOOLS / 'capa.png'
+BIBLIOTECA = DATOS / 'biblioteca.json'
 PUERTO = 8765
+URL = f'http://127.0.0.1:{PUERTO}'
 TITLE_Y = '0004000000055E00'
 ARTE_URL = 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/{}.png'
+CLAVE = '#ff00ff'                      # color de los huecos de la capa: Windows lo vuelve transparente
 
-# campos de Settings que el menú puede tocar (el resto queda como en el UPR por defecto)
+# huecos del layout de 1920×1080 (x, y, ancho, alto)
+HUECO_ARRIBA = (72, 244, 1000, 600)
+HUECO_ABAJO = (1168, 530, 680, 510)
+
+# campos de Settings del UPR que el menú puede tocar (el resto queda como en el UPR por defecto)
 OPCIONES = {
     'wildPokemonMod', 'wildPokemonRestrictionMod', 'blockWildLegendaries', 'useMinimumCatchRate',
     'minimumCatchRateLevel', 'wildLevelsModified', 'wildLevelModifier', 'startersMod',
@@ -44,23 +57,41 @@ OPCIONES = {
 }
 
 lock = threading.Lock()
-estado = {'vidas_iniciales': 25, 'ajuste_vidas': 0, 'muertos': [], 'medallas': [False] * 8,
-          'random': None}
-vivo = {'equipo': [None] * 6, 'conectado': False, 'tarea': None}   # no se guarda en disco
+biblio = {'juegos': []}
+vivo = {'equipo': [None] * 6, 'conectado': False, 'tarea': None, 'activo': None,
+        'proceso': None, 'capa': 0}                          # no se guarda en disco
 
+
+# ---------- biblioteca y lockes ----------
 
 def guardar():
     DATOS.mkdir(exist_ok=True)
-    ESTADO.write_text(json.dumps(estado, indent=2, ensure_ascii=False), encoding='utf-8')
+    BIBLIOTECA.write_text(json.dumps(biblio, indent=2, ensure_ascii=False), encoding='utf-8')
 
 
 def cargar():
-    if ESTADO.exists():
-        estado.update(json.loads(ESTADO.read_text(encoding='utf-8')))
+    if BIBLIOTECA.exists():
+        biblio.update(json.loads(BIBLIOTECA.read_text(encoding='utf-8')))
 
 
-def vidas():
-    return max(0, estado['vidas_iniciales'] + estado['ajuste_vidas'] - len(estado['muertos']))
+def buscar(id_juego):
+    j = next((j for j in biblio['juegos'] if j['id'] == id_juego), None)
+    if not j:
+        raise RuntimeError('Ese juego ya no está en la biblioteca')
+    return j
+
+
+def nuevo_locke(j, vidas):
+    j.update(vidas_iniciales=int(vidas), ajuste_vidas=0, muertos=[], medallas=[False] * 8)
+
+
+def vidas(j):
+    return max(0, j['vidas_iniciales'] + j['ajuste_vidas'] - len(j['muertos']))
+
+
+def jugando():
+    p = vivo['proceso']
+    return p is not None and p.poll() is None
 
 
 # ---------- herramientas portables ----------
@@ -76,6 +107,14 @@ def java():
     return shutil.which('java')
 
 
+def navegador():
+    for base in (os.environ.get('ProgramFiles(x86)'), os.environ.get('ProgramFiles'), os.environ.get('LOCALAPPDATA')):
+        for rel in (r'Microsoft\Edge\Application\msedge.exe', r'Google\Chrome\Application\chrome.exe'):
+            if base and (Path(base) / rel).exists():
+                return str(Path(base) / rel)
+    return None
+
+
 def azahar_exe():
     return next((TOOLS / 'azahar').rglob('azahar.exe'), None) if (TOOLS / 'azahar').exists() else None
 
@@ -84,8 +123,17 @@ def upr_jar():
     return next((TOOLS / 'upr').rglob('PokeRandoZX.jar'), None) if (TOOLS / 'upr').exists() else None
 
 
-def roms():
-    return sorted(p.name for p in ROMS.glob('*') if p.suffix.lower() in ('.3ds', '.cci', '.cxi', '.cia'))
+def pantalla():
+    """Resolución física del monitor principal."""
+    u = ctypes.windll.user32
+    return u.GetSystemMetrics(0), u.GetSystemMetrics(1)
+
+
+def encaje():
+    """Escala y desplazamiento del layout 1920×1080 dentro del monitor."""
+    w, h = pantalla()
+    s = min(w / 1920, h / 1080)
+    return s, round((w - 1920 * s) / 2), round((h - 1080 * s) / 2)
 
 
 def tarea(mensaje, error=False, fin=False):
@@ -116,8 +164,18 @@ def descargar(repo, patron, destino, nombre):
         zip_tmp.unlink(missing_ok=True)
 
 
-def preparar_azahar():
-    """Modo portable (carpeta user/ junto al exe) y servidor RPC activado."""
+def herramientas():
+    if not java():
+        raise RuntimeError('No encuentro Java 11 o superior (ni en JAVA_HOME, ni en .jdks, ni en el PATH)')
+    if not azahar_exe():
+        descargar('azahar-emu/azahar', r'azahar-windows-msvc-[\d.]+\.zip', TOOLS / 'azahar', 'Azahar')
+    if not upr_jar():
+        descargar('Ajarmar/universal-pokemon-randomizer-zx', r'PokeRandoZX-.*\.zip', TOOLS / 'upr',
+                  'el randomizador')
+
+
+def configurar_azahar():
+    """Modo portable, servidor RPC y pantallas colocadas en los huecos del layout."""
     exe = azahar_exe()
     cfg = exe.parent / 'user' / 'config' / 'qt-config.ini'
     cfg.parent.mkdir(parents=True, exist_ok=True)
@@ -125,10 +183,21 @@ def preparar_azahar():
     ini.optionxform = str
     if cfg.exists():
         ini.read(cfg, encoding='utf-8')
-    if not ini.has_section('Debugging'):
-        ini.add_section('Debugging')
-    ini.set('Debugging', 'enable_rpc_server\\default', 'false')
-    ini.set('Debugging', 'enable_rpc_server', 'true')
+
+    def poner(grupo, clave, valor):
+        if not ini.has_section(grupo):
+            ini.add_section(grupo)
+        ini.set(grupo, clave + '\\default', 'false')
+        ini.set(grupo, clave, str(valor))
+
+    poner('Debugging', 'enable_rpc_server', 'true')
+    poner('Layout', 'layout_option', 6)                  # LayoutOption::CustomLayout
+    s, ox, oy = encaje()
+    for nombre, (x, y, w, h) in (('top', HUECO_ARRIBA), ('bottom', HUECO_ABAJO)):
+        poner('Layout', f'custom_{nombre}_x', ox + round(x * s))
+        poner('Layout', f'custom_{nombre}_y', oy + round(y * s))
+        poner('Layout', f'custom_{nombre}_width', round(w * s))
+        poner('Layout', f'custom_{nombre}_height', round(h * s))
     with open(cfg, 'w', encoding='utf-8') as f:
         ini.write(f, space_around_delimiters=False)
     return exe
@@ -139,16 +208,17 @@ def carpeta_mods():
 
 
 def correr(args, cwd):
-    r = subprocess.run(args, cwd=cwd, capture_output=True, text=True)
+    r = subprocess.run(args, cwd=cwd, capture_output=True, text=True, creationflags=0x08000000)
     if r.returncode != 0:
         raise RuntimeError((r.stderr or r.stdout).strip()[-1500:])
     return r.stdout
 
 
-def randomizar(rom, opciones, avanzado):
+def randomizar(j, opciones, avanzado):
     jar, jv = upr_jar(), java()
-    ajustes = DATOS / ('avanzado.rnqs' if avanzado else 'ajustes.rnqs')
-    DATOS.mkdir(exist_ok=True)
+    carpeta = DATOS / 'juegos' / j['id']
+    carpeta.mkdir(parents=True, exist_ok=True)
+    ajustes = DATOS / 'avanzado.rnqs' if avanzado else carpeta / 'ajustes.rnqs'
     if avanzado:
         if not ajustes.exists():
             raise RuntimeError('Guarda antes los ajustes del UPR completo en datos/avanzado.rnqs')
@@ -163,19 +233,37 @@ def randomizar(rom, opciones, avanzado):
     shutil.rmtree(salida, ignore_errors=True)
     salida.mkdir(parents=True)
     tarea('Randomizando el juego… (puede tardar un par de minutos)')
-    correr([jv, '-jar', str(jar), 'cli', '-i', str(ROMS / rom), '-o', str(salida / 'y'),
+    correr([jv, '-jar', str(jar), 'cli', '-i', j['ruta'], '-o', str(salida / 'y'),
             '-s', str(ajustes), '-d', '-l'], jar.parent)
     romfs = next(salida.rglob('romfs'))
     titulo = romfs.parent.name if re.fullmatch(r'[0-9A-Fa-f]{16}', romfs.parent.name) else TITLE_Y
-    destino = carpeta_mods() / titulo
-    shutil.rmtree(destino, ignore_errors=True)
-    shutil.copytree(romfs.parent, destino)
+    mod = carpeta / 'mod'
+    shutil.rmtree(mod, ignore_errors=True)
+    shutil.copytree(romfs.parent, mod / titulo)
     for log in salida.rglob('*.log'):
-        shutil.copy(log, DATOS / 'randomizacion.log')
-    with lock:
-        estado['random'] = {'rom': rom, 'avanzado': avanzado, 'opciones': opciones,
-                            'fecha': time.strftime('%Y-%m-%d %H:%M')}
-        guardar()
+        shutil.copy(log, carpeta / 'randomizacion.log')
+    shutil.rmtree(salida, ignore_errors=True)
+    j['random'] = {'avanzado': avanzado, 'opciones': opciones, 'fecha': time.strftime('%Y-%m-%d %H:%M')}
+
+
+def lanzar(j):
+    """Pone el mod del juego (o ninguno), abre Azahar a pantalla completa y la capa del layout encima."""
+    if jugando():
+        raise RuntimeError('Ya hay un juego abierto')
+    if not Path(j['ruta']).exists():
+        raise RuntimeError(f'No encuentro la ROM: {j["ruta"]}')
+    exe = configurar_azahar()
+    mods = carpeta_mods()
+    shutil.rmtree(mods, ignore_errors=True)
+    mods.mkdir(parents=True)
+    mod = DATOS / 'juegos' / j['id'] / 'mod'
+    if j.get('random') and mod.exists():
+        shutil.copytree(mod, mods, dirs_exist_ok=True)
+    vivo.update(activo=j['id'], equipo=[None] * 6, conectado=False)
+    vivo['proceso'] = subprocess.Popen([str(exe), '-f', j['ruta']])
+    yo = [sys.executable] if getattr(sys, 'frozen', False) else [sys.executable, str(Path(__file__))]
+    subprocess.Popen(yo + ['--capa'])
+    renderizar_capa()
 
 
 def en_segundo_plano(nombre, fn, *args):
@@ -193,35 +281,104 @@ def en_segundo_plano(nombre, fn, *args):
     threading.Thread(target=envoltura, daemon=True).start()
 
 
+def preparar(j, opciones, vidas_ini, randomizar_juego, avanzado):
+    herramientas()
+    if randomizar_juego:
+        randomizar(j, opciones, avanzado)
+    else:
+        j['random'] = None
+    with lock:
+        nuevo_locke(j, vidas_ini)
+        j['preparado'] = True
+        guardar()
+    tarea('Abriendo el juego…')
+    lanzar(j)
+
+
 # ---------- seguimiento del locke ----------
 
 def seguimiento():
     rpc = juego.RPC()
     while True:
-        try:
-            equipo = juego.leer_equipo(rpc)
-            with lock:
-                vivo['conectado'] = True
-                vivo['equipo'] = equipo
-                for p in equipo:
-                    # un Pokémon a 0 PS cuenta como muerto una sola vez, aunque luego lo revivan
-                    if p and not p['huevo'] and p['psmax'] and p['ps'] == 0 and p['id'] not in estado['muertos']:
-                        estado['muertos'].append(p['id'])
-                        guardar()
-        except (OSError, TimeoutError):
+        if jugando():
+            try:
+                equipo = juego.leer_equipo(rpc)
+                with lock:
+                    vivo['conectado'] = True
+                    vivo['equipo'] = equipo
+                    j = buscar(vivo['activo'])
+                    for p in equipo:
+                        # un Pokémon a 0 PS cuenta como muerto una sola vez, aunque luego lo revivan
+                        if p and not p['huevo'] and p['psmax'] and p['ps'] == 0 and p['id'] not in j['muertos']:
+                            j['muertos'].append(p['id'])
+                            guardar()
+            except (OSError, TimeoutError, RuntimeError):
+                vivo['conectado'] = False
+        else:
             vivo['conectado'] = False
+        time.sleep(1)
+
+
+def huella_capa():
+    """Lo que se ve en la capa: si cambia, hay que volver a pintarla."""
+    e = foto_estado()
+    a = e['activo']
+    return json.dumps([a and [a['vidas'], a['vidas_iniciales'], a['medallas']], e['equipo']], sort_keys=True)
+
+
+def renderizar_capa():
+    """Pinta /overlay?capa=1 a la resolución del monitor con el navegador sin ventana."""
+    nav = navegador()
+    if not nav:
+        return
+    s, _, _ = encaje()
+    CAPA_PNG.parent.mkdir(exist_ok=True)
+    tmp = TOOLS / 'capa-nueva.png'
+    subprocess.run([nav, '--headless=new', '--disable-gpu', '--hide-scrollbars',
+                    f'--user-data-dir={TOOLS / "edge-capa"}', f'--force-device-scale-factor={s}',
+                    f'--window-size={round(1920 * s)},{round(1080 * s)}', '--virtual-time-budget=4000',
+                    f'--screenshot={tmp}', f'{URL}/overlay?capa=1'],
+                   capture_output=True, creationflags=0x08000000, timeout=60)
+    if tmp.exists():
+        tmp.replace(CAPA_PNG)
+        vivo['capa'] += 1
+
+
+def pintor_capa():
+    ultima = None
+    while True:
+        if jugando():
+            huella = huella_capa()
+            if huella != ultima:
+                ultima = huella
+                try:
+                    renderizar_capa()
+                except Exception:
+                    traceback.print_exc()
+        else:
+            ultima = None
         time.sleep(1)
 
 
 def foto_estado():
     with lock:
+        activo = None
+        if vivo['activo'] and any(j['id'] == vivo['activo'] for j in biblio['juegos']):
+            j = buscar(vivo['activo'])
+            activo = {'id': j['id'], 'nombre': j['nombre'], 'vidas': vidas(j),
+                      'vidas_iniciales': j['vidas_iniciales'] + j['ajuste_vidas'], 'medallas': j['medallas']}
+            muertos = j['muertos']
+        else:
+            muertos = []
         return {
-            'vidas': vidas(), 'vidas_iniciales': estado['vidas_iniciales'] + estado['ajuste_vidas'],
-            'medallas': estado['medallas'], 'random': estado['random'],
-            'equipo': [p and {**p, 'muerto': p['id'] in estado['muertos']} for p in vivo['equipo']],
-            'conectado': vivo['conectado'], 'tarea': vivo['tarea'],
-            'herramientas': {'azahar': bool(azahar_exe()), 'upr': bool(upr_jar()), 'java': java(),
-                             'roms': roms(), 'avanzado': (DATOS / 'avanzado.rnqs').exists()},
+            'juegos': [{'id': j['id'], 'nombre': j['nombre'], 'ruta': j['ruta'], 'preparado': j.get('preparado', False),
+                        'random': j.get('random'), 'vidas': vidas(j) if j.get('preparado') else None,
+                        'vidas_iniciales': j.get('vidas_iniciales'), 'medallas': sum(j.get('medallas', []))}
+                       for j in biblio['juegos']],
+            'activo': activo, 'jugando': jugando(), 'conectado': vivo['conectado'], 'tarea': vivo['tarea'],
+            'equipo': [p and {**p, 'muerto': p['id'] in muertos} for p in vivo['equipo']],
+            'capa': vivo['capa'], 'encaje': encaje() if os.name == 'nt' else (1, 0, 0),
+            'avanzado': (DATOS / 'avanzado.rnqs').exists(),
         }
 
 
@@ -236,6 +393,26 @@ def arte(especie):
         CACHE_ARTE.mkdir(parents=True, exist_ok=True)
         urllib.request.urlretrieve(ARTE_URL.format(especie), f)
     return f
+
+
+def elegir_rom():
+    """Explorador de archivos de Windows para elegir la ROM."""
+    resultado = []
+
+    def dialogo():
+        import tkinter as tk
+        from tkinter import filedialog
+        raiz = tk.Tk()
+        raiz.withdraw()
+        raiz.attributes('-topmost', True)
+        resultado.append(filedialog.askopenfilename(
+            parent=raiz, title='Añadir juego: elige la ROM descifrada de Pokémon Y',
+            filetypes=[('Juegos de 3DS', '*.3ds *.cci *.cxi *.cia'), ('Todos los archivos', '*.*')]))
+        raiz.destroy()
+    hilo = threading.Thread(target=dialogo)
+    hilo.start()
+    hilo.join()
+    return resultado[0] if resultado else ''
 
 
 # ---------- servidor ----------
@@ -265,9 +442,11 @@ class Servidor(BaseHTTPRequestHandler):
     def do_GET(self):
         ruta = self.path.split('?')[0]
         if ruta == '/':
-            return self.archivo(WEB / 'lanzador.html')
+            return self.archivo(WEB / 'app.html')
         if ruta == '/overlay':
             return self.archivo(WEB / 'overlay.html')
+        if ruta == '/capa.png':
+            return self.archivo(CAPA_PNG)
         if ruta == '/api/estado':
             return self.enviar(foto_estado())
         if m := re.fullmatch(r'/arte/(\d{1,3})', ruta):
@@ -289,57 +468,122 @@ class Servidor(BaseHTTPRequestHandler):
             self.enviar({'error': str(e)}, codigo=400)
 
     def accion(self, ruta, d):
-        if ruta == '/api/descargar':
-            if d['que'] == 'azahar':
-                en_segundo_plano('Descargar Azahar', descargar, 'azahar-emu/azahar',
-                                 r'azahar-windows-msvc-[\d.]+\.zip', TOOLS / 'azahar', 'Azahar')
-            else:
-                en_segundo_plano('Descargar el randomizador', descargar,
-                                 'Ajarmar/universal-pokemon-randomizer-zx', r'PokeRandoZX-.*\.zip',
-                                 TOOLS / 'upr', 'Universal Pokemon Randomizer ZX')
-        elif ruta == '/api/randomizar':
-            if d['rom'] not in roms():
-                raise RuntimeError('Elige una ROM de la carpeta rom/')
-            en_segundo_plano('Randomizar', randomizar, d['rom'], d.get('opciones', {}), bool(d.get('avanzado')))
-        elif ruta == '/api/quitar_random':
-            for carpeta in carpeta_mods().glob('*'):
-                shutil.rmtree(carpeta)
+        if ruta == '/api/anadir':
+            rom = elegir_rom()
+            if not rom:
+                return {'ok': False}
             with lock:
-                estado['random'] = None
+                ruta_rom = str(Path(rom))
+                if any(j['ruta'] == ruta_rom for j in biblio['juegos']):
+                    raise RuntimeError('Ese juego ya está en la biblioteca')
+                biblio['juegos'].append({'id': hashlib.sha1(ruta_rom.encode()).hexdigest()[:10],
+                                         'nombre': Path(rom).stem, 'ruta': ruta_rom, 'preparado': False,
+                                         'random': None, 'vidas_iniciales': 25, 'ajuste_vidas': 0,
+                                         'muertos': [], 'medallas': [False] * 8})
                 guardar()
-        elif ruta == '/api/upr_completo':
-            DATOS.mkdir(exist_ok=True)
-            subprocess.Popen([java(), '-jar', str(upr_jar())], cwd=upr_jar().parent)
-        elif ruta == '/api/nuevo':
+        elif ruta == '/api/quitar':
             with lock:
-                estado.update(vidas_iniciales=int(d['vidas']), ajuste_vidas=0, muertos=[],
-                              medallas=[False] * 8)
+                biblio['juegos'] = [j for j in biblio['juegos'] if j['id'] != d['id']]
+                shutil.rmtree(DATOS / 'juegos' / d['id'], ignore_errors=True)
                 guardar()
+        elif ruta == '/api/reiniciar':          # vuelve a pedir vidas y randomización al jugar
+            with lock:
+                buscar(d['id'])['preparado'] = False
+                guardar()
+        elif ruta == '/api/preparar':
+            j = buscar(d['id'])
+            en_segundo_plano('Preparar el juego', preparar, j, d.get('opciones', {}), d.get('vidas', 25),
+                             bool(d.get('randomizar')), bool(d.get('avanzado')))
         elif ruta == '/api/jugar':
-            if d['rom'] not in roms():
-                raise RuntimeError('Elige una ROM de la carpeta rom/')
-            subprocess.Popen([str(preparar_azahar()), str(ROMS / d['rom'])])
+            j = buscar(d['id'])
+            en_segundo_plano('Abrir el juego', lambda: (herramientas(), lanzar(j)))
+        elif ruta == '/api/upr_completo':
+            en_segundo_plano('Abrir el randomizador completo', lambda: (
+                herramientas(), DATOS.mkdir(exist_ok=True),
+                subprocess.Popen([java(), '-jar', str(upr_jar())], cwd=upr_jar().parent)))
         elif ruta == '/api/medalla':
             with lock:
-                estado['medallas'][int(d['i'])] = bool(d['valor'])
+                buscar(vivo['activo'])['medallas'][int(d['i'])] = bool(d['valor'])
                 guardar()
         elif ruta == '/api/vidas':
             with lock:
-                estado['ajuste_vidas'] += int(d['delta'])
+                buscar(vivo['activo'])['ajuste_vidas'] += int(d['delta'])
                 guardar()
         else:
             raise RuntimeError('Acción desconocida')
 
 
+# ---------- capa del layout encima de Azahar ----------
+
+def capa():
+    """Ventana sin bordes, siempre delante, con los huecos (color clave) transparentes y sin coger
+    el foco: se ve y se toca el juego a través de ella y el teclado sigue en Azahar."""
+    import tkinter as tk
+    ctypes.windll.shcore.SetProcessDpiAwareness(2)
+    w, h = pantalla()
+    s, ox, oy = encaje()
+    raiz = tk.Tk()
+    raiz.overrideredirect(True)
+    raiz.geometry(f'{w}x{h}+0+0')
+    raiz.configure(bg=CLAVE)
+    raiz.attributes('-topmost', True)
+    raiz.attributes('-transparentcolor', CLAVE)
+    etiqueta = tk.Label(raiz, bd=0, bg=CLAVE)
+    etiqueta.place(x=ox, y=oy)
+    raiz.update_idletasks()
+    hwnd = ctypes.windll.user32.GetParent(raiz.winfo_id())
+    GWL_EXSTYLE, WS_EX_NOACTIVATE, WS_EX_TOOLWINDOW = -20, 0x08000000, 0x00000080
+    estilo = ctypes.windll.user32.GetWindowLongW(hwnd, GWL_EXSTYLE)
+    ctypes.windll.user32.SetWindowLongW(hwnd, GWL_EXSTYLE, estilo | WS_EX_NOACTIVATE | WS_EX_TOOLWINDOW)
+    vista = {'version': -1, 'imagen': None, 'arrancado': time.time()}
+
+    def refrescar():
+        try:
+            with urllib.request.urlopen(f'{URL}/api/estado', timeout=2) as r:
+                e = json.load(r)
+        except OSError:
+            return raiz.destroy()
+        if not e['jugando'] and time.time() - vista['arrancado'] > 15:
+            return raiz.destroy()
+        if e['capa'] != vista['version'] and CAPA_PNG.exists():
+            vista['version'] = e['capa']
+            vista['imagen'] = tk.PhotoImage(file=str(CAPA_PNG))
+            etiqueta.configure(image=vista['imagen'])
+        raiz.attributes('-topmost', True)
+        raiz.after(1000, refrescar)
+
+    refrescar()
+    raiz.mainloop()
+
+
+def abrir_ventana_app():
+    nav = navegador()
+    url = f'{URL}/'
+    if nav:
+        subprocess.Popen([nav, f'--app={url}', f'--user-data-dir={TOOLS / "edge-perfil"}',
+                          '--window-size=1280,820', '--no-first-run'])
+    else:
+        import webbrowser
+        webbrowser.open(url)
+
+
 def main():
-    for carpeta in (TOOLS, ROMS, DATOS, FANART):
+    if os.name == 'nt':
+        ctypes.windll.shcore.SetProcessDpiAwareness(2)
+    if '--capa' in sys.argv:
+        return capa()
+    for carpeta in (TOOLS, DATOS, FANART):
         carpeta.mkdir(exist_ok=True)
     cargar()
+    try:
+        servidor = ThreadingHTTPServer(('127.0.0.1', PUERTO), Servidor)
+    except OSError:                       # ya está abierto: solo enseña la ventana
+        return abrir_ventana_app()
     threading.Thread(target=seguimiento, daemon=True).start()
-    servidor = ThreadingHTTPServer(('127.0.0.1', PUERTO), Servidor)
-    print(f'Pokelocke en http://localhost:{PUERTO}  ·  overlay para OBS: http://localhost:{PUERTO}/overlay')
-    print('Cierra esta ventana para apagarlo.')
-    webbrowser.open(f'http://localhost:{PUERTO}')
+    threading.Thread(target=pintor_capa, daemon=True).start()
+    print(f'Pokelocke en {URL}  ·  overlay para OBS: {URL}/overlay')
+    if '--sin-ventana' not in sys.argv:       # --sin-ventana: solo el servidor (pruebas u OBS)
+        abrir_ventana_app()
     servidor.serve_forever()
 
 

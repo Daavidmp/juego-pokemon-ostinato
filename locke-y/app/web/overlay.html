@@ -15,7 +15,7 @@ a{color:#ffcb05}a:hover{color:#ffe066}
 
   <!-- Pantalla superior: hueco 1000×600 en x=72, y=244 -->
   <div style="position: absolute; left: 33px; top: 207px; width: 1079px; height: 681px;">
-    <div style="position: absolute; left: 39px; top: 37px; width: 1000px; height: 600px; background: #04060d;"></div>
+    <div class="hueco" style="position: absolute; left: 39px; top: 37px; width: 1000px; height: 600px; background: #04060d;"></div>
     <img src="/assets/marco-sup-1000.png" alt="" style="position: absolute; left: 0; top: 0; width: 1079px; height: 681px;">
   </div>
 
@@ -92,7 +92,7 @@ a{color:#ffcb05}a:hover{color:#ffe066}
 
   <!-- Pantalla inferior: hueco 680×510 en x=1168, y=530 (acaba a la altura del equipo, a 40 px del borde) -->
   <div style="position: absolute; left: 1129px; top: 493px; width: 759px; height: 591px;">
-    <div style="position: absolute; left: 39px; top: 37px; width: 680px; height: 510px; background: #04060d;"></div>
+    <div class="hueco" style="position: absolute; left: 39px; top: 37px; width: 680px; height: 510px; background: #04060d;"></div>
     <img src="/assets/marco-inf-680.png" alt="" style="position: absolute; left: 0; top: 0; width: 759px; height: 591px;">
   </div>
 
@@ -115,14 +115,20 @@ function carta(p, i) {
     <div style="position: absolute; left: 6px; right: 6px; bottom: 10px; text-align: center; font-family: Bungee, sans-serif; font-size: 20px; line-height: 1; color: #ffffff; text-shadow: 0 0 8px ${g}, 0 2px 0 #000000; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;${p.muerto ? ' text-decoration: line-through;' : ''}">${esc(p.huevo ? 'HUEVO' : p.mote)}</div></div>`;
 }
 
+// ?capa=1: la capa que va encima de Azahar; los huecos llevan el color que Windows vuelve transparente
+if (new URLSearchParams(location.search).has('capa')) {
+  document.querySelectorAll('.hueco').forEach((h) => { h.style.background = '#ff00ff'; });
+}
+
 function pintar(e) {
-  document.getElementById('vidas').textContent = e.vidas;
+  const a = e.activo || {vidas: 25, vidas_iniciales: 25, medallas: Array(8).fill(false)};
+  document.getElementById('vidas').textContent = a.vidas;
   document.getElementById('corazones').innerHTML =
-    Array.from({length: e.vidas_iniciales}, (_, i) => i < e.vidas ? CORAZON : CORAZON_ROTO).join('');
+    Array.from({length: a.vidas_iniciales}, (_, i) => i < a.vidas ? CORAZON : CORAZON_ROTO).join('');
   document.getElementById('equipo').innerHTML = e.equipo.map(carta).join('');
   [...document.getElementById('medallas').children].forEach((pieza, i) => {
     const [lider, medalla] = pieza.querySelectorAll('img');
-    const ganada = e.medallas[i];
+    const ganada = a.medallas[i];
     lider.style.filter = ganada ? 'none' : 'grayscale(1) brightness(0.7)';
     lider.style.opacity = ganada ? '1' : '0.75';
     medalla.style.filter = ganada ? 'drop-shadow(0 3px 0 #000000)' : 'grayscale(1) brightness(0.25)';

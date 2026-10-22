@@ -1,0 +1,372 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mega Pokelocke Y</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bungee&family=Rubik:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root { --negro: #05060d; --panel: #10162f; --borde: #26305c; --texto: #eef1fb; --suave: #a9b2d6; --azul: #3b8bff; --rojo: #ff3b55; --ok: #3ddc84; --oro: #ffcb05; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; min-height: 100%; background: var(--negro); color: var(--texto); font: 15px/1.5 Rubik, system-ui, sans-serif; }
+  main { max-width: 1100px; margin: 0 auto; padding: 28px 24px 60px; }
+  h1, h2 { font-family: Bungee, sans-serif; margin: 0; letter-spacing: .5px; }
+  h2 { font-size: 18px; margin-bottom: 12px; }
+  .vista { display: none; }
+  .vista.activa { display: block; }
+  button { font: 700 15px Rubik, sans-serif; color: #fff; background: var(--azul); border: 0; border-radius: 10px; padding: 10px 18px; min-height: 44px; cursor: pointer; }
+  button.gris { background: #26305c; }
+  button.rojo { background: var(--rojo); }
+  button:disabled { opacity: .45; cursor: not-allowed; }
+  .nota { color: var(--suave); font-size: 14px; }
+  code { background: var(--panel); padding: 1px 6px; border-radius: 6px; }
+
+  /* biblioteca */
+  .cabecera { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 28px; }
+  .cabecera img { height: 110px; }
+  .juegos { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 20px; }
+  .juego, .anadir { position: relative; border-radius: 22px 6px 22px 6px; min-height: 300px; overflow: hidden; }
+  .juego { background: linear-gradient(160deg, #1b2a6b 0%, #0b1230 55%, #4a0f1d 100%); border: 2px solid rgba(255,255,255,.85); display: flex; flex-direction: column; }
+  .juego .portada { flex: 1; display: flex; align-items: center; justify-content: center; padding: 18px; cursor: pointer; border: 0; background: none; border-radius: 0; }
+  .juego .portada img { width: 100%; max-height: 150px; object-fit: contain; }
+  .juego .pie { padding: 12px 14px 14px; background: rgba(5,6,13,.85); display: flex; flex-direction: column; gap: 8px; }
+  .juego .nombre { font-weight: 700; font-size: 16px; overflow-wrap: anywhere; }
+  .juego .acciones { display: flex; gap: 8px; }
+  .juego .acciones button { flex: 1; padding: 8px 10px; font-size: 14px; }
+  .anadir { border: 3px dashed var(--borde); background: transparent; color: var(--suave); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; font-size: 16px; width: 100%; }
+  .anadir span { font: 64px/1 Bungee, sans-serif; color: var(--texto); }
+  .anadir:hover { border-color: var(--azul); color: var(--texto); }
+
+  /* preparar */
+  .rejilla { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 12px 18px; }
+  label { display: flex; flex-direction: column; gap: 4px; font-weight: 500; }
+  label.check { flex-direction: row; align-items: center; gap: 8px; font-weight: 400; }
+  select, input[type=number] { font: inherit; color: var(--texto); background: var(--panel); border: 1px solid var(--borde); border-radius: 8px; padding: 8px 10px; min-height: 40px; }
+  .bloque { background: var(--panel); border: 1px solid var(--borde); border-radius: 18px 6px 18px 6px; padding: 18px 20px; margin-top: 18px; }
+  .botones { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 22px; }
+  #opciones[hidden] { display: none; }
+
+  /* tarea */
+  #tarea { position: fixed; inset: 0; background: rgba(5,6,13,.94); display: none; align-items: center; justify-content: center; flex-direction: column; gap: 18px; padding: 24px; text-align: center; z-index: 5; }
+  #tarea.visible { display: flex; }
+  #tarea p { font-size: 18px; max-width: 700px; margin: 0; white-space: pre-wrap; }
+  .rueda { width: 54px; height: 54px; border: 6px solid var(--borde); border-top-color: var(--rojo); border-radius: 50%; animation: gira 1s linear infinite; }
+  #tarea.error .rueda { display: none; }
+  @keyframes gira { to { transform: rotate(360deg); } }
+
+  /* partida */
+  .estado { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 999px; background: var(--panel); font-size: 14px; }
+  .si::before { content: '●'; color: var(--ok); }
+  .no::before { content: '●'; color: var(--rojo); }
+  .vidas { font: 46px/1 Bungee, sans-serif; min-width: 110px; text-align: center; }
+  .medallas { display: grid; grid-template-columns: repeat(8, minmax(0, 1fr)); gap: 8px; }
+  .medallas button { background: var(--panel); border: 2px solid var(--borde); padding: 6px; display: flex; flex-direction: column; align-items: center; gap: 4px; font-weight: 500; font-size: 12px; }
+  .medallas button.ganada { border-color: var(--oro); }
+  .medallas img { width: 40px; height: 40px; object-fit: contain; }
+  .medallas button:not(.ganada) img { filter: grayscale(1) brightness(.5); }
+  .equipo { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 8px; }
+  .equipo div { background: var(--panel); border: 1px solid var(--borde); border-radius: 10px; padding: 8px; text-align: center; font-size: 13px; min-height: 110px; }
+  .equipo img { width: 64px; height: 64px; object-fit: contain; }
+  @media (max-width: 700px) { .medallas, .equipo { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+</style>
+</head>
+<body>
+<main>
+
+  <!-- Biblioteca -->
+  <section class="vista" id="v-biblioteca">
+    <div class="cabecera">
+      <img src="/assets/logo.png" alt="Mega Pokelocke Y">
+      <span class="nota">Overlay para OBS: <code>http://localhost:8765/overlay</code></span>
+    </div>
+    <div class="juegos" id="juegos"></div>
+  </section>
+
+  <!-- Preparar (primera vez) -->
+  <section class="vista" id="v-preparar">
+    <h1 id="p-titulo">Prepara tu locke</h1>
+    <div class="bloque">
+      <h2>Locke</h2>
+      <label style="max-width: 220px;">Vidas <input type="number" id="p-vidas" value="25" min="1" max="99"></label>
+    </div>
+    <div class="bloque">
+      <h2>Randomización</h2>
+      <label class="check"><input type="checkbox" id="p-randomizar" checked> Randomizar el juego</label>
+      <form id="opciones" class="rejilla" style="margin-top: 14px;">
+        <label>Pokémon salvajes
+          <select name="wildPokemonMod">
+            <option value="UNCHANGED">Sin cambios</option>
+            <option value="RANDOM">Aleatorios en cada encuentro</option>
+            <option value="AREA_MAPPING" selected>Aleatorios por zona</option>
+            <option value="GLOBAL_MAPPING">Cambio 1 por 1 en todo el juego</option>
+          </select>
+        </label>
+        <label>Qué salvajes salen
+          <select name="wildPokemonRestrictionMod">
+            <option value="NONE">Cualquiera</option>
+            <option value="SIMILAR_STRENGTH" selected>De fuerza parecida al original</option>
+            <option value="TYPE_THEME_AREAS">Cada zona de un tipo</option>
+          </select>
+        </label>
+        <label>Iniciales
+          <select name="startersMod">
+            <option value="UNCHANGED">Sin cambios</option>
+            <option value="COMPLETELY_RANDOM">Totalmente aleatorios</option>
+            <option value="RANDOM_WITH_TWO_EVOLUTIONS" selected>Aleatorios con dos evoluciones</option>
+          </select>
+        </label>
+        <label>Legendarios y Pokémon de regalo
+          <select name="staticPokemonMod">
+            <option value="UNCHANGED">Sin cambios</option>
+            <option value="RANDOM_MATCHING" selected>Aleatorios (legendario por legendario)</option>
+            <option value="SIMILAR_STRENGTH">Aleatorios de fuerza parecida</option>
+            <option value="COMPLETELY_RANDOM">Totalmente aleatorios</option>
+          </select>
+        </label>
+        <label>Entrenadores
+          <select name="trainersMod">
+            <option value="UNCHANGED">Sin cambios</option>
+            <option value="RANDOM" selected>Equipos aleatorios</option>
+            <option value="DISTRIBUTED">Aleatorios y repartidos</option>
+            <option value="TYPE_THEMED">Cada entrenador de un tipo</option>
+            <option value="TYPE_THEMED_ELITE4_GYMS">Solo gimnasios y Alto Mando de un tipo</option>
+          </select>
+        </label>
+        <label>Nivel de los entrenadores (%)
+          <input type="number" name="trainersLevelModifier" value="0" min="-50" max="50" step="5">
+        </label>
+        <label>Tipos
+          <select name="typesMod">
+            <option value="UNCHANGED" selected>Sin cambios</option>
+            <option value="RANDOM_FOLLOW_EVOLUTIONS">Aleatorios (siguen la evolución)</option>
+            <option value="COMPLETELY_RANDOM">Totalmente aleatorios</option>
+          </select>
+        </label>
+        <label>Habilidades
+          <select name="abilitiesMod">
+            <option value="UNCHANGED" selected>Sin cambios</option>
+            <option value="RANDOMIZE">Aleatorias</option>
+          </select>
+        </label>
+        <label>Estadísticas base
+          <select name="baseStatisticsMod">
+            <option value="UNCHANGED" selected>Sin cambios</option>
+            <option value="SHUFFLE">Barajadas</option>
+            <option value="RANDOM">Aleatorias</option>
+          </select>
+        </label>
+        <label>Evoluciones
+          <select name="evolutionsMod">
+            <option value="UNCHANGED" selected>Sin cambios</option>
+            <option value="RANDOM">Aleatorias</option>
+            <option value="RANDOM_EVERY_LEVEL">Evoluciona en cada nivel</option>
+          </select>
+        </label>
+        <label>Movimientos que aprenden
+          <select name="movesetsMod">
+            <option value="UNCHANGED" selected>Sin cambios</option>
+            <option value="RANDOM_PREFER_SAME_TYPE">Aleatorios (mejor de su tipo)</option>
+            <option value="COMPLETELY_RANDOM">Totalmente aleatorios</option>
+            <option value="METRONOME_ONLY">Solo Metrónomo</option>
+          </select>
+        </label>
+        <label>Objetos del suelo
+          <select name="fieldItemsMod">
+            <option value="UNCHANGED" selected>Sin cambios</option>
+            <option value="SHUFFLE">Barajados</option>
+            <option value="RANDOM">Aleatorios</option>
+            <option value="RANDOM_EVEN">Aleatorios equilibrados</option>
+          </select>
+        </label>
+        <label>Intercambios del juego
+          <select name="inGameTradesMod">
+            <option value="UNCHANGED" selected>Sin cambios</option>
+            <option value="RANDOMIZE_GIVEN">Aleatorio lo que te dan</option>
+            <option value="RANDOMIZE_GIVEN_AND_REQUESTED">Aleatorio lo que te dan y lo que piden</option>
+          </select>
+        </label>
+        <label>Ratio de captura mínimo
+          <select name="minimumCatchRateLevel">
+            <option value="0" selected>Normal</option>
+            <option value="1">Un poco más fácil</option>
+            <option value="2">Más fácil</option>
+            <option value="3">Mucho más fácil</option>
+            <option value="4">Captura asegurada</option>
+          </select>
+        </label>
+        <label class="check"><input type="checkbox" name="blockWildLegendaries" checked> Sin legendarios salvajes</label>
+        <label class="check"><input type="checkbox" name="trainersUsePokemonOfSimilarStrength" checked> Entrenadores con Pokémon de fuerza parecida</label>
+      </form>
+      <div class="botones" style="margin-top: 14px;">
+        <button class="gris" id="b-upr">Opciones avanzadas (UPR completo)</button>
+        <label class="check"><input type="checkbox" id="p-avanzado"> Usar los ajustes avanzados</label>
+      </div>
+      <p class="nota">Opciones avanzadas: se abre el Universal Pokemon Randomizer. Guarda tus ajustes con <em>Save Settings</em> en <code>locke-y/datos/avanzado.rnqs</code> y marca «Usar los ajustes avanzados».</p>
+    </div>
+    <div class="botones">
+      <button class="gris" id="b-volver">Volver</button>
+      <button class="rojo" id="b-continuar">Continuar</button>
+    </div>
+  </section>
+
+  <!-- En partida -->
+  <section class="vista" id="v-partida">
+    <div class="cabecera">
+      <h1 id="j-nombre">En partida</h1>
+      <span class="estado" id="e-conexion">Juego</span>
+    </div>
+    <p class="nota">El juego está abierto con el layout encima. Para volver a la biblioteca, cierra Azahar (Esc sale de la pantalla completa).</p>
+    <div class="bloque">
+      <h2>Vidas</h2>
+      <div style="display: flex; align-items: center; gap: 12px;">
+        <button class="gris" id="b-menos" aria-label="Quitar una vida">−</button>
+        <div class="vidas" id="vidas">–</div>
+        <button class="gris" id="b-mas" aria-label="Añadir una vida">+</button>
+      </div>
+      <p class="nota">Las muertes se cuentan solas: un Pokémon del equipo a 0 PS resta una vida.</p>
+    </div>
+    <div class="bloque">
+      <h2>Medallas</h2>
+      <div class="medallas" id="medallas"></div>
+      <p class="nota">Pulsa una medalla para marcarla. El líder sale en color en el layout.</p>
+    </div>
+    <div class="bloque">
+      <h2>Equipo</h2>
+      <div class="equipo" id="equipo"></div>
+    </div>
+  </section>
+</main>
+
+<div id="tarea" role="status"><div class="rueda" aria-hidden="true"></div><p id="tarea-texto"></p><button class="gris" id="b-cerrar-tarea" hidden>Cerrar</button></div>
+
+<script>
+const MEDALLAS = ['Insecto', 'Muro', 'Lucha', 'Planta', 'Voltio', 'Hada', 'Psique', 'Iceberg'];
+const $ = (id) => document.getElementById(id);
+const esc = (t) => String(t).replace(/[&<>"]/g, (c) => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;'}[c]));
+let ultimo = null, preparando = null, pintadoJuegos = '', errorCerrado = null;
+
+async function api(ruta, datos) {
+  const r = await fetch(ruta, {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(datos || {})});
+  const j = await r.json();
+  if (j.error) alert(j.error);
+  actualizar();
+  return j;
+}
+
+function vista(nombre) {
+  document.querySelectorAll('.vista').forEach((v) => v.classList.toggle('activa', v.id === 'v-' + nombre));
+}
+
+function opciones() {
+  const o = {};
+  for (const el of $('opciones').elements) {
+    if (el.name) o[el.name] = el.type === 'checkbox' ? String(el.checked) : el.value;
+  }
+  o.trainersLevelModified = String(Number(o.trainersLevelModifier) !== 0);
+  o.useMinimumCatchRate = String(Number(o.minimumCatchRateLevel) > 0);
+  if (o.useMinimumCatchRate === 'false') o.minimumCatchRateLevel = '1';
+  return o;
+}
+
+function tarjeta(j) {
+  const detalle = j.preparado
+    ? `${j.vidas}/${j.vidas_iniciales} vidas · ${j.medallas} medallas · ${j.random ? 'randomizado' : 'original'}`
+    : 'Sin preparar: la primera vez eliges vidas y randomización';
+  return `<div class="juego">
+    <button class="portada" data-jugar="${j.id}" aria-label="Jugar a ${esc(j.nombre)}"><img src="/assets/logo.png" alt=""></button>
+    <div class="pie">
+      <div class="nombre">${esc(j.nombre)}</div>
+      <div class="nota">${esc(detalle)}</div>
+      <div class="acciones">
+        <button data-jugar="${j.id}">${j.preparado ? 'Jugar' : 'Preparar'}</button>
+        ${j.preparado ? `<button class="gris" data-nuevo="${j.id}">Nuevo locke</button>` : ''}
+        <button class="gris" data-quitar="${j.id}" aria-label="Quitar ${esc(j.nombre)} de la biblioteca">Quitar</button>
+      </div>
+    </div>
+  </div>`;
+}
+
+function pintar(e) {
+  ultimo = e;
+  // tarea en marcha o con error
+  const t = e.tarea;
+  const verTarea = t && (!t.fin || (t.error && t.mensaje !== errorCerrado));
+  $('tarea').className = verTarea ? 'visible' + (t.error ? ' error' : '') : '';
+  if (verTarea) $('tarea-texto').textContent = t.mensaje;
+  $('b-cerrar-tarea').hidden = !(t && t.error);
+
+  if (e.jugando && e.activo) {
+    preparando = null;
+    vista('partida');
+    $('j-nombre').textContent = e.activo.nombre;
+    const c = $('e-conexion');
+    c.className = 'estado ' + (e.conectado ? 'si' : 'no');
+    c.textContent = e.conectado ? 'Leyendo el juego' : 'Esperando al juego…';
+    $('vidas').textContent = `${e.activo.vidas}/${e.activo.vidas_iniciales}`;
+    $('medallas').innerHTML = MEDALLAS.map((m, i) =>
+      `<button class="${e.activo.medallas[i] ? 'ganada' : ''}" data-i="${i}" aria-pressed="${e.activo.medallas[i]}"><img src="/assets/medalla-${i + 1}.png" alt="">${m}</button>`).join('');
+    $('equipo').innerHTML = e.equipo.map((p) => p
+      ? `<div><img src="/arte/${p.especie}" alt="" onerror="this.style.display='none'"><br><strong>${esc(p.huevo ? 'Huevo' : p.mote)}</strong><br>Nv. ${p.nivel} · ${p.ps}/${p.psmax} PS${p.muerto ? '<br><span style="color: var(--rojo);">Muerto</span>' : ''}</div>`
+      : '<div class="nota">Vacío</div>').join('');
+    return;
+  }
+  if (preparando) { vista('preparar'); return; }
+  vista('biblioteca');
+  const html = e.juegos.map(tarjeta).join('') +
+    '<button class="anadir" id="b-anadir"><span>+</span>Añadir juego</button>';
+  if (html !== pintadoJuegos) { $('juegos').innerHTML = html; pintadoJuegos = html; }
+  $('p-avanzado').disabled = !e.avanzado;
+}
+
+async function actualizar() {
+  try { pintar(await (await fetch('/api/estado')).json()); }
+  catch (err) {
+    $('tarea').className = 'visible error';
+    $('tarea-texto').textContent = 'Pokelocke está cerrado. Vuelve a abrir Pokelocke.exe.';
+  }
+}
+
+$('juegos').onclick = (ev) => {
+  const b = ev.target.closest('button');
+  if (!b) return;
+  if (b.id === 'b-anadir') return api('/api/anadir');
+  const juego = ultimo.juegos.find((j) => j.id === (b.dataset.jugar || b.dataset.nuevo || b.dataset.quitar));
+  if (b.dataset.quitar) {
+    if (confirm(`¿Quitar «${juego.nombre}» de la biblioteca? Se borra su locke (la ROM no se toca).`)) api('/api/quitar', {id: juego.id});
+  } else if (b.dataset.nuevo) {
+    if (confirm('¿Empezar un locke nuevo? Se borran las muertes y las medallas, y vuelves a elegir la randomización.')) {
+      api('/api/reiniciar', {id: juego.id}).then(() => abrirPreparar(juego));
+    }
+  } else if (juego.preparado) {
+    api('/api/jugar', {id: juego.id});
+  } else {
+    abrirPreparar(juego);
+  }
+};
+
+function abrirPreparar(juego) {
+  preparando = juego;
+  $('p-titulo').textContent = `Prepara tu locke · ${juego.nombre}`;
+  vista('preparar');
+}
+
+$('p-randomizar').onchange = () => { $('opciones').hidden = !$('p-randomizar').checked; };
+$('b-volver').onclick = () => { preparando = null; actualizar(); };
+$('b-upr').onclick = () => api('/api/upr_completo');
+$('b-continuar').onclick = () => api('/api/preparar', {
+  id: preparando.id, vidas: $('p-vidas').value, randomizar: $('p-randomizar').checked,
+  opciones: opciones(), avanzado: $('p-avanzado').checked,
+});
+$('b-cerrar-tarea').onclick = () => { errorCerrado = ultimo.tarea.mensaje; $('tarea').className = ''; };
+$('b-menos').onclick = () => api('/api/vidas', {delta: -1});
+$('b-mas').onclick = () => api('/api/vidas', {delta: 1});
+$('medallas').onclick = (ev) => {
+  const b = ev.target.closest('button');
+  if (b) api('/api/medalla', {i: b.dataset.i, valor: !ultimo.activo.medallas[b.dataset.i]});
+};
+actualizar();
+setInterval(actualizar, 1000);
+</script>
+</body>
+</html>
