@@ -145,7 +145,8 @@ def tarea(mensaje, error=False, fin=False, paso=None, pct=None):
     """paso: 1 herramientas, 2 randomización, 3 abrir el juego (la pantalla de progreso los muestra)."""
     anterior = vivo['tarea'] or {}
     vivo['tarea'] = {'mensaje': mensaje, 'error': error, 'fin': fin, 'pct': pct,
-                     'paso': paso or anterior.get('paso'), 'random': anterior.get('random', False)}
+                     'paso': paso or anterior.get('paso'), 'random': anterior.get('random', False),
+                     'inicio': anterior.get('inicio', time.time()), 'minimo': anterior.get('minimo', 0)}
 
 
 def descargar(repo, patron, destino, nombre):
@@ -315,7 +316,8 @@ def lanzar(j):
     renderizar_capa()
 
 
-def en_segundo_plano(nombre, fn, *args):
+def en_segundo_plano(nombre, fn, *args, minimo=0):
+    """minimo: segundos que como poco dura el modal de carga (la ventana anima la barra con ese tiempo)."""
     if vivo['tarea'] and not vivo['tarea']['fin']:
         raise RuntimeError('Ya hay una tarea en marcha')
 
@@ -326,7 +328,7 @@ def en_segundo_plano(nombre, fn, *args):
         except Exception as e:
             traceback.print_exc()
             tarea(f'{nombre}: {e}', error=True, fin=True)
-    vivo['tarea'] = None
+    vivo['tarea'] = {'inicio': time.time(), 'minimo': minimo}
     tarea(f'{nombre}…', paso=1)
     threading.Thread(target=envoltura, daemon=True).start()
 
@@ -343,6 +345,9 @@ def preparar(j, opciones, vidas_ini, randomizar_juego, avanzado):
         nuevo_locke(j, vidas_ini)
         j['preparado'] = True
         guardar()
+    espera = vivo['tarea']['minimo'] - (time.time() - vivo['tarea']['inicio'])
+    if espera > 0:                                    # el modal de carga dura como poco su minuto
+        time.sleep(espera)
     tarea('Abriendo el juego con el layout…', paso=3)
     lanzar(j)
 
@@ -478,7 +483,7 @@ def foto_estado():
                         'vidas_iniciales': j.get('vidas_iniciales'), 'medallas': sum(j.get('medallas', [])),
                         'registro': (DATOS / 'juegos' / j['id'] / 'randomizacion.log').exists()}
                        for j in biblio['juegos']],
-            'activo': activo, 'jugando': jugando(), 'conectado': vivo['conectado'], 'tarea': vivo['tarea'],
+            'activo': activo, 'jugando': jugando(), 'conectado': vivo['conectado'], 'tarea': vivo['tarea'] and {**vivo['tarea'], 'transcurrido': time.time() - vivo['tarea']['inicio']},
             'equipo': [p and {**p, 'muerto': p['id'] in muertos} for p in vivo['equipo']],
             'capa': vivo['capa'], 'encaje': encaje() if os.name == 'nt' else (1, 0, 0),
             'avanzado': (DATOS / 'avanzado.rnqs').exists(),
@@ -610,7 +615,7 @@ class Servidor(BaseHTTPRequestHandler):
         elif ruta == '/api/preparar':
             j = buscar(d['id'])
             en_segundo_plano('Preparar el juego', preparar, j, d.get('opciones', {}), d.get('vidas', 25),
-                             bool(d.get('randomizar')), bool(d.get('avanzado')))
+                             bool(d.get('randomizar')), bool(d.get('avanzado')), minimo=60)
         elif ruta == '/api/jugar':
             j = buscar(d['id'])
             en_segundo_plano('Abrir el juego', lambda: (herramientas(), lanzar(j)))

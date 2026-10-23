@@ -96,25 +96,20 @@
   select, .rejilla input[type=number] { font: 600 15px Nunito, sans-serif; color: var(--tinta); background: var(--panel); border: 1px solid var(--linea-fuerte); border-radius: 10px; padding: 8px 10px; min-height: 42px; }
   .barra-acciones { min-height: 84px; display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 14px 40px; background: var(--panel); border-top: 1px solid var(--linea); flex-wrap: wrap; position: sticky; bottom: 0; }
 
-  /* preparando */
-  .centro { flex-grow: 1; display: flex; align-items: center; justify-content: center; padding: 40px 16px; }
-  .progreso { width: min(560px, 100%); padding: 36px 40px; background: var(--panel); border: 1px solid var(--linea); border-radius: 24px; box-shadow: 0 12px 32px rgba(27,32,48,.08); display: flex; flex-direction: column; align-items: center; gap: 22px; }
-  .progreso h1 { text-align: center; }
-  .rueda { animation: rodar 1.4s linear infinite; }
-  @keyframes rodar { to { transform: rotate(360deg); } }
-  @media (prefers-reduced-motion: reduce) { .rueda { animation: none; } }
-  .pasos { list-style: none; margin: 0; padding: 0; width: 100%; display: flex; flex-direction: column; gap: 10px; }
-  .pasos li { display: flex; flex-direction: column; gap: 10px; padding: 12px 14px; border-radius: 14px; }
-  .pasos .linea { display: flex; align-items: center; gap: 14px; font-weight: 700; }
-  .pasos li.hecho { background: var(--fondo); }
-  .pasos li.ahora { background: #F3F7FD; border: 2px solid var(--azul); padding: 10px 12px; }
-  .pasos li.ahora .linea { font-weight: 800; }
-  .pasos li.pendiente .linea { color: var(--suave); }
-  .pista { height: 10px; border-radius: 999px; background: #D7E4F6; overflow: hidden; }
-  .pista div { height: 10px; border-radius: 999px; background: var(--azul); transition: width .4s; }
-  .pista.indef div { width: 35%; animation: vaiven 1.4s ease-in-out infinite; }
-  @keyframes vaiven { 0% { margin-left: -35%; } 100% { margin-left: 100%; } }
-  .error { width: 100%; padding: 14px 16px; border-radius: 14px; background: var(--rojo-claro); color: #7A1A06; font-weight: 700; white-space: pre-wrap; overflow-wrap: anywhere; }
+  /* modal de carga: encima de la pantalla anterior, que se desenfoca */
+  .modal-fondo { position: fixed; inset: 0; z-index: 10; background: rgba(27,32,48,.38); backdrop-filter: blur(7px); -webkit-backdrop-filter: blur(7px); display: flex; align-items: center; justify-content: center; padding: 16px; }
+  .modal { width: min(600px, 100%); box-sizing: border-box; padding: 32px 40px 30px; background: var(--panel); border-radius: 24px; box-shadow: 0 24px 60px rgba(10,14,30,.35); display: flex; flex-direction: column; gap: 18px; }
+  .modal h1 { margin: 0 0 10px; }
+  .carga { position: relative; height: 16px; }
+  .carga-pista { position: absolute; inset: 0; border-radius: 999px; background: #E9ECF3; overflow: hidden; }
+  .carga-relleno { height: 16px; border-radius: 999px; background: linear-gradient(90deg, #E8503A, #CC2B0B); }
+  .pikachu { position: absolute; bottom: 16px; width: 22px; height: 24px; margin-left: -18px; background: url(/assets/pikachu-corre.png) 0 0 / 400% 100% no-repeat; image-rendering: pixelated; animation: corre .45s steps(4) infinite; }
+  @keyframes corre { from { background-position: 0 0; } to { background-position: 133.333% 0; } }
+  @media (prefers-reduced-motion: reduce) { .pikachu { animation: none; } }
+  .carga-pie { display: flex; align-items: center; justify-content: space-between; gap: 16px; min-height: 24px; font-size: 16px; color: rgba(27,32,48,.62); }
+  .carga-pie span:first-child { font-weight: 700; }
+  .carga-pie span:last-child { font-weight: 800; }
+  .error { padding: 14px 16px; border-radius: 14px; background: var(--rojo-claro); color: #7A1A06; font-weight: 700; white-space: pre-wrap; overflow-wrap: anywhere; }
 
   /* partida */
   .estado { display: inline-flex; align-items: center; gap: 8px; height: 34px; padding: 0 14px; border-radius: 999px; font-size: 14px; font-weight: 800; }
@@ -352,26 +347,21 @@
   </div>
 </section>
 
-<!-- ============ PREPARANDO ============ -->
-<section class="vista" id="v-preparando">
-  <div class="centro">
-    <div class="progreso" role="status" aria-live="polite">
-      <svg class="rueda" id="rueda" width="84" height="84" viewBox="0 0 100 100" aria-hidden="true">
-        <circle cx="50" cy="50" r="44" fill="#fff" stroke="#1B2030" stroke-width="6"/>
-        <path d="M6 50a44 44 0 0 1 88 0z" fill="#CC2B0B" stroke="#1B2030" stroke-width="6"/>
-        <path d="M6 50h88" stroke="#1B2030" stroke-width="6"/>
-        <circle cx="50" cy="50" r="13" fill="#fff" stroke="#1B2030" stroke-width="6"/>
-      </svg>
-      <div style="text-align: center;">
-        <h1 id="g-titulo">Preparando tu partida</h1>
-        <p class="suave" id="g-sub">No cierres esta ventana</p>
+<!-- ============ MODAL DE CARGA ============ -->
+<div class="modal-fondo oculto" id="modal-carga">
+  <section class="modal" role="dialog" aria-modal="true" aria-labelledby="g-titulo">
+    <h1 id="g-titulo">Preparando tu aventura</h1>
+    <div class="carga">
+      <div class="pikachu" id="pikachu" aria-hidden="true"></div>
+      <div class="carga-pista" role="progressbar" aria-label="Preparando la partida" aria-valuemin="0" aria-valuemax="100" id="g-barra">
+        <div class="carga-relleno" id="g-relleno" style="width: 0%;"></div>
       </div>
-      <ol class="pasos" id="pasos"></ol>
-      <div class="error oculto" id="g-error"></div>
-      <button class="btn btn-neutro oculto" type="button" id="b-error-volver">Volver</button>
     </div>
-  </div>
-</section>
+    <div class="carga-pie"><span id="g-msg" aria-live="polite"></span><span id="g-pct">0%</span></div>
+    <div class="error oculto" id="g-error"></div>
+    <button class="btn btn-neutro oculto" type="button" id="b-error-volver" style="align-self: flex-start;">Volver</button>
+  </section>
+</div>
 
 <!-- ============ EN PARTIDA ============ -->
 <section class="vista" id="v-partida">
@@ -511,33 +501,51 @@ function opcionesFormulario() {
   return o;
 }
 
-// ---------- preparando ----------
-function pintarPreparando(t) {
-  const pasos = [
-    {n: 1, texto: 'Preparar el emulador y el randomizador'},
-    ...(t.random ? [{n: 2, texto: 'Randomizar el juego'}] : []),
-    {n: 3, texto: 'Abrir el juego con el layout'},
-  ];
-  const actual = t.paso || 1;
-  $('pasos').innerHTML = pasos.map((p) => {
-    const estado = t.fin && !t.error ? 'hecho' : p.n < actual ? 'hecho' : p.n === actual ? 'ahora' : 'pendiente';
-    const icono = estado === 'hecho'
-      ? '<svg width="26" height="26" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="11" fill="#1F9D55"/><path d="M7 12.5l3.2 3.2L17 9" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>'
-      : estado === 'ahora'
-        ? '<svg width="26" height="26" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10" fill="none" stroke="#2A75BB" stroke-width="3"/><circle cx="12" cy="12" r="4" fill="#2A75BB"/></svg>'
-        : '<svg width="26" height="26" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10" fill="none" stroke="#CBD1DE" stroke-width="3"/></svg>';
-    const detalle = estado === 'ahora' && !t.error
-      ? `<span class="suave" style="font-size: 14px;">${esc(t.mensaje)}</span>
-         <div class="pista ${t.pct == null ? 'indef' : ''}" role="progressbar" aria-label="${esc(p.texto)}" ${t.pct == null ? '' : `aria-valuenow="${t.pct}" aria-valuemin="0" aria-valuemax="100"`}><div style="${t.pct == null ? '' : `width: ${t.pct}%;`}"></div></div>`
-      : '';
-    return `<li class="${estado}"><div class="linea">${icono}<span style="flex-grow: 1;">${esc(p.texto)}</span>${estado === 'ahora' && t.pct != null && !t.error ? `<span style="color: var(--azul-texto); font-weight: 800;">${t.pct} %</span>` : ''}</div>${detalle}</li>`;
-  }).join('');
-  $('g-titulo').textContent = t.error ? 'No se ha podido preparar' : 'Preparando tu partida';
-  $('g-sub').textContent = t.error ? 'Revisa el mensaje y vuelve a intentarlo' : `${preparando ? preparando.nombre + ' · ' : ''}no cierres esta ventana`;
-  $('rueda').classList.toggle('oculto', !!t.error);
+// ---------- modal de carga ----------
+// Mensajes de la espera: van por tiempo y no esperan a lo que de verdad se esté haciendo.
+const MENSAJES = [[0, 'Despertando al Profesor Ciprés…'], [5, 'Encendiendo la Pokédex…'], [10, 'Preparando el emulador en el Centro Pokémon…'],
+  [16, 'Barajando las Poké Balls…'], [22, 'Soltando Pokémon salvajes en la hierba alta…'], [29, 'Cambiando los equipos de los entrenadores…'],
+  [35, 'Escondiendo objetos por toda Kalos…'], [41, 'Avisando a los líderes de gimnasio…'], [46, 'Puliendo las ocho medallas…'],
+  [51, 'Contando tus vidas…'], [56, '¡Todo listo! Abriendo el juego…']];
+let carga = null;          // {base: momento local en que empezó la tarea, minimo, paso}
+
+function pintarCarga() {
+  if (!carga) return;
+  const t = (performance.now() - carga.base) / 1000;
+  const dura = carga.minimo || 8;                 // sin mínimo (abrir un juego ya preparado) la barra va rápida
+  const abriendo = carga.paso === 3 || carga.fin;
+  // la barra va con el tiempo, pero se queda en el 95 % hasta que la preparación de verdad termina
+  const pct = Math.floor(Math.min(abriendo ? 100 : 95, t / dura * 100));
+  $('g-relleno').style.width = pct + '%';
+  $('pikachu').style.left = pct + '%';
+  $('g-pct').textContent = pct + '%';
+  $('g-barra').setAttribute('aria-valuenow', pct);
+  if (!carga.error) {
+    let msg = carga.minimo ? MENSAJES.filter(([s]) => t >= s).pop()[1] : carga.mensaje;
+    if (carga.minimo && !abriendo && msg === MENSAJES[MENSAJES.length - 1][1]) msg = MENSAJES[MENSAJES.length - 2][1];
+    $('g-msg').textContent = msg;
+  }
+}
+setInterval(pintarCarga, 50);
+
+function pintarModal(t) {
+  if (!carga || Math.abs((performance.now() - carga.base) / 1000 - (t.transcurrido || 0)) > 1.5) {
+    carga = {base: performance.now() - (t.transcurrido || 0) * 1000};
+  }
+  Object.assign(carga, {minimo: t.minimo || 0, paso: t.paso, fin: t.fin, error: t.error, mensaje: t.mensaje});
+  $('modal-carga').classList.remove('oculto');
+  $('g-titulo').textContent = t.error ? 'No se ha podido preparar' : 'Preparando tu aventura';
   $('g-error').classList.toggle('oculto', !t.error);
   $('b-error-volver').classList.toggle('oculto', !t.error);
-  if (t.error) $('g-error').textContent = t.mensaje;
+  document.querySelector('.carga').classList.toggle('oculto', !!t.error);
+  document.querySelector('.carga-pie').classList.toggle('oculto', !!t.error);
+  if (t.error) { $('g-error').textContent = t.mensaje; $('g-msg').textContent = ''; }
+  pintarCarga();
+}
+
+function cerrarModal() {
+  carga = null;
+  $('modal-carga').classList.add('oculto');
 }
 
 // ---------- estado ----------
@@ -546,6 +554,7 @@ function pintar(e) {
   const t = e.tarea;
   if (e.jugando && e.activo) {
     preparando = null;
+    cerrarModal();
     vista('partida');
     $('j-nombre').textContent = `${e.activo.nombre} · ${e.activo.vidas}/${e.activo.vidas_iniciales} vidas`;
     const c = $('e-conexion');
@@ -553,11 +562,8 @@ function pintar(e) {
     c.textContent = e.conectado ? 'Leyendo el juego' : 'Esperando al juego…';
     return;
   }
-  if (t && (!t.fin || (t.error && t.mensaje !== errorVisto))) {
-    vista('preparando');
-    pintarPreparando(t);
-    return;
-  }
+  if (t && (!t.fin || (t.error && t.mensaje !== errorVisto))) pintarModal(t);
+  else cerrarModal();
   if (preparando) { vista('preparar'); return; }
   vista('biblioteca');
   pintarBiblioteca(e);
@@ -566,8 +572,7 @@ function pintar(e) {
 async function actualizar() {
   try { pintar(await (await fetch('/api/estado')).json()); }
   catch (err) {
-    vista('preparando');
-    pintarPreparando({error: true, mensaje: 'Pokelocke está cerrado. Vuelve a abrir Pokelocke.exe.', paso: 1});
+    pintarModal({error: true, mensaje: 'Pokelocke está cerrado. Vuelve a abrir Pokelocke.exe.', transcurrido: 0});
   }
 }
 

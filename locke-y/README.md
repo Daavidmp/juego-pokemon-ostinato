@@ -97,6 +97,7 @@ Prueba del descifrado de Pokémon: `py -3 app\test_juego.py`.
 - Lectura de memoria: protocolo RPC de [Azahar](https://github.com/azahar-emu/azahar); direcciones y
   descifrado PK6 de [CitraRNG](https://github.com/Admiral-Fish/CitraRNG).
 - Randomización: [Universal Pokemon Randomizer ZX](https://github.com/Ajarmar/universal-pokemon-randomizer-zx).
+- Pikachu corriendo del modal de carga: sprite de Pokémon Mystery Dungeon (Chunsoft), recopilado por [PMDCollab SpriteCollab](https://github.com/PMDCollab/SpriteCollab).
 - Líderes, medallas, logo de Pokémon Y y arte oficial de los Pokémon: © Nintendo / Game Freak / The Pokémon Company.
 - Fondo de Xerneas e Yveltal: wallpaper de fans encontrado en internet.
 - Marcos, contenedores y corazón pixel art: generados con Adobe Firefly y retocados.
