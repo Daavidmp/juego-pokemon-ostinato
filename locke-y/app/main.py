@@ -101,10 +101,15 @@ def java():
     if os.environ.get('JAVA_HOME'):
         candidatos.append(Path(os.environ['JAVA_HOME']) / 'bin' / 'java.exe')
     candidatos += sorted((Path.home() / '.jdks').glob('*/bin/java.exe'), reverse=True)
+    candidatos += sorted((TOOLS / 'java').glob('*/bin/java.exe'), reverse=True)   # el que descarga la app
+    en_path = shutil.which('java')
+    if en_path:
+        candidatos.append(Path(en_path))
+    # solo un JDK vale (con javac al lado): un JRE no puede ejecutar LockeSettings.java
     for c in candidatos:
-        if c.exists():
+        if c.exists() and (c.parent / 'javac.exe').exists():
             return str(c)
-    return shutil.which('java')
+    return None
 
 
 def navegador():
@@ -148,15 +153,26 @@ def descargar(repo, patron, destino, nombre):
     with urllib.request.urlopen(f'https://api.github.com/repos/{repo}/releases/latest') as r:
         rel = json.load(r)
     asset = next(a for a in rel['assets'] if re.fullmatch(patron, a['name']))
+    descargar_zip(asset['browser_download_url'], destino, f'{nombre} {rel["tag_name"]}')
+
+
+def descargar_java():
+    """Java 17 portable (Temurin, de Adoptium) dentro de tools/java: el randomizador lo necesita.
+    Tiene que ser el JDK y no el JRE: LockeSettings.java se ejecuta como fuente y eso pide jdk.compiler."""
+    descargar_zip('https://api.adoptium.net/v3/binary/latest/17/ga/windows/x64/jdk/hotspot/normal/eclipse',
+                  TOOLS / 'java', 'Java 17')
+
+
+def descargar_zip(url, destino, nombre):
     zip_tmp = TOOLS / 'descarga.zip'
     TOOLS.mkdir(exist_ok=True)
 
     def progreso(bloques, tam, total):
         if total > 0:
             pct = min(100, bloques * tam * 100 // total)
-            tarea(f'Descargando {nombre} {rel["tag_name"]}…', paso=1, pct=pct)
+            tarea(f'Descargando {nombre}…', paso=1, pct=pct)
     try:
-        urllib.request.urlretrieve(asset['browser_download_url'], zip_tmp, progreso)
+        urllib.request.urlretrieve(url, zip_tmp, progreso)
         tarea(f'Descomprimiendo {nombre}…', paso=1)
         shutil.rmtree(destino, ignore_errors=True)
         with zipfile.ZipFile(zip_tmp) as z:
@@ -170,7 +186,9 @@ def descargar(repo, patron, destino, nombre):
 
 def herramientas():
     if not java():
-        raise RuntimeError('No encuentro Java 11 o superior (ni en JAVA_HOME, ni en .jdks, ni en el PATH)')
+        descargar_java()
+        if not java():
+            raise RuntimeError('No he podido descargar Java. Instala Java 11 o superior y vuelve a intentarlo.')
     if not azahar_exe():
         descargar('azahar-emu/azahar', r'azahar-windows-msvc-[\d.]+\.zip', TOOLS / 'azahar', 'Azahar')
     if not upr_jar():
@@ -218,6 +236,33 @@ def correr(args, cwd):
     return r.stdout
 
 
+def makerom_exe():
+    return next((TOOLS / 'makerom').rglob('makerom.exe'), None) if (TOOLS / 'makerom').exists() else None
+
+
+def rom_jugable(j):
+    """La ROM que abren el randomizador y Azahar. Un .cia se convierte una vez a .cci (makerom) dentro de
+    datos/juegos/<id>/; el .cia original no se toca. Solo vale si el .cia está descifrado."""
+    if not j['ruta'].lower().endswith('.cia'):
+        return j['ruta']
+    cci = DATOS / 'juegos' / j['id'] / 'rom.cci'
+    if cci.exists() and cci.stat().st_mtime >= Path(j['ruta']).stat().st_mtime:
+        return str(cci)
+    if not makerom_exe():
+        descargar('3DSGuy/Project_CTR', r'makerom-v[\d.]+-win_x86_64\.zip', TOOLS / 'makerom', 'makerom')
+    tarea('Convirtiendo el .cia a .cci…', paso=1)
+    cci.parent.mkdir(parents=True, exist_ok=True)
+    r = subprocess.run([str(makerom_exe()), '-ciatocci', j['ruta'], '-o', str(cci)],
+                       capture_output=True, text=True, creationflags=0x08000000)
+    if r.returncode != 0 or not cci.exists():
+        cci.unlink(missing_ok=True)
+        if 'decrypt' in (r.stdout + r.stderr).lower():
+            raise RuntimeError('Este .cia está cifrado y no se puede usar. Descífralo en tu 3DS con GodMode9 '
+                               '(«Build decrypted .3ds» o «Decrypt file») y añade el archivo descifrado.')
+        raise RuntimeError('No se ha podido convertir el .cia: ' + (r.stderr or r.stdout).strip()[-500:])
+    return str(cci)
+
+
 def randomizar(j, opciones, avanzado):
     jar, jv = upr_jar(), java()
     carpeta = DATOS / 'juegos' / j['id']
@@ -237,7 +282,7 @@ def randomizar(j, opciones, avanzado):
     shutil.rmtree(salida, ignore_errors=True)
     salida.mkdir(parents=True)
     tarea('Randomizando el juego… (puede tardar un par de minutos)', paso=2)
-    correr([jv, '-jar', str(jar), 'cli', '-i', j['ruta'], '-o', str(salida / 'y'),
+    correr([jv, '-jar', str(jar), 'cli', '-i', rom_jugable(j), '-o', str(salida / 'y'),
             '-s', str(ajustes), '-d', '-l'], jar.parent)
     romfs = next(salida.rglob('romfs'))
     titulo = romfs.parent.name if re.fullmatch(r'[0-9A-Fa-f]{16}', romfs.parent.name) else TITLE_Y
@@ -264,7 +309,7 @@ def lanzar(j):
     if j.get('random') and mod.exists():
         shutil.copytree(mod, mods, dirs_exist_ok=True)
     vivo.update(activo=j['id'], equipo=[None] * 6, conectado=False)
-    vivo['proceso'] = subprocess.Popen([str(exe), '-f', j['ruta']])
+    vivo['proceso'] = subprocess.Popen([str(exe), '-f', rom_jugable(j)])
     yo = [sys.executable] if getattr(sys, 'frozen', False) else [sys.executable, str(Path(__file__))]
     subprocess.Popen(yo + ['--capa'])
     renderizar_capa()
@@ -372,7 +417,15 @@ def huella_capa():
     """Lo que se ve en la capa: si cambia, hay que volver a pintarla."""
     e = foto_estado()
     a = e['activo']
-    return json.dumps([a and [a['vidas'], a['vidas_iniciales'], a['medallas']], e['equipo']], sort_keys=True)
+    # también el fanart de cada carta (ruta y fecha): pegar o cambiar uno se ve al momento
+    artes = []
+    for p in e['equipo']:
+        try:
+            f = arte(p['especie']) if p and not p['huevo'] else None
+            artes.append(f and [str(f), f.stat().st_mtime])
+        except OSError:
+            artes.append(None)
+    return json.dumps([a and [a['vidas'], a['vidas_iniciales'], a['medallas']], e['equipo'], artes], sort_keys=True)
 
 
 def renderizar_capa():
@@ -433,11 +486,20 @@ def foto_estado():
 
 
 def arte(especie):
-    """Fanart propio si existe (fanart/658.png|jpg|webp); si no, el arte oficial, guardado en caché."""
-    for ext in ('png', 'jpg', 'jpeg', 'webp'):
+    """Fanart propio si existe (fanart/658.png|jpg|webp, o cualquier imagen dentro de la carpeta
+    fanart/658 Greninja/); si no, el arte oficial, guardado en caché."""
+    exts = ('png', 'jpg', 'jpeg', 'webp')
+    for ext in exts:
         f = FANART / f'{especie}.{ext}'
         if f.exists():
             return f
+    if FANART.exists():
+        for carpeta in FANART.iterdir():
+            n = carpeta.name.split(' ', 1)[0]
+            if carpeta.is_dir() and n.isdigit() and int(n) == especie:
+                fotos = sorted(f for f in carpeta.iterdir() if f.suffix.lower().lstrip('.') in exts)
+                if fotos:
+                    return fotos[0]
     f = CACHE_ARTE / f'{especie}.png'
     if not f.exists():
         CACHE_ARTE.mkdir(parents=True, exist_ok=True)

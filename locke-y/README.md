@@ -10,9 +10,13 @@ se descargan en versión portable dentro de `tools/`.
 
 ## Requisitos
 
-- Windows con Java 11 o superior. Se usa el primero que encuentre en `JAVA_HOME`, en
-  `%USERPROFILE%\.jdks` o en el `PATH`.
-- Tu ROM de Pokémon Y **descifrada** (`.3ds`, `.cci`, `.cxi` o `.cia`), esté donde esté.
+- Windows. El randomizador necesita un JDK de Java 11 o superior (un JRE no vale): se usa el primero que encuentre en
+  `JAVA_HOME`, en `%USERPROFILE%\.jdks`, en `tools\java` o en el `PATH`. Si no hay ninguno, la app
+  descarga sola un Java 17 portable (Temurin) en `tools\java` al pulsar **Continuar**.
+- Tu ROM de Pokémon Y **descifrada** (`.3ds`, `.cci`, `.cxi` o `.cia`), esté donde esté. Un `.cia`
+  se convierte solo a `.cci` con makerom (se descarga en `tools/makerom`) y se guarda en
+  `datos/juegos/<id>/rom.cci`, porque el randomizador no abre `.cia`. Un `.cia` **cifrado** no sirve:
+  descífralo antes en la 3DS con GodMode9.
 
 ## Uso
 
@@ -44,6 +48,20 @@ vuelve a pedir vidas y randomización.
 Si el monitor no es de 1920×1080, el layout se escala y se centra, y las pantallas de Azahar se
 colocan a la misma escala.
 
+## Usar Citra en vez de Azahar
+
+Azahar no abre ROMs cuya cabecera dice «cifrada» (error 8 en su registro). Un Citra antiguo (probado con
+Nightly 1920) sí, y Pokelocke lo usa si se pone en el sitio de Azahar:
+
+1. Copia la carpeta de Citra a `tools\azahar\citra-1920\` (y mueve fuera la de Azahar).
+2. Compila el lanzador como `azahar.exe` junto a `citra-qt.exe`:
+   `C:\Windows\Microsoft.NET\Framework64\v4.0.30319\csc.exe /target:winexe /out:azahar.exe app\citra\lanzador.cs`
+
+El lanzador quita el `-f` que este Citra no entiende, corrige los ajustes que Pokelocke escribe para Azahar,
+pinta el juego en una ventana sin bordes por debajo del layout (la pantalla completa de Citra lo tapa) y con
+**Alt+Q** cambia a ventana normal. Este Citra habla el protocolo RPC 1 (lecturas de 32 bytes): Pokelocke lo
+detecta solo.
+
 ## Qué se actualiza solo
 
 - **Equipo**: se lee de la memoria del juego cada segundo, mediante el servidor RPC de Azahar,
@@ -55,8 +73,10 @@ colocan a la misma escala.
 ## Arte del equipo
 
 Cada carta usa el arte oficial de su especie, que se descarga una vez a `tools/arte/`. Para usar
-un fanart, déjalo en `fanart/` con el número de la Pokédex nacional: `fanart/658.png` para
-Greninja. Admite `.png`, `.jpg` o `.webp`. La carpeta no se sube al repositorio. Usad fanart
+un fanart, déjalo en `fanart/` con el número de la Pokédex nacional (`fanart/658.png` para
+Greninja) o pégalo, con cualquier nombre, dentro de la carpeta de ese Pokémon (`fanart/658 Greninja/`).
+Hay una carpeta para cada Pokémon de la Pokédex de Kalos; si tiene varias imágenes, se usa la primera
+por orden alfabético. Admite `.png`, `.jpg` o `.webp`. La carpeta no se sube al repositorio. Usad fanart
 con permiso de sus autores y acreditadlo en el stream.
 
 ## Carpetas

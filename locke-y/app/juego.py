@@ -21,27 +21,41 @@ ORDEN = [
 ]
 
 
+# versión del protocolo y tamaño máximo de cada lectura: Azahar habla la 2 (32 KB); los Citra antiguos,
+# como el Nightly 1920, la 1 (32 bytes) y a la 2 contestan vacío
+PROTOCOLOS = ((2, 32 * 1024), (1, 32))
+
+
 class RPC:
     def __init__(self, espera=0.5):
         self.s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         self.s.settimeout(espera)
+        self.protocolo = 0
+
+    def _pedir(self, version, direccion, trozo):
+        rid = random.getrandbits(32)
+        self.s.sendto(struct.pack('<IIII', version, rid, 1, 8) + struct.pack('<II', direccion, trozo),
+                      ('127.0.0.1', PUERTO))
+        while True:
+            r = self.s.recv(32 * 1024 + 16)
+            _, i, tipo, _ = struct.unpack('<IIII', r[:16])
+            if i == rid and tipo == 1:
+                return r[16:]
 
     def leer(self, direccion, n):
-        """Lee n bytes de la memoria del juego. Lanza OSError/TimeoutError si Azahar no responde."""
+        """Lee n bytes de la memoria del juego. Lanza OSError/TimeoutError si el emulador no responde."""
         out = b''
         while n > 0:
-            trozo = min(n, 32 * 1024)
-            rid = random.getrandbits(32)
-            self.s.sendto(struct.pack('<IIII', 2, rid, 1, 8) + struct.pack('<II', direccion, trozo),
-                          ('127.0.0.1', PUERTO))
-            while True:
-                r = self.s.recv(32 * 1024 + 16)
-                _, i, tipo, _ = struct.unpack('<IIII', r[:16])
-                if i == rid and tipo == 1:
-                    break
-            datos = r[16:]
+            version, maximo = PROTOCOLOS[self.protocolo]
+            datos = self._pedir(version, direccion, min(n, maximo))
+            if not datos and not out:
+                # respuesta vacía: se prueba con el otro protocolo y se queda el que funcione
+                otro = 1 - self.protocolo
+                datos = self._pedir(PROTOCOLOS[otro][0], direccion, min(n, PROTOCOLOS[otro][1]))
+                if datos:
+                    self.protocolo = otro
             if not datos:
-                raise OSError('Azahar devolvió una lectura vacía')
+                raise OSError('El emulador devolvió una lectura vacía')
             out += datos
             direccion += len(datos)
             n -= len(datos)
@@ -87,9 +101,21 @@ def pokemon(datos):
     }
 
 
+# según la versión del juego el equipo empieza en un sitio u otro (en Pokémon Y en español sin
+# actualizar, 16 bytes antes): se mira dónde hay un Pokémon válido en el primer hueco
+DIRECCIONES = (DIR_EQUIPO, DIR_EQUIPO - 0x10)
+
+
+def leer_hueco(rpc, inicio, i):
+    base = inicio + i * PASO_HUECO
+    return pokemon(descifrar(rpc.leer(base, 232), rpc.leer(base + DESPL_STATS, 22)))
+
+
 def leer_equipo(rpc):
-    equipo = []
-    for i in range(6):
-        base = DIR_EQUIPO + i * PASO_HUECO
-        equipo.append(pokemon(descifrar(rpc.leer(base, 232), rpc.leer(base + DESPL_STATS, 22))))
-    return equipo
+    inicio = getattr(rpc, 'equipo', None)
+    if inicio is None:
+        inicio = next((d for d in DIRECCIONES if leer_hueco(rpc, d, 0)), None)
+        if inicio is None:
+            return [None] * 6                 # aún sin Pokémon: se vuelve a buscar en la siguiente lectura
+        rpc.equipo = inicio
+    return [leer_hueco(rpc, inicio, i) for i in range(6)]

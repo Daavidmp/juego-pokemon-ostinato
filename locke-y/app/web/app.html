@@ -424,6 +424,8 @@ const MODOS = {
 let ultimo = null, preparando = null, modo = 'clasico', menuAbierto = null, pintado = '', errorVisto = null;
 
 async function api(ruta, datos) {
+  // una tarea nueva: su error se enseña aunque sea igual que el último que se cerró (si no, parecía que no pasaba nada)
+  if (/preparar|jugar|upr_completo/.test(ruta)) errorVisto = null;
   const r = await fetch(ruta, {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(datos || {})});
   const j = await r.json();
   if (j.error) alert(j.error);
