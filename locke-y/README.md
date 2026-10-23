@@ -34,6 +34,11 @@ se descargan en versión portable dentro de `tools/`.
 5. Mientras juegas, corrige el locke con el teclado, sin salir del juego:
    **F7** quita una vida, **F8** añade una, **F9** marca la siguiente medalla y **Mayús+F9**
    desmarca la última. Los atajos solo están activos con un juego abierto.
+   - **Vial** (al lado de las vidas): **E** cura a todo el equipo vivo (PS, estado y PP). Los
+     debilitados no reviven. Tiene una sola carga: se pone gris al usarlo y se recarga solo cuando te
+     curas en un Centro Pokémon (o a mano con **Mayús+E**). La E solo se captura con la ventana del
+     juego delante (Azahar no la usa; la V es su botón de encendido). Durante un combate el juego usa
+     una copia del equipo, así que el efecto se nota al terminar la batalla.
 6. Para el stream, captura la pantalla completa en OBS. Si prefieres montar tú las capturas, el
    overlay está en `http://localhost:8765/overlay` (fuente de navegador, 1920×1080) y los huecos son:
 

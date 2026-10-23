@@ -82,7 +82,7 @@ def buscar(id_juego):
 
 
 def nuevo_locke(j, vidas):
-    j.update(vidas_iniciales=int(vidas), ajuste_vidas=0, muertos=[], medallas=[False] * 8)
+    j.update(vidas_iniciales=int(vidas), ajuste_vidas=0, muertos=[], medallas=[False] * 8, vial=True)
 
 
 def vidas(j):
@@ -354,6 +354,15 @@ def preparar(j, opciones, vidas_ini, randomizar_juego, avanzado):
 
 # ---------- seguimiento del locke ----------
 
+def curado_en_centro(antes, ahora):
+    """En un Centro Pokémon se cura todo el equipo de golpe: dos o más Pokémon vivos pasan a la vez de
+    estar heridos a tener los PS al máximo (una poción cura de uno en uno). Con un solo Pokémon vivo basta él."""
+    previos = {p['id']: p for p in antes if p}
+    vivos = [p for p in ahora if p and not p['huevo'] and p['ps'] > 0]
+    sanados = [p for p in vivos if p['id'] in previos and previos[p['id']]['ps'] < p['psmax'] == p['ps']]
+    return len(sanados) >= min(2, len(vivos)) and len(sanados) > 0 and all(p['ps'] == p['psmax'] for p in vivos)
+
+
 def seguimiento():
     rpc = juego.RPC()
     while True:
@@ -362,8 +371,13 @@ def seguimiento():
                 equipo = juego.leer_equipo(rpc)
                 with lock:
                     vivo['conectado'] = True
-                    vivo['equipo'] = equipo
+                    antes, vivo['equipo'] = vivo['equipo'], equipo
                     j = buscar(vivo['activo'])
+                    # el vial se recarga al curarse en un Centro (no cuenta la cura del propio vial)
+                    if not j.get('vial', True) and time.time() - vivo.get('vial_usado', 0) > 5 \
+                            and curado_en_centro(antes, equipo):
+                        j['vial'] = True
+                        guardar()
                     for p in equipo:
                         # un Pokémon a 0 PS cuenta como muerto una sola vez, aunque luego lo revivan
                         if p and not p['huevo'] and p['psmax'] and p['ps'] == 0 and p['id'] not in j['muertos']:
@@ -386,6 +400,8 @@ def corregir(atajo):
             j['ajuste_vidas'] += 1
         elif atajo == 'medalla' and False in j['medallas']:
             j['medallas'][j['medallas'].index(False)] = True
+        elif atajo == 'recargar_vial':
+            j['vial'] = True
         elif atajo == 'quitar_medalla' and True in j['medallas']:
             j['medallas'][len(j['medallas']) - 1 - j['medallas'][::-1].index(True)] = False
         guardar()
@@ -397,9 +413,19 @@ def atajos():
     u = ctypes.windll.user32
     TECLAS = {1: (0, 0x76, 'menos'), 2: (0, 0x77, 'mas'), 3: (0, 0x78, 'medalla'),
               4: (0x0004, 0x78, 'quitar_medalla')}           # 0x76..0x78 = F7..F9, 0x0004 = Mayús
+    # el vial va con la E (Azahar no la usa; la V es su botón de encendido). Solo se captura con el
+    # juego delante, para que en el resto de programas la E se siga escribiendo
+    VIAL = {5: (0, 0x45, 'vial'), 6: (0x0004, 0x45, 'recargar_vial')}
     MOD_NOREPEAT, WM_HOTKEY, PM_REMOVE = 0x4000, 0x0312, 1
-    registrados = False
+    registrados = vial_registrado = False
     msg = wt.MSG()
+    pid = wt.DWORD()
+
+    def juego_delante():
+        u.GetWindowThreadProcessId(u.GetForegroundWindow(), ctypes.byref(pid))
+        p = vivo['proceso']
+        return p is not None and pid.value == p.pid
+
     while True:
         if jugando() and not registrados:
             for i, (mod, tecla, _) in TECLAS.items():
@@ -409,13 +435,40 @@ def atajos():
             for i in TECLAS:
                 u.UnregisterHotKey(None, i)
             registrados = False
+        delante = jugando() and juego_delante()
+        if delante and not vial_registrado:
+            for i, (mod, tecla, _) in VIAL.items():
+                u.RegisterHotKey(None, i, mod | MOD_NOREPEAT, tecla)
+            vial_registrado = True
+        elif not delante and vial_registrado:
+            for i in VIAL:
+                u.UnregisterHotKey(None, i)
+            vial_registrado = False
         while u.PeekMessageW(ctypes.byref(msg), None, 0, 0, PM_REMOVE):
-            if msg.message == WM_HOTKEY and msg.wParam in TECLAS:
-                try:
-                    corregir(TECLAS[msg.wParam][2])
-                except RuntimeError:
-                    pass
+            if msg.message != WM_HOTKEY:
+                continue
+            accion = (TECLAS.get(msg.wParam) or VIAL.get(msg.wParam) or (0, 0, None))[2]
+            try:
+                if accion == 'vial':
+                    usar_vial()
+                elif accion:
+                    corregir(accion)
+            except (RuntimeError, OSError, TimeoutError):
+                traceback.print_exc()
         time.sleep(0.05)
+
+
+def usar_vial():
+    """E: si el vial está cargado, cura a todo el equipo vivo y se gasta hasta el próximo Centro Pokémon."""
+    with lock:
+        j = buscar(vivo['activo'])
+        if not j.get('vial', True):
+            return
+    if juego.curar_equipo(juego.RPC(espera=1.0)):
+        with lock:
+            j['vial'] = False
+            vivo['vial_usado'] = time.time()
+            guardar()
 
 
 def huella_capa():
@@ -430,7 +483,8 @@ def huella_capa():
             artes.append(f and [str(f), f.stat().st_mtime])
         except OSError:
             artes.append(None)
-    return json.dumps([a and [a['vidas'], a['vidas_iniciales'], a['medallas']], e['equipo'], artes], sort_keys=True)
+    return json.dumps([a and [a['vidas'], a['vidas_iniciales'], a['medallas'], a['vial']], e['equipo'], artes],
+                      sort_keys=True)
 
 
 def renderizar_capa():
@@ -473,7 +527,8 @@ def foto_estado():
         if vivo['activo'] and any(j['id'] == vivo['activo'] for j in biblio['juegos']):
             j = buscar(vivo['activo'])
             activo = {'id': j['id'], 'nombre': j['nombre'], 'vidas': vidas(j),
-                      'vidas_iniciales': j['vidas_iniciales'] + j['ajuste_vidas'], 'medallas': j['medallas']}
+                      'vidas_iniciales': j['vidas_iniciales'] + j['ajuste_vidas'], 'medallas': j['medallas'],
+                      'vial': j.get('vial', True)}
             muertos = j['muertos']
         else:
             muertos = []
