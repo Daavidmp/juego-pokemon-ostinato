@@ -400,8 +400,6 @@ def corregir(atajo):
             j['ajuste_vidas'] += 1
         elif atajo == 'medalla' and False in j['medallas']:
             j['medallas'][j['medallas'].index(False)] = True
-        elif atajo == 'recargar_vial':
-            j['vial'] = True
         elif atajo == 'quitar_medalla' and True in j['medallas']:
             j['medallas'][len(j['medallas']) - 1 - j['medallas'][::-1].index(True)] = False
         guardar()
@@ -415,7 +413,7 @@ def atajos():
               4: (0x0004, 0x78, 'quitar_medalla')}           # 0x76..0x78 = F7..F9, 0x0004 = Mayús
     # el vial va con la E (Azahar no la usa; la V es su botón de encendido). Solo se captura con el
     # juego delante, para que en el resto de programas la E se siga escribiendo
-    VIAL = {5: (0, 0x45, 'vial'), 6: (0x0004, 0x45, 'recargar_vial')}
+    VIAL = {5: (0, 0x45, 'vial')}
     MOD_NOREPEAT, WM_HOTKEY, PM_REMOVE = 0x4000, 0x0312, 1
     registrados = vial_registrado = False
     msg = wt.MSG()
