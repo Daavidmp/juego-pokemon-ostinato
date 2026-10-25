@@ -32,8 +32,7 @@ se descargan en versión portable dentro de `tools/`.
    layout**, y el layout encima. El layout no coge el foco: el teclado va al juego y la pantalla
    táctil se puede pulsar a través del hueco. Al cerrar Azahar se cierra el layout.
 5. Mientras juegas, corrige el locke con el teclado, sin salir del juego:
-   **F7** quita una vida, **F8** añade una, **F9** marca la siguiente medalla y **Mayús+F9**
-   desmarca la última. Los atajos solo están activos con un juego abierto.
+   **F7** quita una vida y **F8** añade una. Los atajos solo están activos con un juego abierto.
    - **Vial** (al lado de las vidas): **E** cura a todo el equipo vivo (PS, estado y PP). Los
      debilitados no reviven. Tiene una sola carga: se pone gris al usarlo y se recarga solo cuando te
      curas en un Centro Pokémon. La E solo se captura con la ventana del
@@ -72,8 +71,8 @@ detecta solo.
 - **Equipo**: se lee de la memoria del juego cada segundo, mediante el servidor RPC de Azahar,
   que la app activa. Los huecos vacíos salen en negro.
 - **Vidas**: cada Pokémon que llega a 0 PS resta una vida, una sola vez aunque luego lo revivas.
-- **Medallas**: de momento se marcan con F9 (Mayús+F9 para desmarcar). Falta localizar en memoria
-  dónde guarda el juego las medallas.
+- **Medallas**: se leen de la memoria del juego (bloque del entrenador, un bit por medalla) y se pintan en
+  cuanto vences al líder. Antes iban con F9.
 
 ## Arte del equipo
 
@@ -83,6 +82,19 @@ Greninja) o pégalo, con cualquier nombre, dentro de la carpeta de ese Pokémon 
 Hay una carpeta para cada Pokémon de la Pokédex de Kalos; si tiene varias imágenes, se usa la primera
 por orden alfabético. Admite `.png`, `.jpg` o `.webp`. La carpeta no se sube al repositorio. Usad fanart
 con permiso de sus autores y acreditadlo en el stream.
+
+## Repartir Pokelocke (un solo .exe)
+
+`toolsuild-venv\Scripts\python app\empaquetar.py` crea `tools\dist-unico\Pokelocke.exe`: un solo archivo
+con la app, Citra 1920, la sala online, el randomizador y los fan arts. No lleva la ROM (cada uno elige la
+suya) ni Java (se descarga solo la primera vez). Al abrirse se instala en `%LOCALAPPDATA%\Pokelocke`, donde
+quedan también las partidas; una versión nueva del .exe actualiza los programas sin tocar las partidas.
+
+Con el servidor encendido, cualquiera se lo baja pegando esto en PowerShell:
+
+```
+irm http://pokelocke-david.duckdns.org:8766/descargar -OutFile "$([Environment]::GetFolderPath('Desktop'))\Pokelocke.exe"
+```
 
 ## Carpetas
 

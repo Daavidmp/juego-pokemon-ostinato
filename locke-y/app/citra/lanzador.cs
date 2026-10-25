@@ -71,18 +71,40 @@ static class Lanzador {
     SetWindowPos(h, HWND_NOTOPMOST, (w - vw) / 2, (alto - va) / 2, vw, va, SWP_FRAMECHANGED | SWP_SHOWWINDOW);
   }
 
-  // ajustes de este Citra que Pokelocke no conoce o pone a su manera (los de Azahar); se arreglan antes de abrirlo
+  // ajustes de este Citra que Pokelocke no conoce o pone a su manera (los de Azahar); se arreglan antes de abrirlo.
+  // La primera vez el ini es el que acaba de escribir Pokelocke y no tiene [UI]: lo que falte se añade, porque si
+  // no Citra usa su ventana unica y el juego no sale colocado hasta la segunda vez
   static void Ajustes(string ini) {
     if (!File.Exists(ini)) return;
     string t = File.ReadAllText(ini);
-    Func<string, string, string> poner = (txt, kv) => {
+    Func<string, string, string, string> poner = (txt, grupo, kv) => {
       string k = kv.Split('=')[0];
-      txt = Regex.Replace(txt, "(?m)^" + Regex.Escape(k) + @"\\default=\w+", k + "\\default=false");
-      return Regex.Replace(txt, "(?m)^" + Regex.Escape(k) + "=[^\r\n]*", kv);
+      var linea = new Regex("(?m)^" + Regex.Escape(k) + "=[^\r\n]*");
+      if (linea.IsMatch(txt)) {
+        txt = Regex.Replace(txt, "(?m)^" + Regex.Escape(k) + @"\\default=\w+", k + "\\default=false");
+        return linea.Replace(txt, kv);
+      }
+      string nuevo = k + "\\default=false\r\n" + kv + "\r\n";
+      var cabecera = new Regex("(?m)^\\[" + Regex.Escape(grupo) + "\\][^\r\n]*\r?\n");
+      var m = cabecera.Match(txt);
+      if (m.Success) return txt.Insert(m.Index + m.Length, nuevo);
+      return txt.TrimEnd() + "\r\n\r\n[" + grupo + "]\r\n" + nuevo;
     };
-    t = poner(t, "layout_option=0");        // el 6 de Azahar no existe aqui y no pinta nada
-    t = poner(t, "singleWindowMode=false"); // el juego en su propia ventana, sin menus
-    t = poner(t, "fullscreen=false");
+    t = poner(t, "Layout", "layout_option=0");    // el 6 de Azahar no existe aqui y no pinta nada
+    t = poner(t, "UI", "singleWindowMode=false"); // el juego en su propia ventana, sin menus
+    t = poner(t, "UI", "fullscreen=false");
+    // los huecos del layout: Pokelocke los escribe como Azahar (x, y, ancho, alto) y este Citra los lee como
+    // bordes (izquierda, arriba, derecha, abajo) y solo si custom_layout esta activado
+    Func<string, int?> leer = k => { var m = Regex.Match(t, "(?m)^" + Regex.Escape(k) + @"=(-?\d+)"); return m.Success ? int.Parse(m.Groups[1].Value) : (int?)null; };
+    foreach (var n in new[] { "top", "bottom" }) {
+      int? x = leer("custom_" + n + "_x"), y = leer("custom_" + n + "_y"), w = leer("custom_" + n + "_width"), h = leer("custom_" + n + "_height");
+      if (x == null || y == null || w == null || h == null) continue;
+      t = poner(t, "Layout", "custom_layout=true");
+      t = poner(t, "Layout", "custom_" + n + "_left=" + x);
+      t = poner(t, "Layout", "custom_" + n + "_top=" + y);
+      t = poner(t, "Layout", "custom_" + n + "_right=" + (x + w));
+      t = poner(t, "Layout", "custom_" + n + "_bottom=" + (y + h));
+    }
     File.WriteAllText(ini, t, new UTF8Encoding(false));
   }
 

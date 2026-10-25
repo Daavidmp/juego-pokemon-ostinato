@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Mega Pokelocke Y</title>
+<link rel="icon" href="/assets/icono.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
@@ -120,6 +121,67 @@
   .atajos { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px; }
   .atajo { display: flex; align-items: center; gap: 12px; padding: 14px 16px; border-radius: 14px; background: var(--fondo); font-weight: 700; }
 
+  /* PokéHex */
+  .hex-pestanas { display: flex; gap: 6px; flex-wrap: wrap; }
+  .hex-pestanas button { min-height: 40px; padding: 0 16px; border-radius: 999px; border: 1px solid var(--linea); background: var(--panel); font-weight: 800; font-size: 14px; color: var(--suave); }
+  .hex-pestanas button[aria-selected="true"] { border: 2px solid var(--azul); background: var(--azul-claro); color: var(--azul-texto); }
+  .hex-equipo { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; }
+  .hex-poke { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 12px 8px; border: 1px solid var(--linea); border-radius: 16px; background: var(--panel); color: var(--tinta); }
+  .hex-poke[aria-pressed="true"] { border: 2px solid var(--azul); background: #F3F7FD; padding: 11px 7px; }
+  .hex-poke img { width: 92px; height: 92px; object-fit: cover; border-radius: 12px; background: var(--fondo); }
+  .hex-poke b { font-size: 15px; }
+  .hex-poke span { font-size: 13px; color: var(--suave); }
+  .hex-form { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 12px 16px; }
+  .hex-form input, .hex-form select, .hex-fila input, .hex-fila select { font: 600 15px Nunito, sans-serif; color: var(--tinta); background: var(--panel); border: 1px solid var(--linea-fuerte); border-radius: 10px; padding: 8px 10px; min-height: 42px; width: 100%; }
+  .hex-seis { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 8px; }
+  .hex-seis label { font-size: 12px; font-weight: 800; color: var(--suave); display: flex; flex-direction: column; gap: 4px; }
+  .hex-seis input { font: 700 15px Nunito, sans-serif; border: 1px solid var(--linea-fuerte); border-radius: 10px; padding: 6px 8px; min-height: 40px; width: 100%; }
+  .hex-fila { display: grid; grid-template-columns: minmax(0, 1fr) 110px 44px; gap: 8px; align-items: center; }
+  .hex-lista { display: flex; flex-direction: column; gap: 8px; }
+  .hex-caja { display: grid; grid-template-columns: 150px auto; justify-content: start; gap: 16px; align-items: start; }
+  .hex-columna { display: flex; flex-direction: column; gap: 8px; }
+  .hex-mini-lista { display: flex; flex-direction: column; gap: 6px; }
+  .hex-rejilla { display: grid; grid-template-columns: repeat(6, minmax(0, 104px)); gap: 8px; }
+  .hex-mini { position: relative; aspect-ratio: 1; min-height: 64px; padding: 0; border: 1px solid var(--linea); border-radius: 12px; background: var(--panel); overflow: hidden; color: var(--suave); font-size: 12px; font-weight: 800; }
+  .hex-mini img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+  .hex-mini span { position: absolute; left: 0; right: 0; bottom: 0; padding: 2px 4px; background: rgba(11,18,48,.78); color: #fff; font-size: 11px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .hex-mini.vacio { border-style: dashed; background: var(--fondo); }
+  .hex-mini[aria-pressed="true"] { outline: 3px solid var(--azul); outline-offset: 1px; }
+  .hex-mini.destino:hover { outline: 3px dashed var(--verde); outline-offset: 1px; }
+  .hex-columna .hex-mini { aspect-ratio: auto; height: 64px; }
+  @media (max-width: 700px) { .hex-caja { grid-template-columns: 1fr; } .hex-rejilla { grid-template-columns: repeat(5, minmax(0, 1fr)); } }
+  /* online */
+  .login { flex-grow: 1; display: flex; align-items: center; justify-content: center; padding: 32px 16px; }
+  .login form { width: min(420px, 100%); display: flex; flex-direction: column; gap: 14px; }
+  .login input { font: 700 17px Nunito, sans-serif; border: 1px solid var(--linea-fuerte); border-radius: 12px; padding: 10px 14px; min-height: 50px; width: 100%; }
+  .enlace { background: none; border: 0; padding: 0; color: var(--azul-texto); font-weight: 800; font-size: 14px; text-decoration: underline; }
+  .usuario-chip { display: inline-flex; align-items: center; gap: 8px; min-height: 40px; padding: 0 14px; border-radius: 999px; background: var(--fondo); border: 1px solid var(--linea); font-weight: 800; font-size: 14px; }
+  .punto { width: 10px; height: 10px; border-radius: 50%; background: var(--verde); flex-shrink: 0; }
+  .punto.no { background: #9AA2B8; }
+  .conectados { position: absolute; right: 40px; top: 70px; z-index: 5; width: min(380px, calc(100vw - 32px)); padding: 14px; background: var(--panel); border: 1px solid var(--linea); border-radius: 16px; box-shadow: 0 12px 28px rgba(27,32,48,.16); display: flex; flex-direction: column; gap: 10px; }
+  .conectado { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: 12px; background: var(--fondo); }
+  .conectado div { flex-grow: 1; display: flex; flex-direction: column; line-height: 1.25; }
+  .conectado span { font-size: 13px; color: var(--suave); }
+  .interruptor { display: inline-flex; align-items: center; gap: 8px; font-weight: 800; font-size: 14px; }
+  .interruptor input { width: 18px; height: 18px; accent-color: var(--verde); }
+  .notas { position: fixed; right: 40px; top: 80px; z-index: 6; width: min(420px, calc(100vw - 32px)); max-height: calc(100vh - 100px); overflow-y: auto; box-sizing: border-box; padding: 18px 20px; background: var(--panel); border: 1px solid var(--linea); border-radius: 16px; box-shadow: 0 12px 28px rgba(27,32,48,.16); display: flex; flex-direction: column; gap: 12px; }
+  .notas-cabecera { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+  .notas-cabecera .btn-icono { width: 36px; min-height: 36px; border-radius: 10px; }
+  .notas dl { margin: 0; display: grid; grid-template-columns: auto 1fr; gap: 8px 14px; padding: 12px 14px; border-radius: 12px; background: var(--fondo); }
+  .notas dt { font-weight: 700; font-size: 14px; color: var(--suave); }
+  .notas dd { margin: 0; font-weight: 800; font-size: 15px; overflow-wrap: anywhere; }
+  .notas ol { margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 6px; font-size: 14px; line-height: 1.4; }
+  @media (max-width: 700px) { .notas { right: 16px; } }
+  .huevos { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 10px; }
+  .huevo { position: relative; aspect-ratio: 1; padding: 6px; border: 1px solid var(--linea); border-radius: 14px; background: var(--fondo); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; color: var(--suave); font-size: 11px; font-weight: 800; overflow: hidden; }
+  .huevo:not(:disabled):hover { border-color: var(--rojo); background: var(--panel); }
+  .huevo:disabled { cursor: default; }
+  .huevo.cogido { background: var(--panel); color: var(--tinta); }
+  .huevo.cogido img { width: 70%; height: 70%; object-fit: contain; }
+  .huevo .estrella { position: absolute; top: 4px; right: 6px; color: #B88A00; font-size: 14px; }
+  @media (max-width: 700px) { .huevos { grid-template-columns: repeat(5, minmax(0, 1fr)); } }
+  .aviso-hex { padding: 12px 16px; border-radius: 12px; background: var(--oro-claro); color: #6B4E00; font-weight: 700; font-size: 14px; }
+
   @media (max-width: 700px) {
     header, footer, main.contenido, .barra-acciones { padding-left: 16px; padding-right: 16px; }
   }
@@ -127,14 +189,46 @@
 </head>
 <body>
 
+<!-- ============ ENTRAR ============ -->
+<section class="vista" id="v-login">
+  <div class="login">
+    <form id="f-login" class="tarjeta" style="padding: 28px 28px 24px;">
+      <img src="/assets/logo.png" alt="Mega Pokelocke Y" style="height: 64px; align-self: center;">
+      <h1 id="l-titulo" style="text-align: center;">Entrar</h1>
+      <label class="campo">Usuario<input id="l-usuario" autocomplete="username" maxlength="16" required></label>
+      <label class="campo">Contraseña<input id="l-clave" type="password" autocomplete="current-password" required></label>
+      <div class="error oculto" id="l-error"></div>
+      <button class="btn btn-rojo grande" type="submit" id="l-boton">Entrar</button>
+      <p class="suave" style="text-align: center;"><span id="l-cambia-texto">¿No tienes cuenta?</span> <button class="enlace" type="button" id="l-cambia">Crear una</button></p>
+      <hr style="border: 0; border-top: 1px solid var(--linea); width: 100%; margin: 4px 0;">
+      <div style="display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap;">
+        <label class="interruptor"><input type="checkbox" id="l-servidor"> Este PC es el servidor</label>
+        <button class="enlace" type="button" id="l-sin">Jugar sin conexión</button>
+      </div>
+      <p class="suave" id="l-direccion" style="font-size: 13px;"></p>
+    </form>
+  </div>
+</section>
+
 <!-- ============ BIBLIOTECA ============ -->
 <section class="vista" id="v-biblioteca">
   <header>
     <div class="marca"><img src="/assets/logo.png" alt="Mega Pokelocke Y"><div class="separador"></div><span class="titulo">Biblioteca</span></div>
-    <button class="btn btn-rojo oculto" id="b-anadir-cabecera" type="button">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
-      Añadir juego
-    </button>
+    <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap; position: relative;">
+      <label class="interruptor oculto" id="o-servidor-caja" title="Enciende el servidor para que los demás puedan conectarse y jugar online"><input type="checkbox" id="o-servidor"> Servidor</label>
+      <button class="btn btn-icono" type="button" data-notas aria-label="Cómo entrar en la sala para combatir" title="Cómo entrar en la sala para combatir"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6M8 13h8M8 17h5"/></svg></button>
+      <button class="usuario-chip oculto" type="button" id="o-chip" aria-expanded="false"><span class="punto" id="o-punto"></span><span id="o-texto"></span></button>
+      <button class="btn btn-neutro oculto" type="button" id="o-entrar">Entrar</button>
+      <a class="btn btn-borde oculto" id="b-rom-cabecera" href="https://drive.google.com/file/d/12I8VEHjsqAPWKxzvyI_T5o9WLf4lZ3Ed/view?usp=sharing" target="_blank" rel="noopener" style="text-decoration: none;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></svg>
+        Descargar ROM
+      </a>
+      <button class="btn btn-rojo oculto" id="b-anadir-cabecera" type="button">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
+        Añadir juego
+      </button>
+    </div>
+    <div class="conectados oculto" id="o-panel"></div>
   </header>
 
   <div class="vacio" id="vacio">
@@ -150,6 +244,10 @@
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
       Añadir juego
     </button>
+    <a class="btn btn-borde" href="https://drive.google.com/file/d/12I8VEHjsqAPWKxzvyI_T5o9WLf4lZ3Ed/view?usp=sharing" target="_blank" rel="noopener" style="text-decoration: none;">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></svg>
+      Descargar ROM
+    </a>
     <span class="suave" style="font-size: 14px;">Formatos: .3ds · .cci · .cxi · .cia</span>
   </div>
 
@@ -214,6 +312,8 @@
         <button type="button" class="modo" role="radio" data-modo="clasico"><span style="display: flex; align-items: center; gap: 8px;"><strong>Clásico</strong><span class="etiqueta">Recomendado</span></span><span class="desc">Salvajes, iniciales y entrenadores al azar, pero de fuerza parecida.</span>
           <svg class="check" width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="11" fill="#2A75BB"/><path d="M7 12.5l3.2 3.2L17 9" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
         <button type="button" class="modo" role="radio" data-modo="caos"><strong>Caos</strong><span class="desc">Todo al azar: tipos, habilidades, movimientos y evoluciones.</span>
+          <svg class="check" width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="11" fill="#2A75BB"/><path d="M7 12.5l3.2 3.2L17 9" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+        <button type="button" class="modo" role="radio" data-modo="mega"><span style="display: flex; align-items: center; gap: 8px;"><strong>Normas Mega Pokelocke</strong></span><span class="desc">Dificultad que sube tras la 2.ª medalla, 25 vidas, una captura por ruta, caja de huevos y 10000 Caramelos Raros.</span>
           <svg class="check" width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="11" fill="#2A75BB"/><path d="M7 12.5l3.2 3.2L17 9" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
         <button type="button" class="modo" role="radio" data-modo="personalizado"><strong>Personalizado</strong><span class="desc">Elige cada opción tú mismo, o usa el randomizador completo.</span>
           <svg class="check" width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="11" fill="#2A75BB"/><path d="M7 12.5l3.2 3.2L17 9" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
@@ -363,6 +463,21 @@
   </section>
 </div>
 
+<div class="notas oculto" id="notas" role="dialog" aria-labelledby="notas-titulo"></div>
+
+<!-- ============ CAJA DE HUEVOS (Mega Pokelocke) ============ -->
+<div class="modal-fondo oculto" id="huevos-fondo">
+  <section class="modal" role="dialog" aria-modal="true" aria-labelledby="hv-titulo" style="width: min(720px, 100%); max-height: calc(100vh - 32px); overflow-y: auto;">
+    <div class="notas-cabecera">
+      <h1 id="hv-titulo" style="margin: 0; font-size: 24px;">Caja de huevos</h1>
+      <button class="btn btn-icono" type="button" id="hv-cerrar" aria-label="Cerrar"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+    </div>
+    <p class="suave" id="hv-info"></p>
+    <div class="huevos" id="hv-rejilla"></div>
+    <p class="suave" style="font-size: 13px;">Hay 2 shiny escondidos. El huevo va a tu equipo o, si está lleno, a la primera caja con sitio. Con el juego cerrado.</p>
+  </section>
+</div>
+
 <!-- ============ EN PARTIDA ============ -->
 <section class="vista" id="v-partida">
   <header>
@@ -372,7 +487,10 @@
         <span class="suave" style="font-size: 14px;">En partida · para volver a la biblioteca, cierra el juego</span>
       </div>
     </div>
-    <span class="estado no" id="e-conexion">Esperando al juego…</span>
+    <div style="display: flex; align-items: center; gap: 10px;">
+      <button class="btn btn-icono" type="button" data-notas aria-label="Cómo entrar en la sala para combatir" title="Cómo entrar en la sala para combatir"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6M8 13h8M8 17h5"/></svg></button>
+      <span class="estado no" id="e-conexion">Esperando al juego…</span>
+    </div>
   </header>
   <main class="contenido">
     <section class="tarjeta" style="display: flex; flex-direction: column; gap: 14px;">
@@ -380,14 +498,69 @@
       <div class="atajos">
         <div class="atajo"><kbd>F7</kbd> Quita una vida</div>
         <div class="atajo"><kbd>F8</kbd> Añade una vida</div>
-        <div class="atajo"><kbd>F9</kbd> Marca la siguiente medalla</div>
-        <div class="atajo"><kbd>Mayús</kbd>+<kbd>F9</kbd> Desmarca la última</div>
         <div class="atajo"><kbd>E</kbd> Usa el vial: cura a los vivos (los debilitados no reviven)</div>
       </div>
-      <p class="suave">Las muertes se cuentan solas: cuando un Pokémon de tu equipo se debilita, pierdes una vida. Esc sale de la pantalla completa.</p>
+      <p class="suave">Las muertes se cuentan solas: cuando un Pokémon de tu equipo se debilita, pierdes una vida. Las medallas también se marcan solas al vencer a cada líder. Esc sale de la pantalla completa.</p>
     </section>
   </main>
 </section>
+
+<!-- ============ POKÉHEX ============ -->
+<section class="vista" id="v-pokehex">
+  <header>
+    <div class="marca">
+      <button class="btn btn-icono" id="b-hex-salir" type="button" aria-label="Salir del PokéHex">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1B2030" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>
+      </button>
+      <span class="titulo" id="hex-titulo">PokéHex</span>
+    </div>
+    <div class="hex-pestanas" role="tablist">
+      <button type="button" role="tab" aria-selected="true" data-hex="equipo">Equipo</button>
+      <button type="button" role="tab" aria-selected="false" data-hex="caja">Caja</button>
+      <button type="button" role="tab" aria-selected="false" data-hex="mochila">Mochila</button>
+    </div>
+    <button class="btn btn-neutro" type="button" id="b-hex-leer">Volver a leer</button>
+  </header>
+  <main class="contenido">
+    <p class="aviso-hex">Los cambios se guardan en la partida al momento (con una copia de antes en datos/juegos/…/copias_partida). Se ven la próxima vez que abras el juego.</p>
+    <section id="hex-equipo" style="display: flex; flex-direction: column; gap: 16px;">
+      <div class="hex-equipo" id="hex-huecos"></div>
+    </section>
+    <section id="hex-caja" class="oculto" style="display: flex; flex-direction: column; gap: 14px;">
+      <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+        <button class="btn btn-icono" type="button" id="hx-caja-ant" aria-label="Caja anterior">‹</button>
+        <select id="hx-caja-sel" aria-label="Caja" style="min-height: 44px; font: 800 16px Nunito, sans-serif; border: 1px solid var(--linea-fuerte); border-radius: 12px; padding: 0 12px;"></select>
+        <button class="btn btn-icono" type="button" id="hx-caja-sig" aria-label="Caja siguiente">›</button>
+        <span class="suave" id="hx-caja-ayuda" style="flex-grow: 1;"></span>
+        <button class="btn btn-neutro oculto" type="button" id="hx-cancelar-mover">Cancelar</button>
+      </div>
+      <div class="hex-caja">
+        <div class="hex-columna"><b>Equipo</b><div id="hx-caja-equipo" class="hex-mini-lista"></div></div>
+        <div class="hex-rejilla" id="hx-caja-huecos"></div>
+      </div>
+      <section class="tarjeta oculto" id="hx-nuevo-poke" style="display: flex; gap: 10px; flex-wrap: wrap; align-items: end;"></section>
+    </section>
+    <section class="tarjeta oculto" id="hex-editor" style="display: flex; flex-direction: column; gap: 18px;"></section>
+    <section id="hex-mochila" class="oculto" style="display: flex; flex-direction: column; gap: 16px;">
+      <div class="hex-pestanas" id="hex-bolsillos" role="tablist"></div>
+      <section class="tarjeta" id="hex-bolsillo" style="display: flex; flex-direction: column; gap: 14px;"></section>
+    </section>
+  </main>
+</section>
+
+<!-- contraseña del PokéHex -->
+<div class="modal-fondo oculto" id="hex-clave">
+  <form class="modal" id="hex-form-clave" role="dialog" aria-modal="true" aria-labelledby="hex-clave-titulo">
+    <h1 id="hex-clave-titulo">PokéHex</h1>
+    <p class="suave">Escribe la contraseña para ver y cambiar el equipo y la mochila.</p>
+    <input type="password" id="hex-pass" autocomplete="current-password" aria-label="Contraseña" style="font: 700 18px Nunito, sans-serif; border: 1px solid var(--linea-fuerte); border-radius: 12px; padding: 10px 14px; min-height: 50px;">
+    <div class="error oculto" id="hex-clave-error"></div>
+    <div style="display: flex; gap: 10px; justify-content: flex-end;">
+      <button class="btn btn-neutro" type="button" id="b-hex-cancelar">Cancelar</button>
+      <button class="btn btn-rojo" type="submit">Entrar</button>
+    </div>
+  </form>
+</div>
 
 <script>
 const $ = (id) => document.getElementById(id);
@@ -407,6 +580,22 @@ const MODOS = {
       trainersMod: 'RANDOM', trainersUsePokemonOfSimilarStrength: 'false', blockWildLegendaries: 'false', typesMod: 'RANDOM_FOLLOW_EVOLUTIONS',
       abilitiesMod: 'RANDOMIZE', baseStatisticsMod: 'SHUFFLE', evolutionsMod: 'RANDOM', movesetsMod: 'RANDOM_PREFER_SAME_TYPE',
       fieldItemsMod: 'RANDOM_EVEN', inGameTradesMod: 'RANDOMIZE_GIVEN_AND_REQUESTED'},
+  },
+  mega: {
+    resumen: ['Salvajes aleatorios en cada encuentro, de cualquier tipo', 'Iniciales aleatorios con dos evoluciones',
+      'Legendarios y Pokémon de regalo totalmente aleatorios', 'Entrenadores con equipos aleatorios y un 15 % más de nivel',
+      'Movimientos, habilidades y objetos del suelo aleatorios', 'Lo que te dan en los intercambios del juego, aleatorio',
+      'Estadísticas base, tipos y evoluciones sin cambios', 'Facilidad de captura normal'],
+    normas: ['Dificultad que sube: hasta la 2.ª medalla, entrenadores y salvajes solo con Pokémon que aún pueden evolucionar, rivales con ataques de 70 o menos y MT de menos de 70',
+      'Al ganar la 2.ª medalla se abre la randomización completa (guarda y reinicia el juego)', '25 vidas','Las muertes no cuentan hasta acabar el primer combate contra un entrenador (Shauna)',
+      'El vial solo se puede usar fuera de combate', 'Una captura por ruta; los shiny no cuentan',
+      '10000 Caramelos Raros: se rellenan solos hasta 999 cada vez que abres el juego',
+      'Caja de 30 huevos aleatorios con 2 shiny: coges uno cada 2 medallas y, si sale shiny, otro más'],
+    opciones: {wildPokemonMod: 'RANDOM', wildPokemonRestrictionMod: 'NONE', blockWildLegendaries: 'false',
+      startersMod: 'RANDOM_WITH_TWO_EVOLUTIONS', staticPokemonMod: 'COMPLETELY_RANDOM',
+      trainersMod: 'RANDOM', trainersUsePokemonOfSimilarStrength: 'false', trainersLevelModified: 'true', trainersLevelModifier: '15',
+      typesMod: 'UNCHANGED', abilitiesMod: 'RANDOMIZE', baseStatisticsMod: 'UNCHANGED', evolutionsMod: 'UNCHANGED',
+      movesetsMod: 'COMPLETELY_RANDOM', fieldItemsMod: 'RANDOM', inGameTradesMod: 'RANDOMIZE_GIVEN', useMinimumCatchRate: 'false'},
   },
   original: {resumen: ['Se juega la versión original, sin cambios']},
   personalizado: {resumen: ['Elige cada opción aquí debajo']},
@@ -432,15 +621,18 @@ function vista(nombre) {
 const icoCorazon = '<svg width="14" height="13" viewBox="0 0 24 22" aria-hidden="true"><path d="M12 21C5 15 1 11 1 6.5A5.5 5.5 0 0 1 12 4a5.5 5.5 0 0 1 11 2.5C23 11 19 15 12 21Z" fill="#CC2B0B"/></svg>';
 const icoMedalla = '<svg width="14" height="14" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="13" r="8" fill="#FFCB05" stroke="#B88A00" stroke-width="2"/></svg>';
 const icoPuntos = '<svg width="20" height="20" viewBox="0 0 24 24" fill="#5B6478" aria-hidden="true"><circle cx="5" cy="12" r="2.2"/><circle cx="12" cy="12" r="2.2"/><circle cx="19" cy="12" r="2.2"/></svg>';
-const icoMas = '<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#CC2B0B" stroke-width="3" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>';
+const icoHuevo = '<svg width="12" height="14" viewBox="0 0 20 24" aria-hidden="true"><path d="M10 1C5 1 1 9 1 15a9 9 0 0 0 18 0C19 9 15 1 10 1Z" fill="#F4EEDC" stroke="#9AA2B8" stroke-width="2"/></svg>';
+const icoMas ='<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#CC2B0B" stroke-width="3" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>';
 
 function tarjeta(j) {
   const chips = j.preparado
-    ? `<span class="chip vidas">${icoCorazon}${j.vidas}/${j.vidas_iniciales}</span><span class="chip medallas">${icoMedalla}${j.medallas}/8</span>${j.random ? '<span class="chip random">Randomizado</span>' : ''}`
+    ? `<span class="chip vidas">${icoCorazon}${j.vidas}/${j.vidas_iniciales}</span><span class="chip medallas">${icoMedalla}${j.medallas}/8</span>${j.reglas === 'mega' ? '<span class="chip random">Mega Pokelocke</span>' : j.random ? '<span class="chip random">Randomizado</span>' : ''}${j.huevos ? `<span class="chip nuevo">${icoHuevo}${j.huevos} ${j.huevos === 1 ? 'huevo' : 'huevos'}</span>` : ''}`
     : '<span class="chip nuevo">Sin empezar</span>';
   const abierto = menuAbierto === j.id;
   const menu = abierto ? `<div class="menu" role="menu">
       ${j.preparado ? `<button type="button" role="menuitem" data-accion="nuevo" data-id="${j.id}">Empezar un locke nuevo</button>` : ''}
+      ${j.reglas === 'mega' ? `<button type="button" role="menuitem" data-accion="huevos" data-id="${j.id}">Caja de huevos</button>` : ''}
+      <button type="button" role="menuitem" data-accion="pokehex" data-id="${j.id}">PokéHex</button>
       <button type="button" role="menuitem" data-accion="registro" data-id="${j.id}" ${j.registro ? '' : 'disabled'}>Ver registro de randomización</button>
       <button type="button" role="menuitem" class="peligro" data-accion="quitar" data-id="${j.id}">Quitar de la biblioteca</button>
     </div>` : '';
@@ -462,6 +654,7 @@ function pintarBiblioteca(e) {
   $('vacio').classList.toggle('oculto', hay);
   $('lista').classList.toggle('oculto', !hay);
   $('b-anadir-cabecera').classList.toggle('oculto', !hay);
+  $('b-rom-cabecera').classList.toggle('oculto', !hay);
   $('pie-ayuda').textContent = hay ? 'Pulsa un juego para jugar' : '';
   $('cuantos').textContent = `${e.juegos.length} ${e.juegos.length === 1 ? 'juego' : 'juegos'}`;
   const html = e.juegos.map(tarjeta).join('') + `<button type="button" class="anadir" data-accion="anadir"><span>${icoMas}</span>Añadir juego</button>`;
@@ -486,9 +679,16 @@ function ponerVidas(v) {
 function elegirModo(m) {
   modo = m;
   document.querySelectorAll('.modo').forEach((b) => b.setAttribute('aria-checked', SI(b.dataset.modo === m)));
-  const nombre = {clasico: 'En Clásico:', caos: 'En Caos:', original: 'Sin randomizar:', personalizado: 'Personalizado:'}[m];
-  $('resumen').innerHTML = `<b>${nombre}</b>` + MODOS[m].resumen.map((t) => `<span>${esc(t)}</span>`).join('');
+  const nombre = {clasico: 'En Clásico:', caos: 'En Caos:', original: 'Sin randomizar:', mega: 'Normas Mega Pokelocke', personalizado: 'Personalizado:'}[m];
+  const lista = (titulo, l) => `<div><b>${titulo}</b><ul style="margin: 6px 0 0; padding-left: 20px; display: flex; flex-direction: column; gap: 4px;">${l.map((t) => `<li>${esc(t)}</li>`).join('')}</ul></div>`;
+  $('resumen').innerHTML = m === 'mega'
+    ? `<div style="display: flex; flex-direction: column; gap: 12px; width: 100%;"><b style="font-size: 16px;">${nombre}: lo que conlleva elegirlas</b>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px 24px;">${lista('Randomización', MODOS.mega.resumen)}${lista('Normas en la partida', MODOS.mega.normas)}</div></div>`
+    : `<b>${nombre}</b>` + MODOS[m].resumen.map((t) => `<span>${esc(t)}</span>`).join('');
   $('personalizado').classList.toggle('oculto', m !== 'personalizado');
+  // con las normas Mega, las vidas son siempre 25
+  if (m === 'mega') ponerVidas(25);
+  document.querySelectorAll('#atajos-vidas button, #b-vida-menos, #b-vida-mas, #p-vidas').forEach((el) => { el.disabled = m === 'mega'; });
 }
 
 function opcionesFormulario() {
@@ -550,12 +750,157 @@ function cerrarModal() {
 }
 
 // ---------- estado ----------
+// ---------- online ----------
+let sinConexion = false, registrando = false, panelAbierto = false;
+try { sinConexion = localStorage.getItem('pokelocke-sin-conexion') === '1'; } catch (err) { /* sin almacenamiento */ }
+
+function pintarOnline(o) {
+  const s = o.sesion;
+  $('o-chip').classList.toggle('oculto', !s);
+  $('o-entrar').classList.toggle('oculto', !!s);
+  $('o-servidor-caja').classList.toggle('oculto', !(o.servidor || (s && s.admin)));
+  $('o-servidor').checked = o.servidor;
+  if (s) {
+    const n = o.conectados.length;
+    $('o-punto').className = 'punto' + (o.error ? ' no' : '');
+    $('o-texto').textContent = `${s.usuario}${s.admin ? ' · admin' : ''} · ${o.error ? 'sin servidor' : n + ' conectado' + (n === 1 ? '' : 's')}`;
+  }
+  $('o-panel').classList.toggle('oculto', !(panelAbierto && s));
+  if (panelAbierto && s) {
+    $('o-panel').innerHTML = `<h2 style="font-size: 17px;">Conectados</h2>
+      ${o.error ? `<p class="error">${esc(o.error)}</p>` : ''}
+      ${o.conectados.map((c) => `<div class="conectado"><span class="punto"></span><div><b>${esc(c.usuario)}${c.admin ? ' · admin' : ''}</b>
+        <span>${c.jugando ? 'Jugando a ' + esc(c.juego || '') : 'En la biblioteca'}</span></div>
+        ${s.admin && c.usuario !== s.usuario ? `<button class="btn btn-neutro" type="button" data-remoto="${esc(c.usuario)}">PokéHex</button>` : ''}</div>`).join('') || '<p class="suave">Nadie conectado.</p>'}
+      ${o.servidor ? `<p class="suave" style="font-size: 13px;">Eres el servidor${o.ip ? ` · ${esc(o.ip)}` : ''}${o.upnp === false ? ' · el router no ha abierto los puertos' : ''}</p>` : ''}
+      <button class="btn btn-neutro" type="button" id="o-salir">Cerrar sesión</button>`;
+    $('o-salir').onclick = async () => { panelAbierto = false; await api('/api/online/salir'); };
+  }
+}
+
+// ---------- caja de huevos (Mega Pokelocke) ----------
+const huevos = {juego: null, ocupado: false};
+const icoHuevoGrande = '<svg width="60%" viewBox="0 0 20 24" aria-hidden="true"><path d="M10 1C5 1 1 9 1 15a9 9 0 0 0 18 0C19 9 15 1 10 1Z" fill="#F4EEDC" stroke="#9AA2B8" stroke-width="1.5"/><path d="M4 12l3 2 3-3 3 3 3-2" fill="none" stroke="#7FB069" stroke-width="1.5" stroke-linejoin="round"/></svg>';
+
+async function pedirHuevos(ruta, datos) {
+  const r = await fetch(ruta, {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({id: huevos.juego.id, ...datos})});
+  return r.json();
+}
+
+function pintarHuevos(e) {
+  const n = e.disponibles;
+  $('hv-info').textContent = (n ? `Puedes coger ${n} ${n === 1 ? 'huevo' : 'huevos'}.` : `Ahora no puedes coger ninguno: uno cada 2 medallas (llevas ${e.medallas}).`)
+    + ' Si el que coges es shiny, puedes coger otro.';
+  $('hv-rejilla').innerHTML = e.huevos.map((h, i) => h.cogido
+    ? `<button type="button" class="huevo cogido" disabled title="${esc(h.nombre)}${h.shiny ? ' · shiny' : ''}">${h.shiny ? '<span class="estrella">★</span>' : ''}<img src="/arte/${h.especie}" alt=""><span>${esc(h.nombre)}</span></button>`
+    : `<button type="button" class="huevo" data-huevo="${i}" ${n && !huevos.ocupado ? '' : 'disabled'} aria-label="Huevo ${i + 1}">${icoHuevoGrande}</button>`).join('');
+}
+
+async function abrirHuevos(j) {
+  huevos.juego = j;
+  const e = await pedirHuevos('/api/huevos');
+  if (e.error) return alert(e.error);
+  pintarHuevos(e);
+  $('huevos-fondo').classList.remove('oculto');
+}
+
+$('hv-cerrar').onclick = () => { $('huevos-fondo').classList.add('oculto'); actualizar(); };
+$('hv-rejilla').onclick = async (ev) => {
+  const b = ev.target.closest('[data-huevo]');
+  if (!b || b.disabled || huevos.ocupado || !confirm('¿Coger este huevo?')) return;
+  huevos.ocupado = true;
+  b.innerHTML = '<span>Abriendo…</span>';
+  const e = await pedirHuevos('/api/huevos/coger', {i: Number(b.dataset.huevo)});
+  huevos.ocupado = false;
+  if (e.error) { alert(e.error); return abrirHuevos(huevos.juego); }
+  pintarHuevos(e);
+  const h = e.huevos[Number(b.dataset.huevo)];
+  alert(`¡Un huevo de ${h.nombre}${h.shiny ? ' ★ SHINY! Puedes coger otro' : ''}! Lo tienes en ${e.donde}.`);
+};
+
+// notas para entrar en la sala de Citra: lo que va en «Multijugador > Conectar directamente a una sala»
+let notasAbiertas = false, notasHtml = '';
+function pintarNotas(o) {
+  $('notas').classList.toggle('oculto', !notasAbiertas);
+  if (!notasAbiertas) { notasHtml = ''; return; }
+  const s = o.sesion;
+  const direccion = o.servidor ? '127.0.0.1' : (o.direccion || 'la que te pase el anfitrión');
+  const html = `<div class="notas-cabecera"><h2 id="notas-titulo" style="font-size: 17px;">Entrar en la sala para combatir</h2>
+      <button class="btn btn-icono" type="button" id="notas-cerrar" aria-label="Cerrar"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+    <p class="suave" style="font-size: 14px;">En Citra: <b>Multijugador → Conectar directamente a una sala</b>, y escribe:</p>
+    <dl>
+      <dt>Server Address</dt><dd>${esc(direccion)}</dd>
+      <dt>Puerto</dt><dd>24872</dd>
+      <dt>Apodo</dt><dd>${s ? esc(s.usuario) : 'tu usuario'}</dd>
+      <dt>Contraseña</dt><dd>vacía</dd>
+    </dl>
+    ${o.servidor && o.direccion ? `<p class="aviso-hex">Eres el servidor: tú pones 127.0.0.1. Los demás ponen <b>${esc(o.direccion)}</b>.</p>` : ''}
+    <ol>
+      <li><b>Alt+Q</b> para sacar el juego a una ventana y <b>Alt+Tab</b> a la ventana principal de Citra.</li>
+      <li>Conecta con los datos de arriba. El apodo es distinto para cada uno: de 4 a 20 letras o números, sin espacios.</li>
+      <li>Comprueba en el chat de la sala que estáis todos. No cierres esa ventana.</li>
+      <li>Vuelve al juego, <b>Alt+Q</b> otra vez, y en el <b>PSS</b> pulsa al otro jugador → <b>Combate</b>.</li>
+    </ol>
+    ${o.servidor || o.direccion ? '' : '<p class="suave" style="font-size: 13px;">La sala solo existe mientras el anfitrión tenga el servidor encendido.</p>'}`;
+  if (html === notasHtml) return;                     // se pinta cada segundo: sin cambios no se toca
+  $('notas').innerHTML = notasHtml = html;
+  $('notas-cerrar').onclick = () => { notasAbiertas = false; pintarNotas(o); };
+}
+document.addEventListener('click', (ev) => {
+  if (!ev.target.closest('[data-notas]')) return;
+  notasAbiertas = !notasAbiertas;
+  if (ultimo) pintarNotas(ultimo.online);
+});
+
+function pintarLogin(o) {
+  $('l-titulo').textContent = registrando ? 'Crear cuenta' : 'Entrar';
+  $('l-boton').textContent = registrando ? 'Crear cuenta' : 'Entrar';
+  $('l-cambia-texto').textContent = registrando ? '¿Ya tienes cuenta?' : '¿No tienes cuenta?';
+  $('l-cambia').textContent = registrando ? 'Entrar' : 'Crear una';
+  $('l-servidor').checked = o.servidor;
+  $('l-direccion').textContent = o.servidor ? `Servidor encendido en este PC${o.ip ? ' (' + o.ip + ')' : ''}.`
+    : o.direccion ? `Servidor: ${o.direccion}` : 'Aún no hay servidor configurado: enciéndelo en el PC del anfitrión.';
+}
+
+$('f-login').onsubmit = async (ev) => {
+  ev.preventDefault();
+  const r = await fetch('/api/online/' + (registrando ? 'registro' : 'entrar'), {method: 'POST', headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({usuario: $('l-usuario').value.trim(), clave: $('l-clave').value})});
+  const j = await r.json();
+  $('l-error').classList.toggle('oculto', !j.error);
+  if (j.error) { $('l-error').textContent = j.error; return; }
+  $('l-clave').value = '';
+  actualizar();
+};
+$('l-cambia').onclick = () => { registrando = !registrando; $('l-error').classList.add('oculto'); if (ultimo) pintarLogin(ultimo.online); };
+$('l-sin').onclick = () => { sinConexion = true; try { localStorage.setItem('pokelocke-sin-conexion', '1'); } catch (err) { /* nada */ } actualizar(); };
+$('l-servidor').onchange = $('o-servidor').onchange = async (ev) => {
+  const activar = ev.target.checked;
+  ev.target.disabled = true;
+  await api('/api/online/servidor', {activar});
+  ev.target.disabled = false;
+};
+$('o-entrar').onclick = () => { sinConexion = false; try { localStorage.removeItem('pokelocke-sin-conexion'); } catch (err) { /* nada */ } actualizar(); };
+$('o-chip').onclick = () => { panelAbierto = !panelAbierto; $('o-chip').setAttribute('aria-expanded', String(panelAbierto)); if (ultimo) pintarOnline(ultimo.online); };
+$('o-panel').onclick = (ev) => {
+  const b = ev.target.closest('[data-remoto]');
+  if (b) { panelAbierto = false; abrirHex(null, b.dataset.remoto); }
+};
+
 function pintar(e) {
   ultimo = e;
   const t = e.tarea;
+  pintarOnline(e.online);
+  pintarNotas(e.online);
+  if (!e.online.sesion && !sinConexion && !(e.jugando && e.activo)) {
+    if (hex.abierto && !hex.remoto) { /* el PokéHex propio sigue abierto */ } else {
+      vista('login'); pintarLogin(e.online); return;
+    }
+  }
   if (e.jugando && e.activo) {
     preparando = null;
     cerrarModal();
+    if (hex.abierto) cerrarHex();                      // el PokéHex es con el juego cerrado
     vista('partida');
     $('j-nombre').textContent = `${e.activo.nombre} · ${e.activo.vidas}/${e.activo.vidas_iniciales} vidas`;
     const c = $('e-conexion');
@@ -563,6 +908,7 @@ function pintar(e) {
     c.textContent = e.conectado ? 'Leyendo el juego' : 'Esperando al juego…';
     return;
   }
+  if (hex.abierto) return;
   if (t && (!t.fin || (t.error && t.mensaje !== errorVisto))) pintarModal(t);
   else cerrarModal();
   if (preparando) { vista('preparar'); return; }
@@ -590,6 +936,8 @@ $('juegos').onclick = (ev) => {
   menuAbierto = null; pintado = '';
   if (accion === 'jugar') return j.preparado ? api('/api/jugar', {id: j.id}) : abrirPreparar(j);
   if (accion === 'registro') return api('/api/registro', {id: j.id});
+  if (accion === 'pokehex') return abrirHex(j);
+  if (accion === 'huevos') return abrirHuevos(j);
   if (accion === 'quitar' && confirm(`¿Quitar «${j.nombre}» de la biblioteca? Se borra su locke; la ROM no se toca.`)) return api('/api/quitar', {id: j.id});
   if (accion === 'nuevo' && confirm('¿Empezar un locke nuevo? Se borran las muertes y las medallas, y vuelves a elegir vidas y randomización.')) {
     return api('/api/reiniciar', {id: j.id}).then(() => abrirPreparar(j));
@@ -614,11 +962,252 @@ $('b-continuar').onclick = () => {
   const avanzado = modo === 'personalizado' && $('p-avanzado').checked;
   if (avanzado && !ultimo.avanzado) return alert('Aún no hay ajustes guardados en locke-y/datos/avanzado.rnqs');
   api('/api/preparar', {
-    id: preparando.id, vidas: $('p-vidas').value, randomizar: modo !== 'original', avanzado,
+    id: preparando.id, vidas: $('p-vidas').value, randomizar: modo !== 'original', avanzado, reglas: modo === 'mega' ? 'mega' : null,
     opciones: modo === 'personalizado' ? opcionesFormulario() : (MODOS[modo].opciones || {}),
   });
 };
 $('b-error-volver').onclick = () => { errorVisto = ultimo && ultimo.tarea ? ultimo.tarea.mensaje : null; actualizar(); };
+
+// ---------- PokéHex ----------
+const hex = {abierto: false, token: null, nombres: null, admitidos: null, balls: null, equipo: [], mochila: null, cajas: [],
+             sel: null, pestana: 'equipo', bolsillo: 'objetos', borrador: null, caja: 0, moviendo: null, nuevoEn: null};
+// un sitio: {tipo: 'equipo'|'caja', caja, hueco}
+const mismo = (a, b) => !!(a && b && a.tipo === b.tipo && a.hueco === b.hueco && (a.tipo === 'equipo' || a.caja === b.caja));
+const enSitio = (l) => !l ? null : l.tipo === 'equipo' ? hex.equipo[l.hueco] : (hex.cajas[l.caja] || {pokemon: []}).pokemon[l.hueco];
+const BOLSILLOS = [['objetos', 'Objetos'], ['medicinas', 'Medicinas'], ['bayas', 'Bayas'], ['mt', 'MT y MO'], ['clave', 'Objetos clave']];
+const NOM_STATS = ['PS', 'Ataque', 'Defensa', 'Velocidad', 'At. Esp.', 'Def. Esp.'];
+
+async function hexApi(que, datos) {
+  // el PokéHex de otro jugador va por el servidor: se le manda el encargo a su Pokelocke y contesta
+  const r = hex.remoto
+    ? await fetch('/api/online/pokehex', {method: 'POST', headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({usuario: hex.remoto, clave_hex: hex.claveRemota, que, datos: {...(datos || {}), id: hex.juego || undefined}})})
+    : await fetch('/api/pokehex/' + que, {method: 'POST', headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({...(datos || {}), token: hex.token, id: hex.juego})});
+  const j = await r.json();
+  if (j.error) {
+    if (/Vuelve a entrar/.test(j.error)) { hex.token = null; cerrarHex(); }    // Pokelocke se ha reiniciado
+    throw new Error(j.error);
+  }
+  return j;
+}
+
+function opciones(lista, actual, desde = 0, filtro = null) {
+  return lista.map((n, i) => [n, i]).filter(([n, i]) => i >= desde && n && n !== '—' && (!filtro || filtro.has(i) || i === actual))
+    .sort((a, b) => a[0].localeCompare(b[0], 'es'))
+    .map(([n, i]) => `<option value="${i}"${i === actual ? ' selected' : ''}>${esc(n)}</option>`).join('');
+}
+
+function abrirHex(j, remoto = null) {
+  Object.assign(hex, {juego: j ? j.id : null, remoto, sel: null, borrador: null, pestana: 'equipo', caja: 0, moviendo: null, nuevoEn: null});
+  $('hex-titulo').textContent = remoto ? `PokéHex de ${remoto}` : 'PokéHex';
+  if (hex.token && (!remoto || hex.claveRemota)) return entrarHex();
+  $('hex-pass').value = ''; $('hex-clave-error').classList.add('oculto');
+  $('hex-clave').classList.remove('oculto'); $('hex-pass').focus();
+}
+
+async function entrarHex() {
+  hex.abierto = true; vista('pokehex');
+  await leerHex();
+}
+
+function cerrarHex() { hex.remoto = null; hex.abierto = false; hex.sel = null; hex.moviendo = null; pintado = ''; if (ultimo) pintar(ultimo); }
+
+async function leerHex() {
+  try {
+    const j = await hexApi('leer');
+    hex.equipo = j.equipo; hex.mochila = j.mochila; hex.cajas = j.cajas;
+    if (hex.remoto && !hex.juego && j.juegos && j.juegos[0]) hex.juego = j.juegos[0].id;
+    pintarHex();
+  } catch (e) { alert(e.message); cerrarHex(); }
+}
+
+function pintarHex() {
+  document.querySelectorAll('[data-hex]').forEach((b) => b.setAttribute('aria-selected', String(b.dataset.hex === hex.pestana)));
+  $('hex-equipo').classList.toggle('oculto', hex.pestana !== 'equipo');
+  $('hex-mochila').classList.toggle('oculto', hex.pestana !== 'mochila');
+  $('hex-caja').classList.toggle('oculto', hex.pestana !== 'caja');
+  $('hex-huecos').innerHTML = hex.equipo.map((p, i) => p
+    ? `<button type="button" class="hex-poke" data-hueco="${i}" aria-pressed="${mismo(hex.sel, {tipo: 'equipo', hueco: i})}"><img src="/arte/${p.especie}" alt=""><b>${esc(p.mote)}</b><span>${esc(p.especie_nombre)} · Nv. ${p.nivel}</span><span>${p.ps}/${p.stats[0]} PS${p.shiny ? ' · ★' : ''}</span></button>`
+    : `<div class="hex-poke" style="justify-content: center; min-height: 168px; color: var(--suave);">Vacío</div>`).join('');
+  pintarCaja();
+  pintarEditor();
+  pintarMochila();
+}
+
+function mini(p, lugar) {
+  const sel = mismo(hex.sel, lugar), dest = hex.moviendo && !mismo(hex.moviendo, lugar) ? ' destino' : '';
+  const datos = `data-tipo="${lugar.tipo}" data-caja="${lugar.caja || 0}" data-hueco="${lugar.hueco}"`;
+  return p
+    ? `<button type="button" class="hex-mini${dest}" ${datos} aria-pressed="${sel || mismo(hex.moviendo, lugar)}" title="${esc(p.mote)} · ${esc(p.especie_nombre)} Nv. ${p.nivel}"><img src="/arte/${p.especie}" alt=""><span>${esc(p.mote)} · ${p.nivel}</span></button>`
+    : `<button type="button" class="hex-mini vacio${dest}" ${datos} aria-pressed="${mismo(hex.nuevoEn, lugar)}" aria-label="Hueco vacío">+</button>`;
+}
+
+function pintarCaja() {
+  if (!hex.cajas.length) return;
+  hex.caja = Math.min(hex.caja, hex.cajas.length - 1);
+  $('hx-caja-sel').innerHTML = hex.cajas.map((c, i) => `<option value="${i}"${i === hex.caja ? ' selected' : ''}>${esc(c.nombre)}</option>`).join('');
+  $('hx-caja-equipo').innerHTML = hex.equipo.map((p, i) => mini(p, {tipo: 'equipo', hueco: i})).join('');
+  $('hx-caja-huecos').innerHTML = hex.cajas[hex.caja].pokemon.map((p, k) => mini(p, {tipo: 'caja', caja: hex.caja, hueco: k})).join('');
+  const m = hex.moviendo && enSitio(hex.moviendo);
+  $('hx-caja-ayuda').textContent = m ? `Elige dónde poner a ${m.mote} (si ahí hay otro Pokémon, se cambian de sitio)`
+    : 'Pulsa un Pokémon para cambiarlo o moverlo, o un hueco vacío para añadir uno nuevo';
+  $('hx-cancelar-mover').classList.toggle('oculto', !hex.moviendo);
+  const nv = $('hx-nuevo-poke');
+  nv.classList.toggle('oculto', !hex.nuevoEn);
+  if (!hex.nuevoEn) return;
+  const donde = hex.nuevoEn.tipo === 'equipo' ? 'el equipo' : `${hex.cajas[hex.nuevoEn.caja].nombre}, hueco ${hex.nuevoEn.hueco + 1}`;
+  nv.innerHTML = `<h2 style="width: 100%;">Pokémon nuevo en ${esc(donde)}</h2>
+    <label class="campo" style="flex-grow: 1;">Especie<select id="hx-nv-especie">${opciones(hex.nombres.especies, 25, 1)}</select></label>
+    <label class="campo" style="width: 110px;">Nivel<input id="hx-nv-nivel" type="number" min="1" max="100" value="5"></label>
+    <button class="btn btn-neutro" type="button" id="hx-nv-cancelar">Cancelar</button>
+    <button class="btn btn-rojo" type="button" id="hx-nv-crear">Crear</button>
+    <p class="suave" style="width: 100%;">Sale con tu nombre de entrenador, IV al azar, sus movimientos por nivel y en Poké Ball. Luego puedes cambiarle lo que quieras.</p>`;
+  $('hx-nv-cancelar').onclick = () => { hex.nuevoEn = null; pintarCaja(); };
+  $('hx-nv-crear').onclick = async () => {
+    try {
+      const j = await hexApi('nuevo', {lugar: hex.nuevoEn, especie: +$('hx-nv-especie').value, nivel: +$('hx-nv-nivel').value});
+      const donde = hex.nuevoEn;
+      hex.equipo = j.equipo; hex.cajas = j.cajas; hex.nuevoEn = null;
+      hex.sel = donde.tipo === 'equipo' ? {tipo: 'equipo', hueco: hex.equipo.filter(Boolean).length - 1} : donde;
+      pintarHex();
+    } catch (e) { alert(e.message); }
+  };
+}
+
+async function pulsarHueco(lugar) {
+  if (hex.moviendo) {
+    if (mismo(hex.moviendo, lugar)) { hex.moviendo = null; return pintarHex(); }
+    try {
+      const j = await hexApi('mover', {desde: hex.moviendo, hasta: lugar});
+      hex.equipo = j.equipo; hex.cajas = j.cajas; hex.moviendo = null; hex.sel = null;
+      pintarHex();
+    } catch (e) { alert(e.message); }
+    return;
+  }
+  hex.nuevoEn = null;
+  if (enSitio(lugar)) hex.sel = lugar;
+  else { hex.sel = null; hex.nuevoEn = lugar; }
+  pintarHex();
+}
+
+function pintarEditor() {
+  const ed = $('hex-editor'), p = hex.pestana === 'mochila' || hex.moviendo ? null : enSitio(hex.sel);
+  ed.classList.toggle('oculto', !p);
+  if (!p) return;
+  const N = hex.nombres;
+  const balls = Object.entries(hex.balls).map(([i, n]) => `<option value="${i}"${+i === p.ball ? ' selected' : ''}>${esc(n)}</option>`).join('');
+  const seis = (clave, max) => `<div class="hex-seis">${NOM_STATS.map((s, k) => `<label>${s}<input type="number" min="0" max="${max}" data-${clave}="${k}" value="${p[clave][k]}"></label>`).join('')}</div>`;
+  ed.innerHTML = `
+    <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap;">
+      <h2>${esc(p.mote)} <span class="suave" style="font-weight: 700;">(${esc(p.especie_nombre)})</span></h2>
+      <span class="suave">Estadísticas ahora: ${p.stats.map((v, k) => `${NOM_STATS[k]} ${v}`).join(' · ')}</span>
+    </div>
+    <div class="hex-form">
+      <label class="campo">Especie<select id="hx-especie">${opciones(N.especies, p.especie, 1)}</select></label>
+      <label class="campo">Mote<input id="hx-mote" maxlength="12" value="${esc(p.mote)}"></label>
+      <label class="campo">Nivel<input id="hx-nivel" type="number" min="1" max="100" value="${p.nivel}"></label>
+      <label class="campo">PS actuales<input id="hx-ps" type="number" min="0" max="${p.stats[0]}" value="${p.ps}"></label>
+      <label class="campo">Naturaleza<select id="hx-naturaleza">${N.naturalezas.map((n, i) => `<option value="${i}"${i === p.naturaleza ? ' selected' : ''}>${esc(n)}</option>`).join('')}</select></label>
+      <label class="campo">Habilidad<select id="hx-habilidad">${opciones(N.habilidades, p.habilidad, 1)}</select></label>
+      <label class="campo">Objeto que lleva<select id="hx-objeto"><option value="0">(nada)</option>${opciones(N.objetos, p.objeto, 1, new Set([...hex.admitidos.objetos, ...hex.admitidos.medicinas, ...hex.admitidos.bayas]))}</select></label>
+      <label class="campo">Sexo<select id="hx-sexo">${['Macho', 'Hembra', 'Sin sexo'].map((n, i) => `<option value="${i}"${i === p.sexo ? ' selected' : ''}>${n}</option>`).join('')}</select></label>
+      <label class="campo">Amistad (0-255)<input id="hx-amistad" type="number" min="0" max="255" value="${p.amistad}"></label>
+      <label class="campo">Poké Ball<select id="hx-ball">${balls}</select></label>
+      <label class="check" style="align-self: end; min-height: 42px;"><input type="checkbox" id="hx-shiny"${p.shiny ? ' checked' : ''}> Variocolor (shiny)</label>
+    </div>
+    <div class="hex-form">${p.movimientos.map((m, k) => `<label class="campo">Movimiento ${k + 1}<select data-mov="${k}"><option value="0">(ninguno)</option>${opciones(N.movimientos, m, 1)}</select></label>`).join('')}</div>
+    <div style="display: flex; flex-direction: column; gap: 6px;"><b>IV (0-31)</b>${seis('ivs', 31)}</div>
+    <div style="display: flex; flex-direction: column; gap: 6px;"><b>EV (0-252, 510 en total)</b>${seis('evs', 252)}</div>
+    <div style="display: flex; gap: 10px; flex-wrap: wrap; justify-content: flex-end;">
+      <button class="btn btn-neutro" type="button" id="hx-mover">Mover…</button>
+      <button class="btn btn-neutro" type="button" id="hx-curar">Curar del todo</button>
+      <button class="btn btn-rojo" type="button" id="hx-guardar">Guardar cambios</button>
+    </div>`;
+  $('hx-guardar').onclick = () => guardarPokemon(false);
+  $('hx-curar').onclick = () => guardarPokemon(true);
+  $('hx-mover').onclick = () => {
+    hex.moviendo = hex.sel; hex.pestana = 'caja';
+    if (hex.sel.tipo === 'caja') hex.caja = hex.sel.caja;
+    pintarHex();
+  };
+}
+
+async function guardarPokemon(curar) {
+  const p = enSitio(hex.sel), v = (id) => $(id).value;
+  const cambios = {especie: +v('hx-especie'), nivel: +v('hx-nivel'), naturaleza: +v('hx-naturaleza'), habilidad: +v('hx-habilidad'),
+    objeto: +v('hx-objeto'), sexo: +v('hx-sexo'), amistad: +v('hx-amistad'), ball: +v('hx-ball'), shiny: $('hx-shiny').checked,
+    movimientos: [...document.querySelectorAll('[data-mov]')].map((s) => +s.value),
+    ivs: [...document.querySelectorAll('[data-ivs]')].map((s) => +s.value),
+    evs: [...document.querySelectorAll('[data-evs]')].map((s) => +s.value)};
+  if (v('hx-mote') !== p.mote) cambios.mote = v('hx-mote');
+  if (+v('hx-ps') !== p.ps) cambios.ps = +v('hx-ps');
+  if (curar) cambios.curar = true;
+  try {
+    const j = await hexApi('pokemon', {lugar: hex.sel, cambios});
+    if (hex.sel.tipo === 'equipo') hex.equipo[hex.sel.hueco] = j.pokemon; else hex.cajas[hex.sel.caja].pokemon[hex.sel.hueco] = j.pokemon;
+    pintarHex();
+  } catch (e) { alert(e.message); }
+}
+
+function pintarMochila() {
+  $('hex-bolsillos').innerHTML = BOLSILLOS.map(([k, n]) => `<button type="button" role="tab" aria-selected="${k === hex.bolsillo}" data-bolsillo="${k}">${n}</button>`).join('');
+  const caja = $('hex-bolsillo');
+  if (!hex.mochila) { caja.innerHTML = '<p class="suave">No encuentro la mochila en la memoria del juego.</p>'; return; }
+  if (!hex.borrador || hex.borrador.bolsillo !== hex.bolsillo)
+    hex.borrador = {bolsillo: hex.bolsillo, objetos: hex.mochila[hex.bolsillo].map((o) => ({...o}))};
+  const validos = new Set(hex.admitidos[hex.bolsillo]), N = hex.nombres.objetos;
+  const max = hex.bolsillo === 'mt' || hex.bolsillo === 'clave' ? 1 : 999;
+  caja.innerHTML = `
+    <div class="hex-lista">${hex.borrador.objetos.map((o, k) => `
+      <div class="hex-fila"><select data-obj="${k}" aria-label="Objeto">${opciones(N, o.objeto, 1, validos)}</select>
+        <input type="number" min="1" max="${max}" data-cant="${k}" value="${o.cantidad}" aria-label="Cantidad">
+        <button class="btn btn-icono" type="button" data-quitar="${k}" aria-label="Quitar">✕</button></div>`).join('') || '<p class="suave">Este bolsillo está vacío.</p>'}</div>
+    <div style="display: flex; gap: 10px; flex-wrap: wrap; align-items: end;">
+      <label class="campo" style="flex-grow: 1;">Añadir<select id="hx-nuevo">${opciones(N, -1, 1, validos)}</select></label>
+      <label class="campo" style="width: 110px;">Cantidad<input id="hx-nuevo-n" type="number" min="1" max="${max}" value="${max === 1 ? 1 : 99}"></label>
+      <button class="btn btn-neutro" type="button" id="hx-anadir">Añadir</button>
+      <button class="btn btn-rojo" type="button" id="hx-guardar-bolsillo">Guardar bolsillo</button>
+    </div>`;
+  caja.querySelectorAll('[data-obj]').forEach((s) => { s.onchange = () => { hex.borrador.objetos[+s.dataset.obj].objeto = +s.value; }; });
+  caja.querySelectorAll('[data-cant]').forEach((s) => { s.onchange = () => { hex.borrador.objetos[+s.dataset.cant].cantidad = +s.value; }; });
+  caja.querySelectorAll('[data-quitar]').forEach((b) => { b.onclick = () => { hex.borrador.objetos.splice(+b.dataset.quitar, 1); pintarMochila(); }; });
+  $('hx-anadir').onclick = () => {
+    const obj = +$('hx-nuevo').value, n = +$('hx-nuevo-n').value, ya = hex.borrador.objetos.find((o) => o.objeto === obj);
+    if (ya) ya.cantidad = Math.min(max, ya.cantidad + n); else hex.borrador.objetos.push({objeto: obj, cantidad: Math.min(max, n)});
+    pintarMochila();
+  };
+  $('hx-guardar-bolsillo').onclick = async () => {
+    try {
+      const j = await hexApi('bolsillo', {bolsillo: hex.bolsillo, objetos: hex.borrador.objetos});
+      hex.mochila = j.mochila; hex.borrador = null; pintarMochila();
+    } catch (e) { alert(e.message); }
+  };
+}
+
+$('b-hex-cancelar').onclick = () => $('hex-clave').classList.add('oculto');
+$('hex-form-clave').onsubmit = async (ev) => {
+  ev.preventDefault();
+  const r = await fetch('/api/pokehex/entrar', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({clave: $('hex-pass').value})});
+  const j = await r.json();
+  if (j.error) { $('hex-clave-error').textContent = j.error; $('hex-clave-error').classList.remove('oculto'); return; }
+  Object.assign(hex, {token: j.token, nombres: j.nombres, admitidos: j.admitidos, balls: j.balls});
+  if (hex.remoto) hex.claveRemota = $('hex-pass').value;
+  $('hex-clave').classList.add('oculto');
+  entrarHex();
+};
+$('b-hex-salir').onclick = cerrarHex;
+$('b-hex-leer').onclick = () => { hex.borrador = null; leerHex(); };
+document.querySelectorAll('[data-hex]').forEach((b) => { b.onclick = () => { hex.pestana = b.dataset.hex; hex.nuevoEn = null; pintarHex(); }; });
+$('hex-huecos').onclick = (ev) => { const b = ev.target.closest('[data-hueco]'); if (b) { hex.sel = {tipo: 'equipo', hueco: +b.dataset.hueco}; pintarHex(); } };
+const clicCaja = (ev) => { const b = ev.target.closest('[data-tipo]'); if (b) pulsarHueco({tipo: b.dataset.tipo, caja: +b.dataset.caja, hueco: +b.dataset.hueco}); };
+$('hx-caja-huecos').onclick = clicCaja;
+$('hx-caja-equipo').onclick = clicCaja;
+$('hx-caja-sel').onchange = () => { hex.caja = +$('hx-caja-sel').value; pintarCaja(); };
+$('hx-caja-ant').onclick = () => { hex.caja = (hex.caja + hex.cajas.length - 1) % hex.cajas.length; pintarCaja(); };
+$('hx-caja-sig').onclick = () => { hex.caja = (hex.caja + 1) % hex.cajas.length; pintarCaja(); };
+$('hx-cancelar-mover').onclick = () => { hex.moviendo = null; pintarHex(); };
+$('hex-bolsillos').onclick = (ev) => { const b = ev.target.closest('[data-bolsillo]'); if (b) { hex.bolsillo = b.dataset.bolsillo; pintarMochila(); } };
 
 actualizar();
 setInterval(actualizar, 1000);

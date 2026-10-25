@@ -26,17 +26,37 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 
 import juego
+import online
+import pokehex
 
-if getattr(sys, 'frozen', False):          # Pokelocke.exe, junto a app/ dentro de locke-y/
-    RAIZ = Path(sys.executable).resolve().parent
+# Adoptium (la descarga de Java) responde 403 a «Python-urllib», el nombre que urllib pone por defecto
+_opener = urllib.request.build_opener()
+_opener.addheaders = [('User-Agent', 'Pokelocke')]
+urllib.request.install_opener(_opener)
+
+# Pokelocke.exe repartido: un solo archivo. Lo pequeño (web, assets, datos_pkx) va dentro de PyInstaller y
+# Citra, el randomizador y los fan arts van en un zip pegado al final del .exe, que se saca una vez por versión
+# a %LOCALAPPDATA%\Pokelocke (ahí viven también las partidas). Un .exe sin zip, dentro de locke-y/, es el de
+# desarrollo y usa las carpetas de al lado, como antes.
+if getattr(sys, 'frozen', False):
+    RECURSOS = Path(sys._MEIPASS)
+    try:
+        PAQUETE = zipfile.ZipFile(sys.executable)
+    except zipfile.BadZipFile:
+        PAQUETE = None
+    if PAQUETE:
+        RAIZ = Path(os.environ.get('POKELOCKE_RAIZ') or Path(os.environ['LOCALAPPDATA']) / 'Pokelocke')
+    else:
+        RAIZ = Path(sys.executable).resolve().parent
 else:
-    RAIZ = Path(__file__).resolve().parent.parent
-APP, WEB, ASSETS = RAIZ / 'app', RAIZ / 'app' / 'web', RAIZ / 'assets'
+    RAIZ = RECURSOS = Path(__file__).resolve().parent.parent
+    PAQUETE = None
+APP, WEB, ASSETS = RECURSOS / 'app', RECURSOS / 'app' / 'web', RECURSOS / 'assets'
 TOOLS, DATOS, FANART = RAIZ / 'tools', RAIZ / 'datos', RAIZ / 'fanart'
 CACHE_ARTE = TOOLS / 'arte'
 CAPA_PNG = TOOLS / 'capa.png'
 BIBLIOTECA = DATOS / 'biblioteca.json'
-PUERTO = 8765
+PUERTO = int(os.environ.get('POKELOCKE_PUERTO') or 8765)
 URL = f'http://127.0.0.1:{PUERTO}'
 TITLE_Y = '0004000000055E00'
 ARTE_URL = 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/{}.png'
@@ -59,7 +79,7 @@ OPCIONES = {
 lock = threading.Lock()
 biblio = {'juegos': []}
 vivo = {'equipo': [None] * 6, 'conectado': False, 'tarea': None, 'activo': None,
-        'proceso': None, 'capa': 0}                          # no se guarda en disco
+        'proceso': None, 'capa': 0, 'aviso': None}           # no se guarda en disco
 
 
 # ---------- biblioteca y lockes ----------
@@ -81,8 +101,145 @@ def buscar(id_juego):
     return j
 
 
-def nuevo_locke(j, vidas):
-    j.update(vidas_iniciales=int(vidas), ajuste_vidas=0, muertos=[], medallas=[False] * 8, vial=True)
+def nuevo_locke(j, vidas, reglas=None):
+    j.update(vidas_iniciales=int(vidas), ajuste_vidas=0, muertos=[], medallas=[False] * 8, vial=True,
+             reglas=reglas, perdonados=[], caramelos_dados=0, muertes_activas=False,
+             fase=1 if reglas == 'mega' else None, rutas_usadas=[], balls_escondidas=None,
+             huevos=caja_de_huevos() if reglas == 'mega' else None)
+
+
+# la caja de huevos de Mega Pokelocke: 30 huevos de especies al azar y 2 de ellos shiny, sorteados al empezar
+# el locke. Cada 2 medallas se puede coger uno; si sale shiny no gasta el turno
+HUEVOS_CAJA, HUEVOS_SHINY, MEDALLAS_POR_HUEVO = 30, 2, 2
+
+
+def caja_de_huevos():
+    import random
+    azar = random.SystemRandom()
+    shiny = set(azar.sample(range(HUEVOS_CAJA), HUEVOS_SHINY))
+    return [{'especie': azar.randint(1, pokehex.MAX_ESPECIE), 'shiny': i in shiny, 'cogido': False}
+            for i in range(HUEVOS_CAJA)]
+
+
+def huevos_disponibles(j):
+    gastados = sum(1 for h in j.get('huevos') or [] if h['cogido'] and not h['shiny'])
+    return max(0, sum(j.get('medallas', [])) // MEDALLAS_POR_HUEVO - gastados)
+
+
+def huevos_estado(j):
+    """Lo que ve la página: los cogidos con su especie; los demás, sin desvelar."""
+    return {'disponibles': huevos_disponibles(j), 'medallas': sum(j.get('medallas', [])),
+            'huevos': [{'cogido': True, 'especie': h['especie'], 'shiny': h['shiny'],
+                        'nombre': pokehex.NOMBRES['especies'][h['especie']]} if h['cogido'] else {'cogido': False}
+                       for h in j['huevos']]}
+
+
+def coger_huevo(j, i):
+    if jugando():
+        raise RuntimeError('Cierra el juego para coger el huevo: si no, el juego lo borraría al guardar')
+    h = j['huevos'][i]
+    if h['cogido']:
+        raise RuntimeError('Ese huevo ya lo has cogido')
+    if not huevos_disponibles(j):
+        raise RuntimeError(f'Puedes coger un huevo cada {MEDALLAS_POR_HUEVO} medallas')
+    try:
+        partida = pokehex.Partida(pokehex_partida(j))
+    except ValueError as e:
+        raise RuntimeError(str(e))
+    if j['id'] not in hex_vivo['datos']:
+        hex_vivo['datos'][j['id']] = pokehex.Datos(TOOLS, DATOS / 'juegos' / j['id'] / 'randomizacion.log')
+    try:
+        lugar = partida.meter(pokehex.nuevo_huevo(partida.claro(0), h['especie'], h['shiny'], hex_vivo['datos'][j['id']]),
+                              hex_vivo['datos'][j['id']])
+    except ValueError as e:
+        raise RuntimeError(str(e))
+    partida.guardar(DATOS / 'juegos' / j['id'] / 'copias_partida')
+    h['cogido'] = True
+    guardar()
+    return {**huevos_estado(j), 'donde': 'tu equipo' if lugar[0] == 'equipo' else partida.nombre_caja(lugar[1])}
+
+
+# Normas Mega Pokelocke: 25 vidas, las muertes cuentan desde el primer combate contra un entrenador y
+# 10000 Caramelos Raros, que se dan de 999 en 999 (el máximo de un hueco de la mochila)
+VIDAS_MEGA = 25
+CARAMELO_RARO, CARAMELOS_MEGA, MAX_HUECO = 50, 10000, 999
+
+# dificultad exponencial: hasta la segunda medalla se juega la fase fácil (mod/, hecha por MegaFases.java) y
+# luego la randomización completa (mod_completo/). El emulador solo lee el mod al arrancar: el cambio se hace al
+# abrir el juego, mirando las medallas de la partida guardada (bloque de PKHeX Misc6XY, en 0x4200: dinero en +8
+# y medallas en +0xC, un bit por medalla)
+MOD_COMPLETO = 'mod_completo'
+MEDALLAS_PARA_COMPLETA = 2
+MEDALLAS_EN_PARTIDA = 0x420C
+
+
+# nivel tope de cada líder (el de su Pokémon más alto): sale del registro de la randomización, que ya lleva el
+# +15 % de las normas Mega. Índices de entrenador de los 8 líderes en Pokémon Y; sin randomizar, los originales
+LIDERES_Y = (6, 76, 21, 22, 23, 24, 25, 26)
+TOPES_ORIGINALES = [12, 25, 32, 34, 37, 42, 48, 59]
+
+
+def niveles_tope(j):
+    log = DATOS / 'juegos' / j['id'] / 'randomizacion.log'
+    if not j.get('random') or not log.exists():
+        return TOPES_ORIGINALES
+    clave = (str(log), log.stat().st_mtime)
+    if vivo.get('topes_de') != clave:
+        topes = dict.fromkeys(LIDERES_Y)
+        en_entrenadores = False
+        for linea in log.read_text(encoding='utf-8', errors='ignore').splitlines():
+            if linea.startswith('--'):
+                en_entrenadores = linea.startswith('--Trainers Pokemon')
+            m = en_entrenadores and re.match(r'#(\d+) \(', linea)
+            if m and int(m[1]) in topes:
+                topes[int(m[1])] = max(map(int, re.findall(r'Lv(\d+)', linea)), default=None)
+        vivo['topes_de'], vivo['topes'] = clave, [topes[i] or TOPES_ORIGINALES[k] for k, i in enumerate(LIDERES_Y)]
+    return vivo['topes']
+
+
+def medallas_partida(j):
+    try:
+        datos = pokehex_partida(j).read_bytes()
+    except (RuntimeError, OSError):
+        return 0
+    return bin(datos[MEDALLAS_EN_PARTIDA]).count('1') if len(datos) == pokehex.TAM_PARTIDA else 0
+
+
+def abrir_fase_completa(j):
+    """Con el juego cerrado: la randomización completa pasa a ser el mod del juego."""
+    carpeta = DATOS / 'juegos' / j['id']
+    if not (carpeta / MOD_COMPLETO).exists():
+        return False
+    shutil.rmtree(carpeta / 'mod', ignore_errors=True)
+    (carpeta / MOD_COMPLETO).rename(carpeta / 'mod')
+    j['fase'] = 2
+    guardar()
+    return True
+
+
+def dar_caramelos(j):
+    """Con el juego cerrado: rellena los Caramelos Raros de la mochila hasta 999, mientras no se hayan dado
+    los 10000. Sin partida guardada todavía no hace nada (se dan la siguiente vez que se abra el juego)."""
+    if j.get('reglas') != 'mega' or j.get('caramelos_dados', 0) >= CARAMELOS_MEGA:
+        return
+    try:
+        partida = pokehex.Partida(pokehex_partida(j))
+    except (RuntimeError, ValueError, OSError):
+        return
+    medicinas = partida.mochila()['medicinas']
+    hueco = next((o for o in medicinas if o['objeto'] == CARAMELO_RARO), None)
+    tiene = hueco['cantidad'] if hueco else 0
+    dar = min(MAX_HUECO - tiene, CARAMELOS_MEGA - j.get('caramelos_dados', 0))
+    if dar <= 0:
+        return
+    if hueco:
+        hueco['cantidad'] += dar
+    else:
+        medicinas.append({'objeto': CARAMELO_RARO, 'cantidad': dar})
+    partida.bolsillo('medicinas', medicinas)
+    partida.guardar(DATOS / 'juegos' / j['id'] / 'copias_partida')
+    j['caramelos_dados'] = j.get('caramelos_dados', 0) + dar
+    guardar()
 
 
 def vidas(j):
@@ -214,6 +371,11 @@ def configurar_azahar():
         ini.set(grupo, clave, str(valor))
 
     poner('Debugging', 'enable_rpc_server', 'true')
+    # online: «Multijugador > Conectar directamente a una sala» ya relleno con el servidor y tu usuario
+    if red['sesion'] and online_direccion():
+        poner('Multiplayer', 'nickname', red['sesion']['usuario'])
+        poner('Multiplayer', 'ip', online_direccion())          # el anfitrión, a sí mismo
+        poner('Multiplayer', 'port', online.PUERTO_SALA)
     poner('Layout', 'layout_option', 6)                  # LayoutOption::CustomLayout
     s, ox, oy = encaje()
     for nombre, (x, y, w, h) in (('top', HUECO_ARRIBA), ('bottom', HUECO_ABAJO)):
@@ -264,7 +426,7 @@ def rom_jugable(j):
     return str(cci)
 
 
-def randomizar(j, opciones, avanzado):
+def randomizar(j, opciones, avanzado, reglas=None):
     jar, jv = upr_jar(), java()
     carpeta = DATOS / 'juegos' / j['id']
     carpeta.mkdir(parents=True, exist_ok=True)
@@ -283,13 +445,23 @@ def randomizar(j, opciones, avanzado):
     shutil.rmtree(salida, ignore_errors=True)
     salida.mkdir(parents=True)
     tarea('Randomizando el juego… (puede tardar un par de minutos)', paso=2)
-    correr([jv, '-jar', str(jar), 'cli', '-i', rom_jugable(j), '-o', str(salida / 'y'),
-            '-s', str(ajustes), '-d', '-l'], jar.parent)
-    romfs = next(salida.rglob('romfs'))
-    titulo = romfs.parent.name if re.fullmatch(r'[0-9A-Fa-f]{16}', romfs.parent.name) else TITLE_Y
-    mod = carpeta / 'mod'
-    shutil.rmtree(mod, ignore_errors=True)
-    shutil.copytree(romfs.parent, mod / titulo)
+    if reglas == 'mega':
+        # una randomización y dos juegos: la fase fácil (hasta la segunda medalla) va de mod y la completa se
+        # guarda aparte para cuando se gane la segunda medalla
+        correr([jv, '-Xmx4096M', '-cp', str(jar), str(APP / 'MegaFases.java'), rom_jugable(j), str(ajustes),
+                str(salida / 'completa'), str(salida / 'facil'), str(salida / 'y.log')], jar.parent)
+        versiones = {'mod': salida / 'facil', MOD_COMPLETO: salida / 'completa'}
+    else:
+        correr([jv, '-jar', str(jar), 'cli', '-i', rom_jugable(j), '-o', str(salida / 'y'),
+                '-s', str(ajustes), '-d', '-l'], jar.parent)
+        versiones = {'mod': salida}
+    shutil.rmtree(carpeta / MOD_COMPLETO, ignore_errors=True)
+    for nombre, origen in versiones.items():
+        romfs = next(origen.rglob('romfs'))
+        titulo = romfs.parent.name if re.fullmatch(r'[0-9A-Fa-f]{16}', romfs.parent.name) else TITLE_Y
+        mod = carpeta / nombre
+        shutil.rmtree(mod, ignore_errors=True)
+        shutil.copytree(romfs.parent, mod / titulo)
     for log in salida.rglob('*.log'):
         shutil.copy(log, carpeta / 'randomizacion.log')
     shutil.rmtree(salida, ignore_errors=True)
@@ -303,6 +475,9 @@ def lanzar(j):
     if not Path(j['ruta']).exists():
         raise RuntimeError(f'No encuentro la ROM: {j["ruta"]}')
     exe = configurar_azahar()
+    with lock:
+        dar_caramelos(j)
+        completa = j.get('fase') == 1 and medallas_partida(j) >= MEDALLAS_PARA_COMPLETA and abrir_fase_completa(j)
     mods = carpeta_mods()
     shutil.rmtree(mods, ignore_errors=True)
     mods.mkdir(parents=True)
@@ -311,6 +486,8 @@ def lanzar(j):
         shutil.copytree(mod, mods, dirs_exist_ok=True)
     vivo.update(activo=j['id'], equipo=[None] * 6, conectado=False)
     vivo['proceso'] = subprocess.Popen([str(exe), '-f', rom_jugable(j)])
+    if completa:
+        avisar('¡Randomización completa! · Ahora los rivales sacan cualquier evolución y cualquier ataque', 25)
     yo = [sys.executable] if getattr(sys, 'frozen', False) else [sys.executable, str(Path(__file__))]
     subprocess.Popen(yo + ['--capa'])
     renderizar_capa()
@@ -333,16 +510,18 @@ def en_segundo_plano(nombre, fn, *args, minimo=0):
     threading.Thread(target=envoltura, daemon=True).start()
 
 
-def preparar(j, opciones, vidas_ini, randomizar_juego, avanzado):
+def preparar(j, opciones, vidas_ini, randomizar_juego, avanzado, reglas=None):
+    if reglas == 'mega':
+        vidas_ini = VIDAS_MEGA
     vivo['tarea']['random'] = randomizar_juego
     tarea('Preparando el emulador y el randomizador…', paso=1)
     herramientas()
     if randomizar_juego:
-        randomizar(j, opciones, avanzado)
+        randomizar(j, opciones, avanzado, reglas)
     else:
         j['random'] = None
     with lock:
-        nuevo_locke(j, vidas_ini)
+        nuevo_locke(j, vidas_ini, reglas)
         j['preparado'] = True
         guardar()
     espera = vivo['tarea']['minimo'] - (time.time() - vivo['tarea']['inicio'])
@@ -355,12 +534,18 @@ def preparar(j, opciones, vidas_ini, randomizar_juego, avanzado):
 # ---------- seguimiento del locke ----------
 
 def curado_en_centro(antes, ahora):
-    """En un Centro Pokémon se cura todo el equipo de golpe: dos o más Pokémon vivos pasan a la vez de
-    estar heridos a tener los PS al máximo (una poción cura de uno en uno). Con un solo Pokémon vivo basta él."""
+    """En un Centro Pokémon se cura todo el equipo de golpe, PS y PP. Cuenta como Centro cuando, de una lectura
+    a la siguiente, todos los vivos quedan con PS y PP al máximo y además: algún Pokémon recupera PP (las
+    pociones no los dan), o dos o más recuperan PS a la vez, o revive alguno (los debilitados no se tocan)."""
     previos = {p['id']: p for p in antes if p}
     vivos = [p for p in ahora if p and not p['huevo'] and p['ps'] > 0]
-    sanados = [p for p in vivos if p['id'] in previos and previos[p['id']]['ps'] < p['psmax'] == p['ps']]
-    return len(sanados) >= min(2, len(vivos)) and len(sanados) > 0 and all(p['ps'] == p['psmax'] for p in vivos)
+    if not vivos or not all(p['ps'] == p['psmax'] and p.get('pp_llenos', True) for p in vivos):
+        return False
+    antes_de = [previos[p['id']] for p in vivos if p['id'] in previos]
+    pp = any(not a.get('pp_llenos', True) for a in antes_de)
+    ps = sum(1 for a in antes_de if 0 < a['ps'] < a['psmax'])
+    revive = any(a['ps'] == 0 for a in antes_de)
+    return pp or ps >= 2 or revive or (ps == 1 and len(vivos) == 1)
 
 
 def seguimiento():
@@ -370,18 +555,78 @@ def seguimiento():
             try:
                 equipo = juego.leer_equipo(rpc)
                 with lock:
+                    if not vivo['conectado']:
+                        vivo['conectado_desde'], vivo['a_cero'], vivo['curas_centro'] = time.time(), {}, None
                     vivo['conectado'] = True
+                    # al entrar o salir de un combate el juego reescribe el equipo, y una lectura en ese momento
+                    # no cuadra con su suma de comprobación: un hueco solo se da por vacío tras 3 lecturas seguidas
+                    vacios = vivo.setdefault('vacios', [0] * 6)
+                    for i, p in enumerate(equipo):
+                        if p is None and vivo['equipo'][i] is not None and vacios[i] < 2:
+                            vacios[i] += 1
+                            equipo[i] = vivo['equipo'][i]
+                        elif p is not None:
+                            vacios[i] = 0
                     antes, vivo['equipo'] = vivo['equipo'], equipo
                     j = buscar(vivo['activo'])
-                    # el vial se recarga al curarse en un Centro (no cuenta la cura del propio vial)
-                    if not j.get('vial', True) and time.time() - vivo.get('vial_usado', 0) > 5 \
-                            and curado_en_centro(antes, equipo):
-                        j['vial'] = True
+                    # las medallas se marcan solas: las lee del juego en cuanto vences al líder
+                    try:
+                        medallas = juego.medallas_bits(rpc)
+                    except (OSError, TimeoutError):
+                        medallas = None
+                    if medallas is not None and medallas != j.get('medallas'):
+                        j['medallas'] = medallas
                         guardar()
+                    # el vial se recarga cada vez que la enfermera de un Centro cura al equipo: sube su
+                    # contador en los récords del juego. Si no se puede leer, se adivina por PS y PP
+                    try:
+                        curas = juego.curas_en_centro(rpc)
+                    except (OSError, TimeoutError):
+                        curas = None
+                    previas, vivo['curas_centro'] = vivo.get('curas_centro'), curas
+                    if curas is not None:
+                        en_centro = previas is not None and curas > previas
+                    else:
+                        en_centro = time.time() - vivo.get('vial_usado', 0) > 5 and curado_en_centro(antes, equipo)
+                    if not j.get('vial', True) and en_centro:
+                        j['vial'] = True
+                        avisar('Vial recargado en el Centro Pokémon')
+                        guardar()
+                    # un Pokémon a 0 PS cuenta como muerto una sola vez, aunque luego lo revivan. Para no contar
+                    # lecturas a medias (al cargar la partida o al cambiar de mapa), tiene que seguir a 0 PS en
+                    # 3 lecturas seguidas y no justo al conectar con el juego
+                    # Mega Pokelocke: hasta acabar el primer combate contra un entrenador (el de Shauna) no cuenta
+                    # ninguna muerte. Los que se debilitan antes quedan perdonados hasta que se curen
+                    cuentan = True
+                    if j.get('reglas') == 'mega' and not j.get('muertes_activas'):
+                        try:
+                            combates = juego.record(rpc, juego.RECORD_ENTRENADORES)
+                        except (OSError, TimeoutError):
+                            combates = None
+                        if combates:
+                            j['muertes_activas'] = True
+                            # unos segundos de margen: el contador sube al acabar el combate, a la vez que
+                            # el equipo recibe los PS de la copia del combate
+                            vivo['gracia_hasta'] = time.time() + 10
+                            avisar('Primer combate superado · A partir de ahora cada muerte cuenta')
+                            guardar()
+                        cuentan = False
+                    elif time.time() < vivo.get('gracia_hasta', 0):
+                        cuentan = False
+                    perdonados = j.setdefault('perdonados', [])
+                    a_cero = vivo.setdefault('a_cero', {})
                     for p in equipo:
-                        # un Pokémon a 0 PS cuenta como muerto una sola vez, aunque luego lo revivan
-                        if p and not p['huevo'] and p['psmax'] and p['ps'] == 0 and p['id'] not in j['muertos']:
-                            j['muertos'].append(p['id'])
+                        if not p or p['huevo'] or not p['psmax'] or p['ps'] != 0:
+                            if p:
+                                a_cero.pop(p['id'], None)
+                                if p['ps'] and p['id'] in perdonados:
+                                    perdonados.remove(p['id'])
+                                    guardar()
+                            continue
+                        a_cero[p['id']] = a_cero.get(p['id'], 0) + 1
+                        if a_cero[p['id']] >= 3 and time.time() - vivo.get('conectado_desde', 0) > 15 \
+                                and p['id'] not in j['muertos'] and p['id'] not in perdonados:
+                            (j['muertos'] if cuentan else perdonados).append(p['id'])
                             guardar()
             except (OSError, TimeoutError, RuntimeError):
                 vivo['conectado'] = False
@@ -390,18 +635,85 @@ def seguimiento():
         time.sleep(1)
 
 
+def normas_mega():
+    """Mega Pokelocke, una captura por ruta: cuando sube el contador de capturas del juego, la zona donde
+    estás queda gastada (salvo si el capturado era shiny). En un combate en una zona gastada se esconden las
+    Poké Balls de la mochila y se devuelven al acabar; si el salvaje es shiny se dejan.
+    La mochila solo se toca en dos momentos: durante la animación de entrada del combate (se decide una vez,
+    a los 1,5 s, cuando ya está el salvaje nuevo) y con el juego fuera de combate desde hace 3 s. Tocarla
+    justo al capturar (el juego está guardando el Pokémon y la Ball gastada) cuelga el juego."""
+    rpc = juego.RPC(espera=1.0)
+    capturas = zona = None
+    combate_desde = fuera_desde = None
+    decidido = False
+    while True:
+        time.sleep(0.25)
+        with lock:
+            j = next((x for x in biblio['juegos'] if x['id'] == vivo['activo']), None) if jugando() else None
+            if j and j.get('reglas') != 'mega':
+                j = None
+            if not j:
+                # juego cerrado: si las Balls estaban escondidas, la partida guardada aún las tiene (en
+                # combate no se puede guardar), así que no hay nada que devolver
+                for x in biblio['juegos']:
+                    if x.get('balls_escondidas'):
+                        x['balls_escondidas'] = None
+                        guardar()
+                capturas = zona = combate_desde = fuera_desde = None
+                rpc.equipo = None
+                vivo['en_combate'] = False
+                continue
+        try:
+            combate = vivo['en_combate'] = juego.en_combate(rpc)
+            if combate:
+                fuera_desde = None
+                if combate_desde is None:
+                    combate_desde, decidido = time.time(), False
+            else:
+                zona = juego.zona(rpc)
+                combate_desde = None
+                fuera_desde = fuera_desde or time.time()
+            ahora = juego.record(rpc, juego.RECORD_CAPTURAS)
+            # segunda medalla en la fase fácil: el cambio se hace al volver a abrir el juego (con la partida
+            # guardada); hasta entonces se recuerda cada 2 minutos
+            if j.get('fase') == 1 and not combate and juego.medallas(rpc) >= MEDALLAS_PARA_COMPLETA \
+                    and time.time() - vivo.get('aviso_fase', 0) > 120:
+                vivo['aviso_fase'] = time.time()
+                avisar('¡Segunda medalla! · Guarda y reinicia el juego para abrir la randomización completa', 15)
+            with lock:
+                usadas = j.setdefault('rutas_usadas', [])
+                if capturas is not None and ahora is not None and ahora > capturas and zona is not None:
+                    if juego.salvaje_shiny(rpc):
+                        avisar('¡Shiny! No cuenta como la captura de esta ruta')
+                    elif zona not in usadas:
+                        usadas.append(zona)
+                        avisar('Captura de esta ruta hecha · Aquí ya no puedes capturar más')
+                    guardar()
+                if ahora is not None:
+                    capturas = ahora
+                if combate and not decidido and time.time() - combate_desde >= 1.5:
+                    decidido = True
+                    if zona in usadas and not j.get('balls_escondidas') and not juego.salvaje_shiny(rpc):
+                        j['balls_escondidas'] = juego.esconder_balls(rpc)
+                        if j['balls_escondidas']:
+                            avisar('Ya has capturado en esta ruta · Poké Balls bloqueadas')
+                        guardar()
+                elif not combate and j.get('balls_escondidas') and time.time() - fuera_desde >= 3:
+                    juego.devolver_balls(rpc, j['balls_escondidas'])
+                    j['balls_escondidas'] = None
+                    guardar()
+        except (OSError, TimeoutError):
+            rpc.equipo = None
+
+
 def corregir(atajo):
-    """F7 −1 vida, F8 +1 vida, F9 marca la siguiente medalla, Mayús+F9 desmarca la última."""
+    """F7 −1 vida, F8 +1 vida. Las medallas ya no van con F9: se leen del juego."""
     with lock:
         j = buscar(vivo['activo'])
         if atajo == 'menos':
             j['ajuste_vidas'] -= 1
         elif atajo == 'mas':
             j['ajuste_vidas'] += 1
-        elif atajo == 'medalla' and False in j['medallas']:
-            j['medallas'][j['medallas'].index(False)] = True
-        elif atajo == 'quitar_medalla' and True in j['medallas']:
-            j['medallas'][len(j['medallas']) - 1 - j['medallas'][::-1].index(True)] = False
         guardar()
 
 
@@ -409,8 +721,7 @@ def atajos():
     """Atajos globales de Windows, registrados solo mientras hay un juego abierto."""
     import ctypes.wintypes as wt
     u = ctypes.windll.user32
-    TECLAS = {1: (0, 0x76, 'menos'), 2: (0, 0x77, 'mas'), 3: (0, 0x78, 'medalla'),
-              4: (0x0004, 0x78, 'quitar_medalla')}           # 0x76..0x78 = F7..F9, 0x0004 = Mayús
+    TECLAS = {1: (0, 0x76, 'menos'), 2: (0, 0x77, 'mas')}       # 0x76, 0x77 = F7, F8
     # el vial va con la E (Azahar no la usa; la V es su botón de encendido). Solo se captura con el
     # juego delante, para que en el resto de programas la E se siga escribiendo
     VIAL = {5: (0, 0x45, 'vial')}
@@ -419,10 +730,28 @@ def atajos():
     msg = wt.MSG()
     pid = wt.DWORD()
 
+    k32 = ctypes.windll.kernel32
+
     def juego_delante():
+        """La ventana de delante es del emulador: del proceso lanzado o de otro programa de su carpeta
+        (con Citra, Pokelocke lanza el lanzador azahar.exe y la ventana es de citra-qt.exe)."""
         u.GetWindowThreadProcessId(u.GetForegroundWindow(), ctypes.byref(pid))
         p = vivo['proceso']
-        return p is not None and pid.value == p.pid
+        if p is None:
+            return False
+        if pid.value == p.pid:
+            return True
+        h = k32.OpenProcess(0x1000, False, pid.value)              # PROCESS_QUERY_LIMITED_INFORMATION
+        if not h:
+            return False
+        try:
+            ruta, n = ctypes.create_unicode_buffer(1024), wt.DWORD(1024)
+            if not k32.QueryFullProcessImageNameW(h, 0, ruta, ctypes.byref(n)):
+                return False
+            exe = azahar_exe()
+            return exe is not None and Path(ruta.value).parent == exe.parent
+        finally:
+            k32.CloseHandle(h)
 
     while True:
         if jugando() and not registrados:
@@ -456,16 +785,27 @@ def atajos():
         time.sleep(0.05)
 
 
+def avisar(texto, segundos=4):
+    """Un aviso para el jugador en el layout (sobre la pantalla de arriba) durante unos segundos."""
+    vivo['aviso'] = {'texto': texto, 'hasta': time.time() + segundos}
+
+
 def usar_vial():
     """E: si el vial está cargado, cura a todo el equipo vivo y se gasta hasta el próximo Centro Pokémon."""
     with lock:
         j = buscar(vivo['activo'])
         if not j.get('vial', True):
+            avisar('El vial está vacío · Vuelve al Centro Pokémon para recargarlo')
             return
-    if juego.curar_equipo(juego.RPC(espera=1.0)):
+        mega = j.get('reglas') == 'mega'
+    rpc = juego.RPC(espera=1.0)
+    if mega and (vivo.get('en_combate') or juego.en_combate(rpc)):
+        return                     # bloqueado: la E no hace nada (el layout ya enseña el vial tachado)
+    if juego.curar_equipo(rpc):
         with lock:
             j['vial'] = False
             vivo['vial_usado'] = time.time()
+            avisar('¡Has usado el vial! · Vuelve al Centro Pokémon para recargarlo')
             guardar()
 
 
@@ -481,7 +821,7 @@ def huella_capa():
             artes.append(f and [str(f), f.stat().st_mtime])
         except OSError:
             artes.append(None)
-    return json.dumps([a and [a['vidas'], a['vidas_iniciales'], a['medallas'], a['vial']], e['equipo'], artes],
+    return json.dumps([a and [a['vidas'], a['vidas_iniciales'], a['medallas'], a['vial'], a['vial_bloqueado'], a['topes']], e['equipo'], artes, e['aviso']],
                       sort_keys=True)
 
 
@@ -493,28 +833,34 @@ def renderizar_capa():
     s, _, _ = encaje()
     CAPA_PNG.parent.mkdir(exist_ok=True)
     tmp = TOOLS / 'capa-nueva.png'
+    tmp.unlink(missing_ok=True)
+    # sin capturar la salida: Edge deja procesos hijos con la tubería abierta y esperar a que la cierren
+    # podía dejar colgado el pintor para siempre (la capa se quedaba con el equipo de ese momento)
     subprocess.run([nav, '--headless=new', '--disable-gpu', '--hide-scrollbars',
                     f'--user-data-dir={TOOLS / "edge-capa"}', f'--force-device-scale-factor={s}',
                     f'--window-size={round(1920 * s)},{round(1080 * s)}', '--virtual-time-budget=4000',
                     f'--screenshot={tmp}', f'{URL}/overlay?capa=1'],
-                   capture_output=True, creationflags=0x08000000, timeout=60)
-    if tmp.exists():
+                   stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, creationflags=0x08000000, timeout=60)
+    if tmp.exists() and tmp.stat().st_size:
         tmp.replace(CAPA_PNG)
         vivo['capa'] += 1
+        return True
+    return False
 
 
 def pintor_capa():
+    """Repinta la capa cuando cambia lo que se ve. Nunca se para: si algo falla, lo vuelve a intentar."""
     ultima = None
     while True:
-        if jugando():
-            huella = huella_capa()
-            if huella != ultima:
-                ultima = huella
-                try:
-                    renderizar_capa()
-                except Exception:
-                    traceback.print_exc()
-        else:
+        try:
+            if jugando():
+                huella = huella_capa()
+                if huella != ultima and renderizar_capa():
+                    ultima = huella                       # si no se pudo pintar, se reintenta en el siguiente
+            else:
+                ultima = None
+        except Exception:
+            traceback.print_exc()
             ultima = None
         time.sleep(1)
 
@@ -526,20 +872,25 @@ def foto_estado():
             j = buscar(vivo['activo'])
             activo = {'id': j['id'], 'nombre': j['nombre'], 'vidas': vidas(j),
                       'vidas_iniciales': j['vidas_iniciales'] + j['ajuste_vidas'], 'medallas': j['medallas'],
-                      'vial': j.get('vial', True)}
+                      'vial': j.get('vial', True),
+                      'vial_bloqueado': j.get('reglas') == 'mega' and bool(vivo.get('en_combate')),
+                      'topes': niveles_tope(j)}
             muertos = j['muertos']
         else:
             muertos = []
         return {
             'juegos': [{'id': j['id'], 'nombre': j['nombre'], 'ruta': j['ruta'], 'preparado': j.get('preparado', False),
                         'random': j.get('random'), 'vidas': vidas(j) if j.get('preparado') else None,
+                        'reglas': j.get('reglas'), 'huevos': huevos_disponibles(j) if j.get('huevos') else None,
                         'vidas_iniciales': j.get('vidas_iniciales'), 'medallas': sum(j.get('medallas', [])),
                         'registro': (DATOS / 'juegos' / j['id'] / 'randomizacion.log').exists()}
                        for j in biblio['juegos']],
             'activo': activo, 'jugando': jugando(), 'conectado': vivo['conectado'], 'tarea': vivo['tarea'] and {**vivo['tarea'], 'transcurrido': time.time() - vivo['tarea']['inicio']},
             'equipo': [p and {**p, 'muerto': p['id'] in muertos} for p in vivo['equipo']],
+            'aviso': vivo['aviso']['texto'] if vivo['aviso'] and time.time() < vivo['aviso']['hasta'] else None,
             'capa': vivo['capa'], 'encaje': encaje() if os.name == 'nt' else (1, 0, 0),
             'avanzado': (DATOS / 'avanzado.rnqs').exists(),
+            'online': online_estado(),
         }
 
 
@@ -668,7 +1019,14 @@ class Servidor(BaseHTTPRequestHandler):
         elif ruta == '/api/preparar':
             j = buscar(d['id'])
             en_segundo_plano('Preparar el juego', preparar, j, d.get('opciones', {}), d.get('vidas', 25),
-                             bool(d.get('randomizar')), bool(d.get('avanzado')), minimo=60)
+                             bool(d.get('randomizar')), bool(d.get('avanzado')),
+                             'mega' if d.get('reglas') == 'mega' else None, minimo=60)
+        elif ruta in ('/api/huevos', '/api/huevos/coger'):
+            with lock:
+                j = buscar(d['id'])
+                if not j.get('huevos'):
+                    raise RuntimeError('La caja de huevos es de las normas Mega Pokelocke')
+                return coger_huevo(j, int(d['i'])) if ruta.endswith('coger') else huevos_estado(j)
         elif ruta == '/api/jugar':
             j = buscar(d['id'])
             en_segundo_plano('Abrir el juego', lambda: (herramientas(), lanzar(j)))
@@ -684,8 +1042,263 @@ class Servidor(BaseHTTPRequestHandler):
             with lock:
                 buscar(vivo['activo'])['ajuste_vidas'] += int(d['delta'])
                 guardar()
+        elif ruta.startswith('/api/online/'):
+            return online_accion(ruta.rsplit('/', 1)[1], d)
+        elif ruta.startswith('/api/pokehex/'):
+            return pokehex_accion(ruta.rsplit('/', 1)[1], d)
         else:
             raise RuntimeError('Acción desconocida')
+
+
+# ---------- PokéHex: ver y cambiar el equipo y la mochila de la partida guardada ----------
+# Con el juego cerrado: se edita el archivo de la partida del emulador (como PKHeX), con copia antes de cada cambio.
+
+CLAVE_POKEHEX = 'Admin123!'
+hex_vivo = {'tokens': set(), 'datos': {}, 'interno': hashlib.sha1(os.urandom(16)).hexdigest()}  # interno: encargos del servidor
+
+
+def pokehex_partida(j):
+    """El archivo de la partida del juego en el emulador: sdmc/Nintendo 3DS/*/*/title/00040000/<título>/data/00000001/main."""
+    exe = azahar_exe()
+    if not exe:
+        raise RuntimeError('No encuentro el emulador en tools/')
+    mod = DATOS / 'juegos' / j['id'] / 'mod'
+    titulo = next((p.name for p in mod.iterdir() if re.fullmatch(r'[0-9A-Fa-f]{16}', p.name)), TITLE_Y) if mod.exists() else TITLE_Y
+    sdmc = exe.parent / 'user' / 'sdmc' / 'Nintendo 3DS'
+    for f in sdmc.glob(f'*/*/title/{titulo[:8].lower()}/{titulo[8:].lower()}/data/00000001/main'):
+        return f
+    raise RuntimeError('Este juego aún no tiene partida guardada en el emulador')
+
+
+def pokehex_accion(que, d):
+    if que == 'entrar':
+        if d.get('clave') != CLAVE_POKEHEX:
+            raise RuntimeError('Contraseña incorrecta')
+        token = hashlib.sha1(os.urandom(16)).hexdigest()
+        hex_vivo['tokens'].add(token)
+        return {'token': token, 'nombres': pokehex.NOMBRES, 'admitidos': pokehex.ADMITIDOS, 'balls': pokehex.BALLS}
+    if d.get('token') not in hex_vivo['tokens'] and d.get('token') != hex_vivo['interno']:
+        raise RuntimeError('Vuelve a entrar en el PokéHex')
+    if jugando():
+        raise RuntimeError('Cierra el juego para usar el PokéHex: si no, el juego pisaría los cambios al guardar')
+    with lock:
+        j = buscar(d['id'])
+    try:
+        partida = pokehex.Partida(pokehex_partida(j))
+    except ValueError as e:
+        raise RuntimeError(str(e))
+    copias = DATOS / 'juegos' / j['id'] / 'copias_partida'
+    if j['id'] not in hex_vivo['datos']:
+        hex_vivo['datos'][j['id']] = pokehex.Datos(TOOLS, DATOS / 'juegos' / j['id'] / 'randomizacion.log')
+    datos = hex_vivo['datos'][j['id']]
+
+    def lugar(x):                     # {"tipo": "equipo"|"caja", "caja": c, "hueco": k}
+        tipo = x.get('tipo', 'equipo')
+        if tipo not in ('equipo', 'caja'):
+            raise RuntimeError('Sitio no válido')
+        c, k = int(x.get('caja', 0)), int(x['hueco'])
+        if not (0 <= k < (6 if tipo == 'equipo' else 30)) or not 0 <= c < partida.cuantas_cajas():
+            raise RuntimeError('Sitio no válido')
+        return tipo, c, k
+
+    try:
+        if que == 'leer':
+            return {'equipo': partida.equipo(), 'mochila': partida.mochila(), 'cajas': partida.cajas(datos)}
+        if que == 'pokemon':
+            sitio = lugar(d.get('lugar') or {'tipo': 'equipo', 'hueco': d['hueco']})
+            claro = partida.en(sitio, datos)
+            if not claro:
+                raise RuntimeError('Ahí no hay ningún Pokémon')
+            nuevo = pokehex.aplicar(claro, d.get('cambios', {}), datos)
+            partida.poner_en(sitio, nuevo)
+            partida.guardar(copias)
+            return {'pokemon': pokehex.detalle(nuevo)}
+        if que == 'mover':
+            partida.mover(lugar(d['desde']), lugar(d['hasta']), datos)
+            partida.guardar(copias)
+            return {'equipo': partida.equipo(), 'cajas': partida.cajas(datos)}
+        if que == 'nuevo':
+            if not 1 <= int(d['especie']) <= pokehex.MAX_ESPECIE:
+                raise RuntimeError('Especie no válida')
+            partida.nuevo(lugar(d['lugar']), int(d['especie']), int(d.get('nivel', 5)), datos)
+            partida.guardar(copias)
+            return {'equipo': partida.equipo(), 'cajas': partida.cajas(datos)}
+        if que == 'bolsillo':
+            partida.bolsillo(d['bolsillo'], d.get('objetos', []))
+            partida.guardar(copias)
+            return {'mochila': partida.mochila()}
+    except ValueError as e:
+        raise RuntimeError(str(e))
+    raise RuntimeError('Acción desconocida')
+
+
+# ---------- online: cuentas, conectados, servidor y PokéHex a distancia ----------
+# app/online.json: {"direccion": "..."}, adónde se conectan todos. Va dentro del .exe repartido, así que los
+# demás no tienen que configurar nada. Lo que cambie cada uno (el anfitrión al activar el servidor) se guarda
+# en datos/online.json, que manda sobre el de dentro.
+
+F_ONLINE, F_SESION = DATOS / 'online.json', DATOS / 'sesion.json'
+red = {'sesion': None, 'conectados': [], 'error': None, 'servidor': None, 'upnp': None, 'ip': None}
+
+
+def online_config():
+    for f in (F_ONLINE, APP / 'online.json'):
+        try:
+            return json.loads(f.read_text(encoding='utf-8'))
+        except (OSError, ValueError):
+            pass
+    return {}
+
+
+def online_direccion():
+    if red['servidor']:                     # este PC es el servidor: se habla con él directamente
+        return '127.0.0.1'
+    return online_config().get('direccion')
+
+
+def online_estado():
+    s = red['sesion']
+    return {'sesion': s and {'usuario': s['usuario'], 'admin': s['admin']}, 'conectados': red['conectados'],
+            'error': red['error'], 'servidor': bool(red['servidor']), 'upnp': red['upnp'], 'ip': red['ip'],
+            'direccion': online_config().get('direccion')}
+
+
+def online_guardar_sesion():
+    if red['sesion']:
+        F_SESION.write_text(json.dumps(red['sesion']), encoding='utf-8')
+    else:
+        F_SESION.unlink(missing_ok=True)
+
+
+def online_latidos():
+    """Cada pocos segundos: «sigo aquí» al servidor, la lista de conectados y los encargos del PokéHex."""
+    try:
+        red['sesion'] = json.loads(F_SESION.read_text(encoding='utf-8'))
+    except (OSError, ValueError):
+        pass
+    while True:
+        s, direccion = red['sesion'], online_direccion()
+        if s and direccion:
+            with lock:
+                j = buscar(vivo['activo']) if vivo['activo'] and jugando() else None
+            estado = {'jugando': bool(j), 'juego': j and j['nombre']}
+            try:
+                r = online.peticion(direccion, '/latido', {'token': s['token'], 'estado': estado}, espera=8)
+                if r.get('sesion') is False:
+                    red['sesion'], red['conectados'] = None, []
+                    online_guardar_sesion()
+                elif 'error' in r:
+                    red['error'] = r['error']
+                else:
+                    red['error'], red['conectados'] = None, r['conectados']
+                    for t in r['tareas']:
+                        threading.Thread(target=online_tarea, args=(direccion, s['token'], t), daemon=True).start()
+            except OSError:
+                red['error'], red['conectados'] = 'No se puede conectar con el servidor', []
+        time.sleep(online.LATIDO)
+
+
+def online_tarea(direccion, token, t):
+    """Un encargo del administrador: el PokéHex de este jugador, en su partida (con el juego cerrado)."""
+    try:
+        with lock:
+            juegos = [j for j in biblio['juegos'] if j.get('preparado')]
+        if not juegos:
+            raise RuntimeError('Este jugador no tiene ninguna partida')
+        datos = dict(t.get('datos') or {})
+        datos.setdefault('id', juegos[0]['id'])
+        res = pokehex_accion(t['que'], {**datos, 'token': hex_vivo['interno']})
+        if t['que'] == 'leer':
+            res['juegos'] = [{'id': j['id'], 'nombre': j['nombre']} for j in juegos]
+    except Exception as e:
+        res = {'error': str(e)}
+    online.peticion(direccion, '/resultado', {'token': token, 'id': t['id'], 'resultado': res})
+
+
+def online_servidor(activar):
+    if activar and not red['servidor']:
+        exe = azahar_exe()
+        sala = next((exe.parent / n for n in ('citra-room.exe', 'azahar-room.exe') if exe and (exe.parent / n).exists()), None)
+        srv = online.Servidor(DATOS / 'servidor', sala)
+        srv.arrancar(CLAVE_POKEHEX)
+        red['servidor'] = srv
+        red['upnp'], red['ip'] = online.abrir_puertos()
+        if not red['upnp']:
+            # la primera vez en un PC, el cortafuegos pregunta y mientras tanto el router no contesta: se reintenta
+            def reintentar():
+                for _ in range(6):
+                    time.sleep(10)
+                    if not red['servidor']:
+                        return
+                    red['upnp'], ip = online.abrir_puertos()
+                    red['ip'] = ip or red['ip']
+                    if red['upnp']:
+                        return
+            threading.Thread(target=reintentar, daemon=True).start()
+        # la dirección que se reparte con la app: el nombre fijo de DuckDNS si lo hay (datos/servidor/duckdns.json,
+        # {"dominio": "...", "token": "..."}, solo en el PC del anfitrión) y si no, la IP pública de ahora
+        try:
+            dd = json.loads((DATOS / 'servidor' / 'duckdns.json').read_text(encoding='utf-8'))
+        except (OSError, ValueError):
+            dd = None
+        cfg = online_config()
+        if dd and dd.get('dominio') and dd.get('token'):
+            red['duckdns'] = online.duckdns(dd['dominio'], dd['token'])
+            cfg['direccion'] = dd['dominio'].strip() if dd['dominio'].endswith('.duckdns.org') else dd['dominio'].strip() + '.duckdns.org'
+        elif red['ip']:
+            cfg['direccion'] = red['ip']
+        F_ONLINE.write_text(json.dumps(cfg, indent=1), encoding='utf-8')
+    elif not activar and red['servidor']:
+        red['servidor'].parar()
+        red['servidor'] = None
+        threading.Thread(target=online.cerrar_puertos, daemon=True).start()
+        red['conectados'] = []
+
+
+def online_accion(que, d):
+    if que == 'servidor':
+        online_servidor(bool(d.get('activar')))
+        return online_estado()
+    if que == 'direccion':
+        cfg = online_config()
+        cfg['direccion'] = str(d.get('direccion', '')).strip()
+        F_ONLINE.write_text(json.dumps(cfg, indent=1), encoding='utf-8')
+        return online_estado()
+    direccion = online_direccion()
+    if que in ('entrar', 'registro'):
+        if not direccion:
+            raise RuntimeError('Falta la dirección del servidor')
+        try:
+            r = online.peticion(direccion, '/' + que, {'usuario': d.get('usuario'), 'clave': d.get('clave')})
+        except OSError:
+            raise RuntimeError('No se puede conectar con el servidor. ¿Está encendido?')
+        if 'error' in r:
+            raise RuntimeError(r['error'])
+        red['sesion'], red['error'] = {k: r[k] for k in ('token', 'usuario', 'admin', 'sala')}, None
+        online_guardar_sesion()
+        return online_estado()
+    if que == 'salir':
+        if red['sesion'] and direccion:
+            try:
+                online.peticion(direccion, '/salir', {'token': red['sesion']['token']}, espera=4)
+            except OSError:
+                pass
+        red['sesion'], red['conectados'] = None, []
+        online_guardar_sesion()
+        return online_estado()
+    if que == 'pokehex':                     # el PokéHex de otro jugador (solo el administrador)
+        if not red['sesion']:
+            raise RuntimeError('Entra con tu usuario')
+        try:
+            r = online.peticion(direccion, '/pokehex', {'token': red['sesion']['token'], 'clave_hex': d.get('clave_hex'),
+                                                         'usuario': d.get('usuario'), 'que': d.get('que'),
+                                                         'datos': d.get('datos') or {}}, espera=40)
+        except OSError:
+            raise RuntimeError('No se puede conectar con el servidor')
+        if 'error' in r:
+            raise RuntimeError(r['error'])
+        return r
+    raise RuntimeError('Acción desconocida')
 
 
 # ---------- capa del layout encima de Azahar ----------
@@ -742,20 +1355,76 @@ def abrir_ventana_app():
         webbrowser.open(url)
 
 
+def instalar():
+    """Saca el zip del final del .exe (Citra, randomizador, fan arts) a RAIZ la primera vez y en cada versión
+    nueva. Las partidas (datos/ y user/ de Citra) no van en el zip, así que nunca se pisan."""
+    version = (PAQUETE.comment or b'').decode() or str(Path(sys.executable).stat().st_size)
+    marca = RAIZ / 'version.txt'
+    if marca.exists() and marca.read_text(encoding='utf-8') == version:
+        return
+    import tkinter as tk
+    from tkinter import ttk
+    miembros = PAQUETE.infolist()
+    hecho, fallo = [0], []
+
+    def sacar():
+        try:
+            for m in miembros:
+                PAQUETE.extract(m, RAIZ)
+                hecho[0] += 1
+            marca.write_text(version, encoding='utf-8')
+        except Exception as e:
+            fallo.append(e)
+    ventana = tk.Tk()
+    ventana.title('Pokelocke')
+    ventana.resizable(False, False)
+    try:
+        ventana.iconbitmap(str(ASSETS / 'icono.ico'))
+    except tk.TclError:
+        pass
+    tk.Label(ventana, text='Preparando Pokelocke por primera vez…', font=('Segoe UI', 11), padx=24, pady=14).pack()
+    barra = ttk.Progressbar(ventana, length=320, maximum=len(miembros))
+    barra.pack(padx=24, pady=(0, 20))
+    hilo = threading.Thread(target=sacar, daemon=True)
+    hilo.start()
+
+    def mirar():
+        barra['value'] = hecho[0]
+        if hilo.is_alive():
+            ventana.after(100, mirar)
+        else:
+            ventana.destroy()
+    mirar()
+    ventana.mainloop()
+    hilo.join()
+    if fallo:
+        raise fallo[0]
+
+
 def main():
     if os.name == 'nt':
         ctypes.windll.shcore.SetProcessDpiAwareness(2)
+        # que la barra de tareas agrupe las ventanas de Pokelocke con su propio icono
+        ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID('Pokelocke')
     if '--capa' in sys.argv:
         return capa()
+    RAIZ.mkdir(parents=True, exist_ok=True)
+    if PAQUETE:
+        instalar()
     for carpeta in (TOOLS, DATOS, FANART):
         carpeta.mkdir(exist_ok=True)
     cargar()
+    # sin SO_REUSEADDR: en Windows deja que dos Pokelocke escuchen a la vez en el mismo puerto (y los dos
+    # contaban muertes); así el segundo falla al abrir el puerto y solo enseña la ventana del primero
+    ThreadingHTTPServer.allow_reuse_address = False
     try:
         servidor = ThreadingHTTPServer(('127.0.0.1', PUERTO), Servidor)
     except OSError:                       # ya está abierto: solo enseña la ventana
         return abrir_ventana_app()
     threading.Thread(target=seguimiento, daemon=True).start()
+    threading.Thread(target=normas_mega, daemon=True).start()
     threading.Thread(target=pintor_capa, daemon=True).start()
+    threading.Thread(target=online_latidos, daemon=True).start()
     if os.name == 'nt':
         threading.Thread(target=atajos, daemon=True).start()
     print(f'Pokelocke en {URL}  ·  overlay para OBS: {URL}/overlay')

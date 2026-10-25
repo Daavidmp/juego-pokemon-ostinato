@@ -6,7 +6,7 @@ import juego
 
 def cifrar(claro):
     ec = struct.unpack_from('<I', claro, 0)[0]
-    orden = juego.ORDEN[(ec >> 13) % 24]
+    orden = juego.ORDEN[juego.bloque_orden(ec)]
     bloques = [None] * 4
     for k in range(4):
         bloques[orden[k]] = claro[8 + 56 * k:8 + 56 * k + 56]
@@ -25,7 +25,7 @@ bloque, stats = cifrar(bytes(claro))
 assert bloque != bytes(claro[:232])
 p = juego.pokemon(juego.descifrar(bloque, stats))
 assert p == {'id': '9ABC1357', 'especie': 658, 'mote': 'NINJA', 'huevo': False,
-             'nivel': 36, 'ps': 0, 'psmax': 101}, p
+             'nivel': 36, 'ps': 0, 'psmax': 101, 'pp_llenos': True}, p
 assert juego.pokemon(bytes(254)) is None                 # hueco vacío
 basura = bytearray(claro); basura[0x50] ^= 1             # checksum roto
 assert juego.pokemon(bytes(basura)) is None

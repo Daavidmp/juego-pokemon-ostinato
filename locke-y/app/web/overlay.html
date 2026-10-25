@@ -2,8 +2,9 @@
 <html lang="es"><head><meta charset="utf-8">
 <title>Overlay en directo · Mega Pokelocke Y</title>
 <style>html,body{margin:0;width:1920px;height:1080px;overflow:hidden}</style>
+<link rel="icon" href="/assets/icono.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Bungee&amp;family=Lilita+One&amp;family=Rubik:wght@500;700;800&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Bungee&amp;family=Press+Start+2P&amp;family=Lilita+One&amp;family=Rubik:wght@500;700;800&amp;display=swap" rel="stylesheet">
 <style>
 body{margin:0}
 a{color:#ffcb05}a:hover{color:#ffe066}
@@ -90,11 +91,25 @@ a{color:#ffcb05}a:hover{color:#ffe066}
       </div>
       <!-- Vial: una carga; E lo usa, se recarga al curarte en un Centro Pokémon -->
       <div style="display: flex; align-items: flex-end; gap: 12px; margin-right: 20px; margin-bottom: 8px; align-self: flex-end;">
-        <img id="vial" src="/assets/vial.png" alt="Vial cargado" style="width: 51px; height: 66px; image-rendering: pixelated; filter: drop-shadow(0 4px 0 rgba(0,0,0,0.6));">
+        <div style="position: relative; width: 51px; height: 66px;">
+          <img id="vial" src="/assets/vial.png" alt="Vial cargado" style="display: block; width: 51px; height: 66px; image-rendering: pixelated; filter: drop-shadow(0 4px 0 rgba(0,0,0,0.6));">
+          <!-- Mega Pokelocke: en combate el vial no se puede usar; una X pixel con el borde negro de los corazones -->
+          <svg id="vial-x" viewBox="0 0 11 11" width="66" height="66" aria-hidden="true" style="display: none; position: absolute; left: -8px; top: 0; shape-rendering: crispEdges;">
+            <path fill="#000" d="M0 0h3v1h1v1h1v1h1V2h1V1h1V0h3v3h-1v1H9v1H8v1h1v1h1v1h1v3H8v-1H7V9H6V8H5v1H4v1H3v1H0V8h1V7h1V6h1V5H2V4H1V3H0z"/>
+            <path fill="#E8331C" d="M1 1h2v1h1v1h1v1h1V3h1V2h1V1h2v2H9v1H8v1H7v1h1v1h1v1h1v2H8V9H7V8H6V7H5v1H4v1H3v1H1V8h1V7h1V6h1V5H3V4H2V3H1z"/>
+            <path fill="#FF8A73" d="M1 1h2v1H1zM8 1h2v1H8z"/>
+          </svg>
+        </div>
         <div id="vial-tecla" style="width: 40px; height: 40px; box-sizing: border-box; border: 3px solid #000000; border-bottom-width: 6px; border-radius: 8px; background: #ffffff; display: flex; align-items: center; justify-content: center; font-family: Bungee, sans-serif; font-size: 22px; line-height: 1; color: #0b1230;">E</div>
       </div>
     </div>
     <div id="corazones" style="display: grid; grid-template-columns: repeat(13, 48px); gap: 8px 3px;"></div>
+  </div>
+
+  <!-- Aviso para el jugador (el vial): franja sobre la parte de abajo de la pantalla de arriba, unos segundos -->
+  <div id="aviso" style="display: none; position: absolute; left: 92px; top: 752px; width: 960px; box-sizing: border-box; padding: 16px 24px; border: 4px solid #000000; border-radius: 14px; background: #0b1230; box-shadow: 0 0 22px #3b8bff, inset 0 0 14px #3b8bff, 0 6px 0 #000000; display: none; align-items: center; gap: 18px;">
+    <img id="aviso-vial" src="/assets/vial.png" alt="" style="width: 34px; height: 44px; image-rendering: pixelated; flex-shrink: 0;">
+    <div id="aviso-texto" style="font-family: Bungee, sans-serif; font-size: 26px; line-height: 1.15; color: #ffffff; text-shadow: 0 2px 0 #000000;"></div>
   </div>
 
   <!-- Pantalla inferior: hueco 680×510 en x=1168, y=530 (acaba a la altura del equipo, a 40 px del borde) -->
@@ -134,12 +149,33 @@ function pintar(e) {
   document.getElementById('vial').src = vial ? '/assets/vial.png' : '/assets/vial-gastado.png';
   document.getElementById('vial').alt = vial ? 'Vial cargado' : 'Vial gastado';
   document.getElementById('vial-tecla').style.opacity = vial ? '1' : '0.4';
+  // bloqueado en combate: X encima, vial apagado y la tecla en gris
+  const bloqueado = !!a.vial_bloqueado;
+  document.getElementById('vial-x').style.display = bloqueado ? 'block' : 'none';
+  document.getElementById('vial').style.filter = (bloqueado ? 'grayscale(1) brightness(0.55) ' : '') + 'drop-shadow(0 4px 0 rgba(0,0,0,0.6))';
+  Object.assign(document.getElementById('vial-tecla').style, bloqueado
+    ? {background: '#8b93ad', color: '#3a4260', opacity: '1'} : {background: '#ffffff', color: '#0b1230'});
+  // "texto · más texto": la segunda parte va en una línea aparte
+  const aviso = document.getElementById('aviso');
+  aviso.style.display = e.aviso ? 'flex' : 'none';
+  document.getElementById('aviso-vial').src = vial ? '/assets/vial.png' : '/assets/vial-gastado.png';
+  document.getElementById('aviso-texto').innerHTML = e.aviso ? e.aviso.split(' · ').map(esc).join('<br>') : '';
   document.getElementById('corazones').innerHTML =
     Array.from({length: a.vidas_iniciales}, (_, i) => i < a.vidas ? CORAZON : CORAZON_ROTO).join('');
   document.getElementById('equipo').innerHTML = e.equipo.map(carta).join('');
   [...document.getElementById('medallas').children].forEach((pieza, i) => {
     const [lider, medalla] = pieza.querySelectorAll('img');
     const ganada = a.medallas[i];
+    // nivel tope del líder (su Pokémon más alto), abajo a la derecha en letra pixel como los corazones; apagado al ganar
+    let tope = pieza.querySelector('.tope');
+    if (!tope) {
+      tope = document.createElement('div');
+      tope.className = 'tope';
+      tope.style.cssText = "position: absolute; right: 4px; bottom: 6px; z-index: 2; text-align: right; line-height: 1.15; font-family: 'Press Start 2P', monospace; color: #ffffff; text-shadow: 3px 0 #000, -3px 0 #000, 0 3px #000, 0 -3px #000, 3px 3px #000, -3px -3px #000, 3px -3px #000, -3px 3px #000, 0 6px #000;";
+      pieza.appendChild(tope);
+    }
+    tope.innerHTML = a.topes && a.topes[i] ? `<div style="font-size: 9px;">NV</div><div style="font-size: 20px;">${a.topes[i]}</div>` : '';
+    tope.style.opacity = ganada ? '0.55' : '1';
     lider.style.filter = ganada ? 'none' : 'grayscale(1) brightness(0.7)';
     lider.style.opacity = ganada ? '1' : '0.75';
     medalla.style.filter = ganada ? 'drop-shadow(0 3px 0 #000000)' : 'grayscale(1) brightness(0.25)';
