@@ -130,6 +130,43 @@ class SinSesion(PermissionError):
     """El token no vale (servidor reiniciado o sesión cerrada): hay que volver a entrar."""
 
 
+def _cuadro(jugadores):
+    """Cuadro de eliminatoria con los jugadores al azar. Si no son potencia de 2, los que sobran pasan directo
+    (repartidos para que ningún partido sea vacío contra vacío)."""
+    js = list(jugadores)
+    secrets.SystemRandom().shuffle(js)
+    tam = 1
+    while tam < len(js):
+        tam *= 2
+    pases = tam - len(js)
+    primera = []
+    for i in range(tam // 2):                     # los pases, uno por partido, en los primeros partidos
+        a = js.pop()
+        b = None if i < pases else js.pop()
+        primera.append({'ab': [a, b], 'gana': None, 'vivo': False, 'ma': '', 'mb': ''})
+    rondas = [primera]
+    while len(rondas[-1]) > 1:
+        rondas.append([{'ab': [None, None], 'gana': None, 'vivo': False, 'ma': '', 'mb': ''}
+                       for _ in range(len(rondas[-1]) // 2)])
+    _propagar(rondas)
+    return rondas
+
+
+def _propagar(rondas):
+    """Rehace las rondas siguientes desde los ganadores. Un pase directo gana solo. Si un partido cambia de
+    jugadores, su resultado se borra."""
+    for r in range(len(rondas)):
+        for i, p in enumerate(rondas[r]):
+            if r > 0:
+                previos = rondas[r - 1][2 * i:2 * i + 2]
+                nuevos = [q['ab'][q['gana']] if q['gana'] is not None else None for q in previos]
+                if nuevos != p['ab']:
+                    p.update(ab=nuevos, gana=None, vivo=False, ma='', mb='')
+            a, b = p['ab']
+            if r == 0 and (a is None) != (b is None):
+                p['gana'] = 0 if a else 1
+
+
 def _hash(clave, sal):
     return hashlib.pbkdf2_hmac('sha256', clave.encode(), bytes.fromhex(sal), 200_000).hex()
 
@@ -235,6 +272,71 @@ class Servidor:
             r[1] = res
             r[0].set()
 
+    # --- foto de perfil: un JPEG pequeño en base64 que recorta y reduce la app antes de mandarlo ---
+    def poner_foto(self, token, imagen):
+        u = self._usuario(token)
+        if not isinstance(imagen, str) or not imagen.startswith('data:image/jpeg;base64,') or len(imagen) > 200_000:
+            raise ValueError('La foto tiene que ser una imagen pequeña')
+        with self.lock:
+            self.usuarios[u]['foto'] = imagen
+            self._guardar()
+        return {'ok': True}
+
+    # --- torneo (eliminatoria): lo ven todos, lo cambia solo el administrador ---
+    # {'nombre', 'tope', 'rondas': [[{'a', 'b', 'gana': None|0|1, 'vivo', 'ma', 'mb'}]]}. El ganador del partido i de
+    # una ronda va al partido i // 2 de la siguiente, arriba si i es par. Un hueco vacío (None) es un pase directo
+    def _torneo_f(self):
+        return self.carpeta / 'torneo.json'
+
+    def torneo(self, token):
+        u = self._usuario(token)
+        f = self._torneo_f()
+        t = json.loads(f.read_text(encoding='utf-8')) if f.exists() else None
+        with self.lock:
+            fotos = {k: v['foto'] for k, v in self.usuarios.items() if v.get('foto')}
+            return {'torneo': t, 'fotos': fotos, 'usuarios': sorted(self.usuarios), 'yo': u,
+                    'admin': self.usuarios.get(u, {}).get('admin', False)}
+
+    def editar_torneo(self, token, que, d):
+        u = self._usuario(token)
+        if not self.usuarios.get(u, {}).get('admin'):
+            raise PermissionError('Solo el administrador puede cambiar el torneo')
+        f = self._torneo_f()
+        t = json.loads(f.read_text(encoding='utf-8')) if f.exists() else None
+        if que == 'crear':
+            jugadores = [j for j in (d.get('jugadores') or []) if j in self.usuarios]
+            if len(jugadores) < 2:
+                raise ValueError('Hacen falta al menos 2 jugadores')
+            t = {'nombre': str(d.get('nombre') or 'Gran torneo')[:60], 'tope': d.get('tope'),
+                 'jugadores': jugadores, 'rondas': _cuadro(jugadores)}
+        elif que == 'reiniciar':
+            f.unlink(missing_ok=True)
+            return {'ok': True}
+        elif not t:
+            raise ValueError('Aún no hay torneo')
+        elif que == 'randomizar':
+            t['rondas'] = _cuadro(t['jugadores'])
+        elif que in ('ganador', 'vivo', 'marcador'):
+            r, i = int(d['ronda']), int(d['partido'])
+            p = t['rondas'][r][i]
+            if que == 'vivo':
+                p['vivo'] = not p.get('vivo')
+            elif que == 'marcador':
+                p['ma'], p['mb'] = str(d.get('ma', ''))[:3], str(d.get('mb', ''))[:3]
+            else:
+                lado = d.get('lado')
+                if lado not in (0, 1, None) or (lado is not None and not p['ab'][lado]):
+                    raise ValueError('Ese hueco está vacío')
+                p['gana'] = None if p.get('gana') == lado else lado
+                p['vivo'] = False
+                _propagar(t['rondas'])
+        else:
+            raise ValueError('Acción desconocida')
+        tmp = f.with_suffix('.tmp')
+        tmp.write_text(json.dumps(t, indent=1), encoding='utf-8')
+        tmp.replace(f)
+        return {'ok': True}
+
     # --- arrancar y parar ---
     def arrancar(self, clave_hex):
         srv = self
@@ -273,6 +375,12 @@ class Servidor:
                         r = srv.salir(d.get('token')) or {'ok': True}
                     elif ruta == '/resultado':
                         r = srv.resultado(d.get('token'), d.get('id'), d.get('resultado')) or {'ok': True}
+                    elif ruta == '/torneo':
+                        r = srv.torneo(d.get('token'))
+                    elif ruta == '/torneo/editar':
+                        r = srv.editar_torneo(d.get('token'), d.get('que'), d)
+                    elif ruta == '/foto':
+                        r = srv.poner_foto(d.get('token'), d.get('imagen'))
                     elif ruta == '/pokehex':
                         r = srv.pokehex(d.get('token'), d.get('clave_hex'), d.get('usuario'), d.get('que'),
                                         d.get('datos') or {}, clave_hex)

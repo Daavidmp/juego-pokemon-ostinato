@@ -104,7 +104,8 @@ def buscar(id_juego):
 def nuevo_locke(j, vidas, reglas=None):
     j.update(vidas_iniciales=int(vidas), ajuste_vidas=0, muertos=[], medallas=[False] * 8, vial=True,
              reglas=reglas, perdonados=[], caramelos_dados=0, muertes_activas=False,
-             fase=1 if reglas == 'mega' else None, rutas_usadas=[], balls_escondidas=None,
+             fase=1 if reglas == 'mega' else None, rutas_usadas=[], rutas_avisadas=[], balls_escondidas=None,
+             aviso_torneo=False,
              huevos=caja_de_huevos() if reglas == 'mega' else None)
 
 
@@ -484,7 +485,7 @@ def lanzar(j):
     mod = DATOS / 'juegos' / j['id'] / 'mod'
     if j.get('random') and mod.exists():
         shutil.copytree(mod, mods, dirs_exist_ok=True)
-    vivo.update(activo=j['id'], equipo=[None] * 6, conectado=False)
+    vivo.update(activo=j['id'], equipo=[None] * 6, conectado=False, combate_visto_desde=None)
     vivo['proceso'] = subprocess.Popen([str(exe), '-f', rom_jugable(j)])
     if completa:
         avisar('¡Randomización completa! · Ahora los rivales sacan cualquier evolución y cualquier ataque', 25)
@@ -576,6 +577,11 @@ def seguimiento():
                         medallas = None
                     if medallas is not None and medallas != j.get('medallas'):
                         j['medallas'] = medallas
+                        # Mega Pokelocke: la 4.ª medalla (Amaro) es la mitad del juego y toca el torneo. Una vez
+                        if j.get('reglas') == 'mega' and sum(medallas) >= 4 and not j.get('aviso_torneo'):
+                            j['aviso_torneo'] = True
+                            avisar('¡Has llegado al fin de la primera parte del Mega Pokelocke! · '
+                                   'Prepara tu equipo para el gran torneo', 20)
                         guardar()
                     # el vial se recarga cada vez que la enfermera de un Centro cura al equipo: sube su
                     # contador en los récords del juego. Si no se puede leer, se adivina por PS y PP
@@ -603,7 +609,12 @@ def seguimiento():
                             combates = juego.record(rpc, juego.RECORD_ENTRENADORES)
                         except (OSError, TimeoutError):
                             combates = None
-                        if combates:
+                        # el contador del juego sube al EMPEZAR el combate: se espera a que haya acabado (fuera de
+                        # combate y con el contador subido desde hace unos segundos, por si el combate aún no se ve)
+                        if combates and not vivo.get('combate_visto_desde'):
+                            vivo['combate_visto_desde'] = time.time()
+                        if combates and time.time() - vivo['combate_visto_desde'] > 3 \
+                                and not vivo.get('en_combate') and not juego.en_combate(rpc):
                             j['muertes_activas'] = True
                             # unos segundos de margen: el contador sube al acabar el combate, a la vez que
                             # el equipo recibe los PS de la copia del combate
@@ -695,7 +706,9 @@ def normas_mega():
                     decidido = True
                     if zona in usadas and not j.get('balls_escondidas') and not juego.salvaje_shiny(rpc):
                         j['balls_escondidas'] = juego.esconder_balls(rpc)
-                        if j['balls_escondidas']:
+                        avisadas = j.setdefault('rutas_avisadas', [])     # el aviso, solo la primera vez en cada ruta
+                        if j['balls_escondidas'] and zona not in avisadas:
+                            avisadas.append(zona)
                             avisar('Ya has capturado en esta ruta · Poké Balls bloqueadas')
                         guardar()
                 elif not combate and j.get('balls_escondidas') and time.time() - fuera_desde >= 3:
@@ -835,17 +848,29 @@ def renderizar_capa():
     tmp = TOOLS / 'capa-nueva.png'
     tmp.unlink(missing_ok=True)
     # sin capturar la salida: Edge deja procesos hijos con la tubería abierta y esperar a que la cierren
-    # podía dejar colgado el pintor para siempre (la capa se quedaba con el equipo de ese momento)
+    # podía dejar colgado el pintor para siempre (la capa se quedaba con el equipo de ese momento). Pero el
+    # msedge.exe que se lanza le pasa el trabajo a un hijo y sale enseguida: hay que esperar a que la captura
+    # aparezca y deje de crecer, con un límite
     subprocess.run([nav, '--headless=new', '--disable-gpu', '--hide-scrollbars',
                     f'--user-data-dir={TOOLS / "edge-capa"}', f'--force-device-scale-factor={s}',
                     f'--window-size={round(1920 * s)},{round(1080 * s)}', '--virtual-time-budget=4000',
                     f'--screenshot={tmp}', f'{URL}/overlay?capa=1'],
                    stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, creationflags=0x08000000, timeout=60)
-    if tmp.exists() and tmp.stat().st_size:
+    tam, limite = -1, time.time() + 20
+    while time.time() < limite:
+        ahora = tmp.stat().st_size if tmp.exists() else 0
+        if ahora and ahora == tam:
+            break
+        tam = ahora
+        time.sleep(0.4)
+    else:
+        return False
+    try:
         tmp.replace(CAPA_PNG)
-        vivo['capa'] += 1
-        return True
-    return False
+    except OSError:                       # la capa la está leyendo justo ahora: el siguiente intento
+        return False
+    vivo['capa'] += 1
+    return True
 
 
 def pintor_capa():
@@ -1011,6 +1036,9 @@ class Servidor(BaseHTTPRequestHandler):
             with lock:
                 buscar(d['id'])['preparado'] = False
                 guardar()
+        elif ruta == '/api/borrar_partida':
+            with lock:
+                borrar_partida(buscar(d['id']))
         elif ruta == '/api/registro':
             log = DATOS / 'juegos' / d['id'] / 'randomizacion.log'
             if not log.exists():
@@ -1068,6 +1096,22 @@ def pokehex_partida(j):
     for f in sdmc.glob(f'*/*/title/{titulo[:8].lower()}/{titulo[8:].lower()}/data/00000001/main'):
         return f
     raise RuntimeError('Este juego aún no tiene partida guardada en el emulador')
+
+
+def borrar_partida(j):
+    """Borra la partida guardada del juego en el emulador (la carpeta data/ de su título: el juego empieza de cero
+    y crea una nueva) y pone a cero su locke. Antes se guarda una copia en datos/juegos/<id>/partidas_borradas/."""
+    if jugando():
+        raise RuntimeError('Cierra el juego antes de borrar la partida')
+    datos = pokehex_partida(j).parent.parent                     # .../title/00040000/<título>/data
+    copia = DATOS / 'juegos' / j['id'] / 'partidas_borradas' / time.strftime('%Y%m%d_%H%M%S')
+    shutil.copytree(datos, copia)
+    shutil.rmtree(datos)
+    fase = j.get('fase')
+    nuevo_locke(j, j['vidas_iniciales'], j.get('reglas'))
+    if fase == 2:                       # la versión fácil ya no está: se sigue con la completa
+        j['fase'] = 2
+    guardar()
 
 
 def pokehex_accion(que, d):
@@ -1286,6 +1330,17 @@ def online_accion(que, d):
         red['sesion'], red['conectados'] = None, []
         online_guardar_sesion()
         return online_estado()
+    if que in ('torneo', 'torneo_editar', 'foto'):    # el torneo lo ven todos; lo cambia el administrador
+        if not red['sesion']:
+            raise RuntimeError('Entra con tu usuario para ver el torneo')
+        ruta = {'torneo': '/torneo', 'torneo_editar': '/torneo/editar', 'foto': '/foto'}[que]
+        try:
+            r = online.peticion(direccion, ruta, {**d, 'token': red['sesion']['token']}, espera=15)
+        except OSError:
+            raise RuntimeError('No se puede conectar con el servidor')
+        if 'error' in r:
+            raise RuntimeError(r['error'])
+        return r
     if que == 'pokehex':                     # el PokéHex de otro jugador (solo el administrador)
         if not red['sesion']:
             raise RuntimeError('Entra con tu usuario')

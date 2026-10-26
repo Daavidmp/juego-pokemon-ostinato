@@ -6,7 +6,7 @@
 <title>Mega Pokelocke Y</title>
 <link rel="icon" href="/assets/icono.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@500;600;700;800;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Bungee&family=Nunito:wght@500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
   :root {
     --fondo: #F5F6FA; --panel: #FFFFFF; --linea: #E3E6EE; --linea-fuerte: #CBD1DE;
@@ -180,6 +180,35 @@
   .huevo.cogido img { width: 70%; height: 70%; object-fit: contain; }
   .huevo .estrella { position: absolute; top: 4px; right: 6px; color: #B88A00; font-size: 14px; }
   @media (max-width: 700px) { .huevos { grid-template-columns: repeat(5, minmax(0, 1fr)); } }
+  /* torneo */
+  .tn-tabs { display: flex; gap: 8px; flex-wrap: wrap; }
+  .tn-tabs button { min-height: 36px; padding: 0 16px; border-radius: 999px; border: 1px solid var(--linea); background: var(--panel); font-weight: 800; font-size: 14px; color: var(--tinta); }
+  .tn-tabs button[aria-pressed="true"] { background: var(--azul); border-color: var(--azul); color: #fff; }
+  .tn-ronda-t { font-size: 13px; font-weight: 900; color: var(--suave); text-transform: uppercase; letter-spacing: .06em; margin-bottom: 10px; }
+  .tn-rejilla { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; }
+  .tn-partido { position: relative; background: var(--panel); border: 1px solid var(--linea); border-radius: 16px; padding: 16px 10px 12px; display: flex; flex-direction: column; align-items: center; gap: 8px; }
+  .tn-partido.vivo { border: 2px solid var(--rojo); padding: 15px 9px 11px; }
+  .tn-vivo { position: absolute; top: -12px; left: 50%; transform: translateX(-50%); height: 24px; padding: 0 10px; border-radius: 999px; background: var(--rojo); color: #fff; font-size: 12px; font-weight: 900; display: flex; align-items: center; white-space: nowrap; }
+  .tn-vs { display: flex; align-items: center; justify-content: center; gap: 6px; width: 100%; }
+  .tn-vs .vs { font: 22px Bungee, Nunito, sans-serif; font-weight: 900; color: var(--rojo); }
+  .tn-lado { width: 112px; display: flex; flex-direction: column; align-items: center; gap: 4px; border: 0; background: none; padding: 4px; border-radius: 12px; color: var(--tinta); }
+  button.tn-lado:hover { background: var(--azul-claro); }
+  .tn-lado b { font-size: 14px; max-width: 104px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .tn-lado .mar { font-size: 20px; font-weight: 900; color: var(--suave); min-height: 26px; }
+  .tn-lado.gana .mar { color: var(--verde); }
+  .tn-lado.pierde { opacity: .45; filter: grayscale(1); }
+  .tn-lado.vacio { color: #B4BBCD; font-style: italic; font-weight: 700; font-size: 14px; justify-content: center; min-height: 100px; }
+  .tn-ava { width: 64px; height: 64px; border-radius: 16px; object-fit: cover; background: var(--fondo); display: flex; align-items: center; justify-content: center; font-size: 26px; font-weight: 900; color: #fff; }
+  .tn-lado.gana .tn-ava { outline: 3px solid var(--verde); }
+  .tn-lado.yo .tn-ava { box-shadow: 0 0 0 3px var(--azul); }
+  .tn-admin { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; justify-content: center; font-size: 13px; }
+  .tn-admin input { width: 46px; min-height: 32px; border: 1px solid var(--linea-fuerte); border-radius: 8px; padding: 2px 6px; font: 700 14px Nunito, sans-serif; text-align: center; }
+  .tn-admin button { min-height: 32px; padding: 0 10px; border-radius: 8px; border: 1px solid var(--linea); background: var(--panel); font-weight: 800; font-size: 13px; }
+  .tn-copa { display: flex; align-items: center; gap: 18px; padding: 18px 22px; border-radius: 18px; background: linear-gradient(160deg, #FFF6D6, #FFE27A); border: 2px solid #E5B800; }
+  .tn-crear { display: flex; flex-direction: column; gap: 12px; }
+  .tn-crear .lista { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 8px; }
+  .tn-crear label.j { display: flex; align-items: center; gap: 8px; padding: 6px 10px; border: 1px solid var(--linea); border-radius: 12px; font-weight: 700; }
+  .tn-crear label.j .tn-ava { width: 30px; height: 30px; border-radius: 8px; font-size: 14px; }
   .aviso-hex { padding: 12px 16px; border-radius: 12px; background: var(--oro-claro); color: #6B4E00; font-weight: 700; font-size: 14px; }
 
   @media (max-width: 700px) {
@@ -217,6 +246,7 @@
     <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap; position: relative;">
       <label class="interruptor oculto" id="o-servidor-caja" title="Enciende el servidor para que los demás puedan conectarse y jugar online"><input type="checkbox" id="o-servidor"> Servidor</label>
       <button class="btn btn-icono" type="button" data-notas aria-label="Cómo entrar en la sala para combatir" title="Cómo entrar en la sala para combatir"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6M8 13h8M8 17h5"/></svg></button>
+      <button class="btn btn-neutro oculto" type="button" id="b-torneo">🏆 Torneo</button>
       <button class="usuario-chip oculto" type="button" id="o-chip" aria-expanded="false"><span class="punto" id="o-punto"></span><span id="o-texto"></span></button>
       <button class="btn btn-neutro oculto" type="button" id="o-entrar">Entrar</button>
       <a class="btn btn-borde oculto" id="b-rom-cabecera" href="https://drive.google.com/file/d/12I8VEHjsqAPWKxzvyI_T5o9WLf4lZ3Ed/view?usp=sharing" target="_blank" rel="noopener" style="text-decoration: none;">
@@ -465,6 +495,38 @@
 
 <div class="notas oculto" id="notas" role="dialog" aria-labelledby="notas-titulo"></div>
 
+<!-- ============ TORNEO ============ -->
+<section class="vista" id="v-torneo">
+  <header>
+    <div class="marca">
+      <button class="btn btn-icono" id="tn-atras" type="button" aria-label="Volver a la biblioteca">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1B2030" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>
+      </button>
+      <span class="titulo" id="tn-titulo">🏆 Torneo</span>
+      <span class="chip medallas oculto" id="tn-tope"></span>
+    </div>
+    <div id="tn-acciones" style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;"></div>
+  </header>
+  <main class="contenido" id="tn-cuerpo"></main>
+</section>
+<input type="file" id="foto-archivo" accept="image/*" class="oculto">
+
+<!-- ============ BORRAR PARTIDA GUARDADA ============ -->
+<div class="modal-fondo oculto" id="borrar-fondo">
+  <section class="modal" role="alertdialog" aria-modal="true" aria-labelledby="br-titulo" aria-describedby="br-texto">
+    <h1 id="br-titulo" style="margin: 0; font-size: 24px;">¿Borrar la partida guardada?</h1>
+    <div id="br-texto" style="display: flex; flex-direction: column; gap: 10px; font-size: 15px; line-height: 1.45;">
+      <p style="margin: 0;">El juego empezará <b>desde cero</b>, desde la introducción, y el locke de <b id="br-juego"></b> vuelve al principio: vidas, muertes, medallas y rutas usadas.</p>
+      <p class="aviso-hex oculto" id="br-compartida" style="margin: 0;"></p>
+      <p class="suave" style="margin: 0; font-size: 14px;">Se guarda una copia de seguridad en la carpeta del juego, por si te arrepientes.</p>
+    </div>
+    <div style="display: flex; justify-content: flex-end; gap: 12px; flex-wrap: wrap;">
+      <button class="btn btn-neutro" type="button" id="br-cancelar">Cancelar</button>
+      <button class="btn btn-rojo" type="button" id="br-borrar">Borrar la partida</button>
+    </div>
+  </section>
+</div>
+
 <!-- ============ CAJA DE HUEVOS (Mega Pokelocke) ============ -->
 <div class="modal-fondo oculto" id="huevos-fondo">
   <section class="modal" role="dialog" aria-modal="true" aria-labelledby="hv-titulo" style="width: min(720px, 100%); max-height: calc(100vh - 32px); overflow-y: auto;">
@@ -587,7 +649,8 @@ const MODOS = {
       'Movimientos, habilidades y objetos del suelo aleatorios', 'Lo que te dan en los intercambios del juego, aleatorio',
       'Estadísticas base, tipos y evoluciones sin cambios', 'Facilidad de captura normal'],
     normas: ['Dificultad que sube: hasta la 2.ª medalla, entrenadores y salvajes solo con Pokémon que aún pueden evolucionar, rivales con ataques de 70 o menos y MT de menos de 70',
-      'Al ganar la 2.ª medalla se abre la randomización completa (guarda y reinicia el juego)', '25 vidas','Las muertes no cuentan hasta acabar el primer combate contra un entrenador (Shauna)',
+      'Al ganar la 2.ª medalla se abre la randomización completa (guarda y reinicia el juego)',
+      'La 4.ª medalla cierra la primera parte: toca el gran torneo','25 vidas','Las muertes no cuentan hasta acabar el primer combate contra un entrenador (Shauna)',
       'El vial solo se puede usar fuera de combate', 'Una captura por ruta; los shiny no cuentan',
       '10000 Caramelos Raros: se rellenan solos hasta 999 cada vez que abres el juego',
       'Caja de 30 huevos aleatorios con 2 shiny: coges uno cada 2 medallas y, si sale shiny, otro más'],
@@ -634,6 +697,7 @@ function tarjeta(j) {
       ${j.reglas === 'mega' ? `<button type="button" role="menuitem" data-accion="huevos" data-id="${j.id}">Caja de huevos</button>` : ''}
       <button type="button" role="menuitem" data-accion="pokehex" data-id="${j.id}">PokéHex</button>
       <button type="button" role="menuitem" data-accion="registro" data-id="${j.id}" ${j.registro ? '' : 'disabled'}>Ver registro de randomización</button>
+      ${j.preparado ? `<button type="button" role="menuitem" class="peligro" data-accion="borrar_partida" data-id="${j.id}">Borrar partida guardada</button>` : ''}
       <button type="button" role="menuitem" class="peligro" data-accion="quitar" data-id="${j.id}">Quitar de la biblioteca</button>
     </div>` : '';
   return `<article class="juego">
@@ -757,6 +821,7 @@ try { sinConexion = localStorage.getItem('pokelocke-sin-conexion') === '1'; } ca
 function pintarOnline(o) {
   const s = o.sesion;
   $('o-chip').classList.toggle('oculto', !s);
+  $('b-torneo').classList.toggle('oculto', !s);
   $('o-entrar').classList.toggle('oculto', !!s);
   $('o-servidor-caja').classList.toggle('oculto', !(o.servidor || (s && s.admin)));
   $('o-servidor').checked = o.servidor;
@@ -773,10 +838,185 @@ function pintarOnline(o) {
         <span>${c.jugando ? 'Jugando a ' + esc(c.juego || '') : 'En la biblioteca'}</span></div>
         ${s.admin && c.usuario !== s.usuario ? `<button class="btn btn-neutro" type="button" data-remoto="${esc(c.usuario)}">PokéHex</button>` : ''}</div>`).join('') || '<p class="suave">Nadie conectado.</p>'}
       ${o.servidor ? `<p class="suave" style="font-size: 13px;">Eres el servidor${o.ip ? ` · ${esc(o.ip)}` : ''}${o.upnp === false ? ' · el router no ha abierto los puertos' : ''}</p>` : ''}
+      <button class="btn btn-neutro" type="button" id="o-foto">Cambiar foto de perfil</button>
       <button class="btn btn-neutro" type="button" id="o-salir">Cerrar sesión</button>`;
     $('o-salir').onclick = async () => { panelAbierto = false; await api('/api/online/salir'); };
+    $('o-foto').onclick = () => $('foto-archivo').click();
   }
 }
+
+// ---------- torneo ----------
+// Lo guarda el servidor: todos lo ven y solo el administrador lo cambia. Se vuelve a pedir cada 4 s mientras está abierto
+const torneo = {abierto: false, datos: null, error: null, filtro: 'todas', creando: false, reloj: null, hora: 0, pintado: ''};
+
+async function pedirTorneo(que, datos) {
+  const r = await fetch('/api/online/' + que, {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(datos || {})});
+  return r.json();
+}
+async function cargarTorneo() {
+  const r = await pedirTorneo('torneo');
+  if (r.error) { torneo.error = r.error; } else { torneo.datos = r; torneo.error = null; torneo.hora = Date.now(); }
+  pintarTorneo();
+}
+async function editarTorneo(que, datos) {
+  const r = await pedirTorneo('torneo_editar', {que, ...(datos || {})});
+  if (r.error) alert(r.error);
+  await cargarTorneo();
+}
+function abrirTorneo() {
+  torneo.abierto = true; torneo.pintado = '';
+  cargarTorneo();
+  clearInterval(torneo.reloj);
+  torneo.reloj = setInterval(() => { if (!torneo.creando && document.activeElement?.tagName !== 'INPUT') cargarTorneo(); }, 4000);
+  actualizar();
+}
+function cerrarTorneo() { torneo.abierto = false; torneo.creando = false; clearInterval(torneo.reloj); actualizar(); }
+
+const COLORES = ['#2A75BB', '#CC2B0B', '#1F9D55', '#8E44AD', '#D9822B', '#16A085', '#C0392B', '#2C3E50'];
+function avatar(n) {
+  const f = torneo.datos && torneo.datos.fotos[n];
+  if (f) return `<img class="tn-ava" src="${f}" alt="">`;
+  const c = COLORES[[...n].reduce((s, ch) => s + ch.charCodeAt(0), 0) % COLORES.length];
+  return `<span class="tn-ava" style="background:${c}" aria-hidden="true">${esc(n[0].toUpperCase())}</span>`;
+}
+function nombreRonda(r, total) {
+  const desde = total - r;
+  return desde === 1 ? 'Final' : desde === 2 ? 'Semifinales' : desde === 3 ? 'Cuartos' : desde === 4 ? 'Octavos' : `Ronda ${r + 1}`;
+}
+function tarjetaPartido(p, r, i, admin, yo) {
+  const lado = (k) => {
+    const n = p.ab[k];
+    if (!n) return `<div class="tn-lado vacio">${r === 0 ? 'Pase directo' : 'Por decidir'}</div>`;
+    const clase = ['tn-lado', p.gana === k ? 'gana' : p.gana === 1 - k ? 'pierde' : '', n === yo ? 'yo' : ''].join(' ');
+    const dentro = `${avatar(n)}<b>${esc(n)}</b><span class="mar">${esc(k ? p.mb : p.ma)}</span>`;
+    return admin && p.ab[0] && p.ab[1]
+      ? `<button type="button" class="${clase}" data-tn="ganador" data-r="${r}" data-i="${i}" data-lado="${k}" title="Marcar a ${esc(n)} como ganador">${dentro}</button>`
+      : `<div class="${clase}">${dentro}</div>`;
+  };
+  const completo = p.ab[0] && p.ab[1];
+  return `<div class="tn-partido ${p.vivo ? 'vivo' : ''}">${p.vivo ? '<span class="tn-vivo">● EN JUEGO</span>' : ''}
+    <div class="tn-vs">${lado(0)}<span class="vs">VS</span>${lado(1)}</div>
+    ${admin && completo ? `<div class="tn-admin">
+      <input type="text" inputmode="numeric" aria-label="Marcador de ${esc(p.ab[0])}" value="${esc(p.ma)}" data-tn="ma" data-r="${r}" data-i="${i}">
+      <span>–</span>
+      <input type="text" inputmode="numeric" aria-label="Marcador de ${esc(p.ab[1])}" value="${esc(p.mb)}" data-tn="mb" data-r="${r}" data-i="${i}">
+      <button type="button" data-tn="vivo" data-r="${r}" data-i="${i}">${p.vivo ? 'Quitar «en juego»' : '● En juego'}</button></div>` : ''}
+  </div>`;
+}
+function pintarTorneo() {
+  if (!torneo.abierto) return;
+  const d = torneo.datos, t = d && d.torneo, admin = d && d.admin;
+  $('tn-titulo').textContent = t ? `🏆 ${t.nombre}` : '🏆 Torneo';
+  $('tn-tope').classList.toggle('oculto', !(t && t.tope));
+  if (t && t.tope) $('tn-tope').textContent = `Nivel tope ${t.tope}`;
+  $('tn-acciones').innerHTML = !d ? '' : admin
+    ? `<span class="chip random">Modo edición · admin</span>
+       ${t ? '<button class="btn btn-neutro" type="button" data-tn="randomizar">Randomizar emparejamientos</button><button class="btn btn-neutro" type="button" data-tn="reiniciar">Reiniciar</button>' : ''}
+       <button class="btn btn-rojo" type="button" data-tn="crear">+ Crear torneo</button>`
+    : `<span class="chip" style="background:var(--verde-claro);color:#166B3C">● Se actualiza solo</span><span class="chip nuevo">Solo lectura</span>`;
+  let html = '';
+  if (torneo.error) html += `<p class="error">${esc(torneo.error)}</p>`;
+  if (torneo.creando && d) {
+    html += `<section class="tarjeta tn-crear"><h2>Crear torneo</h2>
+      <p class="suave">Elige quién juega (las cuentas del servidor). Los emparejamientos salen al azar.</p>
+      <div class="lista">${d.usuarios.map((n) => `<label class="j"><input type="checkbox" name="tn-j" value="${esc(n)}" ${!t || t.jugadores.includes(n) ? 'checked' : ''}>${avatar(n)} ${esc(n)}</label>`).join('')}</div>
+      <div class="rejilla" style="max-width:640px"><label class="campo">Nombre<input id="tn-nombre" value="${esc(t ? t.nombre : 'Gran torneo · Mitad del Mega Pokelocke')}" style="font:600 15px Nunito,sans-serif;border:1px solid var(--linea-fuerte);border-radius:10px;padding:8px 10px;min-height:42px"></label>
+        <label class="campo">Nivel tope<input id="tn-nivel" type="number" min="1" max="100" value="${t && t.tope ? t.tope : 39}"></label></div>
+      <div style="display:flex;gap:10px"><button class="btn btn-neutro" type="button" data-tn="cancelar">Cancelar</button><button class="btn btn-rojo" type="button" data-tn="confirmar">Crear y randomizar</button></div></section>`;
+  }
+  if (d && !t && !torneo.creando) {
+    html += `<div class="vacio"><h1>Aún no hay torneo</h1><p class="suave" style="font-size:17px">${admin ? 'Créalo con «+ Crear torneo»: eliges a los jugadores y los emparejamientos salen al azar.' : 'Cuando el administrador lo cree, aparecerá aquí.'}</p></div>`;
+  }
+  if (t) {
+    const total = t.rondas.length;
+    let actual = t.rondas.findIndex((ps) => ps.some((p) => p.gana === null && p.ab[0] && p.ab[1]));
+    const final = t.rondas[total - 1][0];
+    if (final.gana !== null) {
+      const camp = final.ab[final.gana];
+      html += `<div class="tn-copa">${avatar(camp)}<div><div style="font-size:13px;font-weight:900;color:#7A5A00">🏆 CAMPEÓN DEL TORNEO</div><div style="font-size:26px;font-weight:900">${esc(camp)}</div></div></div>`;
+    }
+    html += `<div class="tn-tabs" role="group" aria-label="Rondas"><button type="button" data-tn="filtro" data-f="todas" aria-pressed="${torneo.filtro === 'todas'}">Todas</button>${t.rondas.map((_, r) => `<button type="button" data-tn="filtro" data-f="${r}" aria-pressed="${String(torneo.filtro) === String(r)}">${nombreRonda(r, total)}</button>`).join('')}</div>`;
+    // la ronda que se está jugando arriba; luego las que faltan y al final las ya jugadas
+    const orden = actual < 0 ? [...t.rondas.keys()].reverse()
+      : [actual, ...[...t.rondas.keys()].filter((r) => r > actual), ...[...t.rondas.keys()].filter((r) => r < actual).reverse()];
+    for (const r of orden) {
+      if (torneo.filtro !== 'todas' && String(torneo.filtro) !== String(r)) continue;
+      const estado = r === actual ? 'ahora' : r > actual && actual >= 0 ? 'próximamente' : 'jugados';
+      html += `<section><div class="tn-ronda-t">${nombreRonda(r, total)} · ${estado}</div><div class="tn-rejilla">${t.rondas[r].map((p, i) => tarjetaPartido(p, r, i, admin, d.yo)).join('')}</div></section>`;
+    }
+  }
+  if (!d && !torneo.error) html = '<p class="suave">Cargando el torneo…</p>';
+  if (html !== torneo.pintado) { $('tn-cuerpo').innerHTML = html; torneo.pintado = html; }
+}
+
+$('b-torneo').onclick = abrirTorneo;
+$('tn-atras').onclick = cerrarTorneo;
+document.addEventListener('click', (ev) => {
+  const b = ev.target.closest('[data-tn]');
+  if (!b || !torneo.abierto || b.tagName === 'INPUT') return;
+  const que = b.dataset.tn, r = Number(b.dataset.r), i = Number(b.dataset.i);
+  if (que === 'filtro') { torneo.filtro = b.dataset.f; return pintarTorneo(); }
+  if (que === 'crear') { torneo.creando = true; return pintarTorneo(); }
+  if (que === 'cancelar') { torneo.creando = false; return pintarTorneo(); }
+  if (que === 'confirmar') {
+    const jugadores = [...document.querySelectorAll('input[name="tn-j"]:checked')].map((x) => x.value);
+    if (jugadores.length < 2) return alert('Elige al menos 2 jugadores');
+    torneo.creando = false;
+    return editarTorneo('crear', {jugadores, nombre: $('tn-nombre').value, tope: Number($('tn-nivel').value) || null});
+  }
+  if (que === 'randomizar' && !confirm('¿Randomizar los emparejamientos? Se borran los resultados de este torneo.')) return;
+  if (que === 'reiniciar' && !confirm('¿Reiniciar el torneo? Se borra el cuadro entero.')) return;
+  if (que === 'ganador') return editarTorneo('ganador', {ronda: r, partido: i, lado: Number(b.dataset.lado)});
+  if (que === 'vivo') return editarTorneo('vivo', {ronda: r, partido: i});
+  if (que === 'randomizar' || que === 'reiniciar') return editarTorneo(que);
+});
+document.addEventListener('change', (ev) => {
+  const x = ev.target;
+  if (!torneo.abierto || !x.matches('input[data-tn="ma"], input[data-tn="mb"]')) return;
+  const r = Number(x.dataset.r), i = Number(x.dataset.i);
+  const caja = (k) => document.querySelector(`input[data-tn="${k}"][data-r="${r}"][data-i="${i}"]`).value;
+  editarTorneo('marcador', {ronda: r, partido: i, ma: caja('ma'), mb: caja('mb')});
+});
+
+// foto de perfil: se recorta en cuadrado y se reduce a 128 px antes de mandarla al servidor
+$('foto-archivo').onchange = async () => {
+  const f = $('foto-archivo').files[0];
+  $('foto-archivo').value = '';
+  if (!f) return;
+  try {
+    const img = await createImageBitmap(f);
+    const lado = Math.min(img.width, img.height), c = document.createElement('canvas');
+    c.width = c.height = 128;
+    c.getContext('2d').drawImage(img, (img.width - lado) / 2, (img.height - lado) / 2, lado, lado, 0, 0, 128, 128);
+    const r = await pedirTorneo('foto', {imagen: c.toDataURL('image/jpeg', 0.85)});
+    if (r.error) return alert(r.error);
+    alert('¡Foto de perfil cambiada!');
+    if (torneo.abierto) cargarTorneo();
+  } catch (err) { alert('No se ha podido leer esa imagen'); }
+};
+
+// ---------- borrar partida guardada ----------
+// todas las ROM de Pokémon Y usan la misma partida del emulador: se avisa de qué otros juegos la comparten
+let borrando = null;
+function abrirBorrar(j) {
+  borrando = j;
+  $('br-juego').textContent = j.nombre;
+  const otros = ultimo.juegos.filter((x) => x.id !== j.id && x.preparado).map((x) => x.nombre);
+  $('br-compartida').classList.toggle('oculto', !otros.length);
+  $('br-compartida').textContent = otros.length
+    ? `Ojo: el emulador guarda una sola partida de Pokémon Y, y ${otros.length === 1 ? 'la comparte' : 'la comparten'} ${otros.join(', ')}. También se borra para ${otros.length === 1 ? 'ese juego' : 'esos juegos'}.`
+    : '';
+  $('borrar-fondo').classList.remove('oculto');
+  $('br-cancelar').focus();
+}
+$('br-cancelar').onclick = () => { borrando = null; $('borrar-fondo').classList.add('oculto'); };
+$('br-borrar').onclick = async () => {
+  const j = borrando;
+  $('borrar-fondo').classList.add('oculto');
+  borrando = null;
+  const r = await api('/api/borrar_partida', {id: j.id});
+  if (!r.error) alert(`Partida borrada. La próxima vez que abras «${j.nombre}» empezará desde cero.`);
+};
 
 // ---------- caja de huevos (Mega Pokelocke) ----------
 const huevos = {juego: null, ocupado: false};
@@ -912,6 +1152,7 @@ function pintar(e) {
   if (t && (!t.fin || (t.error && t.mensaje !== errorVisto))) pintarModal(t);
   else cerrarModal();
   if (preparando) { vista('preparar'); return; }
+  if (torneo.abierto) { vista('torneo'); return; }
   vista('biblioteca');
   pintarBiblioteca(e);
 }
@@ -938,6 +1179,7 @@ $('juegos').onclick = (ev) => {
   if (accion === 'registro') return api('/api/registro', {id: j.id});
   if (accion === 'pokehex') return abrirHex(j);
   if (accion === 'huevos') return abrirHuevos(j);
+  if (accion === 'borrar_partida') return abrirBorrar(j);
   if (accion === 'quitar' && confirm(`¿Quitar «${j.nombre}» de la biblioteca? Se borra su locke; la ROM no se toca.`)) return api('/api/quitar', {id: j.id});
   if (accion === 'nuevo' && confirm('¿Empezar un locke nuevo? Se borran las muertes y las medallas, y vuelves a elegir vidas y randomización.')) {
     return api('/api/reiniciar', {id: j.id}).then(() => abrirPreparar(j));
