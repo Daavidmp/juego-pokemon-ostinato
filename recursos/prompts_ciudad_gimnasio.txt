@@ -1,0 +1,61 @@
+PROMPTS · CIUDAD DEL PRIMER GIMNASIO (despues del tunel) · Adobe Firefly
+2026-10-19
+
+Ciudad de noche con bares, tiendas y el gimnasio-discoteca. Maqueta elegida:
+Descargas\ciudad_gimnasio\maqueta_elegida.png. Se entra por abajo, por la boca de metro (sale del tunel, mapa 18).
+Bordes: fincas valencianas altas en hilera. Mapa de unas 60x46 casillas, tileset propio montado como los de
+Pokemon Anil (suelos en juegos de 3x3, edificios enteros con su sombra, capa 2 para tejados y cabezas de farola).
+
+AJUSTES PARA TODAS
+  Tipo de contenido: Arte · Proporcion: 1:1 (o la que se indique)
+  Referencia de ESTILO: Descargas\ciudad_gimnasio\ref_estilo_anil.png (una casa y una farola de Anil, x2)
+  Referencia de COMPOSICION (si se indica): el recorte de esa pieza en la maqueta, Descargas\ciudad_gimnasio\comp_*.png
+  Escala: casilla de 32 px; Kaia mide 2 casillas de alto. Una puerta mide 1 casilla de ancho y algo mas de 1 de alto.
+  La ciudad siempre es de noche: colores ya nocturnos (fachadas oscuras azuladas, ventanas calidas encendidas, neones).
+  Excluir en todas: texto, letras, palabras, personajes, isometrico, perspectiva diagonal, 3D realista, desenfoque,
+  suelo alrededor, sombra en el suelo, marca de agua
+
+(Los suelos -calzada de adoquin, acera con bordillo, baldosa de la plaza- y las guirnaldas de bombillas se dibujan
+por codigo con la paleta de la maqueta: no hace falta Firefly.)
+
+1. FINCA VALENCIANA (bordes del mapa, se repite en hilera) · composicion: comp_finca.png
+Pixel art building for a top-down Pokémon game, front view in GBA 3/4 perspective, aligned to the grid, no isometric. A tall Valencian apartment building (finca) seen from the street at night, 4 tiles wide and 7 tiles tall: dark flat roof with a small edge at the top, three floors of windows with wrought iron balconies and wooden shutters, some windows lit warm yellow and some dark, a ground floor with a closed metal shop shutter, the left and right sides cut straight so several can be placed side by side as a continuous wall. Dark bluish stone, crisp large pixels, few colors per material, dark 1 px outline, light from the upper left, plain flat light green background, no text.
+
+2. BAR · composicion: comp_bar.png
+Pixel art building for a top-down Pokémon game, front view in GBA 3/4 perspective, aligned to the grid, no isometric. A small bar at night, 5 tiles wide and 6 tiles tall: dark brick facade, flat dark roof with an air conditioner unit, a big lit window showing bottles and a counter, a wooden door, a glowing green neon sign above the door, a small wooden terrace with two round tables and stools in front, warm light. Crisp large pixels, few colors per material, dark 1 px outline, light from the upper left, plain flat light green background, no text.
+
+3. KEBAB · composicion: comp_kebab.png
+Pixel art building for a top-down Pokémon game, front view in GBA 3/4 perspective, aligned to the grid, no isometric. A small kebab shop at night, 5 tiles wide and 6 tiles tall: blue metal roof, dark facade, a lit shop window with a rotating kebab spit inside, a glass door, a glowing red and pink neon kebab sign above, a vertical neon sign on the side. Crisp large pixels, few colors per material, dark 1 px outline, light from the upper left, plain flat light green background, no text.
+
+4. TIENDA DE DISCOS · composicion: comp_discos.png
+Pixel art building for a top-down Pokémon game, front view in GBA 3/4 perspective, aligned to the grid, no isometric. A record store at night, 5 tiles wide and 6 tiles tall: dark brown brick facade, flat roof with a vent, a lit shop window with vinyl records and posters, a wooden door, a warm yellow sign shaped like a vinyl record above the window, two record crates by the door. Crisp large pixels, few colors per material, dark 1 px outline, light from the upper left, plain flat light green background, no text.
+
+5. TATUAJES · composicion: comp_tatuajes.png
+Pixel art building for a top-down Pokémon game, front view in GBA 3/4 perspective, aligned to the grid, no isometric. A tattoo studio at night, 5 tiles wide and 6 tiles tall: dark purple facade, flat roof, a lit window with a tattoo drawing, a dark door, a glowing purple neon sign above and a small neon sign in the window, a bit edgy and urban. Crisp large pixels, few colors per material, dark 1 px outline, light from the upper left, plain flat light green background, no text.
+
+6. CAFE CON TERRAZA · composicion: comp_cafe.png
+Pixel art building for a top-down Pokémon game, front view in GBA 3/4 perspective, aligned to the grid, no isometric. A cozy cafe at night, 5 tiles wide and 7 tiles tall: brick facade, purple and white striped awning over a lit window with cakes and bottles, a wooden door, a vertical pink neon sign on the side, a small terrace in front with a railing, a round table and two chairs. Crisp large pixels, few colors per material, dark 1 px outline, light from the upper left, plain flat light green background, no text.
+
+7. GIMNASIO-DISCOTECA · composicion: comp_gimnasio.png · proporcion 1:1
+Pixel art Pokémon Gym for a top-down Pokémon game, front view in GBA 3/4 perspective, aligned to the grid, no isometric. The gym is a two-floor nightclub, 10 tiles wide and 9 tiles tall: black flat roof with two stage spotlights pointing up, a black glossy facade with neon light strips in pink, purple and blue, a big neon sign frame above the entrance (empty, no letters), a double glass door with warm light, a red carpet with two posts and a velvet rope in front, small lit windows on both sides, a Poké Ball emblem on the facade. Crisp large pixels, few colors per material, dark 1 px outline, plain flat light green background, no text.
+
+8. CENTRO POKEMON (modernista valenciano) · composicion: comp_centro.png · proporcion 3:4
+Pixel art Pokémon Center for a top-down Pokémon game, front view in GBA 3/4 perspective, aligned to the grid, no isometric. A Valencian modernist building, 6 tiles wide and 9 tiles tall: red clay tiled gable roof with a Poké Ball emblem at the top, cream facade decorated with blue and orange tiles (azulejos), an arched window with a small wrought iron balcony and flower pots, an arched glass double door with warm light, two wall lanterns. Crisp large pixels, few colors per material, dark 1 px outline, light from the upper left, plain flat light green background, no text.
+
+9. TIENDA POKEMON (puesto de mercado) · composicion: comp_tienda.png
+Pixel art Poké Mart for a top-down Pokémon game, front view in GBA 3/4 perspective, aligned to the grid, no isometric. A small Valencian market shop, 6 tiles wide and 7 tiles tall: blue tiled gable roof with a Poké Ball emblem, blue and white striped awning over a big lit shop window, a glass door, wooden crates with potions and items outside, a chalkboard sign by the door, warm light. Crisp large pixels, few colors per material, dark 1 px outline, light from the upper left, plain flat light green background, no text.
+
+10. BOCA DE METRO (Metrovalencia) · composicion: comp_metro.png · proporcion 4:3
+Pixel art subway entrance for a top-down Pokémon game, seen from above in GBA 3/4 perspective, aligned to the grid, no isometric. A Valencia metro entrance, 8 tiles wide and 6 tiles tall: a wide stairway going down into the ground, under a modern curved canopy of glass and white metal, white tiled walls with a red stripe, metal handrails on both sides, a ticket machine, and next to it a tall slim post with a glowing red square sign with a white letter M, cold white light. Crisp large pixels, few colors per material, dark 1 px outline, plain flat light green background, no text other than the letter M.
+
+11. FAROLA · proporcion 1:1
+Pixel art street lamp for a top-down Pokémon game, front view in GBA 3/4 perspective. One classic black iron street lamp, 1 tile wide and 3 tiles tall, with a lit warm yellow glass lantern on top and a small round base, centered. Crisp large pixels, dark 1 px outline, plain flat light green background, no text.
+
+12. BANCO · proporcion 1:1
+Pixel art park bench for a top-down Pokémon game, front view in GBA 3/4 perspective, aligned to the grid. One wooden bench with black iron legs, 2 tiles wide and 1 tile tall, seen from the front, night colors. Crisp large pixels, dark 1 px outline, plain flat light green background, no text.
+
+13. FUENTE DE LA PLAZA · proporcion 1:1
+Pixel art fountain for a top-down Pokémon game, seen from above in GBA 3/4 perspective, aligned to the grid, no isometric. A round stone fountain, 4 tiles wide and 4 tiles tall, with a basin of blue water and a central column with water falling, lit by soft blue light at night. Crisp large pixels, dark 1 px outline, plain flat light green background, no text.
+
+14. JARDINERA CON NARANJO · proporcion 1:1
+Pixel art planter for a top-down Pokémon game, front view in GBA 3/4 perspective. A square stone planter with a small orange tree with oranges, 2 tiles wide and 3 tiles tall, night colors. Crisp large pixels, dark 1 px outline, plain flat light green background, no text.

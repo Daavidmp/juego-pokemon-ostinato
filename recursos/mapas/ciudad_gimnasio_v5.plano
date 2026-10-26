@@ -1,0 +1,186 @@
+# Ciudad del primer gimnasio, v5. Plano para plano_mapa.cs.
+# Suelo: scratchpad\v5\rejilla.txt con transiciones.cs: hierba y arena del Exterior1 de Anil ("plantilla", con sus
+# bordes dibujados a mano) y los pavimentos de Firefly con bordillo recto. Delantales rectangulares alineados con
+# su edificio. Edificios de Descargas\taller; decoracion de Descargas\taller_deco (con sombra de contacto).
+# Eje en la columna 22: metro (22,34) -> cebra -> plaza (marmol alrededor de la fuente, que se rodea) -> escalinata
+# -> puerta del gimnasio (22,10). Caminos de arena de 3 de ancho: tienda <-> fuente <-> centro.
+# Provisional: salida por la derecha en la calle de la EMT; callejon de arriba (35-36) cerrado con vallas.
+# NEONES Y LUCES (por codigo de noche): gimnasio (17-27, 6-10), rotulos de los bajos (filas 8-9), tatuajes
+# (41-45, 22-25), farolas fernandinas, totem del metro, marquesina EMT (7, 29).
+mapa 46 40
+rejilla suelos_v4 C:\Users\ASUS\AppData\Local\Temp\claude\C--Users-ASUS\42c4af3d-7141-4693-9817-f905763b661b\scratchpad\v5\suelo_idx.txt
+
+# ===== azoteas (capa 0, no se pisan): de tamanos distintos; el parque de abajo asoma entre ellas =====
+juego azotea_a 0 0 4 3 s
+juego azotea_c 4 0 4 3 s
+juego azotea_b 8 0 5 3 s
+juego azotea_a 13 0 4 3 s
+juego azotea_b 17 0 11 1 s
+juego azotea_c 28 0 3 3 s
+juego azotea_a 31 0 4 3 s
+juego azotea_b 37 0 3 3 s
+juego azotea_c 40 0 4 3 s
+juego azotea_c 44 0 2 9
+juego azotea_a 44 9 2 8
+juego azotea_b 0 10 2 6
+juego azotea_c 0 16 2 6
+juego azotea_a 41 17 5 4 s
+juego azotea_c 0 29 2 7
+juego azotea_b 44 30 2 6
+juego azotea_a 0 36 6 4
+juego azotea_c 6 37 7 3
+juego azotea_b 13 36 6 4
+juego azotea_c 26 36 6 4
+juego azotea_a 32 37 6 3
+juego azotea_b 38 36 8 4
+# ===== muro de contencion (15-16) con la escalinata del eje y dos escaleras laterales =====
+fila3 muro_c 2 15 8
+suelo escalera3 10 16
+fila3 muro_c 13 15 7
+suelo escalera5 20 16
+fila3 muro_c 25 15 7
+suelo escalera3 32 16
+fila3 muro_c 35 15 9
+
+# ===== paso de cebra (encima del asfalto) =====
+relleno cebra_n 20 27 5 1 1
+relleno cebra_s 20 28 5 1 1
+
+# ===== edificios =====
+pieza fila_izq_0 0 10
+pieza fila_izq_1 8 10
+pieza fila_izq_2 16 10
+pieza gimnasio_0 17 11
+pieza gimnasio_1 25 11
+pieza fila_der_a 28 10
+pieza fila_der_b 37 10
+pieza tienda 2 24
+pieza centro 34 25
+pieza finca_tatu 41 26
+pieza finca_lado 0 26
+pieza boca_metro 19 39
+
+# ===== calle alta (10-14) =====
+pieza alfombra 22 13
+pieza cordon 21 12
+pieza cordon 23 12
+pieza macetero_flores 19 11
+pieza macetero_flores 25 11
+pieza palmera 15 14
+pieza palmera 28 14
+pieza mesa_terraza 3 13
+pieza mesa_terraza 6 13
+pieza mesa_terraza 9 13
+pieza mesa_terraza 36 13
+pieza mesa_terraza 39 13
+pieza guirnalda_banderines 2 10
+pieza guirnalda_banderines 36 10
+pieza farola_fernandina 13 14
+pieza farola_fernandina 31 14
+pieza farola_fernandina 42 14
+pieza buzon_correos 12 10
+pieza macetero_flores 10 10
+pieza macetero_flores 16 10
+pieza moto 33 12
+pieza moto 34 12
+pieza vallas 35 5
+pieza matojos 5 14
+pieza matojos 40 14
+
+# ===== plaza (17-25): el eje simetrico; los jardines, cada uno a su manera =====
+pieza fuente_modernista 20 22
+pieza farola_fernandina 19 17
+pieza farola_fernandina 25 17
+pieza farola_fernandina 19 25
+pieza farola_fernandina 25 25
+pieza banco_forja 14 19
+pieza papelera 16 19
+pieza naranjo 17 18
+pieza palmera 15 25
+pieza hojas_sueltas 16 23
+pieza matojos 13 17
+pieza arbusto_recortado 27 18
+pieza naranjo 31 21
+pieza naranjo 27 24
+pieza palmera 30 25
+pieza matojos 30 17
+pieza fuente_beber 33 19
+pieza puesto_flores 10 20
+pieza macetero_flores 4 24
+pieza macetero_flores 6 24
+pieza buzon_correos 9 25
+pieza macetero_flores 36 25
+pieza macetero_flores 38 25
+pieza macetero_flores 44 26
+
+# ===== calle de la EMT (26-29) =====
+pieza autobus 0 29
+pieza marquesina 7 30
+pieza papelera 12 30
+pieza farola_fernandina 11 26
+pieza farola_fernandina 33 26
+
+# ===== placeta del metro y sus parques (30-36) =====
+pieza quiosco_prensa 13 31
+pieza contened 35 31
+pieza bolardo 19 30
+pieza bolardo 25 30
+pieza farola_fernandina 17 32
+pieza farola_fernandina 27 32
+pieza totem 26 35
+pieza banco_forja 3 33
+pieza papelera 5 33
+pieza naranjo 7 35
+pieza hojas_sueltas 8 35
+pieza palmera 11 35
+pieza arbusto_recortado 14 34
+pieza matojos 2 31
+pieza banco_forja 30 33
+pieza papelera 32 33
+pieza fuente_beber 33 31
+pieza arbusto_recortado 29 35
+pieza palmera 41 35
+pieza hojas_sueltas 39 33
+pieza naranjo 38 33
+pieza matojos 34 36
+
+# ===== detalles de azotea (con alguna maceta en las terrazas) =====
+pieza deposito 2 2
+pieza macetero_flores 5 1
+pieza tendedero 8 2
+pieza antena 14 2
+pieza aire 30 1
+pieza macetero_flores 32 1
+pieza claraboya 37 1
+pieza deposito 41 2
+pieza antena 44 6
+pieza aire 0 13
+pieza tendedero 0 19
+pieza tendedero 0 34
+pieza deposito 2 38
+pieza claraboya 9 38
+pieza aire 15 38
+pieza antena 29 38
+pieza macetero_flores 34 38
+pieza deposito 40 38
+pieza tendedero 43 38
+pieza aire 44 32
+pieza deposito 42 19
+pieza claraboya 44 18
+pieza aire 44 12
+
+# ===== revision =====
+entrada 22 34
+puerta gimnasio 22 10
+puerta portal_b_izq 1 9
+puerta bar 5 9
+puerta portal_a 11 9
+puerta kebab 15 9
+puerta discos 29 9
+puerta portal_b 32 9
+puerta horchateria 38 9
+puerta portal_b_der 42 9
+puerta tienda 5 23
+puerta centro 37 24
+puerta tatuajes 43 25
+puerta salida_este 45 28

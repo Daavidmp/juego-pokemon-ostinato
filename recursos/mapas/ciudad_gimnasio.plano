@@ -1,0 +1,131 @@
+# Ciudad del primer gimnasio (despues del tunel de la ruta 4). Plano para plano_mapa.cs.
+# 60x46 casillas. Se llega por abajo, por la boca de metro (x 26-32). Eje: metro -> plaza -> gimnasio.
+# Bordes: fincas de frente arriba (con los tejados del fondo), bloques laterales a los lados (de cara al mapa),
+# y abajo un muro bajo con los tejados de las casas de detras.
+mapa 60 46
+
+# --- suelos ---------------------------------------------------------------------------------------------
+calzada 0 0 60 46
+acera 3 7 54 3          # acera de arriba (su bordillo de arriba queda debajo de los edificios)
+acera 3 13 5 22         # acera del lado izquierdo
+acera 11 13 38 22       # la manzana del centro
+acera 52 13 5 22        # acera del lado derecho
+acera 3 38 54 5         # el paseo de abajo, delante del metro
+plaza 20 23 20 11       # la plaza de la fuente, delante del gimnasio
+franja tejados 5 0 50   # los tejados del fondo, encima de los edificios bajos
+franja tejados 0 43 26  # tejados de las casas de detras del muro de abajo
+franja tejados 33 43 27
+franja tejados 0 40 4
+franja tejados 56 40 4
+
+# --- bordes ---------------------------------------------------------------------------------------------
+pieza finca_esquina_espejo 0 7
+pieza finca_esquina 55 7
+pieza finca_lado_espejo 0 15
+pieza finca_lado_espejo 0 23
+pieza finca_lado_espejo 0 31
+pieza finca_lado_espejo 0 39
+pieza finca_lado 56 15
+pieza finca_lado 56 23
+pieza finca_lado 56 31
+pieza finca_lado 56 39
+
+# --- la calle de arriba: bares y tiendas -----------------------------------------------------------------
+pieza finca_1 5 7
+pieza bar 9 7
+pieza finca_ladrillo 16 7
+pieza kebab 20 7
+pieza modernista 26 7
+pieza discos 30 7
+pieza grafiti 35 7
+pieza tatuajes 40 7
+pieza obras 45 7
+pieza cafe 50 7
+pieza farola_luz 7 9
+pieza farola_luz 19 9
+pieza farola_luz 33 9
+pieza farola_luz 47 9
+pieza anil_papelera 15 9
+pieza anil_panel 25 9
+pieza anil_maquinas 38 9
+pieza anil_papelera 44 9
+pieza anil_buzon 54 9
+pieza moto_roja_der 40 12
+pieza moto_negra_der 42 12
+
+# --- la manzana del centro: Tienda, gimnasio y Centro, y la plaza ------------------------------------------
+pieza tienda 12 22
+pieza jardinera 18 21
+pieza horchata 20 21
+pieza gimnasio_0 25 22
+pieza gimnasio_1 33 22
+pieza casa_baja 36 22
+pieza jardinera 40 21
+pieza centro 42 22
+pieza fuente 28 30
+pieza banco 25 26
+pieza banco 33 26
+pieza banco_lado 24 30
+pieza banco_lado 35 30
+pieza jardinera 21 25
+pieza jardinera 37 25
+pieza jardinera 21 33
+pieza jardinera 37 33
+pieza farola_luz 23 33
+pieza farola_luz 34 33
+pieza terraza 25 33
+pieza terraza 32 33
+# las esquinas de la manzana: un paseo de arboles con bancos (izquierda) y un rincon de motos y bicis (derecha)
+pieza jardinera 12 27
+pieza jardinera 16 27
+pieza banco 14 27
+pieza farola_luz 18 29
+pieza jardinera 12 32
+pieza jardinera 16 32
+pieza banco 14 32
+pieza anil_papelera 18 32
+pieza jardinera 42 27
+pieza jardinera 46 27
+pieza farola_luz 41 29
+pieza bicis 43 31
+pieza moto_roja_izq 42 33
+pieza moto_negra_izq 45 33
+pieza anil_papelera 47 31
+
+# --- aceras de los lados ----------------------------------------------------------------------------------
+pieza semaforo 7 13
+pieza semaforo 52 13
+pieza senal 11 14
+pieza contenedor_der 5 19
+pieza contenedor_amarillo_der 5 21
+pieza contenedor_azul_der 5 23
+pieza contenedor_gris_der 5 25
+pieza farola_luz 4 31
+pieza contenedor_izq 53 27
+pieza contenedor_amarillo_izq 53 29
+pieza contenedor_azul_izq 53 31
+pieza contenedor_gris_izq 53 33
+pieza farola_luz 54 19
+
+# --- el paseo de abajo: metro, parada, bicis -------------------------------------------------------------
+pieza semaforo 7 38
+pieza semaforo 52 38
+pieza metro 26 45
+pieza bolardo 25 38
+pieza bolardo 33 38
+pieza parada 12 40
+pieza anil_papelera 16 41
+pieza moto_roja_izq 18 41
+pieza moto_negra_izq 20 41
+pieza farola_luz 23 41
+pieza farola_luz 34 41
+pieza bicis 37 40
+pieza contenedor_frente 43 41
+pieza contenedor_amarillo_frente 45 41
+pieza contenedor_azul_frente 47 41
+pieza contenedor_gris_frente 49 41
+pieza banco 5 41
+pieza farola_luz 9 41
+pieza farola_luz 52 41
+muro 4 42 25 42
+muro 33 42 55 42
