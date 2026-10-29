@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Guía Mega Pokelocke Y</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --rojo: #c8102e; --rojo-osc: #7a0a1c; --noche: #1b1820; --papel: #ffffff; --carta: #fbf8f4; --tinta: #26222b;
+    --suave: #6f6875; --linea: #e6ddd2; --oro: #e8b33c;
+  }
+  @page { size: A4; margin: 13mm 12mm 14mm; }
+  @page :first { margin: 0; }
+  * { box-sizing: border-box; }
+  html { -webkit-print-color-adjust: exact; print-color-adjust: exact; background: var(--papel); }
+  body { margin: 0; font: 400 10pt/1.45 Nunito, sans-serif; color: var(--tinta); background: var(--papel); }
+  a { color: inherit; text-decoration: none; }
+  h1, h2, h3 { font-family: Fredoka, sans-serif; margin: 0; }
+
+  /* portada */
+  .portada { height: 297mm; display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 10mm; background: radial-gradient(circle at 50% 42%, #3a1420 0, var(--noche) 62%); color: #fff;
+    page-break-after: always; text-align: center; }
+  .portada img { width: 140mm; filter: drop-shadow(0 6mm 10mm rgba(0,0,0,.5)); }
+  .portada h1 { font-size: 34pt; font-weight: 600; letter-spacing: .5pt; }
+  .portada p { margin: 0; color: #d9cfd6; font-size: 12pt; }
+  .portada .raya { width: 30mm; height: 1.2mm; border-radius: 1mm; background: var(--rojo); }
+
+  /* índice */
+  .pagina { page-break-after: always; }
+  .titulo-pag { display: flex; align-items: baseline; gap: 4mm; border-bottom: 2px solid var(--rojo);
+    padding-bottom: 2mm; margin-bottom: 6mm; }
+  .titulo-pag h2 { font-size: 22pt; color: var(--rojo-osc); }
+  .titulo-pag span { color: var(--suave); }
+  .indice { list-style: none; padding: 0; margin: 0; columns: 2; column-gap: 8mm; }
+  .indice .ib { break-inside: avoid; margin-bottom: 3mm; }
+  .indice .ib > a { display: flex; align-items: center; gap: 3mm; background: var(--carta); border: 1px solid var(--linea);
+    border-radius: 3mm; padding: 2mm 3mm; font-family: Fredoka; font-weight: 600; font-size: 11pt; }
+  .indice .num { width: 7mm; height: 7mm; border-radius: 50%; background: var(--rojo); color: #fff; display: grid;
+    place-items: center; font-size: 9.5pt; flex: none; }
+  .indice .t { flex: 1; }
+  .indice .cap { font: 700 8pt Nunito; color: var(--rojo-osc); background: #fbe3e7; border-radius: 9pt; padding: .5mm 2.2mm; }
+  .indice ul { list-style: none; margin: 1mm 0 0 10mm; padding: 0; font-size: 8.5pt; line-height: 1.3; color: var(--suave); }
+  .indice ul li { padding: .1mm 0; border-bottom: 1px dotted var(--linea); }
+  .indice ul a:hover, .indice a:hover { color: var(--rojo); }
+  .extra { margin-top: 2mm; display: flex; gap: 3mm; }
+  .extra a { flex: 1; background: var(--noche); color: #fff; border-radius: 3mm; padding: 2.5mm 4mm;
+    font-family: Fredoka; font-weight: 600; }
+  .leyenda { margin-bottom: 5mm; background: #fdf6e6; border: 1px solid var(--linea); border-radius: 3mm; padding: 3mm 4mm; font-size: 9pt; }
+  .leyenda b { color: var(--rojo-osc); }
+
+  /* tabla de tipos */
+  .tipos { border-collapse: separate; border-spacing: 1px; margin: 0 auto; font-size: 8pt; }
+  .tipos th { font-weight: 800; padding: 0; }
+  .tipos .esq { font-size: 6.5pt; color: var(--suave); text-align: left; vertical-align: bottom; padding-bottom: 1mm; }
+  .tipos .vert span { display: inline-block; writing-mode: vertical-rl; transform: rotate(180deg); color: #fff;
+    border-radius: 1.5mm; padding: 1.5mm .6mm; font-size: 7pt; letter-spacing: .4pt; }
+  .tipos .pill { display: block; color: #fff; border-radius: 1.5mm; padding: 1.6mm 2.5mm; text-align: left; font-size: 8.5pt; width: 25mm; }
+  .tipos td { width: 8.6mm; height: 8.2mm; font-size: 9pt; text-align: center; background: #fff; border-radius: 1mm; font-weight: 800; }
+  .tipos td { background: #f3eee8; }
+  .tipos td.x2 { background: #4caf50; color: #fff; }
+  .tipos td.x05 { background: #f2a3a3; color: #7a0a1c; }
+  .tipos td.x0 { background: #2b2730; color: #fff; }
+  .claves { display: flex; gap: 6mm; justify-content: center; margin-top: 5mm; font-size: 9pt; }
+  .claves span { display: inline-flex; align-items: center; gap: 1.5mm; }
+  .claves i { width: 5mm; height: 5mm; border-radius: 1mm; display: inline-grid; place-items: center; font: 800 8pt Nunito; font-style: normal; }
+
+  /* bloques */
+  .bloque { page-break-before: always; }
+  .cabecera { display: flex; align-items: center; gap: 5mm; background: linear-gradient(120deg, var(--noche), #3a1420);
+    color: #fff; border-radius: 4mm; padding: 5mm 6mm; margin-bottom: 5mm; }
+  .cabecera .medalla { width: 20mm; height: 20mm; object-fit: contain; filter: drop-shadow(0 1mm 2mm rgba(0,0,0,.5)); }
+  .cabecera .liga { display: grid; place-items: center; font-size: 34pt; color: var(--oro); }
+  .cabecera > div:nth-child(2) { flex: 1; }
+  .cabecera .eta { font-size: 8.5pt; text-transform: uppercase; letter-spacing: 1pt; color: #e7a0ad; font-weight: 800; }
+  .cabecera h2 { font-size: 22pt; font-weight: 600; line-height: 1.1; }
+  .cabecera .sub { color: #d9cfd6; }
+  .tope { text-align: center; background: var(--rojo); border-radius: 3mm; padding: 2mm 5mm; min-width: 28mm; }
+  .tope span { display: block; font-size: 7.5pt; text-transform: uppercase; letter-spacing: 1pt; font-weight: 800; }
+  .tope b { display: block; font: 700 26pt/1 Fredoka; }
+  .tope small { font-size: 7.5pt; opacity: .85; }
+
+  .zona { margin-bottom: 5mm; }
+  .zona h3 { font-size: 13.5pt; font-weight: 600; color: var(--rojo-osc); display: flex; align-items: center; gap: 2mm;
+    break-after: avoid; margin-bottom: 1.5mm; }
+  .zona h3::before { content: ''; width: 3mm; height: 3mm; border-radius: 50%; background: var(--rojo);
+    box-shadow: 0 0 0 1mm #fbe3e7; }
+  .hacer { background: #fdf6e6; border-left: 1.2mm solid var(--oro); border-radius: 0 2mm 2mm 0; padding: 1.8mm 3mm;
+    margin-bottom: 2.5mm; break-inside: avoid; break-after: avoid; font-size: 9pt; }
+  .hacer .et { font-size: 7.5pt; text-transform: uppercase; letter-spacing: .8pt; color: #a37a16; }
+  .hacer p { margin: .5mm 0 0; }
+  .cartas { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2mm; }
+  .carta { display: flex; gap: 2mm; align-items: center; background: var(--carta); border: 1px solid var(--linea);
+    border-radius: 2.5mm; padding: 1.5mm 2mm 1.5mm 1.5mm; break-inside: avoid; }
+  .carta.jefe { border: 1.4px solid var(--rojo); background: linear-gradient(135deg, #fff 60%, #fdebee); }
+  .foto { width: 17mm; height: 17mm; flex: none; border-radius: 2mm; background: #f1ebe3; display: flex;
+    align-items: flex-end; justify-content: center; overflow: hidden; }
+  .jefe .foto { background: #fbe3e7; }
+  .foto img { width: 21mm; height: 21mm; margin-bottom: -2mm; object-fit: contain; image-rendering: pixelated; }
+  .foto.doble img { width: 8.5mm; height: 17mm; margin: 0; object-fit: cover; }
+  .info { min-width: 0; }
+  .clase { font-size: 7pt; text-transform: uppercase; letter-spacing: .5pt; color: var(--suave); font-weight: 800; }
+  .nombre { font: 600 10pt/1.15 Fredoka; }
+  .niveles { display: flex; flex-wrap: wrap; gap: .8mm; margin-top: .8mm; }
+  .nv { font: 800 7.5pt/1 Nunito; background: var(--noche); color: #fff; border-radius: 1.2mm; padding: .7mm 1.2mm; }
+  .nv.alto { background: var(--rojo); }
+  .marcas:empty { display: none; }
+  .marcas { margin-top: .8mm; display: flex; gap: .8mm; flex-wrap: wrap; }
+  .tag { font: 700 6.5pt Nunito; border: 1px solid var(--linea); color: var(--suave); border-radius: 1.2mm; padding: .2mm 1.2mm; }
+  .tag.seis { border-color: var(--rojo); color: var(--rojo); }
+  .vacio { margin: 0; color: var(--suave); font-size: 9pt; font-style: italic; }
+  .creditos { margin-top: 8mm; font-size: 8pt; color: var(--suave); }
+</style>
+</head>
+<body>
+
+<section class="portada">
+  <img src="../assets/logo.png" alt="Mega Pokelocke Y">
+  <div class="raya"></div>
+  <h1>Guía de juego</h1>
+  <p>Entrenadores, niveles tope y tabla de tipos para el Mega Pokelocke</p>
+</section>
+
+<section class="pagina">
+  <div class="titulo-pag"><h2>Índice</h2><span>pulsa cualquier entrada para ir a ella</span></div>
+  <div class="leyenda">
+    <b>Cómo leer la guía.</b> Los niveles ya llevan el <b>+15 %</b> de las normas Mega. Cada bloque acaba en un
+    gimnasio y su <b>nivel tope</b> es el del Pokémon más alto del líder: no subas a nadie por encima.
+    Los equipos de los entrenadores son <b>aleatorios</b>, así que solo se indican el número de Pokémon y sus niveles.
+    Una carta con borde rojo es un combate importante; <span class="nv">22</span> es un nivel normal y
+    <span class="nv alto">40</span> uno que supera el tope del bloque. «Equipo de 6»: el Mega Pokelocke rellena
+    hasta seis Pokémon con otros al nivel del más bajo; el as sigue saliendo el último.
+  </div>
+  <div class="extra"><a href="#tipos">Tabla de tipos</a></div>
+  <div style="height:3mm"></div>
+  <ul class="indice">{{INDICE}}</ul>
+</section>
+
+<section class="pagina" id="tipos">
+  <div class="titulo-pag"><h2>Tabla de tipos</h2><span>6.ª generación · los tipos no se randomizan</span></div>
+  {{TIPOS}}
+  <div class="claves">
+    <span><i style="background:#4caf50;color:#fff">2</i>Súper eficaz</span>
+    <span><i style="background:#f2a3a3;color:#7a0a1c">½</i>Poco eficaz</span>
+    <span><i style="background:#2b2730;color:#fff">0</i>No afecta</span>
+    <span><i style="background:#fff;border:1px solid #e6ddd2"></i>Normal</span>
+  </div>
+</section>
+
+{{BLOQUES}}
+
+<p class="creditos">Datos de entrenadores: Serebii.net (Pokéarth). Sprites de entrenador: Pokémon Showdown.
+Pokémon y sus nombres © Nintendo / Game Freak / The Pokémon Company. Guía sin ánimo de lucro para jugar entre amigos.</p>
+</body>
+</html>

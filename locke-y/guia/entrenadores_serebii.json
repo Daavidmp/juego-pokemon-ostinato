@@ -1,0 +1,6646 @@
+{
+"ambrettetown": [],
+"anistarcity": [
+{
+"sec": "Main Area",
+"name": "Pokémon Trainer Serena",
+"mons": [
+"Meowstic",
+"Vaporeon",
+"Absol",
+"Chesnaught"
+],
+"nums": [
+"678",
+"134",
+"359",
+"652"
+],
+"lv": [
+44,
+44,
+44,
+46
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Main Area",
+"name": "Pokémon Trainer Serena",
+"mons": [
+"Meowstic",
+"Jolteon",
+"Absol",
+"Delphox"
+],
+"nums": [
+"678",
+"135",
+"359",
+"655"
+],
+"lv": [
+44,
+44,
+44,
+46
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Main Area",
+"name": "Pokémon Trainer Serena",
+"mons": [
+"Meowstic",
+"Flareon",
+"Absol",
+"Greninja"
+],
+"nums": [
+"678",
+"136",
+"359",
+"658"
+],
+"lv": [
+44,
+44,
+44,
+46
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Main Area",
+"name": "Pokémon Trainer Calem",
+"mons": [
+"Meowstic",
+"Vaporeon",
+"Absol",
+"Chesnaught"
+],
+"nums": [
+"678",
+"134",
+"359",
+"652"
+],
+"lv": [
+44,
+44,
+44,
+46
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Main Area",
+"name": "Pokémon Trainer Calem",
+"mons": [
+"Meowstic",
+"Jolteon",
+"Absol",
+"Delphox"
+],
+"nums": [
+"678",
+"135",
+"359",
+"655"
+],
+"lv": [
+44,
+44,
+44,
+46
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Main Area",
+"name": "Pokémon Trainer Calem",
+"mons": [
+"Meowstic",
+"Flareon",
+"Absol",
+"Greninja"
+],
+"nums": [
+"678",
+"136",
+"359",
+"658"
+],
+"lv": [
+44,
+44,
+44,
+46
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Gym",
+"name": "Psychic Paschal",
+"mons": [
+"Exeggutor"
+],
+"nums": [
+"103"
+],
+"lv": [
+46
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Gym",
+"name": "Psychic Harry",
+"mons": [
+"Medicham"
+],
+"nums": [
+"308"
+],
+"lv": [
+46
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Gym",
+"name": "Psychic Arthur",
+"mons": [
+"Reuniclus"
+],
+"nums": [
+"579"
+],
+"lv": [
+46
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Gym",
+"name": "Hex Maniac Arachna",
+"mons": [
+"Jynx"
+],
+"nums": [
+"124"
+],
+"lv": [
+46
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Gym",
+"name": "Hex Maniac Melanie",
+"mons": [
+"Gardevoir"
+],
+"nums": [
+"282"
+],
+"lv": [
+46
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Gym",
+"name": "Leader Olympia",
+"mons": [
+"Sigilyph",
+"Slowking",
+"Meowstic"
+],
+"nums": [
+"561",
+"199",
+"678"
+],
+"lv": [
+44,
+45,
+48
+],
+"bt": "Single Battle"
+}
+],
+"aquacordetown": [
+{
+"sec": "Main Area",
+"name": "Pokémon Trainer Shauna",
+"mons": [
+"Froakie"
+],
+"nums": [
+"656"
+],
+"lv": [
+5
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Main Area",
+"name": "Pokémon Trainer Shauna",
+"mons": [
+"Chespin"
+],
+"nums": [
+"650"
+],
+"lv": [
+5
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Main Area",
+"name": "Pokémon Trainer Shauna",
+"mons": [
+"Fennekin"
+],
+"nums": [
+"653"
+],
+"lv": [
+5
+],
+"bt": "Single Battle"
+}
+],
+"azurebay": [
+{
+"sec": "Main Area",
+"name": "Swimmer M Kieran",
+"mons": [
+"Remoraid",
+"Skrelp",
+"Wailmer"
+],
+"nums": [
+"223",
+"690",
+"320"
+],
+"lv": [
+27,
+27,
+27
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Main Area",
+"name": "Swimmer F Romy",
+"mons": [
+"Slowpoke"
+],
+"nums": [
+"079"
+],
+"lv": [
+30
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Main Area",
+"name": "Fisherman Ewan",
+"mons": [
+"Clauncher",
+"Carvanha"
+],
+"nums": [
+"692",
+"318"
+],
+"lv": [
+27,
+29
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Main Area",
+"name": "Sky Trainer Indra",
+"mons": [
+"Sigilyph"
+],
+"nums": [
+"561"
+],
+"lv": [
+31
+],
+"bt": "Sky Battle"
+},
+{
+"sec": "Main Area",
+"name": "Swimmer F Islad",
+"mons": [
+"Corsola",
+"Lanturn"
+],
+"nums": [
+"222",
+"171"
+],
+"lv": [
+28,
+28
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Main Area",
+"name": "Sky Trainer Elata",
+"mons": [
+"Fletchinder",
+"Pelipper"
+],
+"nums": [
+"662",
+"279"
+],
+"lv": [
+28,
+29
+],
+"bt": "Sky Battle"
+}
+],
+"camphriertown": [],
+"connectingcave": [
+{
+"sec": "Main Area",
+"name": "Pokémon Breeder Mercy",
+"mons": [
+"Ducklett",
+"Pikachu",
+"Litleo",
+"Oddish"
+],
+"nums": [
+"580",
+"025",
+"667",
+"043"
+],
+"lv": [
+12,
+12,
+12,
+12
+],
+"bt": "Single Battle"
+}
+],
+"coumarinecity": [
+{
+"sec": "Cliff",
+"name": "Pokémon Trainer Serena",
+"mons": [
+"Meowstic",
+"Absol",
+"Quilladin"
+],
+"nums": [
+"678",
+"359",
+"651"
+],
+"lv": [
+31,
+31,
+33
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Cliff",
+"name": "Pokémon Trainer Serena",
+"mons": [
+"Meowstic",
+"Absol",
+"Braixen"
+],
+"nums": [
+"678",
+"359",
+"654"
+],
+"lv": [
+31,
+31,
+33
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Cliff",
+"name": "Pokémon Trainer Serena",
+"mons": [
+"Meowstic",
+"Absol",
+"Frogadier"
+],
+"nums": [
+"678",
+"359",
+"657"
+],
+"lv": [
+31,
+31,
+33
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Cliff",
+"name": "Pokémon Trainer Calem",
+"mons": [
+"Meowstic",
+"Absol",
+"Quilladin"
+],
+"nums": [
+"678",
+"359",
+"651"
+],
+"lv": [
+31,
+31,
+33
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Cliff",
+"name": "Pokémon Trainer Calem",
+"mons": [
+"Meowstic",
+"Absol",
+"Braixen"
+],
+"nums": [
+"678",
+"359",
+"654"
+],
+"lv": [
+31,
+31,
+33
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Cliff",
+"name": "Pokémon Trainer Calem",
+"mons": [
+"Meowstic",
+"Absol",
+"Frogadier"
+],
+"nums": [
+"678",
+"359",
+"657"
+],
+"lv": [
+31,
+31,
+33
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Gym",
+"name": "Pokémon Ranger Chase",
+"mons": [
+"Simisage"
+],
+"nums": [
+"512"
+],
+"lv": [
+32
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Gym",
+"name": "Pokémon Ranger Maurice",
+"mons": [
+"Ferroseed",
+"Lombre",
+"Carnivine"
+],
+"nums": [
+"597",
+"271",
+"455"
+],
+"lv": [
+29,
+29,
+29
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Gym",
+"name": "Pokémon Ranger Brooke",
+"mons": [
+"Roselia",
+"Wormadam"
+],
+"nums": [
+"315",
+"413"
+],
+"lv": [
+30,
+30
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Gym",
+"name": "Pokémon Ranger Twiggy",
+"mons": [
+"Gloom",
+"Exeggutor"
+],
+"nums": [
+"044",
+"103"
+],
+"lv": [
+29,
+31
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Gym",
+"name": "Leader Ramos",
+"mons": [
+"Jumpluff",
+"Gogoat",
+"Weepinbell"
+],
+"nums": [
+"189",
+"673",
+"070"
+],
+"lv": [
+30,
+34,
+31
+],
+"bt": "Single Battle"
+}
+],
+"couriwaytown": [
+{
+"sec": "Main Area",
+"name": "Pokémon Professor Sycamore",
+"mons": [
+"Venusaur",
+"Charizard",
+"Blastoise"
+],
+"nums": [
+"003",
+"006",
+"009"
+],
+"lv": [
+50,
+50,
+50
+],
+"bt": "Single Battle"
+}
+],
+"cyllagecity": [
+{
+"sec": "Gym",
+"name": "Rising Star Didier",
+"mons": [
+"Dwebble",
+"Relicanth"
+],
+"nums": [
+"557",
+"369"
+],
+"lv": [
+21,
+23
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Gym",
+"name": "Hiker Craig",
+"mons": [
+"Roggenrola"
+],
+"nums": [
+"524"
+],
+"lv": [
+24
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Gym",
+"name": "Rising Star Manon",
+"mons": [
+"Lunatone",
+"Solrock"
+],
+"nums": [
+"337",
+"338"
+],
+"lv": [
+22,
+22
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Gym",
+"name": "Hiker Bernard",
+"mons": [
+"Rhyhorn",
+"Nosepass",
+"Onix"
+],
+"nums": [
+"111",
+"299",
+"095"
+],
+"lv": [
+21,
+21,
+21
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Gym",
+"name": "Leader Grant",
+"mons": [
+"Tyrunt",
+"Amaura"
+],
+"nums": [
+"696",
+"698"
+],
+"lv": [
+25,
+25
+],
+"bt": "Single Battle"
+}
+],
+"dendemilletown": [],
+"frostcavern": [
+{
+"sec": "Outside",
+"name": "Hiker Ross",
+"mons": [
+"Vibrava"
+],
+"nums": [
+"329"
+],
+"lv": [
+44
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Outside",
+"name": "Sky Trainer Celso",
+"mons": [
+"Carnivine",
+"Swanna"
+],
+"nums": [
+"455",
+"581"
+],
+"lv": [
+41,
+44
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Outside",
+"name": "Sky Trainer Era",
+"mons": [
+"Cryogonal"
+],
+"nums": [
+"615"
+],
+"lv": [
+45
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Outside",
+"name": "Artist Salvador",
+"mons": [
+"Smeargle"
+],
+"nums": [
+"235"
+],
+"lv": [
+44
+],
+"bt": "Single Battle"
+},
+{
+"sec": "1F",
+"name": "Ace Trainer Cordelia",
+"mons": [
+"Doublade"
+],
+"nums": [
+"680"
+],
+"lv": [
+46
+],
+"bt": "Single Battle"
+},
+{
+"sec": "1F",
+"name": "Ace Trainer Neil",
+"mons": [
+"Raichu",
+"Marowak",
+"Golduck"
+],
+"nums": [
+"026",
+"105",
+"055"
+],
+"lv": [
+42,
+43,
+42
+],
+"bt": "Single Battle"
+},
+{
+"sec": "1F",
+"name": "Hiker Alain",
+"mons": [
+"Graveler",
+"Graveler",
+"Carbink"
+],
+"nums": [
+"075",
+"075",
+"703"
+],
+"lv": [
+40,
+41,
+42
+],
+"bt": "Single Battle"
+},
+{
+"sec": "2F",
+"name": "Hiker Delmon",
+"mons": [
+"Relicanth",
+"Rhydon"
+],
+"nums": [
+"369",
+"112"
+],
+"lv": [
+42,
+42
+],
+"bt": "Single Battle"
+},
+{
+"sec": "2F",
+"name": "Brains & Brawn Eoin & Wolf",
+"mons": [
+"Grumpig",
+"Hariyama"
+],
+"nums": [
+"326",
+"297"
+],
+"lv": [
+44,
+46
+],
+"bt": "Single Battle"
+},
+{
+"sec": "2F",
+"name": "Battle Girl Kinsey",
+"mons": [
+"Sawk",
+"Mienshao"
+],
+"nums": [
+"539",
+"620"
+],
+"lv": [
+43,
+44
+],
+"bt": "Single Battle"
+},
+{
+"sec": "2F",
+"name": "Black Belt Alonzo",
+"mons": [
+"Scrafty",
+"Throh"
+],
+"nums": [
+"560",
+"538"
+],
+"lv": [
+43,
+44
+],
+"bt": "Single Battle"
+},
+{
+"sec": "3F",
+"name": "Hiker Brent",
+"mons": [
+"Probopass"
+],
+"nums": [
+"476"
+],
+"lv": [
+44
+],
+"bt": "Single Battle"
+},
+{
+"sec": "3F",
+"name": "Black Belt Kenji",
+"mons": [
+"Gurdurr"
+],
+"nums": [
+"533"
+],
+"lv": [
+46
+],
+"bt": "Single Battle"
+},
+{
+"sec": "3F",
+"name": "Team Flare Grunt",
+"mons": [
+"Golbat",
+"Manectric"
+],
+"nums": [
+"042",
+"310"
+],
+"lv": [
+42,
+42
+],
+"bt": "Single Battle"
+},
+{
+"sec": "3F",
+"name": "Team Flare Mable",
+"mons": [
+"Houndoom"
+],
+"nums": [
+"229"
+],
+"lv": [
+48
+],
+"bt": "Single Battle"
+},
+{
+"sec": "3F",
+"name": "Battle Girl Gabrielle",
+"mons": [
+"Medicham"
+],
+"nums": [
+"308"
+],
+"lv": [
+46
+],
+"bt": "Single Battle"
+}
+],
+"geosengetown": [
+{
+"sec": "Main Area",
+"name": "Leader Korrina",
+"mons": [
+"Lucario",
+"Lucario"
+],
+"nums": [
+"448",
+"448"
+],
+"lv": [
+25,
+25
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Main Area",
+"name": "Team Flare Grunt",
+"mons": [
+"Manectric",
+"Scrafty",
+"Golbat"
+],
+"nums": [
+"310",
+"560",
+"042"
+],
+"lv": [
+45,
+45,
+45
+],
+"bt": "Single Battle"
+}
+],
+"glitteringcave": [
+{
+"sec": "1F",
+"name": "Team Flare Grunt",
+"mons": [
+"Houndour",
+"Zubat"
+],
+"nums": [
+"228",
+"041"
+],
+"lv": [
+18,
+18
+],
+"bt": "Single Battle"
+},
+{
+"sec": "1F",
+"name": "Team Flare Grunt",
+"mons": [
+"Gulpin",
+"Electrike"
+],
+"nums": [
+"316",
+"309"
+],
+"lv": [
+18,
+18
+],
+"bt": "Single Battle"
+},
+{
+"sec": "1F",
+"name": "Team Flare Grunt",
+"mons": [
+"Scraggy"
+],
+"nums": [
+"559"
+],
+"lv": [
+20
+],
+"bt": "Single Battle"
+},
+{
+"sec": "1F",
+"name": "Team Flare Grunt",
+"mons": [
+"Croagunk"
+],
+"nums": [
+"453"
+],
+"lv": [
+20
+],
+"bt": "Single Battle"
+}
+],
+"index": [],
+"kalospowerplant": [
+{
+"sec": "Room 2",
+"name": "Team Flare Grunt",
+"mons": [
+"Scraggy",
+"Croagunk"
+],
+"nums": [
+"559",
+"453"
+],
+"lv": [
+32,
+32
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Room 2",
+"name": "Team Flare Grunt",
+"mons": [
+"Croagunk",
+"Golbat"
+],
+"nums": [
+"453",
+"042"
+],
+"lv": [
+31,
+33
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Room 4",
+"name": "Team Flare Grunt",
+"mons": [
+"Mightyena"
+],
+"nums": [
+"262"
+],
+"lv": [
+34
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Room 4",
+"name": "Team Flare Grunt",
+"mons": [
+"Scraggy",
+"Golbat"
+],
+"nums": [
+"559",
+"042"
+],
+"lv": [
+32,
+32
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Room 4",
+"name": "Team Flare Grunt",
+"mons": [
+"Golbat",
+"Mightyena"
+],
+"nums": [
+"042",
+"262"
+],
+"lv": [
+32,
+32
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Room 4",
+"name": "Team Flare Grunt",
+"mons": [
+"Swalot"
+],
+"nums": [
+"317"
+],
+"lv": [
+34
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Room 4",
+"name": "Team Flare Grunt",
+"mons": [
+"Liepard",
+"Swalot"
+],
+"nums": [
+"510",
+"317"
+],
+"lv": [
+31,
+33
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Room 4",
+"name": "Team Flare Grunt",
+"mons": [
+"Croagunk",
+"Scraggy",
+"Liepard"
+],
+"nums": [
+"453",
+"559",
+"510"
+],
+"lv": [
+31,
+31,
+31
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Room 4",
+"name": "Team Flare Admin",
+"mons": [
+"Houndoom"
+],
+"nums": [
+"229"
+],
+"lv": [
+36
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Room 4",
+"name": "Team Flare Aliana",
+"mons": [
+"Mightyena"
+],
+"nums": [
+"262"
+],
+"lv": [
+38
+],
+"bt": "Single Battle"
+}
+],
+"laverrecity": [
+{
+"sec": "Gym",
+"name": "Furisode Girl Kali",
+"mons": [
+"Dedenne",
+"Azumarill"
+],
+"nums": [
+"702",
+"184"
+],
+"lv": [
+38,
+38
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Gym",
+"name": "Furisode Girl Linnea",
+"mons": [
+"Aromatisse"
+],
+"nums": [
+"683"
+],
+"lv": [
+40
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Gym",
+"name": "Furisode Girl Blossom",
+"mons": [
+"Klefki",
+"Kirlia",
+"Granbull"
+],
+"nums": [
+"707",
+"281",
+"210"
+],
+"lv": [
+37,
+37,
+37
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Gym",
+"name": "Furisode Girl Katherine",
+"mons": [
+"Slurpuff"
+],
+"nums": [
+"685"
+],
+"lv": [
+40
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Gym",
+"name": "Leader Valerie",
+"mons": [
+"Mawile",
+"Mr. Mime",
+"Sylveon"
+],
+"nums": [
+"303",
+"122",
+"700"
+],
+"lv": [
+38,
+39,
+42
+],
+"bt": "Single Battle"
+}
+],
+"losthotel": [
+{
+"sec": "Main Area",
+"name": "Punk Guy Sid",
+"mons": [
+"Scrafty",
+"Pawniard",
+"Sharpedo"
+],
+"nums": [
+"560",
+"624",
+"319"
+],
+"lv": [
+39,
+39,
+39
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Main Area",
+"name": "Punk Couple Zoya & Asa",
+"mons": [
+"Pangoro",
+"Garbodor"
+],
+"nums": [
+"675",
+"569"
+],
+"lv": [
+42,
+42
+],
+"bt": "Triple Battle"
+},
+{
+"sec": "Main Area",
+"name": "Punk Girl Jeanne",
+"mons": [
+"Seviper",
+"Arbok"
+],
+"nums": [
+"336",
+"024"
+],
+"lv": [
+40,
+40
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Main Area",
+"name": "Punk Guy Slater",
+"mons": [
+"Dunsparce"
+],
+"nums": [
+"206"
+],
+"lv": [
+42
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Main Area",
+"name": "Punk Guy Jaques",
+"mons": [
+"Skuntank",
+"Crawdaunt"
+],
+"nums": [
+"435",
+"342"
+],
+"lv": [
+40,
+40
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Main Area",
+"name": "Punk Girl Cecile",
+"mons": [
+"Liepard",
+"Liepard"
+],
+"nums": [
+"510",
+"510"
+],
+"lv": [
+40,
+40
+],
+"bt": "Single Battle"
+}
+],
+"lumiosecity": [
+{
+"sec": "South Boulevard",
+"name": "Pokémon Professor Sycamore",
+"mons": [
+"Bulbasaur",
+"Charmander",
+"Squirtle"
+],
+"nums": [
+"001",
+"004",
+"007"
+],
+"lv": [
+10,
+10,
+10
+],
+"bt": "Single Battle"
+},
+{
+"sec": "South Boulevard",
+"name": "Preschooler Natalie",
+"mons": [
+"Swinub",
+"Bonsly"
+],
+"nums": [
+"220",
+"438"
+],
+"lv": [
+53,
+53
+],
+"bt": "Single Battle"
+},
+{
+"sec": "South Boulevard",
+"name": "Preschooler Lily",
+"mons": [
+"Igglybuff"
+],
+"nums": [
+"174"
+],
+"lv": [
+55
+],
+"bt": "Single Battle"
+},
+{
+"sec": "South Boulevard",
+"name": "Schoolgirl Callie",
+"mons": [
+"Rapidash",
+"Kingler",
+"Leavanny"
+],
+"nums": [
+"078",
+"099",
+"542"
+],
+"lv": [
+53,
+53,
+53
+],
+"bt": "Single Battle"
+},
+{
+"sec": "South Boulevard",
+"name": "Schoolboy Macon",
+"mons": [
+"Spiritomb"
+],
+"nums": [
+"442"
+],
+"lv": [
+56
+],
+"bt": "Single Battle"
+},
+{
+"sec": "South Boulevard",
+"name": "Suspicious Lady \"???\"",
+"mons": [
+"Persian"
+],
+"nums": [
+"053"
+],
+"lv": [
+60
+],
+"bt": "Single Battle"
+},
+{
+"sec": "North Boulevard",
+"name": "Lumiose Gang Member Sedna",
+"mons": [
+"Mandibuzz"
+],
+"nums": [
+"630"
+],
+"lv": [
+58
+],
+"bt": "Single Battle"
+},
+{
+"sec": "North Boulevard",
+"name": "Lumiose Gang Member Eris",
+"mons": [
+"Pangoro",
+"Bouffalant"
+],
+"nums": [
+"675",
+"626"
+],
+"lv": [
+56,
+60
+],
+"bt": "Single Battle"
+},
+{
+"sec": "North Boulevard",
+"name": "Lumiose Gang Member Nix",
+"mons": [
+"Druddigon",
+"Krookodile"
+],
+"nums": [
+"621",
+"553"
+],
+"lv": [
+56,
+56
+],
+"bt": "Single Battle"
+},
+{
+"sec": "North Boulevard",
+"name": "Suspicious Woman \"???\"",
+"mons": [
+"Jellicent",
+"Volcarona"
+],
+"nums": [
+"593",
+"637"
+],
+"lv": [
+58,
+60
+],
+"bt": "Single Battle"
+},
+{
+"sec": "North Boulevard",
+"name": "Suspicious Child \"???\"",
+"mons": [
+"Whimsicott",
+"Granbull",
+"Mawile"
+],
+"nums": [
+"547",
+"210",
+"303"
+],
+"lv": [
+56,
+57,
+58
+],
+"bt": "Single Battle"
+},
+{
+"sec": "North Boulevard",
+"name": "Pokémon Trainer Malva",
+"mons": [
+"Pyroar"
+],
+"nums": [
+"668"
+],
+"lv": [
+63
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Bleu Plaza",
+"name": "Owner Toro",
+"mons": [
+"Diggersby"
+],
+"nums": [
+"660"
+],
+"lv": [
+30
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Vert Plaza",
+"name": "Punk Girl Lilian",
+"mons": [
+"Krokorok"
+],
+"nums": [
+"552"
+],
+"lv": [
+30
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Vert Plaza",
+"name": "Beauty Aimee",
+"mons": [
+"Fletchinder"
+],
+"nums": [
+"662"
+],
+"lv": [
+34
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Vert Plaza",
+"name": "Punk Girl Lillian",
+"mons": [
+"Krokorok"
+],
+"nums": [
+"552"
+],
+"lv": [
+30
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Juane Plaza",
+"name": "Waitress Paget",
+"mons": [
+"Kirlia"
+],
+"nums": [
+"281"
+],
+"lv": [
+30
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Hibernal Avenue",
+"name": "Owner Christophe",
+"mons": [
+"Qwilfish",
+"Druddigon",
+"Ferrothorn"
+],
+"nums": [
+"211",
+"621",
+"598"
+],
+"lv": [
+63,
+63,
+63
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Hibernal Avenue",
+"name": "Owner Christophe",
+"mons": [
+"Amoonguss",
+"Alomomola",
+"Audino"
+],
+"nums": [
+"591",
+"594",
+"531"
+],
+"lv": [
+63,
+63,
+63
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Hibernal Avenue",
+"name": "Garcon Morris",
+"mons": [
+"Shieldon",
+"Wobbuffet",
+"Milotic"
+],
+"nums": [
+"410",
+"202",
+"350"
+],
+"lv": [
+63,
+63,
+63
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Hibernal Avenue",
+"name": "Garcon Morris",
+"mons": [
+"Lucario",
+"Floatzel",
+"Togekiss"
+],
+"nums": [
+"448",
+"419",
+"468"
+],
+"lv": [
+63,
+63,
+63
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Hibernal Avenue",
+"name": "Waitress Paula",
+"mons": [
+"Chatot",
+"Exploud",
+"Aurorus"
+],
+"nums": [
+"441",
+"295",
+"699"
+],
+"lv": [
+63,
+63,
+63
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Rouge Plaza",
+"name": "Butler Chalmers",
+"mons": [
+"Braviary"
+],
+"nums": [
+"628"
+],
+"lv": [
+62
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Rouge Plaza",
+"name": "Pokémon Trainer Essentia",
+"mons": [
+"Crobat",
+"Malamar"
+],
+"nums": [
+"169",
+"687"
+],
+"lv": [
+73,
+75
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Rouge Plaza",
+"name": "Furisode Girl Gwyneth",
+"mons": [
+"Ninetales",
+"Cherrim",
+"Tropius"
+],
+"nums": [
+"038",
+"421",
+"357"
+],
+"lv": [
+65,
+65,
+65
+],
+"bt": "Rotation Battle"
+},
+{
+"sec": "Rouge Plaza",
+"name": "Furisode Girl Inva",
+"mons": [
+"Hippowdon",
+"Scizor",
+"Gliscor"
+],
+"nums": [
+"450",
+"212",
+"472"
+],
+"lv": [
+65,
+65,
+65
+],
+"bt": "Rotation Battle"
+},
+{
+"sec": "Rouge Plaza",
+"name": "Furisode Girl Thalassa",
+"mons": [
+"Politoed",
+"Beartic",
+"Ludicolo"
+],
+"nums": [
+"186",
+"614",
+"272"
+],
+"lv": [
+65,
+65,
+65
+],
+"bt": "Rotation Battle"
+},
+{
+"sec": "Rouge Plaza",
+"name": "Furisode Girl Nerissa",
+"mons": [
+"Abomasnow",
+"Froslass",
+"Mamoswine"
+],
+"nums": [
+"460",
+"478",
+"473"
+],
+"lv": [
+65,
+65,
+65
+],
+"bt": "Rotation Battle"
+},
+{
+"sec": "Rouge Plaza",
+"name": "Owner Kazu",
+"mons": [
+"Bronzong",
+"Cofagrigus",
+"Slowking"
+],
+"nums": [
+"437",
+"563",
+"199"
+],
+"lv": [
+65,
+65,
+65
+],
+"bt": "Rotation Battle"
+},
+{
+"sec": "Autumnal Avenue",
+"name": "Punk Girl Faust",
+"mons": [
+"Haunter"
+],
+"nums": [
+"093"
+],
+"lv": [
+30
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Gym",
+"name": "Schoolboy Arno",
+"mons": [
+"Pachirisu"
+],
+"nums": [
+"417"
+],
+"lv": [
+34
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Gym",
+"name": "Schoolboy Sherlock",
+"mons": [
+"Stunfisk"
+],
+"nums": [
+"618"
+],
+"lv": [
+34
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Gym",
+"name": "Schoolboy Finian",
+"mons": [
+"Dedenne"
+],
+"nums": [
+"702"
+],
+"lv": [
+34
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Gym",
+"name": "Rising Star Helene",
+"mons": [
+"Manectric"
+],
+"nums": [
+"310"
+],
+"lv": [
+35
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Gym",
+"name": "Rising Star Nelly",
+"mons": [
+"Magneton"
+],
+"nums": [
+"082"
+],
+"lv": [
+35
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Gym",
+"name": "Rising Star Estel",
+"mons": [
+"Raichu"
+],
+"nums": [
+"026"
+],
+"lv": [
+35
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Gym",
+"name": "Ace Trainer Mathis",
+"mons": [
+"Lanturn"
+],
+"nums": [
+"171"
+],
+"lv": [
+36
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Gym",
+"name": "Ace Trainer Maxim",
+"mons": [
+"Electrode"
+],
+"nums": [
+"101"
+],
+"lv": [
+36
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Gym",
+"name": "Ace Trainer Rico",
+"mons": [
+"Ampharos"
+],
+"nums": [
+"181"
+],
+"lv": [
+36
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Gym",
+"name": "Poké Fan Abigail",
+"mons": [
+"Minun"
+],
+"nums": [
+"312"
+],
+"lv": [
+34
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Gym",
+"name": "Poké Fan Tara",
+"mons": [
+"Pikachu"
+],
+"nums": [
+"025"
+],
+"lv": [
+34
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Gym",
+"name": "Poké Fan Lydie",
+"mons": [
+"Plusle"
+],
+"nums": [
+"311"
+],
+"lv": [
+34
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Gym",
+"name": "Leader Clemont",
+"mons": [
+"Emolga",
+"Magneton",
+"Heliolisk"
+],
+"nums": [
+"587",
+"082",
+"695"
+],
+"lv": [
+35,
+35,
+37
+],
+"bt": "Single Battle"
+}
+],
+"lysandrelabs": [
+{
+"sec": "B1F",
+"name": "Team Flare Lysandre",
+"mons": [
+"Mienfoo",
+"Gyarados",
+"Pyroar",
+"Murkrow"
+],
+"nums": [
+"619",
+"130",
+"668",
+"198"
+],
+"lv": [
+45,
+49,
+47,
+45
+],
+"bt": "Single Battle"
+},
+{
+"sec": "B1F",
+"name": "Team Flare Grunt",
+"mons": [
+"Swalot"
+],
+"nums": [
+"317"
+],
+"lv": [
+46
+],
+"bt": "Single Battle"
+},
+{
+"sec": "B1F",
+"name": "Team Flare Aliana",
+"mons": [
+"Mightyena",
+"Druddigon"
+],
+"nums": [
+"262",
+"621"
+],
+"lv": [
+46,
+48
+],
+"bt": "Single Battle"
+},
+{
+"sec": "B1F",
+"name": "Team Flare Grunt",
+"mons": [
+"Swalot",
+"Liepard"
+],
+"nums": [
+"317",
+"510"
+],
+"lv": [
+45,
+43
+],
+"bt": "Single Battle"
+},
+{
+"sec": "B1F",
+"name": "Team Flare Grunt",
+"mons": [
+"Liepard",
+"Mightyena"
+],
+"nums": [
+"510",
+"262"
+],
+"lv": [
+44,
+44
+],
+"bt": "Single Battle"
+},
+{
+"sec": "B1F",
+"name": "Team Flare Grunt",
+"mons": [
+"Houndoom",
+"Toxicroak"
+],
+"nums": [
+"229",
+"454"
+],
+"lv": [
+44,
+44
+],
+"bt": "Single Battle"
+},
+{
+"sec": "B1F",
+"name": "Team Flare Grunt",
+"mons": [
+"Manectric",
+"Scrafty"
+],
+"nums": [
+"310",
+"560"
+],
+"lv": [
+43,
+45
+],
+"bt": "Single Battle"
+},
+{
+"sec": "B1F",
+"name": "Team Flare Grunt",
+"mons": [
+"Mightyena",
+"Toxicroak"
+],
+"nums": [
+"262",
+"454"
+],
+"lv": [
+43,
+45
+],
+"bt": "Single Battle"
+},
+{
+"sec": "B1F",
+"name": "Team Flare Grunt",
+"mons": [
+"Golbat"
+],
+"nums": [
+"042"
+],
+"lv": [
+46
+],
+"bt": "Single Battle"
+},
+{
+"sec": "B1F",
+"name": "Team Flare Grunt",
+"mons": [
+"Toxicroak",
+"Liepard"
+],
+"nums": [
+"454",
+"510"
+],
+"lv": [
+44,
+44
+],
+"bt": "Single Battle"
+},
+{
+"sec": "B1F",
+"name": "Team Flare Celosia",
+"mons": [
+"Manectric",
+"Drapion"
+],
+"nums": [
+"310",
+"452"
+],
+"lv": [
+46,
+48
+],
+"bt": "Single Battle"
+},
+{
+"sec": "B1F",
+"name": "Team Flare Bryony",
+"mons": [
+"Liepard",
+"Bisharp"
+],
+"nums": [
+"510",
+"625"
+],
+"lv": [
+46,
+48
+],
+"bt": "Single Battle"
+},
+{
+"sec": "B1F",
+"name": "Team Flare Mable",
+"mons": [
+"Houndoom",
+"Weavile"
+],
+"nums": [
+"229",
+"461"
+],
+"lv": [
+46,
+48
+],
+"bt": "Single Battle"
+},
+{
+"sec": "B3F",
+"name": "Team Flare Xerosic",
+"mons": [
+"Crobat",
+"Malamar"
+],
+"nums": [
+"169",
+"687"
+],
+"lv": [
+46,
+48
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Hidden Floor",
+"name": "Scientist Sonia",
+"mons": [
+"Elgyem",
+"Klinklang"
+],
+"nums": [
+"605",
+"601"
+],
+"lv": [
+60,
+60
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Hidden Floor",
+"name": "Scientist Ernst",
+"mons": [
+"Weezing"
+],
+"nums": [
+"110"
+],
+"lv": [
+61
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Hidden Floor",
+"name": "Lumiose Gang Member Sedna",
+"mons": [
+"Heliolisk"
+],
+"nums": [
+"695"
+],
+"lv": [
+59
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Hidden Floor",
+"name": "Lumiose Gang Member Eris",
+"mons": [
+"Mandibuzz"
+],
+"nums": [
+"630"
+],
+"lv": [
+62
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Hidden Floor",
+"name": "Scientist Justus",
+"mons": [
+"Pangoro",
+"Bouffalant"
+],
+"nums": [
+"675",
+"626"
+],
+"lv": [
+60,
+60
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Hidden Floor",
+"name": "Lumiose Gang Member Nix",
+"mons": [
+"Druddigon",
+"Krookodile"
+],
+"nums": [
+"621",
+"553"
+],
+"lv": [
+60,
+60
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Hidden Floor",
+"name": "Pokémon Trainer Essentia",
+"mons": [
+"Jellicent",
+"Volcarona"
+],
+"nums": [
+"593",
+"637"
+],
+"lv": [
+64,
+66
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Hidden Floor",
+"name": "Pokémon Trainer Essentia",
+"mons": [
+"Whimsicott",
+"Granbull",
+"Mawile"
+],
+"nums": [
+"547",
+"210",
+"303"
+],
+"lv": [
+63,
+63,
+65
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Hidden Floor",
+"name": "Pokémon Trainer Essentia",
+"mons": [
+"Persian"
+],
+"nums": [
+"053"
+],
+"lv": [
+66
+],
+"bt": "Single Battle"
+}
+],
+"parfumpalace": [],
+"pokeballfactory": [
+{
+"sec": "Factory",
+"name": "Team Flare Grunt",
+"mons": [
+"Toxicroak"
+],
+"nums": [
+"454"
+],
+"lv": [
+37
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Factory",
+"name": "Team Flare Grunt",
+"mons": [
+"Golbat",
+"Mightyena"
+],
+"nums": [
+"042",
+"262"
+],
+"lv": [
+36,
+36
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Factory",
+"name": "Team Flare Grunt",
+"mons": [
+"Scraggy",
+"Mightyena"
+],
+"nums": [
+"559",
+"262"
+],
+"lv": [
+36,
+36
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Factory",
+"name": "Team Flare Grunt",
+"mons": [
+"Swalot"
+],
+"nums": [
+"317"
+],
+"lv": [
+37
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Factory",
+"name": "Team Flare Admin",
+"mons": [
+"Scraggy",
+"Houndoom"
+],
+"nums": [
+"559",
+"229"
+],
+"lv": [
+37,
+38
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Factory",
+"name": "Team Flare Celosia",
+"mons": [
+"Manectric"
+],
+"nums": [
+"310"
+],
+"lv": [
+41
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Factory",
+"name": "Team Flare Bryony",
+"mons": [
+"Liepard"
+],
+"nums": [
+"510"
+],
+"lv": [
+41
+],
+"bt": "Single Battle"
+}
+],
+"pokemonleague": [
+{
+"sec": "League",
+"name": "Elite Four Malva",
+"mons": [
+"Pyroar",
+"Torkoal",
+"Chandelure",
+"Talonflame"
+],
+"nums": [
+"668",
+"324",
+"609",
+"663"
+],
+"lv": [
+63,
+63,
+63,
+65
+],
+"bt": "Single Battle"
+},
+{
+"sec": "League",
+"name": "Elite Four Wikstrom",
+"mons": [
+"Klefki",
+"Probopass",
+"Scizor",
+"Aegislash"
+],
+"nums": [
+"707",
+"476",
+"212",
+"681"
+],
+"lv": [
+63,
+63,
+63,
+65
+],
+"bt": "Single Battle"
+},
+{
+"sec": "League",
+"name": "Elite Four Drasna",
+"mons": [
+"Dragalge",
+"Altaria",
+"Druddigon",
+"Noivern"
+],
+"nums": [
+"691",
+"334",
+"621",
+"715"
+],
+"lv": [
+63,
+63,
+63,
+65
+],
+"bt": "Single Battle"
+},
+{
+"sec": "League",
+"name": "Elite Four Siebold",
+"mons": [
+"Clawitzer",
+"Starmie",
+"Gyarados",
+"Barbaracle"
+],
+"nums": [
+"693",
+"121",
+"130",
+"689"
+],
+"lv": [
+63,
+63,
+63,
+65
+],
+"bt": "Single Battle"
+},
+{
+"sec": "League",
+"name": "Champion Dianthe",
+"mons": [
+"Hawlucha",
+"Tyrantrum",
+"Aurorus",
+"Gourgeist",
+"Goodra",
+"Gardevoir"
+],
+"nums": [
+"701",
+"697",
+"699",
+"711",
+"706",
+"282"
+],
+"lv": [
+64,
+65,
+65,
+65,
+66,
+68
+],
+"bt": "Single Battle"
+}
+],
+"pokemonvillage": [],
+"reflectioncave": [
+{
+"sec": "1F",
+"name": "Backpacker Lane",
+"mons": [
+"Linoone"
+],
+"nums": [
+"264"
+],
+"lv": [
+26
+],
+"bt": "Single Battle"
+},
+{
+"sec": "1F",
+"name": "Battle Girl Hedvig",
+"mons": [
+"Throh",
+"Hawlucha"
+],
+"nums": [
+"538",
+"701"
+],
+"lv": [
+25,
+26
+],
+"bt": "Single Battle"
+},
+{
+"sec": "1F",
+"name": "Ace Trainer Monique",
+"mons": [
+"Doduo",
+"Helioptile",
+"Granbull"
+],
+"nums": [
+"084",
+"694",
+"210"
+],
+"lv": [
+24,
+25,
+24
+],
+"bt": "Single Battle"
+},
+{
+"sec": "1F",
+"name": "Hiker Dunstan",
+"mons": [
+"Sandile",
+"Dwebble",
+"Diggersby"
+],
+"nums": [
+"551",
+"557",
+"660"
+],
+"lv": [
+22,
+23,
+24
+],
+"bt": "Single Battle"
+},
+{
+"sec": "B1F",
+"name": "Tourist Monami",
+"mons": [
+"Nidorina"
+],
+"nums": [
+"030"
+],
+"lv": [
+26
+],
+"bt": "Single Battle"
+},
+{
+"sec": "B1F",
+"name": "Black Belt Igor",
+"mons": [
+"Sawk"
+],
+"nums": [
+"539"
+],
+"lv": [
+28
+],
+"bt": "Single Battle"
+},
+{
+"sec": "B1F",
+"name": "Psychic Franz",
+"mons": [
+"Chimecho",
+"Golett"
+],
+"nums": [
+"358",
+"622"
+],
+"lv": [
+24,
+24
+],
+"bt": "Single Battle"
+},
+{
+"sec": "B1F",
+"name": "Tourist Haruto",
+"mons": [
+"Nidorino"
+],
+"nums": [
+"033"
+],
+"lv": [
+26
+],
+"bt": "Single Battle"
+},
+{
+"sec": "B1F",
+"name": "Honeymooners Yuu & Ami",
+"mons": [
+"Vespiquen",
+"Combee"
+],
+"nums": [
+"416",
+"415"
+],
+"lv": [
+26,
+26
+],
+"bt": "Double Battle"
+},
+{
+"sec": "B1F",
+"name": "Ace Trainer Emil",
+"mons": [
+"Absol",
+"Pinsir"
+],
+"nums": [
+"359",
+"127"
+],
+"lv": [
+26,
+25
+],
+"bt": "Single Battle"
+}
+],
+"route10": [
+{
+"sec": "Main Area",
+"name": "Psychic Robert",
+"mons": [
+"Solosis"
+],
+"nums": [
+"577"
+],
+"lv": [
+22
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Main Area",
+"name": "Tourist Fumiko",
+"mons": [
+"Skiploom",
+"Dunsparce",
+"Azumarill"
+],
+"nums": [
+"188",
+"206",
+"184"
+],
+"lv": [
+19,
+19,
+19
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Main Area",
+"name": "Psychic Sayid",
+"mons": [
+"Meditite",
+"Kirlia"
+],
+"nums": [
+"307",
+"281"
+],
+"lv": [
+19,
+21
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Main Area",
+"name": "Tourist Tomoko",
+"mons": [
+"Drifloon",
+"Pachirisu",
+"Hippopotas"
+],
+"nums": [
+"425",
+"417",
+"449"
+],
+"lv": [
+19,
+19,
+19
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Main Area",
+"name": "Team Flare Grunt",
+"mons": [
+"Houndour",
+"Golbat"
+],
+"nums": [
+"228",
+"042"
+],
+"lv": [
+21,
+23
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Main Area",
+"name": "Team Flare Grunt",
+"mons": [
+"Electrike",
+"Croagunk"
+],
+"nums": [
+"309",
+"453"
+],
+"lv": [
+23,
+23
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Main Area",
+"name": "Team Flare Grunt",
+"mons": [
+"Gulpin"
+],
+"nums": [
+"316"
+],
+"lv": [
+24
+],
+"bt": "Single Battle"
+}
+],
+"route11": [
+{
+"sec": "Main Area",
+"name": "Psychic Emanuel",
+"mons": [
+"Solosis",
+"Sigilyph"
+],
+"nums": [
+"577",
+"561"
+],
+"lv": [
+24,
+24
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Main Area",
+"name": "Battle Girl Gerardine",
+"mons": [
+"Mienfoo"
+],
+"nums": [
+"619"
+],
+"lv": [
+28
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Main Area",
+"name": "Brains & Brawn Frank & Sly",
+"mons": [
+"Mr. Mime",
+"Machoke"
+],
+"nums": [
+"122",
+"067"
+],
+"lv": [
+28,
+26
+],
+"bt": "Double Battle"
+},
+{
+"sec": "Main Area",
+"name": "Sky Trainer Yvette",
+"mons": [
+"Emolga",
+"Staravia",
+"Wingull"
+],
+"nums": [
+"587",
+"397",
+"278"
+],
+"lv": [
+23,
+24,
+23
+],
+"bt": "Sky Battle"
+}
+],
+"route12": [
+{
+"sec": "Main Area",
+"name": "Swimmer M Alessandro",
+"mons": [
+"Qwilfish",
+"Binacle"
+],
+"nums": [
+"211",
+"688"
+],
+"lv": [
+29,
+29
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Main Area",
+"name": "Backpacker Joren",
+"mons": [
+"Linoone"
+],
+"nums": [
+"264"
+],
+"lv": [
+28
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Main Area",
+"name": "Pokémon Breeder Amala",
+"mons": [
+"Seviper",
+"Miltank"
+],
+"nums": [
+"336",
+"241"
+],
+"lv": [
+27,
+29
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Main Area",
+"name": "Youngster Aidan",
+"mons": [
+"Yanma",
+"Whirlipede",
+"Mothim"
+],
+"nums": [
+"193",
+"544",
+"414"
+],
+"lv": [
+27,
+27,
+27
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Main Area",
+"name": "Pokémon Breeder Foster",
+"mons": [
+"Zangoose",
+"Tauros"
+],
+"nums": [
+"335",
+"128"
+],
+"lv": [
+27,
+29
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Main Area",
+"name": "Fisherman Murray",
+"mons": [
+"Magikarp",
+"Magikarp",
+"Magikarp",
+"Magikarp",
+"Magikarp",
+"Magikarp"
+],
+"nums": [
+"129",
+"129",
+"129",
+"129",
+"129",
+"129"
+],
+"lv": [
+24,
+24,
+24,
+24,
+24,
+24
+],
+"bt": "Single Battle"
+}
+],
+"route13": [
+{
+"sec": "Main Area",
+"name": "Team Flare Grunt",
+"mons": [
+"Houndoom",
+"Golbat"
+],
+"nums": [
+"229",
+"042"
+],
+"lv": [
+31,
+33
+],
+"bt": "Single Battle"
+}
+],
+"route14": [
+{
+"sec": "Main Area",
+"name": "Pokémon Trainer Serena",
+"mons": [
+"Meowstic",
+"Absol",
+"Chesnaught"
+],
+"nums": [
+"678",
+"359",
+"652"
+],
+"lv": [
+35,
+35,
+37
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Main Area",
+"name": "Pokémon Trainer Serena",
+"mons": [
+"Meowstic",
+"Absol",
+"Delphox"
+],
+"nums": [
+"678",
+"359",
+"655"
+],
+"lv": [
+35,
+35,
+37
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Main Area",
+"name": "Pokémon Trainer Serena",
+"mons": [
+"Meowstic",
+"Absol",
+"Greninja"
+],
+"nums": [
+"678",
+"359",
+"658"
+],
+"lv": [
+35,
+35,
+37
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Main Area",
+"name": "Pokémon Trainer Calem",
+"mons": [
+"Meowstic",
+"Absol",
+"Chesnaught"
+],
+"nums": [
+"678",
+"359",
+"652"
+],
+"lv": [
+35,
+35,
+37
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Main Area",
+"name": "Pokémon Trainer Calem",
+"mons": [
+"Meowstic",
+"Absol",
+"Delphox"
+],
+"nums": [
+"678",
+"359",
+"655"
+],
+"lv": [
+35,
+35,
+37
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Main Area",
+"name": "Pokémon Trainer Calem",
+"mons": [
+"Meowstic",
+"Absol",
+"Greninja"
+],
+"nums": [
+"678",
+"359",
+"658"
+],
+"lv": [
+35,
+35,
+37
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Main Area",
+"name": "Pokémon Ranger Melina",
+"mons": [
+"Arbok",
+"Pyroar"
+],
+"nums": [
+"024",
+"668"
+],
+"lv": [
+35,
+37
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Main Area",
+"name": "Pokémon Ranger Nash",
+"mons": [
+"Goomy"
+],
+"nums": [
+"704"
+],
+"lv": [
+38
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Main Area",
+"name": "Hex Maniac Anina",
+"mons": [
+"Litwick",
+"Haunter"
+],
+"nums": [
+"607",
+"093"
+],
+"lv": [
+34,
+34
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Main Area",
+"name": "Pokémon Ranger Reed",
+"mons": [
+"Poliwhirl",
+"Fraxure",
+"Loudred"
+],
+"nums": [
+"061",
+"611",
+"294"
+],
+"lv": [
+35,
+36,
+34
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Main Area",
+"name": "Fairy Tale Girl Imogen",
+"mons": [
+"Floette",
+"Slurpuff"
+],
+"nums": [
+"670",
+"685"
+],
+"lv": [
+33,
+35
+],
+"bt": "Single Battle"
+}
+],
+"route15": [
+{
+"sec": "Main Area",
+"name": "Pokémon Ranger Silas",
+"mons": [
+"Quagsire",
+"Beartic"
+],
+"nums": [
+"195",
+"614"
+],
+"lv": [
+39,
+39
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Main Area",
+"name": "Hex Maniac Luna",
+"mons": [
+"Chimecho"
+],
+"nums": [
+"358"
+],
+"lv": [
+40
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Main Area",
+"name": "Pokémon Ranger Dean",
+"mons": [
+"Watchog",
+"Swoobat",
+"Seadra"
+],
+"nums": [
+"505",
+"528",
+"117"
+],
+"lv": [
+39,
+39,
+39
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Main Area",
+"name": "Pokémon Ranger Keith",
+"mons": [
+"Gabite"
+],
+"nums": [
+"444"
+],
+"lv": [
+41
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Main Area",
+"name": "Pokémon Ranger Pedro",
+"mons": [
+"Vileplume"
+],
+"nums": [
+"045"
+],
+"lv": [
+41
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Main Area",
+"name": "Mysterious Sisters Rune & Rime",
+"mons": [
+"Drifblim",
+"Floette"
+],
+"nums": [
+"426",
+"670"
+],
+"lv": [
+40,
+40
+],
+"bt": "Triple Battle"
+},
+{
+"sec": "Main Area",
+"name": "Fairy Tale Girl Mahalyn",
+"mons": [
+"Dedenne",
+"Aromatisse"
+],
+"nums": [
+"702",
+"683"
+],
+"lv": [
+37,
+39
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Main Area",
+"name": "Hex Maniac Carrie",
+"mons": [
+"Litwick",
+"Duosion"
+],
+"nums": [
+"607",
+"578"
+],
+"lv": [
+38,
+38
+],
+"bt": "Single Battle"
+}
+],
+"route16": [
+{
+"sec": "Main Area",
+"name": "Sky Trainer Clara",
+"mons": [
+"Emolga",
+"Swellow"
+],
+"nums": [
+"587",
+"277"
+],
+"lv": [
+38,
+40
+],
+"bt": "Sky Battle"
+},
+{
+"sec": "Main Area",
+"name": "Roller Skater Jet",
+"mons": [
+"Delcatty",
+"Swanna"
+],
+"nums": [
+"301",
+"581"
+],
+"lv": [
+37,
+39
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Main Area",
+"name": "Roller Skater Olle",
+"mons": [
+"Manectric"
+],
+"nums": [
+"310"
+],
+"lv": [
+40
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Main Area",
+"name": "Sky Trainer Gavin",
+"mons": [
+"Chimecho",
+"Vibrava",
+"Talonflame"
+],
+"nums": [
+"358",
+"329",
+"663"
+],
+"lv": [
+37,
+38,
+39
+],
+"bt": "Sky Battle"
+},
+{
+"sec": "Main Area",
+"name": "Pokémon Ranger Lee",
+"mons": [
+"Crawdaunt",
+"Sandslash"
+],
+"nums": [
+"342",
+"028"
+],
+"lv": [
+39,
+39
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Main Area",
+"name": "Hex Maniac Osanna",
+"mons": [
+"Pumpkaboo"
+],
+"nums": [
+"710"
+],
+"lv": [
+40
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Main Area",
+"name": "Pokémon Ranger Bjorn",
+"mons": [
+"Sliggoo"
+],
+"nums": [
+"705"
+],
+"lv": [
+40
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Main Area",
+"name": "Mysterious Sisters Achlys & Eos",
+"mons": [
+"Alakazam",
+"Gardevoir"
+],
+"nums": [
+"065",
+"282"
+],
+"lv": [
+40,
+40
+],
+"bt": "Triple Battle"
+},
+{
+"sec": "Main Area",
+"name": "Fairy Tale Girl Alice",
+"mons": [
+"Klefki",
+"Mawile"
+],
+"nums": [
+"707",
+"303"
+],
+"lv": [
+37,
+39
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Main Area",
+"name": "Fisherman Seward",
+"mons": [
+"Whiscash"
+],
+"nums": [
+"340"
+],
+"lv": [
+40
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Main Area",
+"name": "Fisherman Wade",
+"mons": [
+"Poliwhirl",
+"Poliwhirl"
+],
+"nums": [
+"061",
+"061"
+],
+"lv": [
+37,
+39
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Main Area",
+"name": "Fisherman Finn",
+"mons": [
+"Basculin",
+"Basculin"
+],
+"nums": [
+"550",
+"550"
+],
+"lv": [
+38,
+38
+],
+"bt": "Single Battle"
+}
+],
+"route17": [
+{
+"sec": "Main Area",
+"name": "Sky Trainer Anila",
+"mons": [
+"Rotom",
+"Butterfree"
+],
+"nums": [
+"479",
+"012"
+],
+"lv": [
+42,
+44
+],
+"bt": "Single Battle"
+}
+],
+"route18": [
+{
+"sec": "Main Area",
+"name": "Youngster Jayden",
+"mons": [
+"Scolipede",
+"Pinsir"
+],
+"nums": [
+"545",
+"127"
+],
+"lv": [
+48,
+48
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Main Area",
+"name": "Lass Sara",
+"mons": [
+"Granbull",
+"Dedenne"
+],
+"nums": [
+"210",
+"702"
+],
+"lv": [
+48,
+48
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Main Area",
+"name": "Hiker Orestes",
+"mons": [
+"Stunfisk"
+],
+"nums": [
+"618"
+],
+"lv": [
+50
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Main Area",
+"name": "Battle Girl Justine",
+"mons": [
+"Mienshao"
+],
+"nums": [
+"620"
+],
+"lv": [
+52
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Main Area",
+"name": "Black Belt Yanis",
+"mons": [
+"Sawk",
+"Pangoro"
+],
+"nums": [
+"539",
+"675"
+],
+"lv": [
+49,
+50
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Main Area",
+"name": "Sky Trainer Jeremy",
+"mons": [
+"Ninjask",
+"Drifblim",
+"Flygon"
+],
+"nums": [
+"291",
+"426",
+"330"
+],
+"lv": [
+46,
+48,
+50
+],
+"bt": "Sky Battle"
+},
+{
+"sec": "Main Area",
+"name": "Psychic Inver",
+"mons": [
+"Kecleon",
+"Flareon",
+"Weavile"
+],
+"nums": [
+"352",
+"136",
+"461"
+],
+"lv": [
+55,
+55,
+55
+],
+"bt": "Inverse Battle"
+},
+{
+"sec": "Main Area",
+"name": "Psychic Inver",
+"mons": [
+"Golurk",
+"Probopass",
+"Emolga"
+],
+"nums": [
+"623",
+"476",
+"587"
+],
+"lv": [
+65,
+65,
+65
+],
+"bt": "Inverse Battle"
+},
+{
+"sec": "Main Area",
+"name": "Psychic Inver",
+"mons": [
+"Bisharp",
+"Marowak",
+"Pyroar"
+],
+"nums": [
+"625",
+"105",
+"668"
+],
+"lv": [
+65,
+65,
+65
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Main Area",
+"name": "Psychic Inver",
+"mons": [
+"Magcargo",
+"Jolteon",
+"Amoonguss"
+],
+"nums": [
+"219",
+"135",
+"591"
+],
+"lv": [
+65,
+65,
+65
+],
+"bt": "Inverse Battle"
+},
+{
+"sec": "Main Area",
+"name": "Psychic Inver",
+"mons": [
+"Skuntank",
+"Granbull",
+"Hawlucha"
+],
+"nums": [
+"435",
+"210",
+"701"
+],
+"lv": [
+65,
+65,
+65
+],
+"bt": "Inverse Battle"
+}
+],
+"route19": [
+{
+"sec": "Main Area",
+"name": "Hex Maniac Josette",
+"mons": [
+"Pumpkaboo",
+"Pumpkaboo"
+],
+"nums": [
+"710",
+"710"
+],
+"lv": [
+50,
+50
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Main Area",
+"name": "Rangers Ivy & Orrick",
+"mons": [
+"Tauros",
+"Miltank"
+],
+"nums": [
+"128",
+"241"
+],
+"lv": [
+53,
+53
+],
+"bt": "Double Battle"
+},
+{
+"sec": "Main Area",
+"name": "Swimmer F Coral",
+"mons": [
+"Stunfisk"
+],
+"nums": [
+"618"
+],
+"lv": [
+52
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Main Area",
+"name": "Pokémon Ranger Clementine",
+"mons": [
+"Alomomola"
+],
+"nums": [
+"594"
+],
+"lv": [
+54
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Main Area",
+"name": "Pokémon Ranger Ambre",
+"mons": [
+"Emolga",
+"Grumpig"
+],
+"nums": [
+"587",
+"326"
+],
+"lv": [
+51,
+51
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Main Area",
+"name": "Pokémon Ranger Shinobu",
+"mons": [
+"Zangoose",
+"Beartic"
+],
+"nums": [
+"335",
+"614"
+],
+"lv": [
+51,
+51
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Main Area",
+"name": "Sky Trainer Sera",
+"mons": [
+"Noctowl",
+"Aerodactyl"
+],
+"nums": [
+"164",
+"142"
+],
+"lv": [
+52,
+52
+],
+"bt": "Sky Battle"
+},
+{
+"sec": "Main Area",
+"name": "Fairy Tale Girl Lovelyn",
+"mons": [
+"Mr. Mime",
+"Aromatisse",
+"Azumarill"
+],
+"nums": [
+"122",
+"683",
+"184"
+],
+"lv": [
+49,
+49,
+49
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Main Area",
+"name": "Pokémon Trainer Shauna",
+"mons": [
+"Delcatty",
+"Goodra",
+"Greninja"
+],
+"nums": [
+"301",
+"706",
+"658"
+],
+"lv": [
+49,
+49,
+51
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Main Area",
+"name": "Pokémon Trainer Shauna",
+"mons": [
+"Delcatty",
+"Goodra",
+"Chesnaught"
+],
+"nums": [
+"301",
+"706",
+"652"
+],
+"lv": [
+49,
+49,
+51
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Main Area",
+"name": "Pokémon Trainer Shauna",
+"mons": [
+"Delcatty",
+"Goodra",
+"Delphox"
+],
+"nums": [
+"301",
+"706",
+"655"
+],
+"lv": [
+49,
+49,
+51
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Main Area",
+"name": "Pokémon Trainer Tierno",
+"mons": [
+"Talonflame",
+"Roserade",
+"Crawdaunt"
+],
+"nums": [
+"663",
+"407",
+"342"
+],
+"lv": [
+48,
+49,
+52
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Main Area",
+"name": "Pokémon Trainer Trevor",
+"mons": [
+"Raichu",
+"Aerodactyl",
+"Florges"
+],
+"nums": [
+"026",
+"142",
+"671"
+],
+"lv": [
+49,
+49,
+51
+],
+"bt": "Single Battle"
+}
+],
+"route2": [
+{
+"sec": "Main Area",
+"name": "Youngster Austin",
+"mons": [
+"Zigzagoon"
+],
+"nums": [
+"263"
+],
+"lv": [
+5
+],
+"bt": "Single Battle"
+}
+],
+"route20": [
+{
+"sec": "Main Area",
+"name": "Twins Nana & Nina",
+"mons": [
+"Aromatisse",
+"Slurpuff"
+],
+"nums": [
+"683",
+"685"
+],
+"lv": [
+53,
+53
+],
+"bt": "Double Battle"
+},
+{
+"sec": "Main Area",
+"name": "Poké Fan Roisin",
+"mons": [
+"Snubbull",
+"Granbull"
+],
+"nums": [
+"209",
+"210"
+],
+"lv": [
+51,
+53
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Main Area",
+"name": "Fairy Tale Girl Wynne",
+"mons": [
+"Klefki",
+"Azumarill"
+],
+"nums": [
+"707",
+"184"
+],
+"lv": [
+52,
+52
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Main Area",
+"name": "Poké Fan Corey",
+"mons": [
+"Dedenne"
+],
+"nums": [
+"702"
+],
+"lv": [
+54
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Main Area",
+"name": "Hex Maniac Desdemona",
+"mons": [
+"Trevenant"
+],
+"nums": [
+"709"
+],
+"lv": [
+54
+],
+"bt": "Single Battle"
+}
+],
+"route21": [
+{
+"sec": "Main Area",
+"name": "Ace Trainer Mireille",
+"mons": [
+"Sableye",
+"Crustle"
+],
+"nums": [
+"302",
+"558"
+],
+"lv": [
+55,
+56
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Main Area",
+"name": "Ace Duo Elina & Sean",
+"mons": [
+"Wailord",
+"Vileplume"
+],
+"nums": [
+"321",
+"045"
+],
+"lv": [
+57,
+57
+],
+"bt": "Double Battle"
+},
+{
+"sec": "Main Area",
+"name": "Veteran Louis",
+"mons": [
+"Hippowdon",
+"Aurorus"
+],
+"nums": [
+"450",
+"699"
+],
+"lv": [
+55,
+57
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Main Area",
+"name": "Ace Trainer Evan",
+"mons": [
+"Chandelure"
+],
+"nums": [
+"609"
+],
+"lv": [
+58
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Main Area",
+"name": "Veteran Trisha",
+"mons": [
+"Tyrantrum"
+],
+"nums": [
+"697"
+],
+"lv": [
+59
+],
+"bt": "Single Battle"
+}
+],
+"route22": [
+{
+"sec": "Main Area",
+"name": "Rising Star Louise",
+"mons": [
+"Psyduck",
+"Litleo"
+],
+"nums": [
+"054",
+"667"
+],
+"lv": [
+6,
+7
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Main Area",
+"name": "Lass Elin",
+"mons": [
+"Goldeen",
+"Marill"
+],
+"nums": [
+"118",
+"183"
+],
+"lv": [
+6,
+6
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Main Area",
+"name": "Rising Star Loic",
+"mons": [
+"Riolu"
+],
+"nums": [
+"447"
+],
+"lv": [
+9
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Main Area",
+"name": "Schoolboy Rabbie",
+"mons": [
+"Pidgey",
+"Metapod"
+],
+"nums": [
+"016",
+"011"
+],
+"lv": [
+7,
+5
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Main Area",
+"name": "Schoolgirl Mackenzie",
+"mons": [
+"Bunnelby"
+],
+"nums": [
+"659"
+],
+"lv": [
+8
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Main Area",
+"name": "Lass Elsa",
+"mons": [
+"Flab&eacute;b&eacute;"
+],
+"nums": [
+"669"
+],
+"lv": [
+8
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Main Area",
+"name": "Ace Trainer Hilde",
+"mons": [
+"Sharpedo",
+"Gardevoir"
+],
+"nums": [
+"319",
+"282"
+],
+"lv": [
+29,
+30
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Main Area",
+"name": "Ace Trainer Adelbert",
+"mons": [
+"Lucario"
+],
+"nums": [
+"448"
+],
+"lv": [
+31
+],
+"bt": "Single Battle"
+}
+],
+"route3": [
+{
+"sec": "Main Area",
+"name": "Preschooler Oliver",
+"mons": [
+"Caterpie",
+"Azurill"
+],
+"nums": [
+"010",
+"298"
+],
+"lv": [
+2,
+4
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Main Area",
+"name": "Preschooler Ella",
+"mons": [
+"Pichu"
+],
+"nums": [
+"172"
+],
+"lv": [
+5
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Main Area",
+"name": "Schoolgirl Bridget",
+"mons": [
+"Bidoof"
+],
+"nums": [
+"399"
+],
+"lv": [
+6
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Main Area",
+"name": "Schoolboy Brighton",
+"mons": [
+"Pansage",
+"Pansear",
+"Panpour"
+],
+"nums": [
+"511",
+"513",
+"515"
+],
+"lv": [
+3,
+3,
+3
+],
+"bt": "Single Battle"
+}
+],
+"route4": [
+{
+"sec": "Main Area",
+"name": "Gardener Wheaton",
+"mons": [
+"Corphish"
+],
+"nums": [
+"341"
+],
+"lv": [
+10
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Main Area",
+"name": "Roller Skater Calida",
+"mons": [
+"Fletchling"
+],
+"nums": [
+"661"
+],
+"lv": [
+10
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Main Area",
+"name": "Roller Skater Roland",
+"mons": [
+"Pidgey"
+],
+"nums": [
+"016"
+],
+"lv": [
+10
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Main Area",
+"name": "Poké Fan Agnes",
+"mons": [
+"Burmy",
+"Burmy",
+"Burmy"
+],
+"nums": [
+"412",
+"412",
+"412"
+],
+"lv": [
+7,
+7,
+7
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Main Area",
+"name": "Preschooler Adrian",
+"mons": [
+"Magikarp"
+],
+"nums": [
+"129"
+],
+"lv": [
+9
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Main Area",
+"name": "Preschooler Mia",
+"mons": [
+"Budew"
+],
+"nums": [
+"406"
+],
+"lv": [
+9
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Main Area",
+"name": "Poké Fan Gabe",
+"mons": [
+"Pichu",
+"Pikachu"
+],
+"nums": [
+"172",
+"025"
+],
+"lv": [
+7,
+9
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Main Area",
+"name": "Gardener Fabian",
+"mons": [
+"Corphish"
+],
+"nums": [
+"341"
+],
+"lv": [
+10
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Main Area",
+"name": "Gardener Rover",
+"mons": [
+"Corphish"
+],
+"nums": [
+"341"
+],
+"lv": [
+10
+],
+"bt": "Single Battle"
+}
+],
+"route5": [
+{
+"sec": "Main Area",
+"name": "Pokémon Trainer Tierno",
+"mons": [
+"Corphish"
+],
+"nums": [
+"341"
+],
+"lv": [
+12
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Main Area",
+"name": "Twins Faith & Joy",
+"mons": [
+"Plusle",
+"Minun"
+],
+"nums": [
+"311",
+"312"
+],
+"lv": [
+11,
+11
+],
+"bt": "Double Battle"
+},
+{
+"sec": "Main Area",
+"name": "Rising Star Hamish",
+"mons": [
+"Kadabra"
+],
+"nums": [
+"064"
+],
+"lv": [
+13
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Main Area",
+"name": "Roller Skater Winnie",
+"mons": [
+"Bunnelby",
+"Skiddo"
+],
+"nums": [
+"659",
+"672"
+],
+"lv": [
+9,
+11
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Main Area",
+"name": "Roller Skater Florin",
+"mons": [
+"Doduo"
+],
+"nums": [
+"084"
+],
+"lv": [
+12
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Main Area",
+"name": "Rising Star Tyson",
+"mons": [
+"Bidoof",
+"Oddish"
+],
+"nums": [
+"399",
+"043"
+],
+"lv": [
+12,
+12
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Main Area",
+"name": "Backpacker Heike",
+"mons": [
+"Sentret"
+],
+"nums": [
+"161"
+],
+"lv": [
+12
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Main Area",
+"name": "Youngster Keita",
+"mons": [
+"Pansage"
+],
+"nums": [
+"511"
+],
+"lv": [
+12
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Main Area",
+"name": "Youngster Anthony",
+"mons": [
+"Carvanha",
+"Pancham"
+],
+"nums": [
+"318",
+"674"
+],
+"lv": [
+10,
+10
+],
+"bt": "Single Battle"
+}
+],
+"route6": [
+{
+"sec": "Main Area",
+"name": "Tourist Hiroko",
+"mons": [
+"Pikachu",
+"Pidgey",
+"Psyduck"
+],
+"nums": [
+"025",
+"016",
+"054"
+],
+"lv": [
+11,
+11,
+11
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Main Area",
+"name": "Tourist Eriko",
+"mons": [
+"Zigzagoon",
+"Ralts",
+"Gulpin"
+],
+"nums": [
+"263",
+"280",
+"316"
+],
+"lv": [
+11,
+11,
+11
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Main Area",
+"name": "Backpacker Jerome",
+"mons": [
+"Fletchling"
+],
+"nums": [
+"661"
+],
+"lv": [
+14
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Main Area",
+"name": "Tourist Takemi",
+"mons": [
+"Volbeat"
+],
+"nums": [
+"313"
+],
+"lv": [
+14
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Main Area",
+"name": "Tourist Mari",
+"mons": [
+"Illumise"
+],
+"nums": [
+"314"
+],
+"lv": [
+14
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Main Area",
+"name": "Youngster Jacob",
+"mons": [
+"Croagunk",
+"Beedrill"
+],
+"nums": [
+"453",
+"015"
+],
+"lv": [
+13,
+13
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Main Area",
+"name": "PokéFan Family Jan & Erin",
+"mons": [
+"Furfrou",
+"Furfrou"
+],
+"nums": [
+"676",
+"676"
+],
+"lv": [
+14,
+14
+],
+"bt": "Double Battle"
+},
+{
+"sec": "Main Area",
+"name": "Beauty Brigitte",
+"mons": [
+"Espurr",
+"Butterfree"
+],
+"nums": [
+"677",
+"012"
+],
+"lv": [
+12,
+12
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Main Area",
+"name": "Youngster Tyler",
+"mons": [
+"Venipede",
+"Scraggy"
+],
+"nums": [
+"543",
+"559"
+],
+"lv": [
+12,
+12
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Main Area",
+"name": "Backpacker Roderick",
+"mons": [
+"Bunnelby"
+],
+"nums": [
+"659"
+],
+"lv": [
+14
+],
+"bt": "Single Battle"
+}
+],
+"route7": [
+{
+"sec": "Main Area",
+"name": "Artist Georgia",
+"mons": [
+"Smeargle"
+],
+"nums": [
+"235"
+],
+"lv": [
+16
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Main Area",
+"name": "Artist Mona & Paolo",
+"mons": [
+"Smeargle",
+"Smeargle"
+],
+"nums": [
+"235",
+"235"
+],
+"lv": [
+16,
+16
+],
+"bt": "Double Battle"
+},
+{
+"sec": "Main Area",
+"name": "Artist Pierre",
+"mons": [
+"Smeargle"
+],
+"nums": [
+"235"
+],
+"lv": [
+16
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Main Area",
+"name": "Pokémon Trainer Tierno",
+"mons": [
+"Corphish"
+],
+"nums": [
+"341"
+],
+"lv": [
+14
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Main Area",
+"name": "Pokémon Trainer Trevor",
+"mons": [
+"Pikachu",
+"Flab&eacute;b&eacute;"
+],
+"nums": [
+"025",
+"669"
+],
+"lv": [
+16,
+14
+],
+"bt": "Single Battle"
+}
+],
+"route8": [
+{
+"sec": "Main Area",
+"name": "Rising Star Paulette",
+"mons": [
+"Axew"
+],
+"nums": [
+"610"
+],
+"lv": [
+19
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Main Area",
+"name": "Rising Star Rhys",
+"mons": [
+"Pancham",
+"Skiddo",
+"Goldeen"
+],
+"nums": [
+"674",
+"672",
+"118"
+],
+"lv": [
+17,
+17,
+17
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Main Area",
+"name": "Black Belt Cadoc",
+"mons": [
+"Machop"
+],
+"nums": [
+"066"
+],
+"lv": [
+20
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Main Area",
+"name": "Sky Trainer Howe",
+"mons": [
+"Drifloon",
+"Pidgeotto"
+],
+"nums": [
+"425",
+"017"
+],
+"lv": [
+15,
+18
+],
+"bt": "Sky Battle"
+},
+{
+"sec": "Main Area",
+"name": "Swimmer F Genevieve",
+"mons": [
+"Wingull",
+"Psyduck"
+],
+"nums": [
+"278",
+"054"
+],
+"lv": [
+19,
+21
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Main Area",
+"name": "Sky Trainer Aveza",
+"mons": [
+"Skiploom",
+"Swoobat"
+],
+"nums": [
+"188",
+"528"
+],
+"lv": [
+19,
+22
+],
+"bt": "Sky Battle"
+},
+{
+"sec": "Main Area",
+"name": "Fisherman Wharton",
+"mons": [
+"Tentacool",
+"Tentacool",
+"Tentacool"
+],
+"nums": [
+"072",
+"072",
+"072"
+],
+"lv": [
+19,
+19,
+19
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Main Area",
+"name": "Fisherman Shad",
+"mons": [
+"Shellder",
+"Staryu"
+],
+"nums": [
+"090",
+"120"
+],
+"lv": [
+20,
+20
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Main Area",
+"name": "Swimmer F Marissa",
+"mons": [
+"Masquerain"
+],
+"nums": [
+"284"
+],
+"lv": [
+22
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Main Area",
+"name": "Sky Trainer Colm",
+"mons": [
+"Mantyke",
+"Jumpluff"
+],
+"nums": [
+"458",
+"189"
+],
+"lv": [
+28,
+29
+],
+"bt": "Sky Battle"
+},
+{
+"sec": "Main Area",
+"name": "Swimmer M Estaban",
+"mons": [
+"Skrelp",
+"Horsea"
+],
+"nums": [
+"690",
+"116"
+],
+"lv": [
+28,
+28
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Main Area",
+"name": "Swimmer M Ramses",
+"mons": [
+"Tentacool"
+],
+"nums": [
+"072"
+],
+"lv": [
+30
+],
+"bt": "Single Battle"
+}
+],
+"route9": [
+{
+"sec": "Main Area",
+"name": "Sky Trainer Orion",
+"mons": [
+"Ledian"
+],
+"nums": [
+"166"
+],
+"lv": [
+21
+],
+"bt": "Sky Battle"
+}
+],
+"santalunecity": [
+{
+"sec": "Main Area",
+"name": "Roller Skater Rinka",
+"mons": [
+"Zigzagoon"
+],
+"nums": [
+"263"
+],
+"lv": [
+7
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Gym",
+"name": "Youngster David",
+"mons": [
+"Ledyba"
+],
+"nums": [
+"165"
+],
+"lv": [
+10
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Gym",
+"name": "Youngster Zachary",
+"mons": [
+"Spewpa"
+],
+"nums": [
+"665"
+],
+"lv": [
+10
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Gym",
+"name": "Lass Charlott",
+"mons": [
+"Kakuna",
+"Combee"
+],
+"nums": [
+"014",
+"415"
+],
+"lv": [
+7,
+9
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Gym",
+"name": "Leader Viola",
+"mons": [
+"Surskit",
+"Vivillon"
+],
+"nums": [
+"283",
+"666"
+],
+"lv": [
+10,
+12
+],
+"bt": "Single Battle"
+}
+],
+"santaluneforest": [
+{
+"sec": "Main Area",
+"name": "Youngster Joey",
+"mons": [
+"Scatterbug",
+"Fletchling"
+],
+"nums": [
+"664",
+"661"
+],
+"lv": [
+3,
+3
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Main Area",
+"name": "Lass Anna",
+"mons": [
+"Pikachu"
+],
+"nums": [
+"025"
+],
+"lv": [
+5
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Main Area",
+"name": "Lass Lise",
+"mons": [
+"Weedle",
+"Bunnelby"
+],
+"nums": [
+"013",
+"659"
+],
+"lv": [
+2,
+4
+],
+"bt": "Single Battle"
+}
+],
+"shalourcity": [
+{
+"sec": "Gym",
+"name": "Roller Skater Shun",
+"mons": [
+"Pancham",
+"Throh",
+"Machoke"
+],
+"nums": [
+"674",
+"538",
+"067"
+],
+"lv": [
+27,
+27,
+27
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Gym",
+"name": "Roller Skater Dash",
+"mons": [
+"Heracross"
+],
+"nums": [
+"214"
+],
+"lv": [
+30
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Gym",
+"name": "Roller Skater Kate",
+"mons": [
+"Meditite",
+"Mienfoo"
+],
+"nums": [
+"307",
+"619"
+],
+"lv": [
+28,
+28
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Gym",
+"name": "Roller Skater Rolanda",
+"mons": [
+"Sawk",
+"Hariyama"
+],
+"nums": [
+"539",
+"297"
+],
+"lv": [
+29,
+29
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Gym",
+"name": "Leader Korrina",
+"mons": [
+"Mienfoo",
+"Hawlucha",
+"Machoke"
+],
+"nums": [
+"619",
+"701",
+"067"
+],
+"lv": [
+29,
+32,
+28
+],
+"bt": "Single Battle"
+}
+],
+"snowbellecity": [
+{
+"sec": "Gym",
+"name": "Ace Trainer Imelda",
+"mons": [
+"Sneasel",
+"Cloyster"
+],
+"nums": [
+"215",
+"091"
+],
+"lv": [
+54,
+55
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Gym",
+"name": "Ace Trainer Viktor",
+"mons": [
+"Delibird",
+"Mamoswine"
+],
+"nums": [
+"225",
+"473"
+],
+"lv": [
+54,
+55
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Gym",
+"name": "Ace Trainer Shannon",
+"mons": [
+"Cryogonal",
+"Piloswine",
+"Jynx"
+],
+"nums": [
+"615",
+"221",
+"124"
+],
+"lv": [
+52,
+53,
+54
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Gym",
+"name": "Ace Trainer Theo",
+"mons": [
+"Beartic",
+"Vanilluxe"
+],
+"nums": [
+"614",
+"584"
+],
+"lv": [
+54,
+55
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Gym",
+"name": "Leader Wulfric",
+"mons": [
+"Abomasnow",
+"Cryogonal",
+"Avalugg"
+],
+"nums": [
+"460",
+"615",
+"713"
+],
+"lv": [
+56,
+55,
+59
+],
+"bt": "Single Battle"
+}
+],
+"teamflarehq": [
+{
+"sec": "Main Room",
+"name": "Team Flare Lysandre",
+"mons": [
+"Mienshao",
+"Pyroar",
+"Honchkrow",
+"Gyarados"
+],
+"nums": [
+"620",
+"668",
+"430",
+"130"
+],
+"lv": [
+48,
+49,
+47,
+51
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Corridor",
+"name": "Team Flare Admin",
+"mons": [
+"Toxicroak"
+],
+"nums": [
+"454"
+],
+"lv": [
+50
+],
+"bt": "Double Battle"
+},
+{
+"sec": "Corridor",
+"name": "Team Flare Grunt",
+"mons": [
+"Liepard"
+],
+"nums": [
+"510"
+],
+"lv": [
+48
+],
+"bt": "Double Battle"
+},
+{
+"sec": "Corridor",
+"name": "Team Flare Admin",
+"mons": [
+"Manectric"
+],
+"nums": [
+"310"
+],
+"lv": [
+50
+],
+"bt": "Double Battle"
+},
+{
+"sec": "Corridor",
+"name": "Team Flare Grunt",
+"mons": [
+"Mightyena"
+],
+"nums": [
+"262"
+],
+"lv": [
+48
+],
+"bt": "Double Battle"
+},
+{
+"sec": "Corridor",
+"name": "Team Flare Admin",
+"mons": [
+"Houndoom"
+],
+"nums": [
+"229"
+],
+"lv": [
+50
+],
+"bt": "Double Battle"
+},
+{
+"sec": "Corridor",
+"name": "Team Flare Grunt",
+"mons": [
+"Scrafty"
+],
+"nums": [
+"560"
+],
+"lv": [
+48
+],
+"bt": "Double Battle"
+},
+{
+"sec": "Basement",
+"name": "Team Flare Admin",
+"mons": [
+"Liepard",
+"Manectric"
+],
+"nums": [
+"510",
+"310"
+],
+"lv": [
+47,
+48
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Basement",
+"name": "Team Flare Admin",
+"mons": [
+"Swalot"
+],
+"nums": [
+"317"
+],
+"lv": [
+50
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Basement",
+"name": "Team Flare Admin",
+"mons": [
+"Mightyena",
+"Houndoom"
+],
+"nums": [
+"262",
+"229"
+],
+"lv": [
+47,
+48
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Basement",
+"name": "Team Flare Admin",
+"mons": [
+"Golbat"
+],
+"nums": [
+"042"
+],
+"lv": [
+50
+],
+"bt": "Single Battle"
+}
+],
+"terminuscave": [
+{
+"sec": "1F",
+"name": "Worker Narek",
+"mons": [
+"Graveler",
+"Graveler",
+"Golem"
+],
+"nums": [
+"075",
+"075",
+"076"
+],
+"lv": [
+46,
+47,
+48
+],
+"bt": "Single Battle"
+},
+{
+"sec": "1F",
+"name": "Hiker Aaron",
+"mons": [
+"Rhydon"
+],
+"nums": [
+"112"
+],
+"lv": [
+50
+],
+"bt": "Single Battle"
+},
+{
+"sec": "1F",
+"name": "Worker Dimitri",
+"mons": [
+"Octillery"
+],
+"nums": [
+"224"
+],
+"lv": [
+50
+],
+"bt": "Single Battle"
+},
+{
+"sec": "1F",
+"name": "Hiker Bergin",
+"mons": [
+"Boldore",
+"Steelix"
+],
+"nums": [
+"525",
+"208"
+],
+"lv": [
+48,
+48
+],
+"bt": "Single Battle"
+},
+{
+"sec": "B1F",
+"name": "Battle Girl Andrea",
+"mons": [
+"Throh",
+"Conkeldurr"
+],
+"nums": [
+"538",
+"534"
+],
+"lv": [
+49,
+50
+],
+"bt": "Single Battle"
+},
+{
+"sec": "B1F",
+"name": "Black Belt Gunnar",
+"mons": [
+"Toxicroak",
+"Sawk"
+],
+"nums": [
+"454",
+"539"
+],
+"lv": [
+49,
+50
+],
+"bt": "Single Battle"
+},
+{
+"sec": "B1F",
+"name": "Battle Girl Hailey",
+"mons": [
+"Medicham",
+"Hawlucha"
+],
+"nums": [
+"308",
+"701"
+],
+"lv": [
+49,
+51
+],
+"bt": "Single Battle"
+},
+{
+"sec": "B1F",
+"name": "Rangers Fern & Lee",
+"mons": [
+"Nidoqueen",
+"Nidoking"
+],
+"nums": [
+"031",
+"034"
+],
+"lv": [
+51,
+51
+],
+"bt": "Single Battle"
+},
+{
+"sec": "B1F",
+"name": "Worker Yusif",
+"mons": [
+"Probopass"
+],
+"nums": [
+"476"
+],
+"lv": [
+50
+],
+"bt": "Single Battle"
+},
+{
+"sec": "B1F",
+"name": "Black Belt Ricardo",
+"mons": [
+"Hariyama"
+],
+"nums": [
+"297"
+],
+"lv": [
+42
+],
+"bt": "Single Battle"
+}
+],
+"towerofmastery": [
+{
+"sec": "Main Area",
+"name": "Pokémon Trainer Serena",
+"mons": [
+"Meowstic",
+"Quilladin",
+"Absol"
+],
+"nums": [
+"678",
+"651",
+"359"
+],
+"lv": [
+28,
+30,
+28
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Main Area",
+"name": "Pokémon Trainer Serena",
+"mons": [
+"Meowstic",
+"Braixen",
+"Absol"
+],
+"nums": [
+"678",
+"654",
+"359"
+],
+"lv": [
+28,
+30,
+28
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Main Area",
+"name": "Pokémon Trainer Serena",
+"mons": [
+"Meowstic",
+"Frogadier",
+"Absol"
+],
+"nums": [
+"678",
+"657",
+"359"
+],
+"lv": [
+28,
+30,
+28
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Main Area",
+"name": "Pokémon Trainer Calem",
+"mons": [
+"Meowstic",
+"Quilladin",
+"Absol"
+],
+"nums": [
+"678",
+"651",
+"359"
+],
+"lv": [
+28,
+30,
+28
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Main Area",
+"name": "Pokémon Trainer Calem",
+"mons": [
+"Meowstic",
+"Braixen",
+"Absol"
+],
+"nums": [
+"678",
+"654",
+"359"
+],
+"lv": [
+28,
+30,
+28
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Main Area",
+"name": "Pokémon Trainer Calem",
+"mons": [
+"Meowstic",
+"Frogadier",
+"Absol"
+],
+"nums": [
+"678",
+"657",
+"359"
+],
+"lv": [
+28,
+30,
+28
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Main Area",
+"name": "Successor Korrina",
+"mons": [
+"Lucario"
+],
+"nums": [
+"448"
+],
+"lv": [
+32
+],
+"bt": "Single Battle"
+}
+],
+"vanivilletown": [],
+"victoryroad": [
+{
+"sec": "Gate",
+"name": "Ace Trainer Robbie",
+"mons": [
+"Carbink",
+"Raichu",
+"Kingdra"
+],
+"nums": [
+"703",
+"026",
+"230"
+],
+"lv": [
+56,
+56,
+57
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Room 1",
+"name": "Ace Trainer Alanza",
+"mons": [
+"Weavile"
+],
+"nums": [
+"461"
+],
+"lv": [
+60
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Room 1",
+"name": "Ace Trainer Bence",
+"mons": [
+"Steelix",
+"Electrode",
+"Kangaskhan"
+],
+"nums": [
+"208",
+"101",
+"115"
+],
+"lv": [
+56,
+56,
+57
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Room 1",
+"name": "Black Belt Markus",
+"mons": [
+"Machamp"
+],
+"nums": [
+"068"
+],
+"lv": [
+60
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Room 1",
+"name": "Battle Girl Veronique",
+"mons": [
+"Hawlucha",
+"Mienshao"
+],
+"nums": [
+"701",
+"620"
+],
+"lv": [
+57,
+58
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Outside West",
+"name": "Backpacker Farid",
+"mons": [
+"Haxorus"
+],
+"nums": [
+"612"
+],
+"lv": [
+58
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Room 2",
+"name": "Battle Girl Sigrid",
+"mons": [
+"Medicham"
+],
+"nums": [
+"308"
+],
+"lv": [
+60
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Room 2",
+"name": "Psychic William",
+"mons": [
+"Espeon"
+],
+"nums": [
+"196"
+],
+"lv": [
+58
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Room 2",
+"name": "Black Belt Ander",
+"mons": [
+"Pangoro",
+"Heracross"
+],
+"nums": [
+"675",
+"214"
+],
+"lv": [
+57,
+58
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Room 2",
+"name": "Brains & Brawn Arman & Hugo",
+"mons": [
+"Medicham",
+"Gallade"
+],
+"nums": [
+"308",
+"475"
+],
+"lv": [
+58,
+60
+],
+"bt": "Double Battle"
+},
+{
+"sec": "Outside East",
+"name": "Fairy Tale Girl Corinne",
+"mons": [
+"Azumarill",
+"Florges"
+],
+"nums": [
+"184",
+"671"
+],
+"lv": [
+56,
+56
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Outside East",
+"name": "Hex Maniac Raziah",
+"mons": [
+"Gourgeist"
+],
+"nums": [
+"711"
+],
+"lv": [
+58
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Outside East",
+"name": "Pokémon Trainer Serena",
+"mons": [
+"Meowstic",
+"Altaria",
+"Vaporeon",
+"Absol",
+"Chesnaught"
+],
+"nums": [
+"678",
+"334",
+"134",
+"359",
+"652"
+],
+"lv": [
+57,
+57,
+57,
+59,
+61
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Outside East",
+"name": "Pokémon Trainer Serena",
+"mons": [
+"Meowstic",
+"Altaria",
+"Jolteon",
+"Absol",
+"Delphox"
+],
+"nums": [
+"678",
+"334",
+"135",
+"359",
+"655"
+],
+"lv": [
+57,
+57,
+57,
+59,
+61
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Outside East",
+"name": "Pokémon Trainer Serena",
+"mons": [
+"Meowstic",
+"Altaria",
+"Flareon",
+"Absol",
+"Greninja"
+],
+"nums": [
+"678",
+"334",
+"136",
+"359",
+"658"
+],
+"lv": [
+57,
+57,
+57,
+59,
+61
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Outside East",
+"name": "Pokémon Trainer Calem",
+"mons": [
+"Meowstic",
+"Altaria",
+"Vaporeon",
+"Absol",
+"Chesnaught"
+],
+"nums": [
+"678",
+"334",
+"134",
+"359",
+"652"
+],
+"lv": [
+57,
+57,
+57,
+59,
+61
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Outside East",
+"name": "Pokémon Trainer Calem",
+"mons": [
+"Meowstic",
+"Altaria",
+"Jolteon",
+"Absol",
+"Delphox"
+],
+"nums": [
+"678",
+"334",
+"135",
+"359",
+"655"
+],
+"lv": [
+57,
+57,
+57,
+59,
+61
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Outside East",
+"name": "Pokémon Trainer Calem",
+"mons": [
+"Meowstic",
+"Altaria",
+"Flareon",
+"Absol",
+"Greninja"
+],
+"nums": [
+"678",
+"334",
+"136",
+"359",
+"658"
+],
+"lv": [
+57,
+57,
+57,
+59,
+61
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Room 3",
+"name": "Pokémon Ranger Petra",
+"mons": [
+"Slowbro",
+"Altaria"
+],
+"nums": [
+"080",
+"334"
+],
+"lv": [
+57,
+57
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Room 3",
+"name": "Veteran Inga",
+"mons": [
+"Talonflame"
+],
+"nums": [
+"663"
+],
+"lv": [
+61
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Room 3",
+"name": "Pokémon Ranger Ralf",
+"mons": [
+"Crobat"
+],
+"nums": [
+"169"
+],
+"lv": [
+59
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Room 3",
+"name": "Veteran Gerard",
+"mons": [
+"Banette",
+"Leafeon"
+],
+"nums": [
+"354",
+"470"
+],
+"lv": [
+57,
+59
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Outside Far East",
+"name": "Artist Vincent",
+"mons": [
+"Smeargle"
+],
+"nums": [
+"235"
+],
+"lv": [
+58
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Outside Far East",
+"name": "Ace Trainer Michele",
+"mons": [
+"Magcargo",
+"Scizor"
+],
+"nums": [
+"219",
+"212"
+],
+"lv": [
+57,
+58
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Outside Far East",
+"name": "Hiker Corwin",
+"mons": [
+"Torkoal",
+"Golem"
+],
+"nums": [
+"324",
+"076"
+],
+"lv": [
+56,
+56
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Room 4",
+"name": "Veteran Timeo",
+"mons": [
+"Trevenant",
+"Gigalith"
+],
+"nums": [
+"709",
+"526"
+],
+"lv": [
+57,
+59
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Room 4",
+"name": "Veteran Catrina",
+"mons": [
+"Glaceon",
+"Snorlax"
+],
+"nums": [
+"471",
+"143"
+],
+"lv": [
+57,
+59
+],
+"bt": "Single Battle"
+},
+{
+"sec": "Room 4",
+"name": "Veteran Gilles",
+"mons": [
+"Skarmory",
+"Alakazam",
+"Umbreon"
+],
+"nums": [
+"227",
+"065",
+"197"
+],
+"lv": [
+55,
+57,
+55
+],
+"bt": "Single Battle"
+}
+]
+}
