@@ -107,3 +107,9 @@ SnapEdges = true
 [043]
 Name = Habitacion Kaia
 SnapEdges = true
+#-------------------------------
+[019]
+Name = Ciudad Gimnasio
+Outdoor = true
+ShowArea = true
+SnapEdges = true
