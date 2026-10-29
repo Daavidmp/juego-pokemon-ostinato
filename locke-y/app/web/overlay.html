@@ -186,7 +186,7 @@ function pintar(e) {
 async function actualizar() {
   try { pintar(await (await fetch('/api/estado')).json()); } catch (err) { /* el lanzador está cerrado */ }
 }
-actualizar();
+if (window.ESTADO) pintar(window.ESTADO); else actualizar();
 setInterval(actualizar, 1000);
 </script>
 </body></html>

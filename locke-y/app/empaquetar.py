@@ -22,7 +22,10 @@ FUERA_CITRA = {'user', 'azahar_viejo.exe', 'lanzador.cs', 'citra.exe'}   # citra
 
 def pyinstaller():
     datos = [('app/web', 'app/web'), ('app/datos_pkx', 'app/datos_pkx'), ('app/LockeSettings.java', 'app'), ('app/MegaFases.java', 'app'),
-             ('app/online.json', 'app'), ('assets', 'assets')]
+             ('app/online.json', 'app'), ('assets', 'assets'),
+             # opciones de la biblioteca: vídeo de normas, guía y contrato (se rellena con la firma)
+             ('video/normas.mp4', 'video'), ('guia/Guia-Mega-Pokelocke-Y.pdf', 'guia'),
+             ('normas/normas.html', 'normas'), ('normas/img', 'normas/img')]
     args = [str(Path(sys.executable).parent / 'pyinstaller'), '--noconfirm', '--onefile', '--noconsole',
             '--name', 'Pokelocke', '--icon', str(RAIZ / 'assets' / 'icono.ico'),
             '--distpath', str(SALIDA), '--workpath', str(TOOLS / 'build-unico'), '--specpath', str(TOOLS / 'build-unico')]

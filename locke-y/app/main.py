@@ -52,6 +52,7 @@ else:
     RAIZ = RECURSOS = Path(__file__).resolve().parent.parent
     PAQUETE = None
 APP, WEB, ASSETS = RECURSOS / 'app', RECURSOS / 'app' / 'web', RECURSOS / 'assets'
+NORMAS, GUIA_PDF, VIDEO = RECURSOS / 'normas', RECURSOS / 'guia' / 'Guia-Mega-Pokelocke-Y.pdf', RECURSOS / 'video' / 'normas.mp4'
 TOOLS, DATOS, FANART = RAIZ / 'tools', RAIZ / 'datos', RAIZ / 'fanart'
 CACHE_ARTE = TOOLS / 'arte'
 CAPA_PNG = TOOLS / 'capa.png'
@@ -252,6 +253,15 @@ def jugando():
     return p is not None and p.poll() is None
 
 
+# este Citra se cae (0xc0000005 en citra-qt.exe+0x165ae7) si le llega una petición RPC mientras aún está
+# cargando el juego: no se le pregunta nada hasta pasados estos segundos desde que se abrió
+ESPERA_RPC = 15
+
+
+def citra_listo():
+    return jugando() and time.time() - vivo.get('lanzado', 0) > ESPERA_RPC
+
+
 # ---------- herramientas portables ----------
 
 def java():
@@ -276,6 +286,26 @@ def navegador():
             if base and (Path(base) / rel).exists():
                 return str(Path(base) / rel)
     return None
+
+
+def firefox():
+    for base in (os.environ.get('ProgramFiles'), os.environ.get('ProgramFiles(x86)'), os.environ.get('LOCALAPPDATA')):
+        if base and (Path(base) / 'Mozilla Firefox' / 'firefox.exe').exists():
+            return str(Path(base) / 'Mozilla Firefox' / 'firefox.exe')
+    return None
+
+
+def perfil_firefox(nombre, prefs, css=''):
+    """Perfil propio de Firefox para Pokelocke (no toca el del usuario). Las preferencias se reescriben siempre."""
+    p = TOOLS / nombre
+    (p / 'chrome').mkdir(parents=True, exist_ok=True)
+    prefs = {'browser.shell.checkDefaultBrowser': False, 'browser.aboutwelcome.enabled': False,
+             'datareporting.policy.dataSubmissionPolicyBypassNotification': True,
+             'browser.startup.homepage_override.mstone': 'ignore', 'browser.tabs.warnOnClose': False, **prefs}
+    (p / 'user.js').write_text(''.join(f'user_pref({json.dumps(k)}, {json.dumps(v)});\n' for k, v in prefs.items()),
+                               encoding='utf-8')
+    (p / 'chrome' / 'userChrome.css').write_text(css, encoding='utf-8')
+    return str(p)
 
 
 def azahar_exe():
@@ -378,12 +408,18 @@ def configurar_azahar():
         poner('Multiplayer', 'ip', online_direccion())          # el anfitrión, a sí mismo
         poner('Multiplayer', 'port', online.PUERTO_SALA)
     poner('Layout', 'layout_option', 6)                  # LayoutOption::CustomLayout
+    # Citra 1920 no tiene la opción 6 (el lanzador la pasa a 0): usa custom_layout con izquierda/arriba/derecha/abajo
+    poner('Layout', 'custom_layout', 'true')
     s, ox, oy = encaje()
     for nombre, (x, y, w, h) in (('top', HUECO_ARRIBA), ('bottom', HUECO_ABAJO)):
         poner('Layout', f'custom_{nombre}_x', ox + round(x * s))
         poner('Layout', f'custom_{nombre}_y', oy + round(y * s))
         poner('Layout', f'custom_{nombre}_width', round(w * s))
         poner('Layout', f'custom_{nombre}_height', round(h * s))
+        poner('Layout', f'custom_{nombre}_left', ox + round(x * s))
+        poner('Layout', f'custom_{nombre}_top', oy + round(y * s))
+        poner('Layout', f'custom_{nombre}_right', ox + round((x + w) * s))
+        poner('Layout', f'custom_{nombre}_bottom', oy + round((y + h) * s))
     with open(cfg, 'w', encoding='utf-8') as f:
         ini.write(f, space_around_delimiters=False)
     return exe
@@ -469,10 +505,40 @@ def randomizar(j, opciones, avanzado, reglas=None):
     j['random'] = {'avanzado': avanzado, 'opciones': opciones, 'fecha': time.strftime('%Y-%m-%d %H:%M')}
 
 
+def citra_responde():
+    """Hay una ventana visible de citra-qt que no está colgada («No responde»)."""
+    import ctypes.wintypes as wt
+    u, k32, pid, vista = ctypes.windll.user32, ctypes.windll.kernel32, wt.DWORD(), []
+
+    def mirar(h, _):
+        if u.IsWindowVisible(h) and not u.IsHungAppWindow(h):
+            u.GetWindowThreadProcessId(h, ctypes.byref(pid))
+            p = k32.OpenProcess(0x1000, False, pid.value)          # PROCESS_QUERY_LIMITED_INFORMATION
+            if p:
+                ruta, n = ctypes.create_unicode_buffer(1024), wt.DWORD(1024)
+                if k32.QueryFullProcessImageNameW(p, 0, ruta, ctypes.byref(n)) and ruta.value.lower().endswith('citra-qt.exe'):
+                    vista.append(h)
+                k32.CloseHandle(p)
+        return True
+    u.EnumWindows(ctypes.WINFUNCTYPE(wt.BOOL, wt.HWND, wt.LPARAM)(mirar), 0)
+    return bool(vista)
+
+
+def cerrar_citra_colgado():
+    """Un Citra que se quedó de antes (colgado, o de un Pokelocke que se cerró) no deja abrir otro: se cierra.
+    Si el juego está abierto y responde, no se toca."""
+    if jugando() and citra_responde():
+        raise RuntimeError('Ya hay un juego abierto')
+    if os.name == 'nt':
+        subprocess.run(['taskkill', '/F', '/T', '/IM', 'citra-qt.exe', '/IM', 'azahar.exe'],
+                       stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, creationflags=0x08000000)
+    vivo['proceso'] = None
+
+
 def lanzar(j):
     """Pone el mod del juego (o ninguno), abre Azahar a pantalla completa y la capa del layout encima."""
-    if jugando():
-        raise RuntimeError('Ya hay un juego abierto')
+    print(time.strftime('%H:%M:%S'), 'abrir el juego', j['id'], flush=True)
+    cerrar_citra_colgado()
     if not Path(j['ruta']).exists():
         raise RuntimeError(f'No encuentro la ROM: {j["ruta"]}')
     exe = configurar_azahar()
@@ -486,6 +552,7 @@ def lanzar(j):
     if j.get('random') and mod.exists():
         shutil.copytree(mod, mods, dirs_exist_ok=True)
     vivo.update(activo=j['id'], equipo=[None] * 6, conectado=False, combate_visto_desde=None)
+    vivo['lanzado'] = time.time()
     vivo['proceso'] = subprocess.Popen([str(exe), '-f', rom_jugable(j)])
     if completa:
         avisar('¡Randomización completa! · Ahora los rivales sacan cualquier evolución y cualquier ataque', 25)
@@ -552,7 +619,7 @@ def curado_en_centro(antes, ahora):
 def seguimiento():
     rpc = juego.RPC()
     while True:
-        if jugando():
+        if citra_listo():
             try:
                 equipo = juego.leer_equipo(rpc)
                 with lock:
@@ -660,7 +727,7 @@ def normas_mega():
     while True:
         time.sleep(0.25)
         with lock:
-            j = next((x for x in biblio['juegos'] if x['id'] == vivo['activo']), None) if jugando() else None
+            j = next((x for x in biblio['juegos'] if x['id'] == vivo['activo']), None) if citra_listo() else None
             if j and j.get('reglas') != 'mega':
                 j = None
             if not j:
@@ -805,6 +872,8 @@ def avisar(texto, segundos=4):
 
 def usar_vial():
     """E: si el vial está cargado, cura a todo el equipo vivo y se gasta hasta el próximo Centro Pokémon."""
+    if not citra_listo():
+        return
     with lock:
         j = buscar(vivo['activo'])
         if not j.get('vial', True):
@@ -840,22 +909,31 @@ def huella_capa():
 
 def renderizar_capa():
     """Pinta /overlay?capa=1 a la resolución del monitor con el navegador sin ventana."""
-    nav = navegador()
+    nav, ff = navegador(), None
     if not nav:
-        return
+        ff = firefox()
+        if not ff:
+            return
     s, _, _ = encaje()
     CAPA_PNG.parent.mkdir(exist_ok=True)
     tmp = TOOLS / 'capa-nueva.png'
     tmp.unlink(missing_ok=True)
-    # sin capturar la salida: Edge deja procesos hijos con la tubería abierta y esperar a que la cierren
-    # podía dejar colgado el pintor para siempre (la capa se quedaba con el equipo de ese momento). Pero el
-    # msedge.exe que se lanza le pasa el trabajo a un hijo y sale enseguida: hay que esperar a que la captura
-    # aparezca y deje de crecer, con un límite
-    subprocess.run([nav, '--headless=new', '--disable-gpu', '--hide-scrollbars',
-                    f'--user-data-dir={TOOLS / "edge-capa"}', f'--force-device-scale-factor={s}',
-                    f'--window-size={round(1920 * s)},{round(1080 * s)}', '--virtual-time-budget=4000',
-                    f'--screenshot={tmp}', f'{URL}/overlay?capa=1'],
-                   stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, creationflags=0x08000000, timeout=60)
+    if ff:
+        # Firefox sin ventana: el zoom va en el perfil y la foto se hace al cargar (el estado viene ya en la página)
+        perfil = perfil_firefox('firefox-capa', {'layout.css.devPixelsPerPx': str(s)})
+        subprocess.run([ff, '-headless', '-no-remote', '-profile', perfil, '--window-size=1920,1080',
+                        '--screenshot', str(tmp), f'{URL}/overlay?capa=1'],
+                       stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, creationflags=0x08000000, timeout=60)
+    else:
+        # sin capturar la salida: Edge deja procesos hijos con la tubería abierta y esperar a que la cierren
+        # podía dejar colgado el pintor para siempre (la capa se quedaba con el equipo de ese momento). Pero el
+        # msedge.exe que se lanza le pasa el trabajo a un hijo y sale enseguida: hay que esperar a que la captura
+        # aparezca y deje de crecer, con un límite
+        subprocess.run([nav, '--headless=new', '--disable-gpu', '--hide-scrollbars',
+                        f'--user-data-dir={TOOLS / "edge-capa"}', f'--force-device-scale-factor={s}',
+                        f'--window-size={round(1920 * s)},{round(1080 * s)}', '--virtual-time-budget=4000',
+                        f'--screenshot={tmp}', f'{URL}/overlay?capa=1'],
+                       stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, creationflags=0x08000000, timeout=60)
     tam, limite = -1, time.time() + 20
     while time.time() < limite:
         ahora = tmp.stat().st_size if tmp.exists() else 0
@@ -916,6 +994,7 @@ def foto_estado():
             'capa': vivo['capa'], 'encaje': encaje() if os.name == 'nt' else (1, 0, 0),
             'avanzado': (DATOS / 'avanzado.rnqs').exists(),
             'online': online_estado(),
+            'firma': biblio.get('firma'),
         }
 
 
@@ -941,6 +1020,45 @@ def arte(especie):
     return f
 
 
+MESES = ('enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre',
+         'noviembre', 'diciembre')
+
+
+def firmar():
+    """La primera vez que se juega, el contrato queda firmado con el usuario (el de la sesión online o, sin
+    conexión, el de Windows) y la fecha de ese momento. Después ya no cambia."""
+    with lock:
+        if not biblio.get('firma'):
+            nombre = (red['sesion'] or {}).get('usuario') or os.environ.get('USERNAME') or 'Entrenador'
+            biblio['firma'] = {'nombre': nombre, 'fecha': time.strftime('%Y-%m-%d')}
+            guardar()
+        return biblio['firma']
+
+
+def contrato_html():
+    """normas/normas.html con sus imágenes servidas por la app y, si ya se ha firmado, los huecos rellenos."""
+    html = (NORMAS / 'normas.html').read_text(encoding='utf-8')
+    html = html.replace('src="../assets/', 'src="/assets/').replace('src="img/', 'src="/docs/img/')
+    f = biblio.get('firma')
+    if not f:
+        return html
+    nombre = f['nombre'].replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;')
+    a, m, d = (int(x) for x in f['fecha'].split('-'))
+    html = html.replace(
+        '<span class="hueco corto"></span> de <span class="hueco"></span> de 20<span class="hueco corto"></span>',
+        f'<b class="relleno">{d}</b> de <b class="relleno">{MESES[m - 1]}</b> de <b class="relleno">{a}</b>', 1)
+    html = html.replace('el entrenador o entrenadora <span class="hueco largo"></span>',
+                        f'el entrenador o entrenadora <b class="relleno">{nombre}</b>', 1)
+    html = html.replace('<div class="firma"><div class="linea"></div><b>El Entrenador</b><small>Nombre y firma</small></div>',
+                        f'<div class="firma"><div class="linea"><span class="rubrica">{nombre}</span></div>'
+                        f'<b>El Entrenador</b><small>{nombre}</small></div>', 1)
+    estilo = ('<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600&family=Great+Vibes&display=swap" rel="stylesheet">'
+              '<style>.relleno { font: 600 15pt Caveat, cursive; color: #1d3a8a; padding: 0 1.5mm; }'
+              '.firma .linea { display: flex; align-items: flex-end; justify-content: center; }'
+              '.rubrica { font: 32pt "Great Vibes", cursive; color: #1d3a8a; line-height: 1; transform: rotate(-4deg); }</style>')
+    return html.replace('</head>', estilo + '</head>', 1)
+
+
 def elegir_rom():
     """Explorador de archivos de Windows para elegir la ROM."""
     resultado = []
@@ -964,7 +1082,8 @@ def elegir_rom():
 # ---------- servidor ----------
 
 TIPOS = {'.html': 'text/html; charset=utf-8', '.png': 'image/png', '.jpg': 'image/jpeg',
-         '.jpeg': 'image/jpeg', '.webp': 'image/webp', '.js': 'text/javascript', '.css': 'text/css'}
+         '.jpeg': 'image/jpeg', '.webp': 'image/webp', '.js': 'text/javascript', '.css': 'text/css',
+         '.pdf': 'application/pdf', '.mp4': 'video/mp4'}
 
 
 class Servidor(BaseHTTPRequestHandler):
@@ -985,12 +1104,48 @@ class Servidor(BaseHTTPRequestHandler):
             return self.enviar({'error': 'no existe'}, codigo=404)
         self.enviar(f.read_bytes(), TIPOS.get(f.suffix.lower(), 'application/octet-stream'))
 
+    def por_trozos(self, f):
+        """Un archivo grande (el vídeo) con Range: así el reproductor puede adelantar y no se lee entero."""
+        if not f.is_file():
+            return self.enviar({'error': 'no existe'}, codigo=404)
+        tam = f.stat().st_size
+        m = re.fullmatch(r'bytes=(\d*)-(\d*)', self.headers.get('Range') or '')
+        ini, fin = 0, tam - 1
+        if m and (m[1] or m[2]):
+            ini, fin = (int(m[1]), int(m[2] or tam - 1)) if m[1] else (tam - int(m[2]), tam - 1)
+            fin = min(fin, tam - 1)
+        self.send_response(206 if m else 200)
+        self.send_header('Content-Type', TIPOS.get(f.suffix.lower(), 'application/octet-stream'))
+        self.send_header('Accept-Ranges', 'bytes')
+        self.send_header('Content-Length', str(fin - ini + 1))
+        if m:
+            self.send_header('Content-Range', f'bytes {ini}-{fin}/{tam}')
+        self.end_headers()
+        with open(f, 'rb') as a:
+            a.seek(ini)
+            quedan = fin - ini + 1
+            try:
+                while quedan > 0:
+                    trozo = a.read(min(quedan, 1 << 20))
+                    if not trozo:
+                        break
+                    self.wfile.write(trozo)
+                    quedan -= len(trozo)
+            except (ConnectionAbortedError, ConnectionResetError, BrokenPipeError):
+                pass                                  # el reproductor corta la petición al adelantar
+
     def do_GET(self):
         ruta = self.path.split('?')[0]
         if ruta == '/':
             return self.archivo(WEB / 'app.html')
         if ruta == '/overlay':
-            return self.archivo(WEB / 'overlay.html')
+            if 'capa=' not in self.path:
+                return self.archivo(WEB / 'overlay.html')
+            # la capa: el estado va ya dentro, porque Firefox sin ventana hace la foto en cuanto carga
+            estado = json.dumps(foto_estado(), ensure_ascii=False).replace('</', '<\\/')
+            html = (WEB / 'overlay.html').read_text(encoding='utf-8')
+            return self.enviar(html.replace('</head>', f'<script>window.ESTADO = {estado};</script></head>', 1).encode(),
+                               'text/html; charset=utf-8')
         if ruta == '/capa.png':
             return self.archivo(CAPA_PNG)
         if ruta == '/api/estado':
@@ -1002,6 +1157,15 @@ class Servidor(BaseHTTPRequestHandler):
                 return self.enviar({'error': 'sin arte'}, codigo=404)
         if m := re.fullmatch(r'/assets/([\w.-]+)', ruta):
             return self.archivo(ASSETS / m[1])
+        # opciones: vídeo de normas, guía y contrato (firmado si ya se ha jugado)
+        if ruta == '/docs/video':
+            return self.por_trozos(VIDEO)
+        if ruta == '/docs/guia':
+            return self.archivo(GUIA_PDF)
+        if ruta == '/docs/contrato':
+            return self.enviar(contrato_html().encode(), 'text/html; charset=utf-8')
+        if m := re.fullmatch(r'/docs/img/([\w.-]+)', ruta):
+            return self.archivo(NORMAS / 'img' / m[1])
         self.enviar({'error': 'no existe'}, codigo=404)
 
     def do_POST(self):
@@ -1014,6 +1178,8 @@ class Servidor(BaseHTTPRequestHandler):
             self.enviar({'error': str(e)}, codigo=400)
 
     def accion(self, ruta, d):
+        if ruta == '/api/firmar':
+            return {'firma': firmar()}
         if ruta == '/api/anadir':
             rom = elegir_rom()
             if not rom:
@@ -1405,6 +1571,12 @@ def abrir_ventana_app():
     if nav:
         subprocess.Popen([nav, f'--app={url}', f'--user-data-dir={TOOLS / "edge-perfil"}',
                           '--window-size=1280,820', '--no-first-run'])
+    elif ff := firefox():
+        # Firefox no tiene modo app: perfil propio con la barra de título de Windows y sin pestañas ni barra de direcciones
+        perfil = perfil_firefox('firefox-perfil', {'toolkit.legacyUserProfileCustomizations.stylesheets': True,
+                                                   'browser.tabs.inTitlebar': 0},
+                                '#TabsToolbar, #nav-bar, #PersonalToolbar { visibility: collapse !important; }\n')
+        subprocess.Popen([ff, '-profile', perfil, '-width', '1280', '-height', '820', url])
     else:
         import webbrowser
         webbrowser.open(url)
@@ -1464,6 +1636,17 @@ def main():
     if '--capa' in sys.argv:
         return capa()
     RAIZ.mkdir(parents=True, exist_ok=True)
+    if getattr(sys, 'frozen', False):
+        # el .exe no tiene consola: los errores van a pokelocke.log (y el de la vez anterior a pokelocke.old.log)
+        log = RAIZ / 'pokelocke.log'
+        try:
+            log.replace(RAIZ / 'pokelocke.old.log')
+        except OSError:
+            pass
+        sys.stdout = sys.stderr = open(log, 'a', encoding='utf-8', buffering=1)
+        import faulthandler
+        faulthandler.enable(sys.stderr)                    # también si Python se cae de golpe
+        print(time.strftime('%Y-%m-%d %H:%M:%S'), 'Pokelocke abierto', flush=True)
     if PAQUETE:
         instalar()
     for carpeta in (TOOLS, DATOS, FANART):
