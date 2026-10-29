@@ -2,13 +2,30 @@
 Cada plano dura lo que se tarda en decir su frase (unas 2,6 palabras por segundo).
     PYTHONPATH=<carpeta con imageio_ffmpeg> python3 montar_previa.py   ->  previa.mp4
 """
+import os
 import subprocess
 import tempfile
 import textwrap
 from pathlib import Path
 
-import imageio_ffmpeg
 from PIL import Image, ImageChops, ImageDraw, ImageFont
+
+
+def ffmpeg():
+    """El de imageio_ffmpeg si está; si no, el de Krita (en Windows es el único que hay)."""
+    try:
+        import imageio_ffmpeg
+        return imageio_ffmpeg.get_ffmpeg_exe()
+    except ImportError:
+        return os.environ.get('FFMPEG') or r'C:\Program Files\Krita (x64)\bin\ffmpeg.exe'
+
+
+def codec_video():
+    """libx264 si el ffmpeg lo trae; el de Krita no, y ahí h264_qsv (Intel) da más calidad que libopenh264."""
+    r = subprocess.run([ffmpeg(), '-hide_banner', '-encoders'], capture_output=True, text=True).stdout
+    if ' libx264 ' in r:
+        return ['-c:v', 'libx264', '-crf', '20']
+    return ['-c:v', 'h264_qsv', '-global_quality', '20']
 
 AQUI = Path(__file__).resolve().parent
 ARCE = AQUI.parent.parent / 'CREDITOS' / 'firefly'
@@ -76,7 +93,9 @@ def arce(pose):
     return _arces[pose]
 
 
-FUENTE = ImageFont.truetype('/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf', 34)
+FUENTE = ImageFont.truetype(next(f for f in ('/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf',
+                                            r'C:\Windows\Fonts\DejaVuSans-Bold.ttf', r'C:\Windows\Fonts\arialbd.ttf')
+                                   if Path(f).exists()), 34)
 
 
 def plano(lamina, pose, texto):
@@ -94,11 +113,12 @@ def plano(lamina, pose, texto):
     return lienzo.convert('RGB')
 
 
-def montar():
+def montar(duraciones=None, salida=None):
+    """duraciones: segundos de cada plano (montar_con_voz.py los saca de los audios); sin ellas, por palabras."""
     tmp = Path(tempfile.mkdtemp())
     lista, n, total = [], 0, 0.0
-    for lamina, pose, texto in PLANOS:
-        dura = max(2.5, len(texto.split()) / PALABRAS_POR_SEGUNDO)
+    for i, (lamina, pose, texto) in enumerate(PLANOS):
+        dura = duraciones[i] if duraciones else max(2.5, len(texto.split()) / PALABRAS_POR_SEGUNDO)
         tramos = [(pose, dura)]
         if pose in PARPADEOS:                       # parpadeo cada 3,5 s dentro del plano
             tramos, t = [], 0.0
@@ -109,16 +129,17 @@ def montar():
         for p, s in tramos:
             f = tmp / f'{n:04d}.png'
             plano(lamina, p, texto).save(f)
-            lista.append(f"file '{f}'\nduration {s:.3f}")
+            lista.append(f"file '{f.as_posix()}'\nduration {s:.3f}")
             n += 1
         total += dura
-    lista.append(f"file '{tmp / f'{n - 1:04d}.png'}'")    # el concat necesita repetir el último
+    lista.append(f"file '{(tmp / f'{n - 1:04d}.png').as_posix()}'")    # el concat necesita repetir el último
     (tmp / 'lista.txt').write_text('\n'.join(lista))
-    salida = AQUI / 'previa.mp4'
-    subprocess.run([imageio_ffmpeg.get_ffmpeg_exe(), '-y', '-loglevel', 'error', '-f', 'concat', '-safe', '0',
-                    '-i', str(tmp / 'lista.txt'), '-vf', 'fps=25,format=yuv420p', '-c:v', 'libx264', '-crf', '20',
+    salida = salida or AQUI / 'previa.mp4'
+    subprocess.run([ffmpeg(), '-y', '-loglevel', 'error', '-f', 'concat', '-safe', '0',
+                    '-i', str(tmp / 'lista.txt'), '-vf', 'fps=25,format=nv12' if 'h264_qsv' in codec_video() else 'fps=25,format=yuv420p', *codec_video(),
                     str(salida)], check=True)
     print(f'{salida} · {len(PLANOS)} planos · {total / 60:.1f} min')
+    return salida
 
 
 if __name__ == '__main__':
