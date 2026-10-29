@@ -1,0 +1,104 @@
+MEGA POKELOCKE Y · CONTEXTO PARA RETOMAR EL TRABAJO
+====================================================
+Escrito el 29/10/2026. La app (lanzador, overlay, lectura de memoria) está en README.md; aquí va
+todo lo que hay ALREDEDOR de la app: la guía, el contrato de normas y el vídeo de normas.
+
+
+0. REGLAS DE TRABAJO
+--------------------
+- No abrir el emulador ni la app en el PC de David: se comprueba leyendo código y datos. Él prueba.
+- No se instala nada en el PC. Para scripts sueltos en WSL: Python del sistema, Chrome de WSL
+  (google-chrome --headless), PyMuPDF (fitz) y Pillow. ffmpeg NO está: el montaje usa imageio-ffmpeg
+  instalado con  pip install --target <carpeta temporal> imageio-ffmpeg  y PYTHONPATH a esa carpeta.
+- Push: desde WSL no hay credenciales. Usar  ~/scoop/apps/git/current/cmd/git.exe  (también para
+  git status, que con el git de WSL tarda minutos en este repo).
+- Todo en castellano. Nombres de Kalos en su versión española (Luminalia, Lino, Ciprés, Lysson…).
+
+
+1. LAS NORMAS MEGA (de dónde salen)
+-----------------------------------
+La fuente de verdad es el código:
+- app/web/app.html, MODOS.mega: resumen de la randomización y lista de normas.
+- app/main.py: normas_mega() (una captura por zona, shiny libre, esconder Poké Balls en zona gastada),
+  vidas (25, un Pokémon a 0 PS cuenta una vez; perdonados hasta acabar el combate con Shauna),
+  vial (tecla E, una carga, se recarga en el Centro), caja de huevos (30, 2 shiny, 1 cada 2 medallas),
+  10000 Caramelos Raros (rellenos hasta 999), aviso del torneo con la 4.ª medalla, niveles_tope().
+- app/MegaFases.java: fase fácil hasta la 2.ª medalla; combates importantes con equipo de 6 (relleno
+  al nivel del más bajo, el as al final); los encuentros fijos (p. ej. el Snorlax de la Ruta 7) se
+  randomizan del todo y la fase fácil NO los toca.
+- Entrenadores +15 % de nivel (trainersLevelModifier 15). Tipos, estadísticas y evoluciones sin cambios.
+
+Normas que NO aplica la app (solo están en el contrato, decididas por David el 29/10/2026):
+- Nivel tope = as del próximo líder con el +15 %.
+- Ni legendarios ni singulares se capturan.
+- El Pokémon de evento de la Ruta 7 (Snorlax) no se captura: la app no lo distingue de la ruta
+  (lo contaría como captura o escondería las Balls). El administrador pone un huevo en el PC.
+- Un mes en total: 2 semanas hasta la 4.ª medalla, 2 semanas hasta pasar la Liga.
+- Con la 4.ª medalla se deja de avanzar; solo se prepara el equipo en lo ya recorrido.
+- Dos torneos entre jugadores: intermedio (tras la 4.ª) y final (tras la Liga), a poder ser los
+  sábados cada dos semanas. Decide el final. Cruces por sorteo, siempre al mejor de 3. Si son
+  impares, los perdedores de la 1.ª ronda juegan a una partida y el ganador va contra el que no jugó.
+- Premios del intermedio: 1.º Cápsula Habilidad + menta a elegir + huevo; 2.º huevo + menta;
+  3.º menta; resto nada.
+- Se gana pasando la Liga con vidas Y ganando el torneo final.
+- Corregir vidas (F7/F8) a favor propio sin motivo es trampa.
+- La Organización es David Martínez Palacios.
+
+Si cambia una norma, hay que tocar: normas/normas.html, video/GUION.md, las láminas afectadas
+(video/construir_laminas.py) y, si afecta a niveles, guia/construir_guia.py.
+
+
+2. GUÍA DE JUEGO  (guia/)
+-------------------------
+- Guia-Mega-Pokelocke-Y.pdf, 24 páginas A4. Portada (logo sobre fondo oscuro), índice con enlaces,
+  tabla de tipos de 6.ª gen y 9 bloques en orden de historia, cada uno hasta un gimnasio (el 9.º,
+  la Liga), con su medalla y su nivel tope (14 · 29 · 37 · 39 · 43 · 48 · 55 · 68 · 78).
+- Cada zona: «Qué hacer» y una carta por entrenador (sprite de Pokémon Showdown, clase traducida,
+  niveles ya con +15 %, rojo si pasa del tope, borde rojo si es combate importante, «Equipo de 6»).
+- Los equipos son aleatorios, así que no se ponen especies: solo número de Pokémon y niveles.
+- Datos: entrenadores_serebii.json (sacado de Serebii Pokéarth). Se quitan los de después de la Liga.
+- Regenerar:  python3 guia/construir_guia.py   (plantilla.html es el diseño; guia.html sale y se ignora).
+- Pendiente de revisar: traducciones de clases hechas a mano; admins Flare (Aliana, Celosia, Bryony,
+  Mable) en inglés; el «Equipo de 6» de los admins no está comprobado en la ROM.
+
+
+3. CONTRATO DE NORMAS  (normas/)
+--------------------------------
+- Normas-Mega-Pokelocke-Y.pdf, 7 páginas. Misma portada que la guía. Estilo contrato: membrete,
+  lugar y fecha para rellenar, REUNIDOS / EXPONEN / CLÁUSULAS (14), firmas del Entrenador y de la
+  Organización con sello de lacre, y 3 anexos (randomización, calendario, teclas).
+- La tabla de premios lleva dibujos: img/capsula-habilidad.png y img/menta.png (Serebii) y un huevo SVG.
+- David pidió quitar los huecos y firmar él solo, y luego dijo «estaba bien como estaba antes»:
+  se queda con huecos y las dos firmas, rellenando solo el nombre de la Organización.
+- Regenerar: el comando de Chrome está en el comentario de la primera línea de normas.html.
+
+
+4. VÍDEO DE NORMAS  (video/)
+----------------------------
+Saldrá al pulsar Jugar (aún NO está metido en la app). Lo presenta la profesora Arce de
+Pokémon Ostinato (adulta, seca, práctica, con guasa; ver OSTINATO-biblia.md).
+- GUION.md: 12 escenas, unos 6 minutos, con cara de Arce y lo que sale en pantalla.
+- imagenes/: 30 láminas 1920×1080 (una por cada «En pantalla»). Tercio izquierdo libre para Arce,
+  panel a la derecha. Regenerar:  python3 video/construir_laminas.py
+  (recursos/ = arte de PokeAPI y objetos de Serebii; laminas.html sale y se ignora).
+- montar_previa.py: montaje sin voz (láminas + Arce recortada + parpadeos + subtítulos), 35 planos,
+  5,5 min, a 2,6 palabras/s. Sale previa.mp4 (ignorado).
+- Pendiente: grabar la voz y ajustar la duración de cada plano a la grabación; meter el vídeo en
+  la app al pulsar Jugar la primera vez.
+
+
+5. IMÁGENES DE ARCE  (../CREDITOS/firefly/)
+-------------------------------------------
+Hechas con Gemini Nano Banana 2 editando SIEMPRE la misma base (no generando de cero):
+- arce_estilo.png: el dibujo original (caras/arce_normal.png) recortado con margen.
+- arce_limpia_v1.png → arce_base.png: entintado limpio; se quitó un objeto que parecía una pistola.
+- Poses (sobre arce_base): saluda, explica, senala, brazos_cruzados, alto, dos_dedos, pulgar,
+  mano_pecho, ensena, despedida.
+- Caras (pose + arce_caras.png): base_guino, base_rie, brazos_cruzados_seria, alto_seria,
+  pulgar_guino, mano_pecho_rie, despedida_guino. Parpadeos: base, explica, senala.
+- Lo que funcionó con Nano Banana: describir el brazo por partes (hombro, manga, codo, antebrazo,
+  mano) y pedir la mano «del mismo tamaño que la otra»; evitar escorzos hacia cámara y poses de dos
+  manos juntas; nombrar las manos como «la de la cintura» y «la de la Poké Ball», no derecha/izquierda.
+- La cara de la base ya NO coincide con las capas cara_*.png: los gestos se sacan con prompts.
+- Fondo blanco: para recortar, rellenar el blanco conectado a los bordes (como montar_previa.py),
+  no croma por color (la camisa es blanca).
