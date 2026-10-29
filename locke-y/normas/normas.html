@@ -1,0 +1,340 @@
+<!doctype html>
+<!-- PDF: google-chrome --headless=new --no-pdf-header-footer --virtual-time-budget=15000
+     --print-to-pdf=Normas-Mega-Pokelocke-Y.pdf normas.html -->
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Contrato Mega Pokelocke Y</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600&family=Nunito:wght@400;700&family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&family=EB+Garamond:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+  :root { --rojo: #c8102e; --rojo-osc: #7a0a1c; --noche: #1b1820; --tinta: #2a2426; --suave: #75696b; --linea: #e3d6cf; }
+  @page { size: A4; margin: 18mm 20mm 20mm; }
+  @page :first { margin: 0; }
+  * { box-sizing: border-box; }
+  html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  body { margin: 0; font: 400 11.2pt/1.55 'EB Garamond', serif; color: var(--tinta); background: #fff; }
+  h1, h2, h3 { margin: 0; font-weight: 600; }
+
+  /* portada: la misma que la guía */
+  .portada { height: 297mm; display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 10mm; background: radial-gradient(circle at 50% 42%, #3a1420 0, var(--noche) 62%); color: #fff;
+    page-break-after: always; text-align: center; font-family: Nunito, sans-serif; }
+  .portada img { width: 140mm; filter: drop-shadow(0 6mm 10mm rgba(0,0,0,.5)); }
+  .portada h1 { font: 600 34pt Fredoka, sans-serif; letter-spacing: .5pt; }
+  .portada p { margin: 0; color: #d9cfd6; font-size: 12pt; }
+  .portada .raya { width: 30mm; height: 1.2mm; border-radius: 1mm; background: var(--rojo); }
+
+  /* encabezado del contrato */
+  .membrete { text-align: center; padding-bottom: 6mm; margin-bottom: 7mm; border-bottom: 3px double var(--rojo-osc); }
+  .membrete .exp { font: 600 8.5pt Nunito, sans-serif; letter-spacing: 2.5pt; text-transform: uppercase; color: var(--suave); }
+  .membrete h2 { font: 700 25pt/1.1 'Cormorant Garamond', serif; color: var(--rojo-osc); margin: 2mm 0 1mm; letter-spacing: .5pt; }
+  .membrete .ref { font-style: italic; color: var(--suave); }
+
+  .lugar { text-align: right; font-style: italic; margin-bottom: 6mm; }
+  .hueco { display: inline-block; min-width: 38mm; border-bottom: 1px solid var(--tinta); }
+  .hueco.corto { min-width: 14mm; }
+  .hueco.largo { min-width: 80mm; }
+
+  .apartado { font: 700 13pt 'Cormorant Garamond', serif; letter-spacing: 4pt; text-align: center;
+    color: var(--rojo-osc); margin: 7mm 0 4mm; display: flex; align-items: center; gap: 4mm; break-after: avoid; }
+  .apartado::before, .apartado::after { content: ''; flex: 1; height: 1px; background: var(--linea); }
+  p { margin: 0 0 3mm; text-align: justify; hyphens: auto; }
+  .exponen p { padding-left: 9mm; text-indent: -9mm; }
+  .exponen .num { display: inline-block; width: 9mm; text-indent: 0; color: var(--rojo-osc); }
+
+  .clausula { margin-bottom: 3.5mm; break-inside: avoid; }
+  .clausula h3 { font: 700 13pt 'Cormorant Garamond', serif; color: var(--tinta); margin-bottom: 1mm; break-after: avoid; }
+  .clausula h3 span { color: var(--rojo); font-variant: small-caps; letter-spacing: .5pt; margin-right: 1.5mm; }
+  .clausula ol { margin: 0 0 2mm; padding-left: 7mm; }
+  .clausula li { margin-bottom: 1mm; text-align: justify; }
+  .clausula li::marker { color: var(--rojo-osc); font-weight: 600; }
+  .nota { font-size: 9.5pt; color: var(--suave); font-style: italic; }
+  .tecla { font: 700 8.5pt Nunito, sans-serif; border: 1px solid #bfb2ac; border-bottom-width: 2px; border-radius: 1.2mm;
+    padding: 0 1.4mm; background: #faf6f3; }
+
+  .tabla { width: 100%; border-collapse: collapse; margin: 2mm 0 4mm; font-size: 10.5pt; }
+  .tabla th { font: 700 8pt Nunito, sans-serif; letter-spacing: 1pt; text-transform: uppercase; color: var(--rojo-osc);
+    text-align: left; border-bottom: 1.5px solid var(--rojo-osc); padding: 1.5mm 2mm; }
+  .tabla td { border-bottom: 1px solid var(--linea); padding: 1.6mm 2mm; vertical-align: top; }
+  .tabla td:first-child { white-space: nowrap; font-weight: 600; }
+
+  /* firmas y sello */
+  .firmas { display: grid; grid-template-columns: 1fr 1fr; gap: 16mm; margin-top: 14mm; break-inside: avoid; position: relative; }
+  .firma { text-align: center; }
+  .firma .linea { height: 22mm; border-bottom: 1px solid var(--tinta); }
+  .firma b { display: block; margin-top: 1.5mm; font: 700 11pt 'Cormorant Garamond', serif; letter-spacing: 1.5pt; text-transform: uppercase; }
+  .firma small { color: var(--suave); font-style: italic; }
+  .sello { position: absolute; left: 50%; top: 2mm; transform: translateX(-50%) rotate(-12deg); width: 30mm; height: 30mm; }
+  .bloque-firma, .cierre { break-inside: avoid; }
+
+  .premios td { vertical-align: middle; padding: 1.5mm 2mm; }
+  .fila-premios { display: flex; gap: 5mm; align-items: flex-end; }
+  .premio { display: flex; flex-direction: column; align-items: center; gap: 1mm; width: 24mm; text-align: center;
+    font: 700 7.5pt/1.2 Nunito, sans-serif; color: var(--suave); }
+  .premio img, .premio svg { width: 11mm; height: 11mm; object-fit: contain; }
+  .medallero { display: inline-grid; place-items: center; min-width: 11mm; height: 11mm; border-radius: 50%; padding: 0 1.5mm;
+    font: 700 10pt 'Cormorant Garamond', serif; background: #efe9e6; color: var(--tinta); }
+  .medallero.oro { background: linear-gradient(135deg, #f7d774, #c9962b); color: #4a3205; }
+  .medallero.plata { background: linear-gradient(135deg, #eef0f3, #a9aeb6); color: #33373d; }
+  .medallero.bronce { background: linear-gradient(135deg, #f0b98a, #a8622e); color: #3d1f08; }
+  .nada { font-style: italic; color: var(--suave); }
+  .anexo { page-break-before: always; }
+  .pie { margin-top: 4mm; font: 400 8pt Nunito, sans-serif; color: var(--suave); text-align: center; }
+</style>
+</head>
+<body>
+
+<section class="portada">
+  <img src="../assets/logo.png" alt="Mega Pokelocke Y">
+  <div class="raya"></div>
+  <h1>Contrato de normas</h1>
+  <p>Lo que se firma antes de salir de Pueblo Boceto</p>
+</section>
+
+<header class="membrete">
+  <div class="exp">Liga de Kalos · Expediente Mega Pokelocke Y</div>
+  <h2>Contrato de participación<br>en el Mega Pokelocke Y</h2>
+  <div class="ref">Pokémon Y · Normas Mega · 25 vidas</div>
+</header>
+
+<p class="lugar">En Pueblo Boceto (Kalos), a <span class="hueco corto"></span> de <span class="hueco"></span> de 20<span class="hueco corto"></span></p>
+
+<div class="apartado">REUNIDOS</div>
+<p>De una parte, el entrenador o entrenadora <span class="hueco largo"></span>, en adelante <b>el Entrenador</b>,
+que juega con su propia partida de Pokémon Y en la app Pokelocke.</p>
+<p>Y de otra parte, <b>la Organización del Mega Pokelocke</b>, que vela por el cumplimiento de estas normas
+y que se reserva el derecho a reírse de cada vida perdida.</p>
+<p>Ambas partes se reconocen la capacidad necesaria para obligarse y, a tal efecto,</p>
+
+<div class="apartado">EXPONEN</div>
+<div class="exponen">
+  <p><b class="num">I.</b> Que el Entrenador desea recorrer la región de Kalos de principio a fin, desde Pueblo Boceto hasta
+  derrotar a la Campeona Dianta, con un juego randomizado según las <b>Normas Mega</b> descritas en el Anexo I, y
+  ganar después el torneo final contra el resto de jugadores.</p>
+  <p><b class="num">II.</b> Que la app Pokelocke lleva la cuenta de vidas, capturas y medallas leyendo el juego, y que lo que
+  marca la app es lo que vale, salvo error evidente que la Organización corregirá.</p>
+  <p><b class="num">III.</b> Que ambas partes acuerdan regirse por las siguientes</p>
+</div>
+
+<div class="apartado">CLÁUSULAS</div>
+
+<div class="clausula">
+  <h3><span>Primera.</span> Objeto</h3>
+  <p>El presente contrato regula la partida del Entrenador en el Mega Pokelocke Y: cómo se capturan Pokémon,
+  cómo se pierden vidas, qué ayudas tiene a lo largo del camino y cómo se juegan los torneos.</p>
+</div>
+
+<div class="clausula">
+  <h3><span>Segunda.</span> Las vidas</h3>
+  <ol>
+    <li>El Entrenador empieza con <b>25 vidas</b>. Este número no se puede cambiar.</li>
+    <li>Cada Pokémon que llega a <b>0 PS</b> resta una vida. Cuenta <b>una sola vez</b>, aunque luego se reviva.</li>
+    <li>Hasta que termine el <b>primer combate contra un entrenador</b> (el de Shauna en Pueblo Acuarela), las muertes
+    no cuentan. Los Pokémon que se debiliten antes quedan perdonados.</li>
+    <li>Si las vidas llegan a <b>cero</b>, el Entrenador ha perdido el Mega Pokelocke.</li>
+  </ol>
+</div>
+
+<div class="clausula">
+  <h3><span>Tercera.</span> Las capturas</h3>
+  <ol>
+    <li>Solo se puede capturar <b>un Pokémon por ruta</b> (o zona). La primera captura en una zona la deja gastada.</li>
+    <li>Los Pokémon <b>shiny</b> no cuentan: se pueden capturar siempre y no gastan la zona.</li>
+    <li>Los Pokémon <b>legendarios y singulares no se pueden capturar</b> (Mewtwo, Mew, Xerneas, Yveltal, Zygarde,
+    Diancie y compañía), ni salvajes ni en encuentros fijos. Si sale uno, hay que derrotarlo o huir.</li>
+    <li>El <b>Pokémon de evento de la Ruta 7</b> (el Snorlax dormido del juego original) <b>no se captura</b>: la app no
+    puede distinguirlo de los Pokémon de la ruta, así que lo contaría como la captura de la Ruta 7 o le escondería las
+    Poké Balls. Al llegar a él, el Entrenador avisa al <b>administrador</b> de la Organización, que le pondrá
+    <b>un huevo en el PC</b> para compensarlo.</li>
+    <li>En una zona gastada, la app esconde las Poké Balls durante el combate y las devuelve al acabar. Si el
+    salvaje es shiny, se dejan.</li>
+  </ol>
+</div>
+
+<div class="clausula">
+  <h3><span>Cuarta.</span> La dificultad que sube</h3>
+  <ol>
+    <li>Hasta la <b>2.ª medalla</b> se juega la <b>fase fácil</b>: entrenadores y salvajes solo llevan Pokémon que aún
+    pueden evolucionar, los rivales usan ataques de 70 de potencia o menos y las MT son de menos de 70.</li>
+    <li>Al ganar la 2.ª medalla, el Entrenador <b>guarda y reinicia el juego</b> para abrir la randomización completa.
+    La app se lo recuerda hasta que lo haga.</li>
+    <li>Los combates importantes (rivales, amigos, líderes, Alto Mando, Campeona, Lysson y los villanos con nombre)
+    llevan un <b>equipo de seis</b>, con el as al final.</li>
+    <li>Los entrenadores tienen un <b>15 % más de nivel</b> que en el juego original.</li>
+  </ol>
+</div>
+
+<div class="clausula">
+  <h3><span>Quinta.</span> El nivel tope</h3>
+  <p>Ningún Pokémon del equipo puede superar el <b>nivel tope</b>: el del Pokémon más alto del próximo líder,
+  con el +15 % incluido. La app y la Guía de juego indican el tope de cada tramo.</p>
+</div>
+
+<div class="clausula">
+  <h3><span>Sexta.</span> Duración y plazos</h3>
+  <ol>
+    <li>El Mega Pokelocke dura <b>un mes en total</b>, salvo imprevistos.</li>
+    <li>Hay <b>dos semanas</b> para llegar a la <b>4.ª medalla</b> (Amaro, Ciudad Témpera) y <b>otras dos semanas</b>
+    para pasarse la <b>Liga Pokémon</b>.</li>
+    <li>Al conseguir la 4.ª medalla, el Entrenador <b>deja de avanzar</b>: no puede seguir la historia, entrar en zonas
+    nuevas ni retar al siguiente gimnasio hasta que se celebre el torneo intermedio.</li>
+    <li>Mientras tanto <b>sí puede preparar su equipo</b> en las zonas que ya ha recorrido: entrenar, cambiar
+    Pokémon, movimientos y objetos, siempre respetando el nivel tope y el resto de cláusulas.</li>
+  </ol>
+</div>
+
+<div class="clausula">
+  <h3><span>Séptima.</span> Los torneos</h3>
+  <ol>
+    <li>Se juegan <b>dos torneos</b> de combates entre jugadores: el <b>intermedio</b>, tras la 4.ª medalla, y el
+    <b>final</b>, tras la Liga Pokémon.</li>
+    <li>A poder ser, los combates se juegan los <b>sábados, cada dos semanas</b>.</li>
+    <li>El torneo que decide al ganador es <b>el final</b>. El intermedio sirve para comprobar el nivel de cada uno y
+    mejorar la forma de plantear los equipos.</li>
+    <li>Todos los enfrentamientos se deciden por <b>sorteo</b>.</li>
+    <li>Los enfrentamientos son siempre <b>al mejor de tres</b>.</li>
+    <li>Si el número de jugadores es <b>impar</b>, en la primera ronda los perdedores se enfrentan entre sí <b>a una
+    sola partida</b>, y quien gane juega contra el jugador que no haya combatido en la primera ronda.</li>
+  </ol>
+</div>
+
+<div class="clausula">
+  <h3><span>Octava.</span> Premios del torneo intermedio</h3>
+  <table class="tabla premios">
+    <tr><th>Puesto</th><th>Premio</th></tr>
+    <tr><td><span class="medallero oro">1.º</span></td><td><div class="fila-premios"><div class="premio"><img src="img/capsula-habilidad.png" alt=""><span>Cápsula Habilidad</span></div><div class="premio"><img src="img/menta.png" alt=""><span>Menta a su elección</span></div><div class="premio"><svg viewBox="0 0 40 48"><path d="M20 3C11 3 4 18 4 29a16 16 0 0 0 32 0C36 18 29 3 20 3Z" fill="#f6f0dc" stroke="#2f2f35" stroke-width="2.4"/><ellipse cx="13" cy="24" rx="4.5" ry="5.5" fill="#7fbf5a"/><ellipse cx="26" cy="15" rx="3.5" ry="4" fill="#7fbf5a"/><ellipse cx="27" cy="33" rx="5" ry="4.5" fill="#7fbf5a"/><ellipse cx="15" cy="38" rx="3" ry="2.5" fill="#7fbf5a"/><path d="M11 12c2-4 5-6 8-6" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" opacity=".9"/></svg><span>Huevo aleatorio</span></div></div></td></tr>
+    <tr><td><span class="medallero plata">2.º</span></td><td><div class="fila-premios"><div class="premio"><svg viewBox="0 0 40 48"><path d="M20 3C11 3 4 18 4 29a16 16 0 0 0 32 0C36 18 29 3 20 3Z" fill="#f6f0dc" stroke="#2f2f35" stroke-width="2.4"/><ellipse cx="13" cy="24" rx="4.5" ry="5.5" fill="#7fbf5a"/><ellipse cx="26" cy="15" rx="3.5" ry="4" fill="#7fbf5a"/><ellipse cx="27" cy="33" rx="5" ry="4.5" fill="#7fbf5a"/><ellipse cx="15" cy="38" rx="3" ry="2.5" fill="#7fbf5a"/><path d="M11 12c2-4 5-6 8-6" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" opacity=".9"/></svg><span>Huevo</span></div><div class="premio"><img src="img/menta.png" alt=""><span>Menta</span></div></div></td></tr>
+    <tr><td><span class="medallero bronce">3.º</span></td><td><div class="fila-premios"><div class="premio"><img src="img/menta.png" alt=""><span>Menta</span></div></div></td></tr>
+    <tr><td><span class="medallero">Resto</span></td><td><div class="fila-premios"><span class="nada">Nada</span></div></td></tr>
+  </table>
+</div>
+
+<div class="clausula">
+  <h3><span>Novena.</span> Cómo se gana el Mega Pokelocke</h3>
+  <p>Para ganar el Mega Pokelocke, el Entrenador debe <b>pasarse la Liga Pokémon con vidas</b> y <b>ganar el torneo
+  final</b> contra el resto de jugadores.</p>
+</div>
+
+<div class="clausula">
+  <h3><span>Décima.</span> El vial</h3>
+  <ol>
+    <li>El vial cura a todo el equipo vivo: PS, estado y PP. <b>No revive</b> a los debilitados.</li>
+    <li>Tiene <b>una sola carga</b> y se usa con la tecla <span class="tecla">E</span>, <b>solo fuera de combate</b>.</li>
+    <li>Se recarga solo cada vez que el equipo se cura en un <b>Centro Pokémon</b>.</li>
+  </ol>
+</div>
+
+<div class="clausula">
+  <h3><span>Undécima.</span> Los Caramelos Raros</h3>
+  <p>El Entrenador dispone de <b>10 000 Caramelos Raros</b>. Se rellenan solos hasta 999 en la mochila cada vez
+  que abre el juego, hasta agotar los 10 000. Su uso está sujeto a la cláusula quinta.</p>
+</div>
+
+<div class="clausula">
+  <h3><span>Duodécima.</span> La caja de huevos</h3>
+  <ol>
+    <li>Al empezar se sortea una caja de <b>30 huevos</b> de especies al azar, <b>2 de ellos shiny</b>.</li>
+    <li>El Entrenador coge <b>un huevo cada 2 medallas</b>. Si el huevo que coge es shiny, puede coger otro más.</li>
+    <li>Los huevos se cogen desde la biblioteca de la app <b>con el juego cerrado</b>.</li>
+  </ol>
+</div>
+
+<div class="clausula">
+  <h3><span>Decimotercera.</span> Correcciones</h3>
+  <p>Si la app se equivoca al contar, el Entrenador lo corrige en el momento con <span class="tecla">F7</span>
+  (quita una vida) y <span class="tecla">F8</span> (añade una), siempre a la vista del stream.
+  Corregir a favor propio sin motivo se considera trampa y la Organización puede anular la partida.</p>
+</div>
+
+<div class="cierre">
+<div class="clausula">
+  <h3><span>Decimocuarta.</span> Aceptación</h3>
+  <p>Con su firma, el Entrenador declara haber leído y aceptado todas las cláusulas y los anexos, y se compromete
+  a jugar limpio, a no reiniciar para salvar a un Pokémon y a llorar cada vida perdida en directo.</p>
+</div>
+
+<div class="bloque-firma">
+  <p>Y en prueba de conformidad, ambas partes firman el presente contrato en el lugar y fecha arriba indicados.</p>
+  <div class="firmas">
+    <div class="firma"><div class="linea"></div><b>El Entrenador</b><small>Nombre y firma</small></div>
+    <div class="firma"><div class="linea"></div><b>La Organización</b><small>Mega Pokelocke Y</small></div>
+    <svg class="sello" viewBox="0 0 100 100" aria-hidden="true">
+      <defs><radialGradient id="cera" cx="40%" cy="35%"><stop offset="0" stop-color="#e2384f"/><stop offset="1" stop-color="#7a0a1c"/></radialGradient>
+        <path id="arco" d="M50 50 m-31 0 a31 31 0 1 1 62 0 a31 31 0 1 1 -62 0"/></defs>
+      <path d="M50 3 C60 6 66 2 74 9 C82 15 90 18 92 30 C95 40 99 46 95 58 C92 70 94 78 84 86 C74 94 66 96 52 97 C40 98 30 96 21 88 C11 80 5 72 4 60 C2 48 3 38 9 28 C16 16 22 10 34 6 C42 3 44 1 50 3Z" fill="url(#cera)"/>
+      <circle cx="50" cy="50" r="36" fill="none" stroke="#f6c9d0" stroke-opacity=".55" stroke-width="1.2"/>
+      <text font-family="Cormorant Garamond" font-weight="700" font-size="8.4" letter-spacing="1.6" fill="#fde7ea" fill-opacity=".85"><textPath href="#arco">MEGA POKELOCKE · KALOS ·</textPath></text>
+      <text x="50" y="62" text-anchor="middle" font-family="Cormorant Garamond" font-weight="700" font-size="36" fill="#fde7ea" fill-opacity=".9">Y</text>
+    </svg>
+  </div>
+</div>
+</div>
+
+<section class="anexo">
+  <header class="membrete">
+    <div class="exp">Anexo I</div>
+    <h2>Condiciones de la randomización</h2>
+    <div class="ref">Lo que cambia y lo que no en la partida</div>
+  </header>
+  <table class="tabla">
+    <tr><th>Elemento</th><th>Condición</th></tr>
+    <tr><td>Pokémon salvajes</td><td>Aleatorios en cada encuentro, de cualquier tipo.</td></tr>
+    <tr><td>Iniciales</td><td>Aleatorios, siempre con dos evoluciones.</td></tr>
+    <tr><td>Legendarios y regalos</td><td>Totalmente aleatorios. Ni legendarios ni singulares se pueden capturar (cláusula tercera).</td></tr>
+    <tr><td>Entrenadores</td><td>Equipos aleatorios y un 15 % más de nivel. Combates importantes con equipo de seis.</td></tr>
+    <tr><td>Movimientos</td><td>Aleatorios.</td></tr>
+    <tr><td>Habilidades</td><td>Aleatorias.</td></tr>
+    <tr><td>Objetos del suelo</td><td>Aleatorios.</td></tr>
+    <tr><td>Intercambios del juego</td><td>Lo que te dan es aleatorio.</td></tr>
+    <tr><td>Estadísticas base</td><td>Sin cambios.</td></tr>
+    <tr><td>Tipos</td><td>Sin cambios: la tabla de tipos de la Guía vale tal cual.</td></tr>
+    <tr><td>Evoluciones</td><td>Sin cambios.</td></tr>
+    <tr><td>Facilidad de captura</td><td>Normal.</td></tr>
+  </table>
+
+</section>
+
+<section class="anexo">
+  <header class="membrete">
+    <div class="exp">Anexo II</div>
+    <h2>Calendario</h2>
+    <div class="ref">Un mes de Mega Pokelocke, salvo imprevistos</div>
+  </header>
+  <table class="tabla">
+    <tr><th>Cuándo</th><th>Qué toca</th></tr>
+    <tr><td>Semanas 1 y 2</td><td>De Pueblo Boceto a la 4.ª medalla. Al conseguirla, se para y se prepara el equipo.</td></tr>
+    <tr><td>Sábado</td><td>Torneo intermedio: comprobar el nivel y repartir premios.</td></tr>
+    <tr><td>Semanas 3 y 4</td><td>De la 4.ª medalla a la Liga Pokémon, que hay que pasarse con vidas.</td></tr>
+    <tr><td>Sábado</td><td>Torneo final: decide quién gana el Mega Pokelocke.</td></tr>
+  </table>
+
+  <table class="tabla" style="margin-top:4mm">
+    <tr><th>Medalla</th><th>Líder</th><th>Qué ocurre</th></tr>
+    <tr><td>1.ª</td><td>Violeta</td><td>—</td></tr>
+    <tr><td>2.ª</td><td>Lino</td><td>Fin de la fase fácil: guarda y reinicia el juego. Primer huevo.</td></tr>
+    <tr><td>3.ª</td><td>Corelia</td><td>—</td></tr>
+    <tr><td>4.ª</td><td>Amaro</td><td>Fin de la primera parte: se deja de avanzar y solo se prepara el equipo hasta el torneo intermedio. Segundo huevo.</td></tr>
+    <tr><td>5.ª</td><td>Lem</td><td>—</td></tr>
+    <tr><td>6.ª</td><td>Valeria</td><td>Tercer huevo.</td></tr>
+    <tr><td>7.ª</td><td>Ástrid</td><td>—</td></tr>
+    <tr><td>8.ª</td><td>Édel</td><td>Cuarto huevo. Camino de la Liga.</td></tr>
+  </table>
+
+  <header class="membrete" style="margin-top:5mm">
+    <div class="exp">Anexo III</div>
+    <h2>Teclas durante la partida</h2>
+    <div class="ref">Solo funcionan con un juego abierto</div>
+  </header>
+  <table class="tabla">
+    <tr><th>Tecla</th><th>Qué hace</th></tr>
+    <tr><td><span class="tecla">E</span></td><td>Usa el vial (con la ventana del juego delante y fuera de combate).</td></tr>
+    <tr><td><span class="tecla">F7</span></td><td>Quita una vida.</td></tr>
+    <tr><td><span class="tecla">F8</span></td><td>Añade una vida.</td></tr>
+  </table>
+  <p class="pie">Pokémon y sus nombres © Nintendo / Game Freak / The Pokémon Company. Documento sin ánimo de lucro
+  para jugar entre amigos.</p>
+</section>
+
+</body>
+</html>
