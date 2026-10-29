@@ -1035,10 +1035,34 @@ def firmar():
         return biblio['firma']
 
 
+# normas.html está hecho para imprimir en A4 (los márgenes van en @page, que en pantalla no existe): en la app
+# se ve como una hoja con márgenes, la portada más baja y, en el hueco estrecho de Opciones, sin justificar
+CONTRATO_PANTALLA = '''<style>
+@media screen {
+  html { background: #ece6e2; }
+  body { max-width: 210mm; margin: 0 auto; padding: 14mm 16mm 18mm; background: #fff; box-shadow: 0 2mm 8mm rgba(0,0,0,.12); }
+  .portada { height: auto; padding: 16mm 8mm; margin: -14mm -16mm 12mm; gap: 6mm; }
+  .portada img { width: min(110mm, 80%); }
+  .portada h1 { font-size: 26pt; }
+  .anexo { margin-top: 12mm; padding-top: 8mm; border-top: 1px dashed var(--linea); }
+}
+@media screen and (max-width: 640px) {
+  body { padding: 7mm 6mm 10mm; font-size: 10.5pt; }
+  .portada { margin: -7mm -6mm 8mm; }
+  p, .clausula li { text-align: left; hyphens: manual; }
+  .lugar { text-align: left; }
+  .hueco { min-width: 24mm; } .hueco.largo { min-width: 40mm; }
+  .firmas { gap: 6mm; } .sello { width: 22mm; height: 22mm; }
+  .tabla td:first-child { white-space: normal; }
+}
+</style>'''
+
+
 def contrato_html():
     """normas/normas.html con sus imágenes servidas por la app y, si ya se ha firmado, los huecos rellenos."""
     html = (NORMAS / 'normas.html').read_text(encoding='utf-8')
     html = html.replace('src="../assets/', 'src="/assets/').replace('src="img/', 'src="/docs/img/')
+    html = html.replace('</head>', CONTRATO_PANTALLA + '</head>', 1)
     f = biblio.get('firma')
     if not f:
         return html
