@@ -65,6 +65,7 @@ def online_estado():
     s = comun.red['sesion']
     return {'sesion': s and {'usuario': s['usuario'], 'admin': s['admin']}, 'conectados': comun.red['conectados'],
             'error': comun.red['error'], 'servidor': bool(comun.red['servidor']), 'upnp': comun.red['upnp'], 'ip': comun.red['ip'],
+            'sala': bool(comun.red['servidor']) and comun.red['servidor'].sala_viva(),
             'direccion': online_config().get('direccion'), 'version': comun.VERSION_APP, 'actualizacion': comun.red.get('actualizacion')}
 
 

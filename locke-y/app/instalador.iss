@@ -53,3 +53,13 @@ Name: "{autodesktop}\Pokelocke"; Filename: "{app}\Pokelocke.exe"; Tasks: escrito
 Filename: "{app}\Pokelocke.exe"; Description: "Abrir Pokelocke"; Flags: nowait postinstall skipifsilent
 ; la actualización desde la app es silenciosa: al acabar, Pokelocke se vuelve a abrir solo
 Filename: "{app}\Pokelocke.exe"; Flags: nowait; Check: WizardSilent
+
+[Code]
+// la sala no tiene ventana y puede seguir abierta sin Pokelocke: hay que cerrarla para poder cambiar sus archivos
+function PrepareToInstall(var NeedsRestart: Boolean): String;
+var
+  Codigo: Integer;
+begin
+  Exec(ExpandConstant('{sys}\taskkill.exe'), '/F /IM citra-room.exe', '', SW_HIDE, ewWaitUntilTerminated, Codigo);
+  Result := '';
+end;

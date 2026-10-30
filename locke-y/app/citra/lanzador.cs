@@ -123,11 +123,15 @@ static class Lanzador {
     var resto = args.Where(a => a != "-f").Select(a => "\"" + a + "\"");
     var citra = Process.Start(new ProcessStartInfo(Path.Combine(aqui, "citra-qt.exe"), string.Join(" ", resto)) { UseShellExecute = false, WorkingDirectory = aqui });
     bool atajo = RegisterHotKey(IntPtr.Zero, 1, MOD_ALT | MOD_NOREPEAT, (uint)'Q');
-    bool ventana = false; IntPtr juego = IntPtr.Zero;
+    bool ventana = false; IntPtr juego = IntPtr.Zero; int vista = 0;
     while (!citra.WaitForExit(100)) {
-      if (juego == IntPtr.Zero) {                       // espera a que salga la ventana del juego
-        juego = VentanaJuego(citra);
-        if (juego != IntPtr.Zero) { Thread.Sleep(300); SinBordes(juego); }
+      // espera a que salga la ventana del juego y a que Citra acabe de arrancar en ella: cambiarle el estilo
+      // y el tamano mientras crea el contexto de OpenGL lo tira (0xc0000005 en citra-qt.exe+0x165ae7)
+      if (juego == IntPtr.Zero) {
+        IntPtr v = VentanaJuego(citra);
+        if (v == IntPtr.Zero) vista = 0;
+        else if (vista == 0) vista = Environment.TickCount;
+        else if (Environment.TickCount - vista > 6000) { juego = v; SinBordes(juego); }
       }
       MSG m;
       while (PeekMessage(out m, IntPtr.Zero, 0, 0, 1)) {

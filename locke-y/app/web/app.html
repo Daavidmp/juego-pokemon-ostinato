@@ -1593,6 +1593,7 @@ function pintarNotas(o) {
       <dt>Apodo</dt><dd>${s ? esc(s.usuario) : 'tu usuario'}</dd>
       <dt>Contraseña</dt><dd>vacía</dd>
     </dl>
+    ${o.servidor && !o.sala ? '<p class="aviso-hex"><b>La sala no está en marcha.</b> Se vuelve a abrir sola; si esto no se quita en medio minuto, apaga y enciende el servidor.</p>' : ''}
     ${o.servidor && o.direccion ? `<p class="aviso-hex">Eres el servidor: tú pones 127.0.0.1. Los demás ponen <b>${esc(o.direccion)}</b>.</p>` : ''}
     <ol>
       <li><b>Alt+Q</b> para sacar el juego a una ventana y <b>Alt+Tab</b> a la ventana principal de Citra.</li>

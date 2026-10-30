@@ -248,8 +248,9 @@ class Servidor:
     MAX_CUENTAS, ESPERA_REGISTRO = 64, 60
 
     def registrar(self, usuario, clave, ip='', anfitrion=''):
-        if not re.fullmatch(r'[A-Za-z0-9_]{3,16}', usuario or ''):
-            raise ValueError('El usuario tiene que tener de 3 a 16 letras, números o _')
+        # el usuario es también el apodo de la sala de Citra, que no deja entrar con menos de 4
+        if not re.fullmatch(r'[A-Za-z0-9_]{4,16}', usuario or ''):
+            raise ValueError('El usuario tiene que tener de 4 a 16 letras, números o _')
         if not isinstance(clave, str) or not 4 <= len(clave) <= 128:
             raise ValueError('La contraseña tiene que tener de 4 a 128 caracteres')
         anfitrion = hmac.compare_digest(str(anfitrion or ''), self.clave_anfitrion)
@@ -285,7 +286,7 @@ class Servidor:
         with self.lock:
             self.sesiones[token] = u['nombre']
         return {'token': token, 'usuario': u['nombre'], 'admin': u['admin'],
-                'sala': {'puerto': PUERTO_SALA, 'clave': self.clave_sala, 'activa': self.sala is not None}}
+                'sala': {'puerto': PUERTO_SALA, 'clave': self.clave_sala, 'activa': self.sala_viva()}}
 
     def _usuario(self, token):
         u = self.sesiones.get(token or '')
@@ -531,11 +532,27 @@ class Servidor:
         for s in (self.http, self.https):
             threading.Thread(target=s.serve_forever, daemon=True).start()
         if self.citra_room and Path(self.citra_room).exists():
-            self.sala = subprocess.Popen([str(self.citra_room), '--room-name', 'Pokelocke', '--port', str(PUERTO_SALA),
-                                          '--max_members', '16',
-                                          '--preferred-game', 'Pokemon Y', '--preferred-game-id', '0004000000055E00',
-                                          '--room-description', 'Sala de Pokelocke'],
-                                         creationflags=0x08000000)
+            # si Pokelocke se cerró de golpe, la sala de antes sigue viva con el puerto cogido y la nueva no podría abrirlo
+            subprocess.run(['taskkill', '/F', '/IM', Path(self.citra_room).name], capture_output=True, creationflags=0x08000000)
+            self._abrir_sala()
+            threading.Thread(target=self._vigilar_sala, daemon=True).start()
+
+    def _abrir_sala(self):
+        self.sala = subprocess.Popen([str(self.citra_room), '--room-name', 'Pokelocke', '--port', str(PUERTO_SALA),
+                                      '--max_members', '16',
+                                      '--preferred-game', 'Pokemon Y', '--preferred-game-id', '0004000000055E00',
+                                      '--room-description', 'Sala de Pokelocke'],
+                                     creationflags=0x08000000)
+
+    def sala_viva(self):
+        return self.sala is not None and self.sala.poll() is None
+
+    def _vigilar_sala(self):
+        """Si la sala se cae se abre otra; mientras no vuelva, sala_viva() lo dice y la ventana lo avisa."""
+        while self.sala is not None:
+            time.sleep(10)
+            if self.sala is not None and not self.sala_viva():
+                self._abrir_sala()
 
     def parar(self):
         for nombre in ('http', 'https'):
@@ -544,9 +561,9 @@ class Servidor:
                 s.shutdown()
                 s.server_close()
                 setattr(self, nombre, None)
-        if self.sala:
-            self.sala.terminate()
-            self.sala = None
+        sala, self.sala = self.sala, None
+        if sala:
+            sala.terminate()
 
 
 # ---------- el cliente (en todos los Pokelocke) ----------

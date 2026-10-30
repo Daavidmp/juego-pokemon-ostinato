@@ -4,6 +4,8 @@
 import http.client
 import json
 import shutil
+import subprocess
+import sys
 import tempfile
 import threading
 import time
@@ -149,6 +151,16 @@ try:
     ver(False, 'un registro por IP y minuto')
 except ValueError:
     ver(True, 'un registro por IP y minuto')
+try:
+    o.registrar('Ana', 'clave3', '3.3.3.3')
+    ver(False, 'un usuario de 3 letras no podría entrar en la sala de Citra')
+except ValueError:
+    ver(True, 'un usuario de 3 letras no podría entrar en la sala de Citra')
+ver(not o.sala_viva(), 'sin citra-room, la sala no sale como activa')
+o.sala = subprocess.Popen([sys.executable, '-c', 'pass'])
+o.sala.wait()
+ver(not o.sala_viva(), 'una sala que se ha caído no sale como activa')
+o.sala = None
 amigo = o.entrar('Amigo', 'clave2', '2.2.2.2')['token']
 try:
     o.pedir_log(amigo, 'Daavidmp')

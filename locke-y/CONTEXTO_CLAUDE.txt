@@ -29,6 +29,14 @@ NO jugando. En el PC anfitrión, en este orden:
    [ ] después de la 4.ª medalla, un rival/líder lleva de último un Pokémon con Megapiedra y MEGAEVOLUCIONA
    [ ] cerrar el juego -> «Copias de la partida» tiene la copia; restaurar una
    [ ] encender el servidor; otro PC entra (https), torneo de 3 (repesca), «Registro» de un jugador
+   [ ] sala de Citra (dos PCs con la versión nueva): David entra con 127.0.0.1 y el otro con la dirección de
+       duckdns, y se ven en el chat
+   [ ] sala: combate por PSS entero hasta el final, e intercambio
+   [ ] sala: el layout sigue bien, Alt+Q funciona y las vidas se siguen leyendo durante el combate online
+   [ ] sala: apagar y encender el servidor; vuelve y no queda ningún citra-room colgado
+   [ ] sala: actualizar con la sala encendida (el instalador la cierra)
+   [ ] abrir «Conectar a una sala» mientras el juego carga: citra_listo() cuenta 2 ventanas de citra-qt y podría
+       tomarla por la del juego y mandar RPC antes de tiempo (el cierre de Citra de siempre)
    [ ] subir la versión (otro empaquetar.py) y que los demás vean «Nueva versión» y se actualicen solos
    [ ] modo ligero en un PC flojo
    Los errores inesperados salen con un código E-XXXX: buscarlo en pokelocke.log (o «Registro» del jugador).
