@@ -85,13 +85,36 @@ vivo = {'equipo': [None] * 6, 'conectado': False, 'tarea': None, 'activo': None,
 # ---------- biblioteca y lockes ----------
 
 def guardar():
+    """Se escribe en un archivo aparte y se cambia de golpe: si el PC se apaga a mitad, biblioteca.json sigue entero
+    (antes se quedaba a medias y se perdía el locke). El que había pasa a biblioteca.bak.json."""
     DATOS.mkdir(exist_ok=True)
-    BIBLIOTECA.write_text(json.dumps(biblio, indent=2, ensure_ascii=False), encoding='utf-8')
+    tmp = BIBLIOTECA.with_suffix('.tmp')
+    with open(tmp, 'w', encoding='utf-8') as f:
+        json.dump(biblio, f, indent=2, ensure_ascii=False)
+        f.flush()
+        os.fsync(f.fileno())
+    if BIBLIOTECA.exists():
+        try:
+            BIBLIOTECA.replace(BIBLIOTECA.with_suffix('.bak.json'))
+        except OSError:
+            pass
+    tmp.replace(BIBLIOTECA)
 
 
 def cargar():
-    if BIBLIOTECA.exists():
-        biblio.update(json.loads(BIBLIOTECA.read_text(encoding='utf-8')))
+    """La biblioteca; si está rota, la copia anterior (y la rota se guarda aparte para mirarla)."""
+    for f in (BIBLIOTECA, BIBLIOTECA.with_suffix('.bak.json')):
+        if not f.exists():
+            continue
+        try:
+            biblio.update(json.loads(f.read_text(encoding='utf-8')))
+        except (OSError, ValueError):
+            print(time.strftime('%Y-%m-%d %H:%M:%S'), f'{f.name} está roto: se prueba la copia anterior', flush=True)
+            continue
+        if f != BIBLIOTECA:
+            BIBLIOTECA.replace(BIBLIOTECA.with_suffix(f'.rota-{time.strftime("%Y%m%d_%H%M%S")}.json'))
+            guardar()
+        return
 
 
 def buscar(id_juego):

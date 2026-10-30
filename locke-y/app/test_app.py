@@ -26,6 +26,7 @@ main.DATOS = tmp / 'datos'
 (main.DATOS / 'juegos' / 'abc123').mkdir(parents=True)
 fuera = tmp / 'NO_BORRAR.txt'
 fuera.write_text('partidas')
+guardar_de_verdad = main.guardar
 main.guardar = lambda: None
 main.biblio['juegos'] = [{'id': 'abc123', 'nombre': 'Y', 'ruta': 'x', 'medallas': [False] * 8, 'preparado': True,
                           'huevos': [{'cogido': False, 'shiny': False, 'especie': 1}] * 30}]
@@ -110,6 +111,21 @@ ver(copiados.count(raiz_mod) == 1 and (main.carpeta_mods() / '0004000000055E00' 
 main.poner_mod(j)
 ver(copiados.count(raiz_mod) == 2, 'si cambia (la fase completa), se vuelve a copiar')
 main.shutil.copytree = copytree
+
+# ---------- la biblioteca no se pierde aunque se rompa al escribirla ----------
+print('Biblioteca')
+main.guardar = guardar_de_verdad
+main.BIBLIOTECA = tmp / 'bib' / 'biblioteca.json'
+main.DATOS = main.BIBLIOTECA.parent
+main.biblio.clear(); main.biblio.update({'juegos': [{'id': 'uno', 'muertos': [1, 2]}]})
+main.guardar()
+main.biblio['juegos'][0]['muertos'].append(3)
+main.guardar()
+main.BIBLIOTECA.write_text('{"juegos": [{"id": "uno", "mue')          # se cortó la luz a mitad
+main.biblio.clear(); main.biblio['juegos'] = []
+main.cargar()
+ver(main.biblio['juegos'] and main.biblio['juegos'][0]['muertos'] == [1, 2], 'una biblioteca a medias se recupera de la copia anterior')
+ver(any(f.name.startswith('biblioteca.rota-') for f in main.DATOS.iterdir()), 'y la rota se guarda aparte para mirarla')
 
 # ---------- servidor online ----------
 print('Servidor online')
