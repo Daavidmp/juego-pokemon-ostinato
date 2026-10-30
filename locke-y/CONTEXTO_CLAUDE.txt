@@ -208,7 +208,7 @@ prueba se parchea en el módulo donde vive (emulador.jugando, comun.DATOS…).
   Alto Mando, Campeona, torneo final. PUNTOS son px de la imagen: si se cambia la isla, hay que recolocarlas.
 - Avanza al guardar: guardado.tablero(j) lee del archivo de la partida las medallas (byte 0x420C) y el equipo,
   y solo relee si cambia el archivo. PENDIENTE: leer Alto Mando y Campeona de la partida (ahora no avanzan).
-- Música: assets/musica.mp3 (Suno, «Cozy Game Night») con botón de volumen/silencio en la cabecera; se para al
+- Música: assets/musica.mp3 (Suno, «Journey of Discovery») con botón de volumen/silencio en la cabecera; se para al
   jugar. Edge se abre con --autoplay-policy=no-user-gesture-required.
 - «Versión 1.0.0» es solo el texto del pie; las actualizaciones siguen comparando el número por fecha de empaquetar.py.
 
