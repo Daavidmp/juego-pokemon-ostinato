@@ -845,7 +845,8 @@ function pintarModal(t) {
   }
   Object.assign(carga, {minimo: t.minimo || 0, paso: t.paso, fin: t.fin, error: t.error, mensaje: t.mensaje});
   $('modal-carga').classList.remove('oculto');
-  $('g-titulo').textContent = t.error ? 'No se ha podido preparar' : 'Preparando tu aventura';
+  $('g-titulo').textContent = t.titulo || (t.error ? 'No se ha podido preparar' : 'Preparando tu aventura');
+  $('b-error-volver').textContent = t.desconectado ? 'Reintentar' : 'Volver';
   $('g-error').classList.toggle('oculto', !t.error);
   $('b-error-volver').classList.toggle('oculto', !t.error);
   document.querySelector('.carga').classList.toggle('oculto', !!t.error);
@@ -1203,11 +1204,24 @@ function pintar(e) {
   pintarBiblioteca(e);
 }
 
+// un fallo suelto (Pokelocke ocupado un momento) no es que se haya cerrado: el aviso sale tras 5 s seguidos sin
+// respuesta y se quita solo en cuanto vuelve a contestar
+let fallos = 0;
+const SIN_RESPUESTA = {error: true, desconectado: true, titulo: 'Pokelocke no responde', transcurrido: 0,
+  mensaje: 'Si lo has cerrado, vuelve a abrirlo desde el menú Inicio. Si no, espera un momento: en cuanto vuelva a responder, este aviso se quita solo.'};
 async function actualizar() {
-  try { pintar(await (await fetch('/api/estado')).json()); }
-  catch (err) {
-    pintarModal({error: true, mensaje: 'Pokelocke está cerrado. Vuelve a abrir Pokelocke.exe.', transcurrido: 0});
+  let e;
+  try {
+    const r = await fetch('/api/estado');
+    if (!r.ok) throw new Error(`HTTP ${r.status}`);
+    e = await r.json();
+  } catch (err) {
+    if (++fallos >= 5) pintarModal(SIN_RESPUESTA);
+    return;
   }
+  if (fallos >= 5) cerrarModal();
+  fallos = 0;
+  pintar(e);
 }
 
 // ---------- opciones: vídeo de normas, guía y contrato ----------
@@ -1286,7 +1300,12 @@ $('b-continuar').onclick = () => {
     opciones: modo === 'personalizado' ? opcionesFormulario() : (MODOS[modo].opciones || {}),
   });
 };
-$('b-error-volver').onclick = () => { errorVisto = ultimo && ultimo.tarea ? ultimo.tarea.mensaje : null; actualizar(); };
+$('b-error-volver').onclick = () => {
+  if (fallos >= 5) { $('b-error-volver').textContent = 'Reintentando…'; return actualizar(); }   // sin respuesta: volver a preguntar
+  errorVisto = ultimo && ultimo.tarea ? ultimo.tarea.mensaje : null;
+  cerrarModal();
+  actualizar();
+};
 
 // ---------- PokéHex ----------
 const hex = {abierto: false, token: null, nombres: null, admitidos: null, balls: null, equipo: [], mochila: null, cajas: [],

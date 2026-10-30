@@ -1216,6 +1216,19 @@ class Servidor(BaseHTTPRequestHandler):
                 pass                                  # el reproductor corta la petición al adelantar
 
     def do_GET(self):
+        # un error al contestar no puede dejar la petición sin respuesta: la ventana lo tomaba por Pokelocke cerrado
+        try:
+            self.responder_get()
+        except (ConnectionAbortedError, ConnectionResetError, BrokenPipeError):
+            pass
+        except Exception:
+            traceback.print_exc()
+            try:
+                self.enviar({'error': 'error interno'}, codigo=500)
+            except OSError:
+                pass
+
+    def responder_get(self):
         ruta = self.path.split('?')[0]
         if ruta == '/':
             return self.archivo(WEB / 'app.html')
@@ -1634,7 +1647,7 @@ def capa():
     GWL_EXSTYLE, WS_EX_NOACTIVATE, WS_EX_TOOLWINDOW = -20, 0x08000000, 0x00000080
     estilo = ctypes.windll.user32.GetWindowLongW(hwnd, GWL_EXSTYLE)
     ctypes.windll.user32.SetWindowLongW(hwnd, GWL_EXSTYLE, estilo | WS_EX_NOACTIVATE | WS_EX_TOOLWINDOW)
-    vista = {'version': -1, 'imagen': None, 'arrancado': time.time(), 'modo': None, 'x': 0}
+    vista = {'version': -1, 'imagen': None, 'arrancado': time.time(), 'modo': None, 'x': 0, 'fallos': 0}
 
     def modo_cartel(segundos):
         if vista['modo'] != 'cartel':
@@ -1669,8 +1682,13 @@ def capa():
         try:
             with urllib.request.urlopen(f'{URL}/api/estado', timeout=2) as r:
                 e = json.load(r)
-        except OSError:
-            return raiz.destroy()
+            vista['fallos'] = 0
+        except (OSError, ValueError):
+            # un fallo suelto no cierra el layout en mitad de la partida: solo si Pokelocke no contesta en 10 s
+            vista['fallos'] += 1
+            if vista['fallos'] >= 10:
+                return raiz.destroy()
+            return raiz.after(1000, refrescar)
         if not e['jugando'] and time.time() - vista['arrancado'] > 15:
             return raiz.destroy()
         if e.get('cargando') is not None:
