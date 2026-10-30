@@ -1549,7 +1549,8 @@ def online_servidor(activar):
     if activar and not red['servidor']:
         exe = azahar_exe()
         sala = next((exe.parent / n for n in ('citra-room.exe', 'azahar-room.exe') if exe and (exe.parent / n).exists()), None)
-        srv = online.Servidor(DATOS / 'servidor', sala)
+        admin = online_config().get('admin') or json.loads((APP / 'online.json').read_text(encoding='utf-8')).get('admin', '')
+        srv = online.Servidor(DATOS / 'servidor', sala, admin)
         srv.arrancar(CLAVE_POKEHEX)
         red['servidor'] = srv
         red['upnp'], red['ip'] = online.abrir_puertos()

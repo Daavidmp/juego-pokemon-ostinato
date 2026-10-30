@@ -5,7 +5,7 @@ PUERTO_SERVIDOR, abre él solo los puertos en el router por UPnP y arranca citra
 (combates e intercambios por «juego inalámbrico» de Pokémon X/Y). Los demás Pokelocke se conectan a la
 dirección de app/online.json, entran con su usuario y mandan un latido cada pocos segundos.
 
-El PokéHex de otro jugador: solo una cuenta de administrador (la que se registra desde el Pokelocke anfitrión) y con la contraseña
+El PokéHex de otro jugador: solo la cuenta de administrador («admin» en app/online.json) y con la contraseña
 del PokéHex. El servidor deja el encargo al Pokelocke de ese jugador, que lo hace en su partida y contesta.
 """
 import hashlib
@@ -173,11 +173,15 @@ def _hash(clave, sal):
 
 
 class Servidor:
-    def __init__(self, carpeta, citra_room=None):
+    def __init__(self, carpeta, citra_room=None, admin=''):
         self.carpeta = Path(carpeta)
         self.carpeta.mkdir(parents=True, exist_ok=True)
         self.f_usuarios = self.carpeta / 'usuarios.json'
         self.usuarios = json.loads(self.f_usuarios.read_text(encoding='utf-8')) if self.f_usuarios.exists() else {}
+        # el administrador es la cuenta con ese nombre, y solo esa (también en las cuentas ya creadas)
+        self.admin = admin.lower()
+        for nombre, u in self.usuarios.items():
+            u['admin'] = nombre.lower() == self.admin
         self.lock = threading.Lock()
         self.sesiones = {}               # token -> usuario
         self.vistos = {}                 # usuario -> (hora, estado)
@@ -186,8 +190,8 @@ class Servidor:
         self.fallos = {}                 # ip -> [horas de intentos fallidos]
         self.registros = {}              # ip -> hora del último registro
         self.clave_sala = secrets.token_hex(6)
-        # solo existe en la memoria del Pokelocke anfitrión: la cuenta que se registra desde él es la de administrador
-        # (antes lo era la primera, y cualquiera que llegara antes al servidor podía quedársela)
+        # solo existe en la memoria del Pokelocke anfitrión: la cuenta del administrador solo se puede crear desde él,
+        # para que en un servidor nuevo nadie se registre antes con ese nombre
         self.clave_anfitrion = secrets.token_hex(16)
         self.citra_room = citra_room
         self.sala = None
@@ -206,10 +210,13 @@ class Servidor:
             raise ValueError('El usuario tiene que tener de 3 a 16 letras, números o _')
         if not isinstance(clave, str) or not 4 <= len(clave) <= 128:
             raise ValueError('La contraseña tiene que tener de 4 a 128 caracteres')
-        admin = hmac.compare_digest(str(anfitrion or ''), self.clave_anfitrion)
+        anfitrion = hmac.compare_digest(str(anfitrion or ''), self.clave_anfitrion)
+        admin = bool(self.admin) and usuario.lower() == self.admin
+        if admin and not anfitrion:
+            raise ValueError('Ese nombre está reservado')
         with self.lock:
             # el servidor da a internet: sin límite, cualquiera podría llenarlo de cuentas
-            if not admin and time.time() - self.registros.get(ip, 0) < self.ESPERA_REGISTRO:
+            if not anfitrion and time.time() - self.registros.get(ip, 0) < self.ESPERA_REGISTRO:
                 raise ValueError('Espera un minuto antes de crear otra cuenta')
             if len(self.usuarios) >= self.MAX_CUENTAS:
                 raise ValueError('El servidor ya tiene el máximo de cuentas')
