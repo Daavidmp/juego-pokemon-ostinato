@@ -346,14 +346,15 @@ class Servidor:
                 pass
 
             def do_GET(self):
-                # /descargar: el Pokelocke.exe del anfitrión, para repartirlo con un comando
-                exe = Path(sys.executable)
-                if self.path.split('?')[0] != '/descargar' or not getattr(sys, 'frozen', False):
+                # /descargar: el instalador del anfitrión (PokelockeSetup.exe junto a su Pokelocke.exe; lo deja
+                # ahí app/empaquetar.py), para repartirlo con un enlace
+                exe = Path(sys.executable).parent / 'PokelockeSetup.exe'
+                if self.path.split('?')[0] != '/descargar' or not exe.exists():
                     self.send_error(404)
                     return
                 self.send_response(200)
                 self.send_header('Content-Type', 'application/octet-stream')
-                self.send_header('Content-Disposition', 'attachment; filename="Pokelocke.exe"')
+                self.send_header('Content-Disposition', 'attachment; filename="PokelockeSetup.exe"')
                 self.send_header('Content-Length', str(exe.stat().st_size))
                 self.end_headers()
                 with open(exe, 'rb') as f:

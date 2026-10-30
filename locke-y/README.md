@@ -83,18 +83,26 @@ Hay una carpeta para cada Pokémon de la Pokédex de Kalos; si tiene varias imá
 por orden alfabético. Admite `.png`, `.jpg` o `.webp`. La carpeta no se sube al repositorio. Usad fanart
 con permiso de sus autores y acreditadlo en el stream.
 
-## Repartir Pokelocke (un solo .exe)
+## Repartir Pokelocke (instalador)
 
-`toolsuild-venv\Scripts\python app\empaquetar.py` crea `tools\dist-unico\Pokelocke.exe`: un solo archivo
-con la app, Citra 1920, la sala online, el randomizador y los fan arts. No lleva la ROM (cada uno elige la
-suya) ni Java (se descarga solo la primera vez). Al abrirse se instala en `%LOCALAPPDATA%\Pokelocke`, donde
-quedan también las partidas; una versión nueva del .exe actualiza los programas sin tocar las partidas.
+`tools\build-venv\Scripts\python app\empaquetar.py` crea `tools\instalador\PokelockeSetup.exe`. Necesita
+Citra 1920 con su lanzador en `tools\azahar\citra-1920` e Inno Setup 6 (`ISCC.exe` en `tools\inno`, en scoop
+como `inno-setup` o instalado).
 
-Con el servidor encendido, cualquiera se lo baja pegando esto en PowerShell:
+- La app va en modo carpeta (PyInstaller `--onedir`): no se descomprime nada al abrirla. El modo de un solo
+  archivo lo sacaba todo a `%TEMP%` en cada arranque (y otra vez al jugar, por la capa): era lento y es lo que
+  más marcan los antivirus.
+- El instalador no pide administrador y deja Pokelocke en `%LOCALAPPDATA%\Pokelocke`, la carpeta de siempre:
+  las partidas (`datos\` y el `user\` de Citra) no van en él, así que actualizar o desinstalar no las toca.
+  Pone accesos directos en Inicio y, si se quiere, en el escritorio.
+- Los .exe llevan editor y versión. Para firmarlos (lo único que quita el aviso de SmartScreen), define
+  `POKELOCKE_FIRMA` con la orden de firma, con `{archivo}` donde va el archivo; por ejemplo
+  `signtool sign /fd sha256 /tr http://timestamp.acs.microsoft.com /td sha256 /a "{archivo}"`.
+- No lleva la ROM (cada uno elige la suya) ni Java (se descarga solo la primera vez).
 
-```
-irm http://pokelocke-david.duckdns.org:8766/descargar -OutFile "$([Environment]::GetFolderPath('Desktop'))\Pokelocke.exe"
-```
+Con el servidor encendido, el anfitrión reparte el instalador en `http://pokelocke-david.duckdns.org:8766/descargar`
+(`empaquetar.py` lo deja junto a su Pokelocke instalado). Mejor como enlace en el navegador que con un comando
+de PowerShell: descargar un .exe desde PowerShell es justo lo que vigilan los antivirus.
 
 ## Carpetas
 

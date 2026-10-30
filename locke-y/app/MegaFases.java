@@ -2,6 +2,7 @@ import com.dabomstew.pkrandom.FileFunctions;
 import com.dabomstew.pkrandom.Randomizer;
 import com.dabomstew.pkrandom.Settings;
 import com.dabomstew.pkrandom.pokemon.Encounter;
+import com.dabomstew.pkrandom.pokemon.MegaEvolution;
 import com.dabomstew.pkrandom.pokemon.EncounterSet;
 import com.dabomstew.pkrandom.pokemon.Move;
 import com.dabomstew.pkrandom.pokemon.MoveLearnt;
@@ -25,7 +26,8 @@ import java.util.Set;
  * Mega Pokelocke: una randomización y dos juegos.
  *   java -cp PokeRandoZX.jar MegaFases.java rom ajustes.rnqs salida_completa salida_facil registro.log
  * 1. Randomiza la ROM con los ajustes, pone 6 Pokémon en los combates importantes (rivales, líderes, villanos
- *    con nombre; el primero contra Shauna se queda con 1) y la guarda en salida_completa.
+ *    con nombre; el primero contra Shauna se queda con 1), y a partir de la 4.ª medalla su último Pokémon es uno
+ *    con megaevolución y su Megapiedra. La guarda en salida_completa.
  * 2. Sobre esa misma randomización aplica la fase fácil (hasta la segunda medalla) y la guarda en salida_facil:
  *    - entrenadores y salvajes solo con Pokémon que aún pueden evolucionar: una evolución final pasa a su
  *      preevolución y uno que no evoluciona (o un legendario) se cambia por uno al azar que sí pueda
@@ -56,6 +58,7 @@ public class MegaFases {
         }
         try {
             combatesImportantes(rh, azar);
+            asMegaTrasCuartaMedalla(rh, azar);
             if (!rh.saveRomDirectory(completa)) {
                 throw new IllegalStateException("No se ha podido guardar la versión completa");
             }
@@ -93,9 +96,7 @@ public class MegaFases {
                 while (t.pokemon.size() > 1) t.pokemon.remove(t.pokemon.size() - 1);
                 continue;
             }
-            boolean importante = t.isBoss() || tag.startsWith("RIVAL") || tag.startsWith("FRIEND")
-                    || VILLANOS_Y_AMIGOS.contains(t.index);
-            if (!importante || t.pokemon.size() >= 6) continue;
+            if (!importante(t) || t.pokemon.size() >= 6) continue;
             int nivel = Integer.MAX_VALUE;                         // los nuevos, al nivel del más bajo: el as
             for (TrainerPokemon tp : t.pokemon) nivel = Math.min(nivel, tp.level);   // sigue siendo el más alto
             while (t.pokemon.size() < 6) {
@@ -111,6 +112,49 @@ public class MegaFases {
         }
         rh.setTrainers(entrenadores, false);
         System.out.println("Combates importantes con 6 Pokémon: " + cambiados);
+    }
+
+    /** Rivales, amigos, líderes, Alto Mando, campeona, Lysandre y los villanos con nombre. */
+    static boolean importante(Trainer t) {
+        String tag = t.tag == null ? "" : t.tag;
+        return t.isBoss() || tag.startsWith("RIVAL") || tag.startsWith("FRIEND") || VILLANOS_Y_AMIGOS.contains(t.index);
+    }
+
+    /** Después de la 4.ª medalla (Amaro), el as de cada combate importante es un Pokémon con megaevolución y lleva su
+     *  Megapiedra. «Después» = algún Pokémon por encima del más alto de Amaro (ya con el +15 %): así entran el rival
+     *  de la Ruta 14, Lem y el resto, y no el rival de Témpera ni el propio Amaro. Se queda el nivel del as. */
+    static void asMegaTrasCuartaMedalla(RomHandler rh, Random azar) {
+        List<Trainer> entrenadores = rh.getTrainers();
+        int tope = 0;
+        for (Trainer t : entrenadores) {
+            if ("GYM4-LEADER".equals(t.tag)) for (TrainerPokemon tp : t.pokemon) tope = Math.max(tope, tp.level);
+        }
+        if (tope == 0) throw new IllegalStateException("No encuentro a Amaro (GYM4-LEADER)");
+        List<MegaEvolution> megas = new ArrayList<>();          // solo las de Megapiedra y de no legendarios
+        for (MegaEvolution m : rh.getMegaEvolutions()) {
+            if (m.argument > 0 && m.from != null && m.from.number <= MAX_ESPECIE && !m.from.isLegendary()) megas.add(m);
+        }
+        if (megas.isEmpty()) throw new IllegalStateException("La ROM no tiene megaevoluciones");
+        Map<Integer, List<MoveLearnt>> aprende = rh.getMovesLearnt();
+        List<Move> movs = rh.getMoves();
+        int cambiados = 0;
+        for (Trainer t : entrenadores) {
+            if (t.multiBattleStatus == Trainer.MultiBattleStatus.ALWAYS || t.pokemon.isEmpty() || !importante(t)) continue;
+            int max = 0;
+            for (TrainerPokemon tp : t.pokemon) max = Math.max(max, tp.level);
+            if (max <= tope) continue;
+            TrainerPokemon as = t.pokemon.get(t.pokemon.size() - 1);
+            MegaEvolution m = megas.get(azar.nextInt(megas.size()));
+            as.pokemon = m.from;
+            as.heldItem = m.argument;
+            as.hasMegaStone = true;
+            as.forme = 0; as.formeSuffix = ""; as.abilitySlot = 0;
+            if (t.pokemonHaveCustomMoves()) as.moves = movimientos(as.pokemon, as.level, aprende, movs, Integer.MAX_VALUE);
+            t.setPokemonHaveItems(true);
+            cambiados++;
+        }
+        rh.setTrainers(entrenadores, false);
+        System.out.println("Combates importantes con el as megaevolucionable: " + cambiados + " (después de Amaro, nivel > " + tope + ")");
     }
 
     static boolean debil(Pokemon p) {

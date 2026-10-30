@@ -1,23 +1,49 @@
-"""Crea el Pokelocke.exe para repartir: un solo archivo con todo dentro (menos la ROM y Java).
+"""Crea el instalador de Pokelocke para repartir.
 
-  tools\\build-venv\\Scripts\\python app\\empaquetar.py      ->  tools\\dist-unico\\Pokelocke.exe
+  tools\\build-venv\\Scripts\\python app\\empaquetar.py      ->  tools\\instalador\\PokelockeSetup.exe
 
-1. PyInstaller con la app, la web, los assets y las listas de PKHeX.
-2. Un zip pegado al final del .exe con Citra (sin user/, que son las partidas), el randomizador, las
-   cachés de PokéAPI y los fan arts. La app lo saca a %LOCALAPPDATA%\\Pokelocke al abrirse (main.instalar).
+1. PyInstaller en modo carpeta (--onedir): Pokelocke.exe y su _internal con la app, la web, los assets, el vídeo,
+   la guía y el contrato. Nada se descomprime al abrirlo (el modo de un solo archivo lo sacaba todo a %TEMP% en
+   cada arranque, y dos veces al jugar por la capa: lento y lo que más marcan los antivirus).
+2. Al lado, lo que antes iba en un zip pegado al .exe: Citra (sin user/, que son las partidas), el randomizador,
+   las cachés de PokéAPI y los fan arts.
+3. Si está POKELOCKE_FIRMA (p. ej. «signtool sign /fd sha256 /tr http://timestamp.acs.microsoft.com /td sha256
+   /a "{archivo}"»), se firman los .exe y el instalador.
+4. Inno Setup (app/instalador.iss) hace PokelockeSetup.exe: instala en %LOCALAPPDATA%\\Pokelocke sin pedir
+   administrador, con accesos directos y desinstalador. Las partidas no van en él, así que nunca se pisan.
+   ISCC.exe se busca en tools\\inno, en scoop (inno-setup) y en Archivos de programa.
 """
+import os
+import shutil
 import subprocess
 import sys
 import time
-import zipfile
 from pathlib import Path
 
 RAIZ = Path(__file__).resolve().parent.parent
 TOOLS = RAIZ / 'tools'
-SALIDA = TOOLS / 'dist-unico'
-EXE = SALIDA / 'Pokelocke.exe'
+DIST = TOOLS / 'dist' / 'Pokelocke'
+SALIDA = TOOLS / 'instalador'
 CITRA = TOOLS / 'azahar' / 'citra-1920'
 FUERA_CITRA = {'user', 'azahar_viejo.exe', 'lanzador.cs', 'citra.exe'}   # citra.exe: la versión sin ventana, no se usa
+EDITOR = 'David Martínez Palacios'
+VERSION = time.strftime('%Y.%m.%d.%H%M')
+
+
+def version_pyinstaller():
+    """Datos de versión del .exe (Propiedades > Detalles): un .exe sin ellos es de lo que más desconfían los antivirus."""
+    n = tuple(int(x) for x in VERSION.split('.'))
+    f = TOOLS / 'build' / 'version.txt'
+    f.parent.mkdir(parents=True, exist_ok=True)
+    campos = {'CompanyName': EDITOR, 'FileDescription': 'Pokelocke', 'FileVersion': VERSION,
+              'InternalName': 'Pokelocke', 'LegalCopyright': f'© {time.strftime("%Y")} {EDITOR}',
+              'OriginalFilename': 'Pokelocke.exe', 'ProductName': 'Pokelocke', 'ProductVersion': VERSION}
+    f.write_text(f"""VSVersionInfo(
+  ffi=FixedFileInfo(filevers={n}, prodvers={n}, mask=0x3f, flags=0x0, OS=0x40004, fileType=0x1, subtype=0x0, date=(0, 0)),
+  kids=[StringFileInfo([StringTable('0C0A04B0', [{', '.join(f'StringStruct({k!r}, {v!r})' for k, v in campos.items())}])]),
+        VarFileInfo([VarStruct('Translation', [0x0C0A, 1200])])])
+""", encoding='utf-8')
+    return f
 
 
 def pyinstaller():
@@ -26,38 +52,72 @@ def pyinstaller():
              # opciones de la biblioteca: vídeo de normas, guía y contrato (se rellena con la firma)
              ('video/normas.mp4', 'video'), ('guia/Guia-Mega-Pokelocke-Y.pdf', 'guia'),
              ('normas/normas.html', 'normas'), ('normas/img', 'normas/img')]
-    args = [str(Path(sys.executable).parent / 'pyinstaller'), '--noconfirm', '--onefile', '--noconsole',
-            '--name', 'Pokelocke', '--icon', str(RAIZ / 'assets' / 'icono.ico'),
-            '--distpath', str(SALIDA), '--workpath', str(TOOLS / 'build-unico'), '--specpath', str(TOOLS / 'build-unico')]
+    args = [str(Path(sys.executable).parent / 'pyinstaller'), '--noconfirm', '--clean', '--onedir', '--noconsole', '--noupx',
+            '--name', 'Pokelocke', '--icon', str(RAIZ / 'assets' / 'icono.ico'), '--version-file', str(version_pyinstaller()),
+            '--distpath', str(DIST.parent), '--workpath', str(TOOLS / 'build'), '--specpath', str(TOOLS / 'build')]
     for origen, destino in datos:
         args += ['--add-data', f'{RAIZ / origen};{destino}']
     subprocess.run(args + [str(RAIZ / 'app' / 'main.py')], check=True, cwd=RAIZ)
 
 
 def archivos():
-    """(ruta en disco, ruta dentro de RAIZ al instalar)"""
+    """(ruta en disco, ruta dentro de la carpeta instalada)"""
+    if not (CITRA / 'citra-qt.exe').exists() or not (CITRA / 'azahar.exe').exists():
+        raise SystemExit(f'Falta Citra con su lanzador en {CITRA} (citra-qt.exe y azahar.exe; ver README)')
     for f in sorted(CITRA.rglob('*')):
         if f.is_file() and f.relative_to(CITRA).parts[0] not in FUERA_CITRA:
-            yield f, f.relative_to(TOOLS)
+            yield f, f.relative_to(RAIZ)
     for f in sorted((TOOLS / 'upr').rglob('*')):
         if f.is_file() and not f.relative_to(TOOLS / 'upr').parts[0].startswith('tmp_'):   # restos de una randomización
-            yield f, f.relative_to(TOOLS)
+            yield f, f.relative_to(RAIZ)
     for f in sorted(TOOLS.glob('pkx_*.json')):
-        yield f, f.relative_to(TOOLS)
+        yield f, f.relative_to(RAIZ)
     for f in sorted((RAIZ / 'fanart').rglob('*')):
         if f.is_file():
             yield f, f.relative_to(RAIZ)
 
 
-def pegar_zip():
+def copiar_herramientas():
     lista = list(archivos())
-    with zipfile.ZipFile(EXE, 'a', zipfile.ZIP_DEFLATED, compresslevel=6) as z:   # 'a' sobre un .exe: lo pone al final
-        for f, dentro in lista:
-            z.write(f, ('tools' / dentro) if dentro.parts[0] != 'fanart' else dentro)
-        z.comment = time.strftime('%Y%m%d-%H%M%S').encode()
-    print(f'{len(lista)} archivos dentro · {EXE.stat().st_size / 2**20:.0f} MB · versión {z.comment.decode()}')
+    for f, dentro in lista:
+        destino = DIST / dentro
+        destino.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(f, destino)
+    print(f'{len(lista)} archivos de Citra, randomizador y fan arts')
+
+
+def firmar(archivo):
+    orden = os.environ.get('POKELOCKE_FIRMA')
+    if orden:
+        subprocess.run(orden.replace('{archivo}', str(archivo)), check=True, shell=True)
+
+
+def iscc():
+    for c in (TOOLS / 'inno' / 'ISCC.exe', Path.home() / 'scoop' / 'apps' / 'inno-setup' / 'current' / 'ISCC.exe',
+              Path(os.environ.get('ProgramFiles(x86)', '')) / 'Inno Setup 6' / 'ISCC.exe',
+              Path(os.environ.get('ProgramFiles', '')) / 'Inno Setup 6' / 'ISCC.exe'):
+        if c.exists():
+            return c
+    raise SystemExit('No encuentro Inno Setup 6 (ISCC.exe). Ponlo en tools\\inno o «scoop install inno-setup».')
+
+
+def instalador():
+    for exe in (DIST / 'Pokelocke.exe', DIST / 'tools' / 'azahar' / 'citra-1920' / 'azahar.exe'):
+        firmar(exe)
+    SALIDA.mkdir(parents=True, exist_ok=True)
+    subprocess.run([str(iscc()), '/Q', f'/DVersion={VERSION}', f'/DOrigen={DIST}', f'/DSalida={SALIDA}',
+                    f'/DIcono={RAIZ / "assets" / "icono.ico"}', str(RAIZ / 'app' / 'instalador.iss')], check=True)
+    setup = SALIDA / 'PokelockeSetup.exe'
+    firmar(setup)
+    # el anfitrión lo reparte con /descargar: va junto a su Pokelocke instalado
+    instalado = Path(os.environ.get('LOCALAPPDATA', '')) / 'Pokelocke'
+    if instalado.is_dir():
+        shutil.copy2(setup, instalado / 'PokelockeSetup.exe')
+    print(f'{setup} · {setup.stat().st_size / 2**20:.0f} MB · versión {VERSION}')
 
 
 if __name__ == '__main__':
+    shutil.rmtree(DIST, ignore_errors=True)
     pyinstaller()
-    pegar_zip()
+    copiar_herramientas()
+    instalador()

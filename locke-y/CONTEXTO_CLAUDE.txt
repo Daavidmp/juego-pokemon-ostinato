@@ -26,6 +26,9 @@ La fuente de verdad es el código:
 - app/MegaFases.java: fase fácil hasta la 2.ª medalla; combates importantes con equipo de 6 (relleno
   al nivel del más bajo, el as al final); los encuentros fijos (p. ej. el Snorlax de la Ruta 7) se
   randomizan del todo y la fase fácil NO los toca.
+  Desde el 30/10/2026: después de la 4.ª medalla (combates importantes con algún Pokémon por encima del as de
+  Amaro), el as es un Pokémon con megaevolución y lleva su Megapiedra (asMegaTrasCuartaMedalla). Sin probar
+  con una ROM todavía: comprobar que los rivales megaevolucionan de verdad.
 - Entrenadores +15 % de nivel (trainersLevelModifier 15). Tipos, estadísticas y evoluciones sin cambios.
 
 Normas que NO aplica la app (solo están en el contrato, decididas por David el 29/10/2026):
@@ -85,6 +88,17 @@ Pokémon Ostinato (adulta, seca, práctica, con guasa; ver OSTINATO-biblia.md).
   5,5 min, a 2,6 palabras/s. Sale previa.mp4 (ignorado).
 - Pendiente: grabar la voz y ajustar la duración de cada plano a la grabación; meter el vídeo en
   la app al pulsar Jugar la primera vez.
+
+
+4b. ESTABILIDAD E INSTALADOR (30/10/2026)
+-----------------------------------------
+- Citra 1920 se cae si le llega RPC mientras carga. Antes se esperaban 15 s fijos y en PCs lentos se caía:
+  ahora citra_listo() espera a ver la ventana del juego (2 ventanas visibles de citra-qt) + 8 s; si no sale
+  nunca, a los 60 s.
+- Se reparte con un instalador (app/empaquetar.py + app/instalador.iss, Inno Setup), PyInstaller --onedir,
+  sin el zip pegado ni la autoextracción (main.instalar ya no existe). Instala en %LOCALAPPDATA%\Pokelocke.
+  Firma opcional con POKELOCKE_FIRMA. Sin firma, SmartScreen seguirá avisando de «editor desconocido».
+- Los avisos de ruta (captura hecha, Poké Balls bloqueadas) duran 3 s.
 
 
 5. IMÁGENES DE ARCE  (../CREDITOS/firefly/)

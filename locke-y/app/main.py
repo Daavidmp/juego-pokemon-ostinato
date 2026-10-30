@@ -34,23 +34,14 @@ _opener = urllib.request.build_opener()
 _opener.addheaders = [('User-Agent', 'Pokelocke')]
 urllib.request.install_opener(_opener)
 
-# Pokelocke.exe repartido: un solo archivo. Lo pequeño (web, assets, datos_pkx) va dentro de PyInstaller y
-# Citra, el randomizador y los fan arts van en un zip pegado al final del .exe, que se saca una vez por versión
-# a %LOCALAPPDATA%\Pokelocke (ahí viven también las partidas). Un .exe sin zip, dentro de locke-y/, es el de
-# desarrollo y usa las carpetas de al lado, como antes.
+# El .exe (instalado con PokelockeSetup.exe en %LOCALAPPDATA%\Pokelocke, o el de desarrollo dentro de locke-y/)
+# usa las carpetas de al lado: tools/ con Citra y el randomizador, datos/ con las partidas y fanart/.
+# Lo que va dentro de PyInstaller (web, assets, vídeo, guía) está en su carpeta _internal.
 if getattr(sys, 'frozen', False):
     RECURSOS = Path(sys._MEIPASS)
-    try:
-        PAQUETE = zipfile.ZipFile(sys.executable)
-    except zipfile.BadZipFile:
-        PAQUETE = None
-    if PAQUETE:
-        RAIZ = Path(os.environ.get('POKELOCKE_RAIZ') or Path(os.environ['LOCALAPPDATA']) / 'Pokelocke')
-    else:
-        RAIZ = Path(sys.executable).resolve().parent
+    RAIZ = Path(sys.executable).resolve().parent
 else:
     RAIZ = RECURSOS = Path(__file__).resolve().parent.parent
-    PAQUETE = None
 APP, WEB, ASSETS = RECURSOS / 'app', RECURSOS / 'app' / 'web', RECURSOS / 'assets'
 NORMAS, GUIA_PDF, VIDEO = RECURSOS / 'normas', RECURSOS / 'guia' / 'Guia-Mega-Pokelocke-Y.pdf', RECURSOS / 'video' / 'normas.mp4'
 TOOLS, DATOS, FANART = RAIZ / 'tools', RAIZ / 'datos', RAIZ / 'fanart'
@@ -254,12 +245,46 @@ def jugando():
 
 
 # este Citra se cae (0xc0000005 en citra-qt.exe+0x165ae7) si le llega una petición RPC mientras aún está
-# cargando el juego: no se le pregunta nada hasta pasados estos segundos desde que se abrió
-ESPERA_RPC = 15
+# cargando el juego. Un tiempo fijo no vale: en un PC lento (o con el antivirus mirando cada archivo) la carga
+# dura más y se caía igual. Se espera a que salga la ventana del juego (la misma señal que usa el lanzador para
+# quitarle los bordes) y luego MARGEN_RPC más. Si esa ventana no se ve nunca (Azahar, que usa una sola ventana),
+# se pregunta a los ESPERA_MAX segundos.
+MARGEN_RPC, ESPERA_MAX = 8, 60
+
+
+def ventanas_citra():
+    """Cuántas ventanas visibles y con título tiene citra-qt.exe. Con el juego cargado son dos: la lista de
+    juegos y la del juego."""
+    import ctypes.wintypes as wt
+    u, k32, pid, n = ctypes.windll.user32, ctypes.windll.kernel32, wt.DWORD(), [0]
+
+    def mirar(h, _):
+        if u.IsWindowVisible(h) and u.GetWindowTextLengthW(h) > 0:
+            u.GetWindowThreadProcessId(h, ctypes.byref(pid))
+            p = k32.OpenProcess(0x1000, False, pid.value)          # PROCESS_QUERY_LIMITED_INFORMATION
+            if p:
+                ruta, largo = ctypes.create_unicode_buffer(1024), wt.DWORD(1024)
+                if k32.QueryFullProcessImageNameW(p, 0, ruta, ctypes.byref(largo)) and ruta.value.lower().endswith('citra-qt.exe'):
+                    n[0] += 1
+                k32.CloseHandle(p)
+        return True
+    u.EnumWindows(ctypes.WINFUNCTYPE(wt.BOOL, wt.HWND, wt.LPARAM)(mirar), 0)
+    return n[0]
 
 
 def citra_listo():
-    return jugando() and time.time() - vivo.get('lanzado', 0) > ESPERA_RPC
+    if not jugando():
+        return False
+    ahora = time.time()
+    if not vivo.get('juego_visto'):
+        if ahora - vivo.get('lanzado', 0) > ESPERA_MAX:
+            vivo['juego_visto'] = ahora - MARGEN_RPC
+        elif os.name == 'nt' and ahora - vivo.get('mirado', 0) >= 1:       # se mira como mucho una vez por segundo
+            vivo['mirado'] = ahora
+            if ventanas_citra() >= 2:
+                vivo['juego_visto'] = ahora
+                print(time.strftime('%H:%M:%S'), f'ventana del juego a los {ahora - vivo["lanzado"]:.0f} s', flush=True)
+    return bool(vivo.get('juego_visto')) and ahora - vivo['juego_visto'] > MARGEN_RPC
 
 
 # ---------- herramientas portables ----------
@@ -552,7 +577,7 @@ def lanzar(j):
     if j.get('random') and mod.exists():
         shutil.copytree(mod, mods, dirs_exist_ok=True)
     vivo.update(activo=j['id'], equipo=[None] * 6, conectado=False, combate_visto_desde=None)
-    vivo['lanzado'] = time.time()
+    vivo.update(lanzado=time.time(), juego_visto=None, mirado=0)
     vivo['proceso'] = subprocess.Popen([str(exe), '-f', rom_jugable(j)])
     if completa:
         avisar('¡Randomización completa! · Ahora los rivales sacan cualquier evolución y cualquier ataque', 25)
@@ -765,7 +790,7 @@ def normas_mega():
                         avisar('¡Shiny! No cuenta como la captura de esta ruta')
                     elif zona not in usadas:
                         usadas.append(zona)
-                        avisar('Captura de esta ruta hecha · Aquí ya no puedes capturar más')
+                        avisar('Captura de esta ruta hecha · Aquí ya no puedes capturar más', 3)
                     guardar()
                 if ahora is not None:
                     capturas = ahora
@@ -776,7 +801,7 @@ def normas_mega():
                         avisadas = j.setdefault('rutas_avisadas', [])     # el aviso, solo la primera vez en cada ruta
                         if j['balls_escondidas'] and zona not in avisadas:
                             avisadas.append(zona)
-                            avisar('Ya has capturado en esta ruta · Poké Balls bloqueadas')
+                            avisar('Ya has capturado en esta ruta · Poké Balls bloqueadas', 3)
                         guardar()
                 elif not combate and j.get('balls_escondidas') and time.time() - fuera_desde >= 3:
                     juego.devolver_balls(rpc, j['balls_escondidas'])
@@ -1606,52 +1631,6 @@ def abrir_ventana_app():
         webbrowser.open(url)
 
 
-def instalar():
-    """Saca el zip del final del .exe (Citra, randomizador, fan arts) a RAIZ la primera vez y en cada versión
-    nueva. Las partidas (datos/ y user/ de Citra) no van en el zip, así que nunca se pisan."""
-    version = (PAQUETE.comment or b'').decode() or str(Path(sys.executable).stat().st_size)
-    marca = RAIZ / 'version.txt'
-    if marca.exists() and marca.read_text(encoding='utf-8') == version:
-        return
-    import tkinter as tk
-    from tkinter import ttk
-    miembros = PAQUETE.infolist()
-    hecho, fallo = [0], []
-
-    def sacar():
-        try:
-            for m in miembros:
-                PAQUETE.extract(m, RAIZ)
-                hecho[0] += 1
-            marca.write_text(version, encoding='utf-8')
-        except Exception as e:
-            fallo.append(e)
-    ventana = tk.Tk()
-    ventana.title('Pokelocke')
-    ventana.resizable(False, False)
-    try:
-        ventana.iconbitmap(str(ASSETS / 'icono.ico'))
-    except tk.TclError:
-        pass
-    tk.Label(ventana, text='Preparando Pokelocke por primera vez…', font=('Segoe UI', 11), padx=24, pady=14).pack()
-    barra = ttk.Progressbar(ventana, length=320, maximum=len(miembros))
-    barra.pack(padx=24, pady=(0, 20))
-    hilo = threading.Thread(target=sacar, daemon=True)
-    hilo.start()
-
-    def mirar():
-        barra['value'] = hecho[0]
-        if hilo.is_alive():
-            ventana.after(100, mirar)
-        else:
-            ventana.destroy()
-    mirar()
-    ventana.mainloop()
-    hilo.join()
-    if fallo:
-        raise fallo[0]
-
-
 def main():
     if os.name == 'nt':
         ctypes.windll.shcore.SetProcessDpiAwareness(2)
@@ -1671,8 +1650,6 @@ def main():
         import faulthandler
         faulthandler.enable(sys.stderr)                    # también si Python se cae de golpe
         print(time.strftime('%Y-%m-%d %H:%M:%S'), 'Pokelocke abierto', flush=True)
-    if PAQUETE:
-        instalar()
     for carpeta in (TOOLS, DATOS, FANART):
         carpeta.mkdir(exist_ok=True)
     cargar()

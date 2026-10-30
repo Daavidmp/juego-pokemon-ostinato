@@ -10,6 +10,14 @@
 using System; using System.Collections.Generic; using System.Diagnostics; using System.IO; using System.Linq;
 using System.Runtime.InteropServices; using System.Text; using System.Text.RegularExpressions; using System.Threading;
 
+[assembly: System.Reflection.AssemblyTitle("Lanzador de Citra para Pokelocke")]
+[assembly: System.Reflection.AssemblyDescription("Abre Citra con el juego colocado bajo el layout de Pokelocke")]
+[assembly: System.Reflection.AssemblyCompany("David Martínez Palacios")]
+[assembly: System.Reflection.AssemblyProduct("Pokelocke")]
+[assembly: System.Reflection.AssemblyCopyright("© 2026 David Martínez Palacios")]
+[assembly: System.Reflection.AssemblyVersion("1.0.0.0")]
+[assembly: System.Reflection.AssemblyFileVersion("1.0.0.0")]
+
 static class Lanzador {
   [DllImport("user32.dll")] static extern bool RegisterHotKey(IntPtr h, int id, uint mod, uint vk);
   [DllImport("user32.dll")] static extern bool UnregisterHotKey(IntPtr h, int id);
