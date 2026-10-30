@@ -4,6 +4,41 @@ Escrito el 29/10/2026. La app (lanzador, overlay, lectura de memoria) está en R
 todo lo que hay ALREDEDOR de la app: la guía, el contrato de normas y el vídeo de normas.
 
 
+** EMPIEZA AQUÍ: QUÉ HACER EN EL PC ANFITRIÓN (el que tiene Citra 1920 y la ROM) **
+--------------------------------------------------------------------------------------
+Todo lo de abajo se hizo el 30/10/2026 en otro PC SIN Citra ni ROM: está probado con pruebas y simulaciones,
+NO jugando. En el PC anfitrión, en este orden:
+1. git pull (rama main). Comprobar que existen tools/azahar/citra-1920 (citra-qt.exe + azahar.exe, el lanzador
+   compilado de app/citra/lanzador.cs), tools/upr/PokeRandoZX.jar (v4.6.1) y un JDK 17+ en %USERPROFILE%\.jdks.
+2. Inno Setup 6: «scoop install inno-setup» (o ISCC.exe en tools\inno). Nada más que instalar.
+3. Construir: tools\build-venv\Scripts\python app\empaquetar.py
+   - Instala solo en el build-venv lo que falte (websocket-client, cryptography).
+   - LA PRIMERA VEZ crea el certificado del servidor en %LOCALAPPDATA%\Pokelocke\datos\servidor (cert.pem y
+     clave.pem; la clave NUNCA se sube ni se reparte) y lo mete en el instalador.
+   - Sale tools\instalador\PokelockeSetup.exe y se copia (con PokelockeSetup.version) junto al Pokelocke instalado,
+     de donde lo reparte el servidor (/descargar).
+4. Instalar ese PokelockeSetup.exe en el PC anfitrión y repartirlo a todos: el online va ahora por https:8767 con
+   ese certificado, así que los Pokelocke de antes no entran hasta reinstalar (ven el aviso). Abrir el 8767 en el
+   router lo hace la app por UPnP; si no, abrir a mano TCP 8766, TCP 8767 y UDP 24872.
+5. Probar con David (NO abrir el juego en su PC: lo prueba él), y apuntar aquí lo que falle:
+   [ ] instalar sin permisos de administrador; accesos directos; Pokelocke abre la biblioteca
+   [ ] «Primeros pasos»: entrar con Daavidmp (admin), añadir ROM, preparar con normas Mega, ver el vídeo
+   [ ] Jugar: sale el cartel «Abriendo el juego…» con los segundos, luego el layout; Alt+Q quita/pone la ventana
+   [ ] combate: el layout se actualiza (un solo Edge sin ventana, no uno por golpe); Poké Balls escondidas en zona
+       gastada; aviso de ruta 3 s
+   [ ] después de la 4.ª medalla, un rival/líder lleva de último un Pokémon con Megapiedra y MEGAEVOLUCIONA
+   [ ] cerrar el juego -> «Copias de la partida» tiene la copia; restaurar una
+   [ ] encender el servidor; otro PC entra (https), torneo de 3 (repesca), «Registro» de un jugador
+   [ ] subir la versión (otro empaquetar.py) y que los demás vean «Nueva versión» y se actualicen solos
+   [ ] modo ligero en un PC flojo
+   Los errores inesperados salen con un código E-XXXX: buscarlo en pokelocke.log (o «Registro» del jugador).
+6. Pendiente con decisión de David:
+   - Pasar de Citra 1920 a Azahar: necesita arreglar la cabecera «cifrada» de las ROM y PROBARLO con su ROM.
+   - Firmar el instalador (de pago): POKELOCKE_FIRMA ya está preparado en empaquetar.py.
+   - Añadir la regla de las megaevoluciones al contrato (normas/normas.html) y a la guía.
+   - video/GUION.md tiene un cambio local de David sin subir: no es de Claude, no tocarlo sin preguntar.
+
+
 0. REGLAS DE TRABAJO
 --------------------
 - No abrir el emulador ni la app en el PC de David: se comprueba leyendo código y datos. Él prueba.
