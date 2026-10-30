@@ -165,6 +165,60 @@ o.resultado(amigo, tareas[0]['id'], {'version': 'x', 'registros': {'pokelocke.lo
 hilo.join(5)
 ver(respuesta.get('r', {}).get('registros', {}).get('pokelocke.log') == 'Traceback…', 'y su respuesta le llega al administrador')
 
+# ---------- el servidor online va cifrado y solo vale con el certificado del anfitrión ----------
+print('Conexión cifrada')
+import os
+import empaquetar
+os.environ['POKELOCKE_SERVIDOR'] = str(tmp / 'cifrado')
+empaquetar.subprocess.run = lambda *a, **k: None          # cryptography ya está instalada aquí: sin pip
+pem = empaquetar.certificado()
+import socket
+
+
+def puerto_libre():
+    with socket.socket() as so:
+        so.bind(('127.0.0.1', 0))
+        return so.getsockname()[1]
+
+
+online.PUERTO_SERVIDOR, online.PUERTO_SEGURO = puerto_libre(), puerto_libre()   # sin chocar con otra ejecución
+srv_online = online.Servidor(tmp / 'cifrado', admin='Daavidmp')
+srv_online.arrancar()
+online.certificado = lambda: pem
+r = online.peticion('127.0.0.1', '/registro', {'usuario': 'Prueba', 'clave': 'clave1'})
+ver('token' in r, 'con el certificado bueno se registra y entra por https')
+with online.abrir('127.0.0.1', '/version') as resp:
+    ver('sha256' in json.load(resp), '/version da también la huella del instalador')
+os.environ['POKELOCKE_SERVIDOR'] = str(tmp / 'impostor')
+online.certificado = lambda: empaquetar.certificado()      # otro certificado: alguien haciéndose pasar por el servidor
+try:
+    online.peticion('127.0.0.1', '/entrar', {'usuario': 'Prueba', 'clave': 'clave1'})
+    ver(False, 'con otro certificado se rechaza la conexión')
+except OSError as e:
+    ver('certificado del anfitrión' in main.online_motivo(e), f'con otro certificado se rechaza: «{main.online_motivo(e)[:70]}…»')
+c = http.client.HTTPConnection('127.0.0.1', online.PUERTO_SERVIDOR, timeout=5)
+c.request('POST', '/entrar', b'{}', {'Content-Type': 'application/json'})
+ver(c.getresponse().status == 426, 'un Pokelocke viejo (http) recibe «actualiza»')
+srv_online.parar()
+
+# ---------- contraseña del PokéHex ----------
+print('PokéHex')
+main.F_POKEHEX = tmp / 'pokehex.json'
+try:
+    main.comprobar_clave_pokehex('ab')
+    ver(False, 'la primera contraseña tiene que tener 4 caracteres')
+except RuntimeError:
+    ver(True, 'la primera contraseña tiene que tener 4 caracteres')
+main.comprobar_clave_pokehex('mia123')
+ver('mia123' not in main.F_POKEHEX.read_text(), 'la primera vez se crea, y se guarda cifrada')
+try:
+    main.comprobar_clave_pokehex('Admin123!')
+    ver(False, 'la contraseña de antes ya no vale')
+except RuntimeError:
+    ver(True, 'la contraseña de antes (la del código) ya no vale')
+main.comprobar_clave_pokehex('mia123')
+ver(True, 'la suya sí')
+
 # ---------- versiones ----------
 print('Versiones')
 ver(main.version_tupla('2026.10.30.1203') > main.version_tupla('2026.10.30.0959'), 'una versión más nueva se reconoce')

@@ -29,8 +29,10 @@ jobs:
       - name: Cuadro del torneo (de 2 a 16 jugadores)
         run: python test_torneo.py
 
-      - name: Servidores, copias de la partida y versiones
-        run: python test_app.py
+      - name: Servidores, conexión cifrada, copias de la partida y versiones
+        run: |
+          pip install -q cryptography websocket-client
+          python test_app.py
 
       - name: JavaScript de la ventana y del overlay
         run: |

@@ -54,6 +54,45 @@ def version_pyinstaller():
     return f
 
 
+def certificado():
+    """El certificado del servidor de este PC (el anfitrión): si no tiene, se crea. La clave privada se queda en sus
+    datos (datos/servidor/clave.pem) y nunca va en el instalador; el certificado, sí, para que los Pokelocke de los
+    demás solo confíen en él."""
+    carpeta = Path(os.environ.get('POKELOCKE_SERVIDOR') or Path(os.environ.get('LOCALAPPDATA', '')) / 'Pokelocke' / 'datos' / 'servidor')
+    cert, clave = carpeta / 'cert.pem', carpeta / 'clave.pem'
+    if not (cert.exists() and clave.exists()):
+        subprocess.run([sys.executable, '-m', 'pip', 'install', '-q', 'cryptography'], check=True)
+        import datetime
+        from cryptography import x509
+        from cryptography.hazmat.primitives import hashes, serialization
+        from cryptography.hazmat.primitives.asymmetric import ec
+        from cryptography.x509.oid import NameOID
+        llave = ec.generate_private_key(ec.SECP256R1())
+        nombre = x509.Name([x509.NameAttribute(NameOID.COMMON_NAME, 'Servidor de Pokelocke')])
+        ahora = datetime.datetime.now(datetime.timezone.utc)
+        c = (x509.CertificateBuilder().subject_name(nombre).issuer_name(nombre).public_key(llave.public_key())
+             .serial_number(x509.random_serial_number()).not_valid_before(ahora - datetime.timedelta(days=1))
+             .not_valid_after(ahora + datetime.timedelta(days=365 * 20))
+             .add_extension(x509.BasicConstraints(ca=True, path_length=None), critical=True)
+             .sign(llave, hashes.SHA256()))
+        carpeta.mkdir(parents=True, exist_ok=True)
+        clave.write_bytes(llave.private_bytes(serialization.Encoding.PEM, serialization.PrivateFormat.PKCS8,
+                                              serialization.NoEncryption()))
+        cert.write_bytes(c.public_bytes(serialization.Encoding.PEM))
+        print(f'Certificado del servidor nuevo en {carpeta}')
+    return cert.read_text(encoding='utf-8')
+
+
+def online_json():
+    """app/online.json con el certificado del anfitrión dentro."""
+    cfg = json.loads((RAIZ / 'app' / 'online.json').read_text(encoding='utf-8'))
+    cfg['certificado'] = certificado()
+    f = TOOLS / 'build' / 'online' / 'online.json'
+    f.parent.mkdir(parents=True, exist_ok=True)
+    f.write_text(json.dumps(cfg, indent=1, ensure_ascii=False), encoding='utf-8')
+    return f
+
+
 def version_app():
     f = TOOLS / 'build' / 'version_app' / 'version.txt'
     f.parent.mkdir(parents=True, exist_ok=True)
@@ -65,7 +104,7 @@ def pyinstaller():
     # websocket-client: con él, el navegador que pinta la capa se queda abierto (main.Fotografo)
     subprocess.run([sys.executable, '-m', 'pip', 'install', '-q', 'websocket-client'], check=True)
     datos = [('app/web', 'app/web'), ('app/datos_pkx', 'app/datos_pkx'), ('app/LockeSettings.java', 'app'), ('app/MegaFases.java', 'app'),
-             ('app/online.json', 'app'), ('assets', 'assets'),
+             (online_json(), 'app'), ('assets', 'assets'),
              # opciones de la biblioteca: vídeo de normas, guía y contrato (se rellena con la firma)
              ('video/normas.mp4', 'video'), ('guia/Guia-Mega-Pokelocke-Y.pdf', 'guia'),
              ('normas/normas.html', 'normas'), ('normas/img', 'normas/img'),

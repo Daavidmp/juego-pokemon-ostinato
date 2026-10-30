@@ -16,6 +16,7 @@ import re
 import secrets
 import shutil
 import socket
+import ssl
 import subprocess
 import sys
 import threading
@@ -27,7 +28,8 @@ from urllib.parse import urljoin
 
 import errores
 
-PUERTO_SERVIDOR = 8766          # TCP: el servidor de Pokelocke
+PUERTO_SERVIDOR = 8766          # TCP http: solo /descargar y /version (la primera descarga, desde el navegador)
+PUERTO_SEGURO = 8767            # TCP https: todo lo demás, con el certificado propio del anfitrión
 PUERTO_SALA = 24872             # UDP: la sala de Citra (su puerto de siempre)
 LATIDO = 5                      # segundos entre latidos de cada jugador
 CONECTADO = 20                  # sin latido en este tiempo, sale como desconectado
@@ -88,7 +90,7 @@ def abrir_puertos():
         return False, None
     local = ip_local()
     ok = True
-    for proto, puerto in (('TCP', PUERTO_SERVIDOR), ('UDP', PUERTO_SALA)):
+    for proto, puerto in (('TCP', PUERTO_SERVIDOR), ('TCP', PUERTO_SEGURO), ('UDP', PUERTO_SALA)):
         try:
             _soap(control, 'AddPortMapping', {'NewRemoteHost': '', 'NewExternalPort': puerto, 'NewProtocol': proto,
                                               'NewInternalPort': puerto, 'NewInternalClient': local, 'NewEnabled': 1,
@@ -106,7 +108,7 @@ def cerrar_puertos():
     control = _upnp_control()
     if not control:
         return
-    for proto, puerto in (('TCP', PUERTO_SERVIDOR), ('UDP', PUERTO_SALA)):
+    for proto, puerto in (('TCP', PUERTO_SERVIDOR), ('TCP', PUERTO_SEGURO), ('UDP', PUERTO_SALA)):
         try:
             _soap(control, 'DeletePortMapping', {'NewRemoteHost': '', 'NewExternalPort': puerto, 'NewProtocol': proto})
         except OSError:
@@ -308,12 +310,10 @@ class Servidor:
             u = self.sesiones.pop(token or '', None)
             self.vistos.pop(u, None)
 
-    def pokehex(self, token, clave_hex, objetivo, que, datos, clave_correcta):
+    def pokehex(self, token, objetivo, que, datos):
         u = self._usuario(token)
         if not self.usuarios.get(u, {}).get('admin'):
             raise PermissionError('Solo el administrador puede abrir el PokéHex de otro jugador')
-        if not hmac.compare_digest(clave_hex or '', clave_correcta):
-            raise PermissionError('Contraseña del PokéHex incorrecta')
         return self._encargar(objetivo, que, datos)
 
     def pedir_log(self, token, objetivo):
@@ -414,18 +414,37 @@ class Servidor:
         return {'ok': True}
 
     # --- arrancar y parar ---
-    def arrancar(self, clave_hex):
+    def arrancar(self):
         srv = self
+        cert, clave = self.carpeta / 'cert.pem', self.carpeta / 'clave.pem'
+        if not cert.exists() or not clave.exists():
+            raise RuntimeError(f'Falta el certificado del servidor (cert.pem y clave.pem en {self.carpeta}). Se crea al '
+                               'construir el instalador en este PC con app/empaquetar.py.')
+        contexto = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
+        contexto.minimum_version = ssl.TLSVersion.TLSv1_2
+        contexto.load_cert_chain(cert, clave)
 
-        class Peticion(BaseHTTPRequestHandler):
+        class Descargas(BaseHTTPRequestHandler):
+            """En http (PUERTO_SERVIDOR): solo la primera descarga del instalador y su versión."""
             def log_message(self, *a):
                 pass
 
+            def do_POST(self):
+                cuerpo = json.dumps({'error': 'Este servidor ya solo atiende por conexión cifrada: actualiza Pokelocke '
+                                              'con el instalador del anfitrión'}).encode()
+                self.send_response(426)
+                self.send_header('Content-Type', 'application/json')
+                self.send_header('Content-Length', str(len(cuerpo)))
+                self.end_headers()
+                self.wfile.write(cuerpo)
+
             def do_GET(self):
-                # /version: la versión del instalador que se reparte (cada Pokelocke la compara con la suya)
+                # /version: la versión del instalador que se reparte y su huella (cada Pokelocke la compara con la suya
+                # y comprueba con la huella lo que se descarga)
                 if self.path.split('?')[0] == '/version':
                     f = Path(sys.executable).parent / 'PokelockeSetup.version'
-                    cuerpo = json.dumps({'version': f.read_text(encoding='utf-8').strip() if f.exists() else None}).encode()
+                    cuerpo = json.dumps({'version': f.read_text(encoding='utf-8').strip() if f.exists() else None,
+                                         'sha256': huella_instalador()}).encode()
                     self.send_response(200)
                     self.send_header('Content-Type', 'application/json')
                     self.send_header('Content-Length', str(len(cuerpo)))
@@ -446,6 +465,8 @@ class Servidor:
                 with open(exe, 'rb') as f:
                     shutil.copyfileobj(f, self.wfile, 1 << 20)
 
+        class Peticion(Descargas):
+            """En https (PUERTO_SEGURO): todo."""
             def do_POST(self):
                 try:
                     largo = min(int(self.headers.get('Content-Length') or 0), 1_000_000)
@@ -473,8 +494,7 @@ class Servidor:
                     elif ruta == '/log':
                         r = srv.pedir_log(d.get('token'), d.get('usuario'))
                     elif ruta == '/pokehex':
-                        r = srv.pokehex(d.get('token'), d.get('clave_hex'), d.get('usuario'), d.get('que'),
-                                        d.get('datos') or {}, clave_hex)
+                        r = srv.pokehex(d.get('token'), d.get('usuario'), d.get('que'), d.get('datos') or {})
                     else:
                         raise ValueError('No existe')
                     codigo = 200
@@ -494,9 +514,23 @@ class Servidor:
                 self.end_headers()
                 self.wfile.write(cuerpo)
 
+        class Cifrado(ThreadingHTTPServer):
+            allow_reuse_address = False
+
+            def get_request(self):
+                # el saludo TLS se hace en el hilo de cada petición, no aquí: un cliente lento no frena a los demás
+                s, direccion = self.socket.accept()
+                s.settimeout(30)
+                return contexto.wrap_socket(s, server_side=True, do_handshake_on_connect=False), direccion
+
+            def handle_error(self, request, client_address):
+                pass                                    # conexiones cortadas o sin cifrar: no llenan el registro
+
         ThreadingHTTPServer.allow_reuse_address = False
-        self.http = ThreadingHTTPServer(('0.0.0.0', PUERTO_SERVIDOR), Peticion)
-        threading.Thread(target=self.http.serve_forever, daemon=True).start()
+        self.http = ThreadingHTTPServer(('0.0.0.0', PUERTO_SERVIDOR), Descargas)
+        self.https = Cifrado(('0.0.0.0', PUERTO_SEGURO), Peticion)
+        for s in (self.http, self.https):
+            threading.Thread(target=s.serve_forever, daemon=True).start()
         if self.citra_room and Path(self.citra_room).exists():
             self.sala = subprocess.Popen([str(self.citra_room), '--room-name', 'Pokelocke', '--port', str(PUERTO_SALA),
                                           '--max_members', '16',
@@ -505,10 +539,12 @@ class Servidor:
                                          creationflags=0x08000000)
 
     def parar(self):
-        if self.http:
-            self.http.shutdown()
-            self.http.server_close()
-            self.http = None
+        for nombre in ('http', 'https'):
+            s = getattr(self, nombre, None)
+            if s:
+                s.shutdown()
+                s.server_close()
+                setattr(self, nombre, None)
         if self.sala:
             self.sala.terminate()
             self.sala = None
@@ -516,11 +552,46 @@ class Servidor:
 
 # ---------- el cliente (en todos los Pokelocke) ----------
 
+# el certificado del anfitrión: el único en que confía el cliente. Lo pone main.py (va en app/online.json del
+# instalador, que lo mete empaquetar.py; en el PC anfitrión vale también el suyo de datos/servidor)
+certificado = lambda: None                              # noqa: E731
+
+
+class SinCertificado(OSError):
+    pass
+
+
+def abrir(direccion, ruta, datos=None, espera=10):
+    """Una petición https al servidor, que solo vale si contesta con el certificado del anfitrión: nadie puede hacerse
+    pasar por él ni leer lo que va y viene (contraseñas, registros, el instalador)."""
+    pem = certificado()
+    if not pem:
+        raise SinCertificado('este Pokelocke no tiene el certificado del servidor; instálalo con el instalador del anfitrión')
+    contexto = ssl.create_default_context(cadata=pem)
+    contexto.check_hostname = False                     # el certificado ya es el que tiene que ser, venga de la IP que venga
+    req = urllib.request.Request(f'https://{direccion}:{PUERTO_SEGURO}{ruta}',
+                                 None if datos is None else json.dumps(datos).encode(), {'Content-Type': 'application/json'})
+    return urllib.request.urlopen(req, timeout=espera, context=contexto)
+
+
+def huella_instalador(_cache={}):
+    """SHA-256 de PokelockeSetup.exe (el que se reparte), guardada mientras el archivo no cambie."""
+    exe = Path(sys.executable).parent / 'PokelockeSetup.exe'
+    if not exe.exists():
+        return None
+    clave = (exe.stat().st_size, exe.stat().st_mtime_ns)
+    if _cache.get('clave') != clave:
+        h = hashlib.sha256()
+        with open(exe, 'rb') as f:
+            for trozo in iter(lambda: f.read(1 << 20), b''):
+                h.update(trozo)
+        _cache.update(clave=clave, huella=h.hexdigest())
+    return _cache['huella']
+
+
 def peticion(direccion, ruta, datos, espera=10):
-    req = urllib.request.Request(f'http://{direccion}:{PUERTO_SERVIDOR}{ruta}', json.dumps(datos).encode(),
-                                 {'Content-Type': 'application/json'})
     try:
-        with urllib.request.urlopen(req, timeout=espera) as r:
+        with abrir(direccion, ruta, datos, espera) as r:
             return json.load(r)
     except urllib.error.HTTPError as e:
         try:

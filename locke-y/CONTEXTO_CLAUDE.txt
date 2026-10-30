@@ -134,8 +134,14 @@ Pokémon Ostinato (adulta, seca, práctica, con guasa; ver OSTINATO-biblia.md).
   cambiado (pokelocke-mod.txt). normas_mega cada 0,5 s, atajos cada 0,1 s, la ventana escondida pregunta cada 5 s.
 - Errores en pantalla (errores.describir): los RuntimeError de la app se enseñan tal cual; los inesperados dicen
   qué se hacía, tipo, detalle, archivo:línea y un código E-XXXX que también queda en pokelocke.log con la traza.
-- Pendiente de decidir: CLAVE_POKEHEX está escrita en el código (repo público); el servidor online va por http
-  sin cifrar (contraseñas y tokens en claro).
+- Online cifrado (30/10/2026): API en https:8767 con certificado propio del anfitrión (empaquetar.certificado lo crea
+  en %LOCALAPPDATA%\Pokelocke\datos\servidor si no hay; online.json del instalador lleva el certificado y el
+  cliente solo confía en él, sin comprobar el nombre). 8766 http solo /descargar y /version (a lo demás, 426). Las
+  actualizaciones se descargan por https y se comprueban con la huella SHA-256 de /version.
+- PokéHex: sin contraseña en el código. La del PokéHex propio la crea cada uno la primera vez (datos/pokehex.json,
+  PBKDF2); el PokéHex de otro jugador solo pide ser administrador.
+- Biblioteca: guardar() escribe aparte y cambia de golpe, con biblioteca.bak.json; cargar() recupera la copia.
+- Tipografías en app/web/fuentes (servidas en /fuentes/): nada se pide a Google.
 
 
 5. IMÁGENES DE ARCE  (../CREDITOS/firefly/)

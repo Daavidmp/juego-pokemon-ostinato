@@ -108,6 +108,11 @@ como `inno-setup` o instalado).
 - Los .exe llevan editor y versión. Para firmarlos (lo único que quita el aviso de SmartScreen), define
   `POKELOCKE_FIRMA` con la orden de firma, con `{archivo}` donde va el archivo; por ejemplo
   `signtool sign /fd sha256 /tr http://timestamp.acs.microsoft.com /td sha256 /a "{archivo}"`.
+- El online va cifrado: al construir, si el PC no tiene, se crea un certificado propio del servidor (la clave privada
+  se queda en `%LOCALAPPDATA%\Pokelocke\datos\servidor` y nunca va en el instalador) y el instalador lleva el
+  certificado: los Pokelocke de los demás solo hablan con ese servidor. Puertos: TCP 8767 (https, todo), TCP 8766
+  (http, solo la primera descarga del instalador) y UDP 24872 (la sala de Citra); la app los abre con UPnP.
+  Si se cambia de PC anfitrión, hay que construir el instalador en el nuevo y repartirlo otra vez.
 - No lleva la ROM (cada uno elige la suya). Sí lleva un Java mínimo hecho con jlink y LockeSettings y MegaFases
   compilados, así que no hay que instalar Java (para construir hace falta un JDK 17 o superior).
 

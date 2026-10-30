@@ -12,6 +12,7 @@ import base64
 import configparser
 import ctypes
 import hashlib
+import hmac
 import json
 import os
 import re
@@ -1547,7 +1548,25 @@ class Servidor(BaseHTTPRequestHandler):
 # ---------- PokéHex: ver y cambiar el equipo y la mochila de la partida guardada ----------
 # Con el juego cerrado: se edita el archivo de la partida del emulador (como PKHeX), con copia antes de cada cambio.
 
-CLAVE_POKEHEX = 'Admin123!'
+# la contraseña del PokéHex de este PC: la crea cada uno la primera vez y se guarda cifrada (antes era una sola, escrita
+# en el código de un repositorio público)
+F_POKEHEX = DATOS / 'pokehex.json'
+
+
+def comprobar_clave_pokehex(clave):
+    clave = str(clave or '')
+    try:
+        guardada = json.loads(F_POKEHEX.read_text(encoding='utf-8'))
+    except (OSError, ValueError):
+        guardada = None
+    if not guardada:
+        if len(clave) < 4:
+            raise RuntimeError('Elige una contraseña para tu PokéHex (al menos 4 caracteres): la primera vez, la que '
+                               'escribas se queda como la tuya')
+        sal = os.urandom(16).hex()
+        F_POKEHEX.write_text(json.dumps({'sal': sal, 'hash': online._hash(clave, sal)}), encoding='utf-8')
+    elif not hmac.compare_digest(online._hash(clave, guardada['sal']), guardada['hash']):
+        raise RuntimeError('Contraseña incorrecta')
 hex_vivo = {'tokens': set(), 'datos': {}, 'interno': hashlib.sha1(os.urandom(16)).hexdigest()}  # interno: encargos del servidor
 
 
@@ -1636,8 +1655,7 @@ def borrar_partida(j):
 
 def pokehex_accion(que, d):
     if que == 'entrar':
-        if d.get('clave') != CLAVE_POKEHEX:
-            raise RuntimeError('Contraseña incorrecta')
+        comprobar_clave_pokehex(d.get('clave'))
         token = hashlib.sha1(os.urandom(16)).hexdigest()
         hex_vivo['tokens'].add(token)
         return {'token': token, 'nombres': pokehex.NOMBRES, 'admitidos': pokehex.ADMITIDOS, 'balls': pokehex.BALLS}
@@ -1705,6 +1723,39 @@ F_ONLINE, F_SESION = DATOS / 'online.json', DATOS / 'sesion.json'
 red = {'sesion': None, 'conectados': [], 'error': None, 'servidor': None, 'upnp': None, 'ip': None}
 
 
+def certificado_servidor():
+    """El certificado del anfitrión en que confía este Pokelocke: el que trae su instalador, o en el PC anfitrión el
+    suyo propio."""
+    pem = online_config().get('certificado')
+    if not pem:
+        try:
+            pem = json.loads((APP / 'online.json').read_text(encoding='utf-8')).get('certificado')
+        except (OSError, ValueError):
+            pem = None
+    if not pem and (DATOS / 'servidor' / 'cert.pem').exists():
+        pem = (DATOS / 'servidor' / 'cert.pem').read_text(encoding='utf-8')
+    return pem
+
+
+online.certificado = certificado_servidor
+
+
+def online_motivo(e):
+    """Por qué no se ha podido hablar con el servidor, en pocas palabras."""
+    import ssl
+    if isinstance(e, online.SinCertificado):
+        return str(e)
+    if isinstance(e, ssl.SSLCertVerificationError) or 'CERTIFICATE_VERIFY_FAILED' in str(e):
+        return 'el servidor no tiene el certificado del anfitrión: o no es él, o hay que reinstalar con su instalador'
+    if isinstance(e, (TimeoutError, socket.timeout)) or 'timed out' in str(e):
+        return 'no contesta a tiempo'
+    if isinstance(e, ConnectionRefusedError) or 'refused' in str(e).lower() or '10061' in str(e):
+        return 'rechaza la conexión: el servidor está apagado'
+    if 'getaddrinfo' in str(e) or '11001' in str(e):
+        return 'no se encuentra la dirección'
+    return f'{type(e).__name__}: {e}'
+
+
 def online_config():
     for f in (F_ONLINE, APP / 'online.json'):
         try:
@@ -1757,8 +1808,8 @@ def online_latidos():
                     red['error'], red['conectados'] = None, r['conectados']
                     for t in r['tareas']:
                         threading.Thread(target=online_tarea, args=(direccion, s['token'], t), daemon=True).start()
-            except OSError:
-                red['error'], red['conectados'] = 'No se puede conectar con el servidor', []
+            except OSError as e:
+                red['error'], red['conectados'] = f'No se puede conectar con el servidor ({online_motivo(e)})', []
         if time.time() - red.get('actualizacion_mirada', 0) > CADA_CUANTO_ACTUALIZACION:
             red['actualizacion_mirada'] = time.time()
             threading.Thread(target=comprobar_actualizacion, daemon=True).start()
@@ -1784,13 +1835,15 @@ def comprobar_actualizacion():
         red['actualizacion'] = None
         return
     try:
-        with urllib.request.urlopen(f'http://{direccion}:{online.PUERTO_SERVIDOR}/version', timeout=6) as r:
-            servidor = str(json.load(r).get('version', ''))
-    except (OSError, ValueError):
-        red['actualizacion'] = {'servidor': None, 'nueva': False, 'error': 'No se puede preguntar al servidor'}
+        with online.abrir(direccion, '/version', espera=6) as r:
+            datos = json.load(r)
+    except (OSError, ValueError) as e:
+        red['actualizacion'] = {'servidor': None, 'nueva': False, 'error': f'No se puede preguntar al servidor ({online_motivo(e)})'}
         return
+    servidor = str(datos.get('version') or '')
     yo, suya = version_tupla(VERSION_APP), version_tupla(servidor)
-    red['actualizacion'] = {'servidor': servidor, 'nueva': bool(yo and suya and suya > yo), 'error': None}
+    red['actualizacion'] = {'servidor': servidor, 'nueva': bool(yo and suya and suya > yo), 'error': None,
+                            'sha256': datos.get('sha256')}
 
 
 def instalar_actualizacion():
@@ -1801,14 +1854,21 @@ def instalar_actualizacion():
     direccion = online_direccion()
     if not direccion:
         raise RuntimeError('Falta la dirección del servidor')
+    comprobar_actualizacion()
+    esperada = (red.get('actualizacion') or {}).get('sha256')
+    if not esperada:
+        raise RuntimeError('El servidor no dice la huella del instalador: no se instala nada sin poder comprobarlo')
     tarea('Descargando la actualización…', paso=1)
     destino, tmp = TOOLS / 'PokelockeSetup.exe', TOOLS / 'PokelockeSetup.descarga'
-    with urllib.request.urlopen(f'http://{direccion}:{online.PUERTO_SERVIDOR}/descargar', timeout=60) as r, open(tmp, 'wb') as f:
-        shutil.copyfileobj(r, f, 1 << 20)
-    with open(tmp, 'rb') as f:
-        if f.read(2) != b'MZ' or tmp.stat().st_size < 1 << 20:
-            tmp.unlink(missing_ok=True)
-            raise RuntimeError('Lo que ha mandado el servidor no es un instalador de Pokelocke')
+    huella = hashlib.sha256()
+    with online.abrir(direccion, '/descargar', espera=60) as r, open(tmp, 'wb') as f:
+        for trozo in iter(lambda: r.read(1 << 20), b''):
+            huella.update(trozo)
+            f.write(trozo)
+    if not hmac.compare_digest(huella.hexdigest(), esperada):
+        tmp.unlink(missing_ok=True)
+        raise RuntimeError('El instalador descargado no coincide con su huella (se ha cortado o lo han cambiado por el '
+                           'camino): no se instala. Vuelve a intentarlo.')
     tmp.replace(destino)
     tarea('Instalando: Pokelocke se cerrará y volverá a abrirse solo…', paso=3)
     time.sleep(2)
@@ -1863,7 +1923,7 @@ def online_servidor(activar):
         sala = next((exe.parent / n for n in ('citra-room.exe', 'azahar-room.exe') if exe and (exe.parent / n).exists()), None)
         admin = online_config().get('admin') or json.loads((APP / 'online.json').read_text(encoding='utf-8')).get('admin', '')
         srv = online.Servidor(DATOS / 'servidor', sala, admin)
-        srv.arrancar(CLAVE_POKEHEX)
+        srv.arrancar()
         red['servidor'] = srv
         red['upnp'], red['ip'] = online.abrir_puertos()
         if not red['upnp']:
@@ -1916,8 +1976,8 @@ def online_accion(que, d):
             if que == 'registro' and red['servidor']:      # registrarse desde el anfitrión: cuenta de administrador
                 datos['anfitrion'] = red['servidor'].clave_anfitrion
             r = online.peticion(direccion, '/' + que, datos)
-        except OSError:
-            raise RuntimeError('No se puede conectar con el servidor. ¿Está encendido?')
+        except OSError as e:
+            raise RuntimeError(f'No se puede conectar con el servidor ({online_motivo(e)}). ¿Está encendido?')
         if 'error' in r:
             raise RuntimeError(r['error'])
         red['sesion'], red['error'] = {k: r[k] for k in ('token', 'usuario', 'admin', 'sala')}, None
@@ -1938,8 +1998,8 @@ def online_accion(que, d):
         ruta = {'torneo': '/torneo', 'torneo_editar': '/torneo/editar', 'foto': '/foto'}[que]
         try:
             r = online.peticion(direccion, ruta, {**d, 'token': red['sesion']['token']}, espera=15)
-        except OSError:
-            raise RuntimeError('No se puede conectar con el servidor')
+        except OSError as e:
+            raise RuntimeError(f'No se puede conectar con el servidor ({online_motivo(e)})')
         if 'error' in r:
             raise RuntimeError(r['error'])
         return r
@@ -1948,8 +2008,8 @@ def online_accion(que, d):
             raise RuntimeError('Entra con tu usuario')
         try:
             r = online.peticion(direccion, '/log', {'token': red['sesion']['token'], 'usuario': d.get('usuario')}, espera=40)
-        except OSError:
-            raise RuntimeError('No se puede conectar con el servidor')
+        except OSError as e:
+            raise RuntimeError(f'No se puede conectar con el servidor ({online_motivo(e)})')
         if 'error' in r:
             raise RuntimeError(r['error'])
         return r
@@ -1957,11 +2017,11 @@ def online_accion(que, d):
         if not red['sesion']:
             raise RuntimeError('Entra con tu usuario')
         try:
-            r = online.peticion(direccion, '/pokehex', {'token': red['sesion']['token'], 'clave_hex': d.get('clave_hex'),
+            r = online.peticion(direccion, '/pokehex', {'token': red['sesion']['token'],
                                                          'usuario': d.get('usuario'), 'que': d.get('que'),
                                                          'datos': d.get('datos') or {}}, espera=40)
-        except OSError:
-            raise RuntimeError('No se puede conectar con el servidor')
+        except OSError as e:
+            raise RuntimeError(f'No se puede conectar con el servidor ({online_motivo(e)})')
         if 'error' in r:
             raise RuntimeError(r['error'])
         return r
