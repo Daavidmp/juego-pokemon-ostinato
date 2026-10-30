@@ -1229,6 +1229,8 @@ class Servidor(BaseHTTPRequestHandler):
                 pass
 
     def responder_get(self):
+        if not self.local():
+            return self.enviar({'error': 'Petición no permitida'}, codigo=403)
         ruta = self.path.split('?')[0]
         if ruta == '/':
             return self.archivo(WEB / 'app.html')
@@ -1262,13 +1264,28 @@ class Servidor(BaseHTTPRequestHandler):
             return self.archivo(NORMAS / 'img' / m[1])
         self.enviar({'error': 'no existe'}, codigo=404)
 
+    def local(self):
+        """La petición va a este Pokelocke por 127.0.0.1 o localhost. Una web con un dominio que apunte a 127.0.0.1
+        (DNS rebinding) llega con su propio Host y se rechaza: no puede leer el estado ni mandar acciones."""
+        return self.headers.get('Host', '') in (f'127.0.0.1:{PUERTO}', f'localhost:{PUERTO}')
+
     def do_POST(self):
-        largo = int(self.headers.get('Content-Length') or 0)
-        datos = json.loads(self.rfile.read(largo) or b'{}')
+        # cualquier web abierta en el PC puede mandar un POST a 127.0.0.1, pero no con Content-Type JSON sin
+        # pedir permiso antes (CORS), y este servidor no se lo da: así solo la ventana de Pokelocke manda acciones
+        if not self.local() or not (self.headers.get('Content-Type') or '').startswith('application/json'):
+            return self.enviar({'error': 'Petición no permitida'}, codigo=403)
         try:
+            largo = min(int(self.headers.get('Content-Length') or 0), 20_000_000)
+            datos = json.loads(self.rfile.read(largo) or b'{}')
+            if not isinstance(datos, dict):
+                raise ValueError('Petición no válida')
             respuesta = self.accion(self.path, datos)
             self.enviar(respuesta or {'ok': True})
+        except (ConnectionAbortedError, ConnectionResetError, BrokenPipeError):
+            pass
         except Exception as e:
+            if not isinstance(e, (RuntimeError, ValueError, KeyError, TypeError, PermissionError)):
+                traceback.print_exc()
             self.enviar({'error': str(e)}, codigo=400)
 
     def accion(self, ruta, d):
@@ -1289,8 +1306,9 @@ class Servidor(BaseHTTPRequestHandler):
                 guardar()
         elif ruta == '/api/quitar':
             with lock:
-                biblio['juegos'] = [j for j in biblio['juegos'] if j['id'] != d['id']]
-                shutil.rmtree(DATOS / 'juegos' / d['id'], ignore_errors=True)
+                j = buscar(d.get('id'))                  # solo ids de la biblioteca: nunca una ruta que llegue de fuera
+                biblio['juegos'].remove(j)
+                shutil.rmtree(DATOS / 'juegos' / j['id'], ignore_errors=True)
                 guardar()
         elif ruta == '/api/reiniciar':          # vuelve a pedir vidas y randomización al jugar
             with lock:
@@ -1300,7 +1318,7 @@ class Servidor(BaseHTTPRequestHandler):
             with lock:
                 borrar_partida(buscar(d['id']))
         elif ruta == '/api/registro':
-            log = DATOS / 'juegos' / d['id'] / 'randomizacion.log'
+            log = DATOS / 'juegos' / buscar(d.get('id'))['id'] / 'randomizacion.log'
             if not log.exists():
                 raise RuntimeError('Este juego no tiene registro: no se ha randomizado')
             os.startfile(log)
@@ -1314,7 +1332,12 @@ class Servidor(BaseHTTPRequestHandler):
                 j = buscar(d['id'])
                 if not j.get('huevos'):
                     raise RuntimeError('La caja de huevos es de las normas Mega Pokelocke')
-                return coger_huevo(j, int(d['i'])) if ruta.endswith('coger') else huevos_estado(j)
+                if ruta.endswith('coger'):
+                    i = int(d['i'])
+                    if not 0 <= i < len(j['huevos']):
+                        raise RuntimeError('Ese huevo no existe')
+                    return coger_huevo(j, i)
+                return huevos_estado(j)
         elif ruta == '/api/jugar':
             j = buscar(d['id'])
             en_segundo_plano('Abrir el juego', lambda: (herramientas(), lanzar(j)))
@@ -1324,7 +1347,10 @@ class Servidor(BaseHTTPRequestHandler):
                 subprocess.Popen([java(), '-jar', str(upr_jar())], cwd=upr_jar().parent)))
         elif ruta == '/api/medalla':
             with lock:
-                buscar(vivo['activo'])['medallas'][int(d['i'])] = bool(d['valor'])
+                i = int(d['i'])
+                if not 0 <= i < 8:
+                    raise RuntimeError('Esa medalla no existe')
+                buscar(vivo['activo'])['medallas'][i] = bool(d['valor'])
                 guardar()
         elif ruta == '/api/vidas':
             with lock:
@@ -1573,7 +1599,10 @@ def online_accion(que, d):
         if not direccion:
             raise RuntimeError('Falta la dirección del servidor')
         try:
-            r = online.peticion(direccion, '/' + que, {'usuario': d.get('usuario'), 'clave': d.get('clave')})
+            datos = {'usuario': d.get('usuario'), 'clave': d.get('clave')}
+            if que == 'registro' and red['servidor']:      # registrarse desde el anfitrión: cuenta de administrador
+                datos['anfitrion'] = red['servidor'].clave_anfitrion
+            r = online.peticion(direccion, '/' + que, datos)
         except OSError:
             raise RuntimeError('No se puede conectar con el servidor. ¿Está encendido?')
         if 'error' in r:

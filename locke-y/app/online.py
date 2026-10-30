@@ -5,7 +5,7 @@ PUERTO_SERVIDOR, abre él solo los puertos en el router por UPnP y arranca citra
 (combates e intercambios por «juego inalámbrico» de Pokémon X/Y). Los demás Pokelocke se conectan a la
 dirección de app/online.json, entran con su usuario y mandan un latido cada pocos segundos.
 
-El PokéHex de otro jugador: solo una cuenta de administrador (la primera que se crea) y con la contraseña
+El PokéHex de otro jugador: solo una cuenta de administrador (la que se registra desde el Pokelocke anfitrión) y con la contraseña
 del PokéHex. El servidor deja el encargo al Pokelocke de ese jugador, que lo hace en su partida y contesta.
 """
 import hashlib
@@ -20,6 +20,7 @@ import subprocess
 import sys
 import threading
 import time
+import traceback
 import urllib.request
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
@@ -183,7 +184,11 @@ class Servidor:
         self.tareas = {}                 # usuario -> [tarea]
         self.respuestas = {}             # id -> (Event, resultado)
         self.fallos = {}                 # ip -> [horas de intentos fallidos]
+        self.registros = {}              # ip -> hora del último registro
         self.clave_sala = secrets.token_hex(6)
+        # solo existe en la memoria del Pokelocke anfitrión: la cuenta que se registra desde él es la de administrador
+        # (antes lo era la primera, y cualquiera que llegara antes al servidor podía quedársela)
+        self.clave_anfitrion = secrets.token_hex(16)
         self.citra_room = citra_room
         self.sala = None
         self.http = None
@@ -194,16 +199,25 @@ class Servidor:
         tmp.write_text(json.dumps(self.usuarios, indent=1), encoding='utf-8')
         tmp.replace(self.f_usuarios)
 
-    def registrar(self, usuario, clave):
+    MAX_CUENTAS, ESPERA_REGISTRO = 64, 60
+
+    def registrar(self, usuario, clave, ip='', anfitrion=''):
         if not re.fullmatch(r'[A-Za-z0-9_]{3,16}', usuario or ''):
             raise ValueError('El usuario tiene que tener de 3 a 16 letras, números o _')
-        if len(clave or '') < 4:
-            raise ValueError('La contraseña tiene que tener al menos 4 caracteres')
+        if not isinstance(clave, str) or not 4 <= len(clave) <= 128:
+            raise ValueError('La contraseña tiene que tener de 4 a 128 caracteres')
+        admin = hmac.compare_digest(str(anfitrion or ''), self.clave_anfitrion)
         with self.lock:
+            # el servidor da a internet: sin límite, cualquiera podría llenarlo de cuentas
+            if not admin and time.time() - self.registros.get(ip, 0) < self.ESPERA_REGISTRO:
+                raise ValueError('Espera un minuto antes de crear otra cuenta')
+            if len(self.usuarios) >= self.MAX_CUENTAS:
+                raise ValueError('El servidor ya tiene el máximo de cuentas')
             if usuario.lower() in (u.lower() for u in self.usuarios):
                 raise ValueError('Ese usuario ya existe')
+            self.registros[ip] = time.time()
             sal = secrets.token_hex(16)
-            self.usuarios[usuario] = {'sal': sal, 'hash': _hash(clave, sal), 'admin': not self.usuarios}
+            self.usuarios[usuario] = {'sal': sal, 'hash': _hash(clave, sal), 'admin': admin}
             self._guardar()
 
     def entrar(self, usuario, clave, ip):
@@ -365,8 +379,10 @@ class Servidor:
                     largo = min(int(self.headers.get('Content-Length') or 0), 1_000_000)
                     d = json.loads(self.rfile.read(largo) or b'{}')
                     ruta, ip = self.path, self.client_address[0]
+                    if not isinstance(d, dict):
+                        raise ValueError('Petición no válida')
                     if ruta == '/registro':
-                        srv.registrar(d.get('usuario'), d.get('clave'))
+                        srv.registrar(d.get('usuario'), d.get('clave'), ip, d.get('anfitrion'))
                         r = srv.entrar(d.get('usuario'), d.get('clave'), ip)
                     elif ruta == '/entrar':
                         r = srv.entrar(d.get('usuario'), d.get('clave'), ip)
@@ -394,6 +410,9 @@ class Servidor:
                     r, codigo = {'error': str(e)}, 403
                 except (ValueError, KeyError, TypeError) as e:
                     r, codigo = {'error': str(e)}, 400
+                except Exception:                   # un error inesperado no deja la petición sin respuesta
+                    traceback.print_exc()
+                    r, codigo = {'error': 'Error interno del servidor'}, 500
                 cuerpo = json.dumps(r).encode()
                 self.send_response(codigo)
                 self.send_header('Content-Type', 'application/json')
