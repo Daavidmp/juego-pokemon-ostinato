@@ -62,6 +62,8 @@ def version_app():
 
 
 def pyinstaller():
+    # websocket-client: con él, el navegador que pinta la capa se queda abierto (main.Fotografo)
+    subprocess.run([sys.executable, '-m', 'pip', 'install', '-q', 'websocket-client'], check=True)
     datos = [('app/web', 'app/web'), ('app/datos_pkx', 'app/datos_pkx'), ('app/LockeSettings.java', 'app'), ('app/MegaFases.java', 'app'),
              ('app/online.json', 'app'), ('assets', 'assets'),
              # opciones de la biblioteca: vídeo de normas, guía y contrato (se rellena con la firma)

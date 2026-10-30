@@ -20,11 +20,12 @@ import subprocess
 import sys
 import threading
 import time
-import traceback
 import urllib.request
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from urllib.parse import urljoin
+
+import errores
 
 PUERTO_SERVIDOR = 8766          # TCP: el servidor de Pokelocke
 PUERTO_SALA = 24872             # UDP: la sala de Citra (su puerto de siempre)
@@ -483,9 +484,9 @@ class Servidor:
                     r, codigo = {'error': str(e)}, 403
                 except (ValueError, KeyError, TypeError) as e:
                     r, codigo = {'error': str(e)}, 400
-                except Exception:                   # un error inesperado no deja la petición sin respuesta
-                    traceback.print_exc()
-                    r, codigo = {'error': 'Error interno del servidor'}, 500
+                except Exception as e:              # un error inesperado no deja la petición sin respuesta
+                    r, codigo = {'error': errores.describir(e, f'Servidor online {self.path}',
+                                                            registro='el pokelocke.log del anfitrión')}, 500
                 cuerpo = json.dumps(r).encode()
                 self.send_response(codigo)
                 self.send_header('Content-Type', 'application/json')

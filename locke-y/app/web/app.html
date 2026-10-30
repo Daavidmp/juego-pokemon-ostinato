@@ -1883,7 +1883,14 @@ $('hx-cancelar-mover').onclick = () => { hex.moviendo = null; pintarHex(); };
 $('hex-bolsillos').onclick = (ev) => { const b = ev.target.closest('[data-bolsillo]'); if (b) { hex.bolsillo = b.dataset.bolsillo; pintarMochila(); } };
 
 actualizar();
-setInterval(actualizar, 1000);
+// con la ventana escondida (detrás del juego o minimizada) basta con preguntar cada 5 s: menos trabajo mientras se juega
+let preguntado = 0;
+setInterval(() => {
+  if (document.hidden && Date.now() - preguntado < 5000) return;
+  preguntado = Date.now();
+  actualizar();
+}, 1000);
+document.addEventListener('visibilitychange', () => { if (!document.hidden) { preguntado = Date.now(); actualizar(); } });
 </script>
 </body>
 </html>

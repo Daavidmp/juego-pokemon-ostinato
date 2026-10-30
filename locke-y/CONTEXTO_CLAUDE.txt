@@ -127,6 +127,13 @@ Pokémon Ostinato (adulta, seca, práctica, con guasa; ver OSTINATO-biblia.md).
   conectados); va por el mismo sistema de encargos que el PokéHex a distancia (online.Servidor._encargar).
 - Pruebas: app/test_juego.py, test_torneo.py, test_app.py y PruebaMegaFases.java; .github/workflows/pokelocke.yml
   las ejecuta en cada push que toque locke-y/ (con el randomizador v4.6.1, el mismo jar que el de tools/upr).
+- Recursos (30/10/2026): la capa se pinta con UN Edge sin ventana que se queda abierto mientras se juega
+  (main.Fotografo, por su protocolo de depuración con websocket-client): repinta con actualizar() del overlay y
+  captura, ~0,3 s por foto; antes se lanzaba un Edge nuevo por cada cambio (cada golpe en combate). Si falla, o solo
+  hay Firefox, el método de antes. No se pinta mientras Citra carga. La randomización solo se copia a mods/ si ha
+  cambiado (pokelocke-mod.txt). normas_mega cada 0,5 s, atajos cada 0,1 s, la ventana escondida pregunta cada 5 s.
+- Errores en pantalla (errores.describir): los RuntimeError de la app se enseñan tal cual; los inesperados dicen
+  qué se hacía, tipo, detalle, archivo:línea y un código E-XXXX que también queda en pokelocke.log con la traza.
 - Pendiente de decidir: CLAVE_POKEHEX está escrita en el código (repo público); el servidor online va por http
   sin cifrar (contraseñas y tokens en claro).
 

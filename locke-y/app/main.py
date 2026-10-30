@@ -8,6 +8,7 @@ Todo vive dentro de locke-y/ y no se instala nada en el sistema:
 Pokelocke.exe (o Pokelocke.bat) abre la biblioteca. Con --capa abre solo la capa del layout
 que va encima de Azahar mientras se juega.
 """
+import base64
 import configparser
 import ctypes
 import hashlib
@@ -15,6 +16,7 @@ import json
 import os
 import re
 import shutil
+import socket
 import subprocess
 import sys
 import threading
@@ -25,6 +27,7 @@ import zipfile
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 
+import errores
 import juego
 import online
 import pokehex
@@ -586,6 +589,29 @@ def cerrar_citra_colgado():
     vivo['proceso'] = None
 
 
+def poner_mod(j):
+    """Copia la randomización del juego a la carpeta de mods del emulador, solo si no es ya la que hay: antes se
+    borraba y se copiaba entera cada vez que se abría el juego (segundos en un disco lento)."""
+    mods = carpeta_mods()
+    marca = mods.parent / 'pokelocke-mod.txt'
+    mod = DATOS / 'juegos' / j['id'] / 'mod'
+    origen = mod if j.get('random') and mod.exists() else None
+    firma = 'ninguno' if not origen else hashlib.sha1(json.dumps(sorted(
+        (str(f.relative_to(origen)), f.stat().st_size, f.stat().st_mtime_ns) for f in origen.rglob('*') if f.is_file()
+    )).encode()).hexdigest()
+    firma = f'{j["id"]} {firma}'
+    try:
+        if mods.exists() and marca.read_text(encoding='utf-8') == firma:
+            return
+    except OSError:
+        pass
+    shutil.rmtree(mods, ignore_errors=True)
+    mods.mkdir(parents=True)
+    if origen:
+        shutil.copytree(origen, mods, dirs_exist_ok=True)
+    marca.write_text(firma, encoding='utf-8')
+
+
 def lanzar(j):
     """Pone el mod del juego (o ninguno), abre Azahar a pantalla completa y la capa del layout encima."""
     print(time.strftime('%H:%M:%S'), 'abrir el juego', j['id'], flush=True)
@@ -596,12 +622,7 @@ def lanzar(j):
     with lock:
         dar_caramelos(j)
         completa = j.get('fase') == 1 and medallas_partida(j) >= MEDALLAS_PARA_COMPLETA and abrir_fase_completa(j)
-    mods = carpeta_mods()
-    shutil.rmtree(mods, ignore_errors=True)
-    mods.mkdir(parents=True)
-    mod = DATOS / 'juegos' / j['id'] / 'mod'
-    if j.get('random') and mod.exists():
-        shutil.copytree(mod, mods, dirs_exist_ok=True)
+    poner_mod(j)
     try:
         copiar_partida(j, 'al-abrir')
     except OSError:
@@ -613,8 +634,7 @@ def lanzar(j):
     if completa:
         avisar('¡Randomización completa! · Ahora los rivales sacan cualquier evolución y cualquier ataque', 25)
     yo = [sys.executable] if getattr(sys, 'frozen', False) else [sys.executable, str(Path(__file__))]
-    subprocess.Popen(yo + ['--capa'])
-    renderizar_capa()
+    subprocess.Popen(yo + ['--capa'])                     # la capa la pinta pintor_capa cuando el juego ya ha cargado
 
 
 def en_segundo_plano(nombre, fn, *args, minimo=0):
@@ -627,8 +647,8 @@ def en_segundo_plano(nombre, fn, *args, minimo=0):
             fn(*args)
             tarea(f'{nombre}: hecho.', fin=True)
         except Exception as e:
-            traceback.print_exc()
-            tarea(f'{nombre}: {e}', error=True, fin=True)
+            mensaje = errores.describir(e, nombre)
+            tarea(f'{nombre}: {mensaje}' if type(e) is RuntimeError else mensaje, error=True, fin=True)
     vivo['tarea'] = {'inicio': time.time(), 'minimo': minimo}
     tarea(f'{nombre}…', paso=1)
     threading.Thread(target=envoltura, daemon=True).start()
@@ -789,7 +809,7 @@ def normas_mega():
     combate_desde = fuera_desde = None
     decidido = False
     while True:
-        time.sleep(0.25)
+        time.sleep(0.5)                       # de sobra: las Balls se deciden a los 1,5 s de empezar el combate
         with lock:
             j = next((x for x in biblio['juegos'] if x['id'] == vivo['activo']), None) if citra_listo() else None
             if j and j.get('reglas') != 'mega':
@@ -926,7 +946,7 @@ def atajos():
                     corregir(accion)
             except (RuntimeError, OSError, TimeoutError):
                 traceback.print_exc()
-        time.sleep(0.05)
+        time.sleep(0.1)
 
 
 def avisar(texto, segundos=4):
@@ -971,9 +991,112 @@ def huella_capa():
                       sort_keys=True)
 
 
+class Fotografo:
+    """Un Edge (o Chrome) sin ventana que se queda abierto mientras se juega: cada foto de la capa es recargar la
+    página y capturarla por su protocolo de depuración, unas décimas de segundo. Antes se lanzaba un navegador nuevo
+    por foto (segundos y cientos de MB cada vez), y en un combate la vida cambia a cada golpe."""
+    # la página está lista: cargada (la primera vez) o repintada con el estado de ahora (las demás: el overlay ya
+    # sabe pedirlo y repintarse con actualizar(), sin recargar letras ni imágenes), con sus imágenes, y pintada
+    LISTA = """(async (n, repintar) => {
+      while (!location.search.includes('n=' + n) || document.readyState !== 'complete') await new Promise((r) => setTimeout(r, 25));
+      if (repintar) await actualizar();
+      await document.fonts.ready;
+      await Promise.all([...document.images].map((i) => i.complete ? 0 : new Promise((r) => { i.onload = i.onerror = r; })));
+      await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
+      return true;
+    })"""
+
+    def __init__(self, nav, escala):
+        import websocket                                   # websocket-client: va en el instalador
+        with socket.socket() as so:
+            so.bind(('127.0.0.1', 0))
+            puerto = so.getsockname()[1]
+        self.n, self.ids, self.escala = 0, 0, escala
+        self.proc = subprocess.Popen([nav, '--headless=new', '--disable-gpu', '--hide-scrollbars', '--mute-audio',
+                                      f'--user-data-dir={TOOLS / "edge-capa"}', f'--remote-debugging-port={puerto}',
+                                      'about:blank'], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
+                                     creationflags=0x08000000 if os.name == 'nt' else 0)
+        limite = time.time() + 30
+        while True:
+            try:
+                with urllib.request.urlopen(f'http://127.0.0.1:{puerto}/json/list', timeout=2) as r:
+                    pagina = next(x for x in json.load(r) if x['type'] == 'page')
+                break
+            except (OSError, ValueError, StopIteration):
+                if time.time() > limite or self.proc.poll() is not None:
+                    self.cerrar()
+                    raise RuntimeError('El navegador de la capa no arranca')
+                time.sleep(0.3)
+        self.ws = websocket.create_connection(pagina['webSocketDebuggerUrl'], timeout=30, suppress_origin=True)
+        self.cdp('Emulation.setDeviceMetricsOverride', width=1920, height=1080, deviceScaleFactor=escala, mobile=False)
+
+    def cdp(self, metodo, **params):
+        self.ids += 1
+        self.ws.send(json.dumps({'id': self.ids, 'method': metodo, 'params': params}))
+        while True:
+            m = json.loads(self.ws.recv())
+            if m.get('id') == self.ids:
+                if 'error' in m:
+                    raise RuntimeError(f'{metodo}: {m["error"].get("message")}')
+                return m.get('result', {})
+
+    def foto(self, destino):
+        repintar = self.n > 0
+        if not repintar:                      # la primera vez se carga la página; después solo se repinta
+            self.n = 1
+            self.cdp('Page.navigate', url=f'{URL}/overlay?capa=1&n={self.n}')
+        for _ in range(5):                    # justo al navegar, la página vieja puede desaparecer a mitad: otra vez
+            try:
+                self.cdp('Runtime.evaluate', expression=f'{self.LISTA}({self.n}, {str(repintar).lower()})',
+                         awaitPromise=True, returnByValue=True)
+                break
+            except RuntimeError:
+                time.sleep(0.1)
+        datos = self.cdp('Page.captureScreenshot', format='png', optimizeForSpeed=True)['data']
+        destino.write_bytes(base64.b64decode(datos))
+
+    def cerrar(self):
+        try:
+            self.ws.close()
+        except Exception:
+            pass
+        if self.proc.poll() is None:          # Edge deja procesos hijos: se cierra el árbol entero
+            if os.name == 'nt':
+                subprocess.run(['taskkill', '/F', '/T', '/PID', str(self.proc.pid)], stdout=subprocess.DEVNULL,
+                               stderr=subprocess.DEVNULL, creationflags=0x08000000)
+            else:
+                self.proc.terminate()
+
+
+fotografo = {'f': None}
+
+
+def cerrar_fotografo():
+    if fotografo['f']:
+        fotografo['f'].cerrar()
+        fotografo['f'] = None
+
+
 def renderizar_capa():
-    """Pinta /overlay?capa=1 a la resolución del monitor con el navegador sin ventana."""
+    """Pinta /overlay?capa=1 a la resolución del monitor: con el navegador que se queda abierto si se puede, y si no
+    lanzando uno sin ventana para esta foto (como antes)."""
     nav, ff = navegador(), None
+    if nav:
+        tmp = TOOLS / 'capa-nueva.png'
+        try:
+            if not fotografo['f']:
+                fotografo['f'] = Fotografo(nav, encaje()[0])
+            fotografo['f'].foto(tmp)
+        except Exception:
+            traceback.print_exc()
+            cerrar_fotografo()                # este intento, como antes; el siguiente vuelve a probar
+        else:
+            try:
+                tmp.replace(CAPA_PNG)
+            except OSError:                   # la capa la está leyendo justo ahora: el siguiente intento
+                return False
+            vivo['capa'] += 1
+            return True
     if not nav:
         ff = firefox()
         if not ff:
@@ -1020,12 +1143,13 @@ def pintor_capa():
     ultima = None
     while True:
         try:
-            if jugando():
+            if jugando() and cargando() is None:          # mientras Citra carga, todo el procesador para él
                 huella = huella_capa()
                 if huella != ultima and renderizar_capa():
                     ultima = huella                       # si no se pudo pintar, se reintenta en el siguiente
-            else:
+            elif not jugando():
                 ultima = None
+                cerrar_fotografo()
         except Exception:
             traceback.print_exc()
             ultima = None
@@ -1238,10 +1362,9 @@ class Servidor(BaseHTTPRequestHandler):
             self.responder_get()
         except (ConnectionAbortedError, ConnectionResetError, BrokenPipeError):
             pass
-        except Exception:
-            traceback.print_exc()
+        except Exception as e:
             try:
-                self.enviar({'error': 'error interno'}, codigo=500)
+                self.enviar({'error': errores.describir(e, f'Petición {self.path.split("?")[0]}')}, codigo=500)
             except OSError:
                 pass
 
@@ -1301,9 +1424,7 @@ class Servidor(BaseHTTPRequestHandler):
         except (ConnectionAbortedError, ConnectionResetError, BrokenPipeError):
             pass
         except Exception as e:
-            if not isinstance(e, (RuntimeError, ValueError, KeyError, TypeError, PermissionError)):
-                traceback.print_exc()
-            self.enviar({'error': str(e)}, codigo=400)
+            self.enviar({'error': errores.describir(e, f'Acción {self.path}')}, codigo=400)
 
     def accion(self, ruta, d):
         if ruta == '/api/firmar':
