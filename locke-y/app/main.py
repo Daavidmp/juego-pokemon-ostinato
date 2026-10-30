@@ -289,7 +289,15 @@ def citra_listo():
 
 # ---------- herramientas portables ----------
 
+# lo que trae el instalador (app/empaquetar.py): un Java mínimo hecho con jlink y LockeSettings y MegaFases ya
+# compilados en un .jar, así que no hace falta instalar ni descargar Java
+JAVA_INCLUIDO = TOOLS / 'java' / 'runtime' / 'bin' / 'java.exe'
+CLASES_POKELOCKE = TOOLS / 'upr' / 'pokelocke-upr.jar'
+
+
 def java():
+    if JAVA_INCLUIDO.exists() and CLASES_POKELOCKE.exists():
+        return str(JAVA_INCLUIDO)
     candidatos = []
     if os.environ.get('JAVA_HOME'):
         candidatos.append(Path(os.environ['JAVA_HOME']) / 'bin' / 'java.exe')
@@ -298,7 +306,8 @@ def java():
     en_path = shutil.which('java')
     if en_path:
         candidatos.append(Path(en_path))
-    # solo un JDK vale (con javac al lado): un JRE no puede ejecutar LockeSettings.java
+    # sin el .jar compilado (la copia de desarrollo) solo vale un JDK, con javac al lado: un JRE no puede
+    # ejecutar LockeSettings.java como fuente
     for c in candidatos:
         if c.exists() and (c.parent / 'javac.exe').exists():
             return str(c)
@@ -488,6 +497,14 @@ def rom_jugable(j):
     return str(cci)
 
 
+def clase_pokelocke(jar, nombre):
+    """Los argumentos de java para LockeSettings o MegaFases: la clase compilada del instalador o, en la copia de
+    desarrollo, el .java como fuente (con un JDK)."""
+    if CLASES_POKELOCKE.exists():
+        return ['-cp', f'{jar}{os.pathsep}{CLASES_POKELOCKE}', nombre]
+    return ['-cp', str(jar), str(APP / f'{nombre}.java')]
+
+
 def randomizar(j, opciones, avanzado, reglas=None):
     jar, jv = upr_jar(), java()
     carpeta = DATOS / 'juegos' / j['id']
@@ -501,7 +518,7 @@ def randomizar(j, opciones, avanzado, reglas=None):
         if malas:
             raise RuntimeError(f'Opciones desconocidas: {malas}')
         tarea('Preparando los ajustes…', paso=2)
-        correr([jv, '-cp', str(jar), str(APP / 'LockeSettings.java'), str(ajustes)]
+        correr([jv, *clase_pokelocke(jar, 'LockeSettings'), str(ajustes)]
                + [f'{k}={v}' for k, v in opciones.items()], jar.parent)
     salida = TOOLS / 'salida'
     shutil.rmtree(salida, ignore_errors=True)
@@ -510,7 +527,7 @@ def randomizar(j, opciones, avanzado, reglas=None):
     if reglas == 'mega':
         # una randomización y dos juegos: la fase fácil (hasta la segunda medalla) va de mod y la completa se
         # guarda aparte para cuando se gane la segunda medalla
-        correr([jv, '-Xmx4096M', '-cp', str(jar), str(APP / 'MegaFases.java'), rom_jugable(j), str(ajustes),
+        correr([jv, '-Xmx4096M', *clase_pokelocke(jar, 'MegaFases'), rom_jugable(j), str(ajustes),
                 str(salida / 'completa'), str(salida / 'facil'), str(salida / 'y.log')], jar.parent)
         versiones = {'mod': salida / 'facil', MOD_COMPLETO: salida / 'completa'}
     else:

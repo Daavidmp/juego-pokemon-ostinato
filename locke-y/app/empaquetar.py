@@ -6,18 +6,26 @@
    la guía y el contrato. Nada se descomprime al abrirlo (el modo de un solo archivo lo sacaba todo a %TEMP% en
    cada arranque, y dos veces al jugar por la capa: lento y lo que más marcan los antivirus).
 2. Al lado, lo que antes iba en un zip pegado al .exe: Citra (sin user/, que son las partidas), el randomizador,
-   las cachés de PokéAPI y los fan arts.
+   las cachés de PokéAPI y los fan arts. Y lo que la app descargaba al usarla, para no instalar nada aparte:
+   - un Java mínimo (jlink, solo los módulos que usa el randomizador) en tools/java/runtime
+   - LockeSettings y MegaFases compilados en tools/upr/pokelocke-upr.jar (así basta ese Java, sin JDK)
+   - makerom, para los .cia (se descarga aquí una vez si no está en tools/makerom)
+   Hace falta un JDK 17 o superior en el PC que construye (JAVA_HOME, %USERPROFILE%\\.jdks o tools\\java).
 3. Si está POKELOCKE_FIRMA (p. ej. «signtool sign /fd sha256 /tr http://timestamp.acs.microsoft.com /td sha256
    /a "{archivo}"»), se firman los .exe y el instalador.
 4. Inno Setup (app/instalador.iss) hace PokelockeSetup.exe: instala en %LOCALAPPDATA%\\Pokelocke sin pedir
    administrador, con accesos directos y desinstalador. Las partidas no van en él, así que nunca se pisan.
    ISCC.exe se busca en tools\\inno, en scoop (inno-setup) y en Archivos de programa.
 """
+import json
 import os
+import re
 import shutil
 import subprocess
 import sys
 import time
+import urllib.request
+import zipfile
 from pathlib import Path
 
 RAIZ = Path(__file__).resolve().parent.parent
@@ -86,6 +94,54 @@ def copiar_herramientas():
     print(f'{len(lista)} archivos de Citra, randomizador y fan arts')
 
 
+def jdk():
+    """Un JDK con jlink y javac para construir."""
+    candidatos = [Path(os.environ['JAVA_HOME'])] if os.environ.get('JAVA_HOME') else []
+    candidatos += sorted((Path.home() / '.jdks').glob('*'), reverse=True) + sorted((TOOLS / 'java').glob('*'), reverse=True)
+    for c in candidatos:
+        if (c / 'bin' / 'jlink.exe').exists() and (c / 'bin' / 'javac.exe').exists():
+            return c / 'bin'
+    raise SystemExit('Hace falta un JDK 17 o superior (JAVA_HOME, %USERPROFILE%\\.jdks o tools\\java) para construir')
+
+
+def clases_y_java():
+    """LockeSettings y MegaFases compilados en un .jar y un Java mínimo que los ejecuta con el randomizador."""
+    bin_ = jdk()
+    upr = next((TOOLS / 'upr').rglob('PokeRandoZX.jar'))
+    clases = TOOLS / 'build' / 'clases'
+    shutil.rmtree(clases, ignore_errors=True)
+    subprocess.run([str(bin_ / 'javac'), '-encoding', 'UTF-8', '-nowarn', '-cp', str(upr), '-d', str(clases),
+                    str(RAIZ / 'app' / 'LockeSettings.java'), str(RAIZ / 'app' / 'MegaFases.java')], check=True)
+    jar = DIST / upr.parent.relative_to(RAIZ) / 'pokelocke-upr.jar'
+    jar.parent.mkdir(parents=True, exist_ok=True)
+    subprocess.run([str(bin_ / 'jar'), 'cf', str(jar), '-C', str(clases), '.'], check=True)
+    modulos = subprocess.run([str(bin_ / 'jdeps'), '--ignore-missing-deps', '--print-module-deps', '--multi-release', 'base',
+                              str(upr), str(jar)], check=True, capture_output=True, text=True).stdout.strip()
+    modulos += ',jdk.charsets,jdk.crypto.ec'        # textos y descargas del randomizador
+    runtime = DIST / 'tools' / 'java' / 'runtime'
+    shutil.rmtree(runtime, ignore_errors=True)
+    subprocess.run([str(bin_ / 'jlink'), '--add-modules', modulos, '--strip-debug', '--no-header-files',
+                    '--no-man-pages', '--output', str(runtime)], check=True)
+    print(f'Java mínimo ({modulos}) y {jar.name}')
+
+
+def makerom():
+    """makerom en tools/makerom (lo descarga de GitHub la primera vez que se construye)."""
+    destino = TOOLS / 'makerom'
+    if not (destino.exists() and next(destino.rglob('makerom.exe'), None)):
+        rel = json.load(urllib.request.urlopen('https://api.github.com/repos/3DSGuy/Project_CTR/releases/latest', timeout=30))
+        url = next(a['browser_download_url'] for a in rel['assets'] if re.fullmatch(r'makerom-v[\d.]+-win_x86_64\.zip', a['name']))
+        zip_tmp = TOOLS / 'makerom.zip'
+        urllib.request.urlretrieve(url, zip_tmp)
+        with zipfile.ZipFile(zip_tmp) as z:
+            z.extractall(destino)
+        zip_tmp.unlink()
+    for f in destino.rglob('*'):
+        if f.is_file():
+            (DIST / f.relative_to(RAIZ)).parent.mkdir(parents=True, exist_ok=True)
+            shutil.copy2(f, DIST / f.relative_to(RAIZ))
+
+
 def firmar(archivo):
     orden = os.environ.get('POKELOCKE_FIRMA')
     if orden:
@@ -120,4 +176,6 @@ if __name__ == '__main__':
     shutil.rmtree(DIST, ignore_errors=True)
     pyinstaller()
     copiar_herramientas()
+    clases_y_java()
+    makerom()
     instalador()

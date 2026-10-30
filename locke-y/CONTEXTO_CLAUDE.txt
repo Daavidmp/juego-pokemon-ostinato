@@ -97,6 +97,9 @@ Pokémon Ostinato (adulta, seca, práctica, con guasa; ver OSTINATO-biblia.md).
   nunca, a los 60 s.
 - Se reparte con un instalador (app/empaquetar.py + app/instalador.iss, Inno Setup), PyInstaller --onedir,
   sin el zip pegado ni la autoextracción (main.instalar ya no existe). Instala en %LOCALAPPDATA%\Pokelocke.
+  Lleva todo: Citra, randomizador, makerom y un Java mínimo (jlink) con LockeSettings y MegaFases compilados
+  en tools/upr/pokelocke-upr.jar; la app solo descarga cosas en la copia de desarrollo. Instalar en un paso:
+  enlace /descargar o el comando de PowerShell del README (… /SILENT).
   Firma opcional con POKELOCKE_FIRMA. Sin firma, SmartScreen seguirá avisando de «editor desconocido».
 - Los avisos de ruta (captura hecha, Poké Balls bloqueadas) duran 3 s.
 

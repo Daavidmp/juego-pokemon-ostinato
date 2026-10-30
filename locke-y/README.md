@@ -5,16 +5,26 @@ App para jugar un Nuzlocke de Pokémon Y en el emulador de 3DS Azahar con el lay
 
 ![Maqueta](maqueta.png)
 
-Todo vive dentro de esta carpeta. No se instala nada en el PC: Azahar y el randomizador
-se descargan en versión portable dentro de `tools/`.
+## Instalar (para jugar)
+
+Un solo paso y nada más que instalar: **PokelockeSetup.exe** lleva la app, el emulador (Citra con su lanzador),
+el randomizador, el Java que usa el randomizador y makerom. Se instala sin permisos de administrador en
+`%LOCALAPPDATA%\Pokelocke` y deja Pokelocke en el menú Inicio y en el escritorio.
+
+- Con el enlace del anfitrión: abre `http://pokelocke-david.duckdns.org:8766/descargar` y ejecuta lo que se baja.
+- O con un solo comando en PowerShell (lo baja y lo instala sin preguntar):
+
+```
+irm http://pokelocke-david.duckdns.org:8766/descargar -OutFile "$env:TEMP\PokelockeSetup.exe"; & "$env:TEMP\PokelockeSetup.exe" /SILENT
+```
+
+Para actualizar, igual: se instala encima y las partidas se quedan.
 
 ## Requisitos
 
-- Windows. El randomizador necesita un JDK de Java 11 o superior (un JRE no vale): se usa el primero que encuentre en
-  `JAVA_HOME`, en `%USERPROFILE%\.jdks`, en `tools\java` o en el `PATH`. Si no hay ninguno, la app
-  descarga sola un Java 17 portable (Temurin) en `tools\java` al pulsar **Continuar**.
+- Windows 10 u 11 de 64 bits.
 - Tu ROM de Pokémon Y **descifrada** (`.3ds`, `.cci`, `.cxi` o `.cia`), esté donde esté. Un `.cia`
-  se convierte solo a `.cci` con makerom (se descarga en `tools/makerom`) y se guarda en
+  se convierte solo a `.cci` con makerom y se guarda en
   `datos/juegos/<id>/rom.cci`, porque el randomizador no abre `.cia`. Un `.cia` **cifrado** no sirve:
   descífralo antes en la 3DS con GodMode9.
 
@@ -98,11 +108,15 @@ como `inno-setup` o instalado).
 - Los .exe llevan editor y versión. Para firmarlos (lo único que quita el aviso de SmartScreen), define
   `POKELOCKE_FIRMA` con la orden de firma, con `{archivo}` donde va el archivo; por ejemplo
   `signtool sign /fd sha256 /tr http://timestamp.acs.microsoft.com /td sha256 /a "{archivo}"`.
-- No lleva la ROM (cada uno elige la suya) ni Java (se descarga solo la primera vez).
+- No lleva la ROM (cada uno elige la suya). Sí lleva un Java mínimo hecho con jlink y LockeSettings y MegaFases
+  compilados, así que no hay que instalar Java (para construir hace falta un JDK 17 o superior).
 
-Con el servidor encendido, el anfitrión reparte el instalador en `http://pokelocke-david.duckdns.org:8766/descargar`
-(`empaquetar.py` lo deja junto a su Pokelocke instalado). Mejor como enlace en el navegador que con un comando
-de PowerShell: descargar un .exe desde PowerShell es justo lo que vigilan los antivirus.
+Con el servidor encendido, el anfitrión reparte el instalador en `/descargar` (ver «Instalar»;
+`empaquetar.py` lo deja junto a su Pokelocke instalado). El enlace en el navegador levanta menos sospechas que el
+comando de PowerShell: descargar un .exe desde PowerShell es justo lo que vigilan los antivirus.
+
+En la copia de desarrollo (sin instalador) la app sigue descargando lo que falte en `tools\`: un JDK si no hay
+ninguno, makerom y el randomizador.
 
 ## Carpetas
 
