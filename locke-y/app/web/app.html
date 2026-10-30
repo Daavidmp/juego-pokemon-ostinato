@@ -177,6 +177,23 @@
   .cp-fila { display: flex; align-items: center; gap: 12px; padding: 10px 14px; border: 1px solid var(--linea); border-radius: 12px; }
   .cp-fila > div { flex: 1; min-width: 0; }
   .credito { font-size: 12px; color: var(--suave); }
+  .opciones .lado { overflow-y: auto; }
+  .ligero { display: flex; align-items: flex-start; gap: 12px; cursor: pointer; }
+  .ligero input { width: 22px; height: 22px; margin-top: 2px; accent-color: var(--rojo); flex: none; }
+  /* primeros pasos: se marcan solos y se pueden cerrar */
+  .pasos { margin: 24px 40px 0; padding: 20px 24px; background: var(--panel); border: 1px solid var(--linea); border-radius: 18px; display: flex; flex-direction: column; gap: 12px; }
+  .pasos-cab { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+  .pasos-cab h2 { margin: 0; font-size: 19px; }
+  .pasos ol { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 8px; }
+  .pasos li { display: flex; align-items: center; gap: 14px; padding: 10px 12px; border-radius: 12px; }
+  .pasos li > div { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+  .pasos li span.det { font-size: 14px; color: var(--suave); }
+  .pasos li.siguiente { background: var(--rojo-claro); }
+  .pasos li.hecho { color: var(--suave); }
+  .pasos li.hecho b { text-decoration: line-through; text-decoration-color: var(--linea-fuerte); }
+  .marca-paso { width: 32px; height: 32px; border-radius: 50%; display: grid; place-items: center; font-weight: 900; flex: none; border: 2px solid var(--linea-fuerte); color: var(--suave); }
+  .pasos li.siguiente .marca-paso { border-color: var(--rojo); background: var(--rojo); color: #fff; }
+  .pasos li.hecho .marca-paso { border-color: var(--verde); background: var(--verde); color: #fff; }
   .registro { width: min(1000px, 100%); max-height: calc(100vh - 32px); }
   .registro .acciones { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
   #lg-texto { margin: 0; height: 52vh; overflow: auto; background: #1B2030; color: #E9ECF5; font: 12px/1.55 Consolas, 'Cascadia Mono', monospace; padding: 14px 16px; border-radius: 12px; white-space: pre-wrap; word-break: break-word; }
@@ -347,6 +364,8 @@
     </div>
     <div class="conectados oculto" id="o-panel"></div>
   </header>
+
+  <section class="pasos oculto" id="pasos" aria-label="Primeros pasos"></section>
 
   <div class="vacio" id="vacio">
     <svg width="132" height="132" viewBox="0 0 100 100" aria-hidden="true">
@@ -622,6 +641,11 @@
             <button class="btn btn-rojo oculto" type="button" id="op-actualizar">Actualizar ahora</button>
           </div>
         </div>
+        <div class="tarjeta">
+          <label class="ligero"><input type="checkbox" id="op-ligero">
+            <span><b>Modo ligero</b><br><span class="suave" style="font-size: 14px;">Para PCs con pocos recursos o gráfica integrada: el juego se dibuja a su resolución nativa (se ve menos nítido en el directo) y el layout se repinta como mucho cada 3 segundos. Se aplica la próxima vez que abras el juego.</span></span>
+          </label>
+        </div>
         <p class="credito" style="margin: 0;">Creado por David Martínez Palacios</p>
       </div>
       <div class="lado">
@@ -874,7 +898,44 @@ function tarjeta(j) {
   </article>`;
 }
 
+// ---------- primeros pasos ----------
+let pasosCerrados = false;
+try { pasosCerrados = localStorage.getItem('pokelocke-pasos-cerrados') === '1'; } catch (err) { /* sin almacenamiento */ }
+function pintarPasos(e) {
+  const pasos = [
+    {hecho: !!e.online.sesion || sinConexion, texto: 'Entra con tu usuario', det: 'Para el torneo, la sala online y las actualizaciones. También se puede jugar sin conexión.', boton: 'Entrar', accion: 'entrar'},
+    {hecho: e.juegos.length > 0, texto: 'Añade tu ROM de Pokémon Y', det: 'La descifrada (.3ds, .cci, .cxi o .cia). Se queda donde está: no se copia ni se cambia.', boton: 'Añadir juego', accion: 'anadir'},
+    {hecho: e.juegos.some((j) => j.preparado), texto: 'Prepara el juego', det: 'Eliges las normas (Mega Pokelocke) y se randomiza. Tarda un par de minutos.', boton: 'Preparar', accion: 'preparar'},
+    {hecho: !!e.firma, texto: 'Mira el vídeo de normas', det: 'El contrato se firma solo con tu usuario la primera vez que juegues.', boton: 'Ver normas', accion: 'normas'},
+  ];
+  const fuera = pasosCerrados || pasos.every((p) => p.hecho);
+  $('pasos').classList.toggle('oculto', fuera);
+  if (fuera) return;
+  const siguiente = pasos.findIndex((p) => !p.hecho);
+  const html = `<div class="pasos-cab"><h2>Primeros pasos</h2>
+      <button class="btn btn-icono" type="button" data-paso="cerrar" aria-label="Cerrar los primeros pasos"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div>
+    <ol>${pasos.map((p, i) => `<li class="${p.hecho ? 'hecho' : i === siguiente ? 'siguiente' : ''}"><span class="marca-paso" aria-hidden="true">${p.hecho ? '✓' : i + 1}</span>
+      <div><b>${p.texto}</b><span class="det">${p.det}</span></div>
+      ${i === siguiente ? `<button class="btn btn-rojo" type="button" data-paso="${p.accion}">${p.boton}</button>` : ''}</li>`).join('')}</ol>`;
+  if ($('pasos').dataset.html !== html) { $('pasos').innerHTML = html; $('pasos').dataset.html = html; }
+}
+$('pasos').onclick = (ev) => {
+  const b = ev.target.closest('[data-paso]');
+  if (!b) return;
+  const que = b.dataset.paso;
+  if (que === 'cerrar') {
+    pasosCerrados = true;
+    try { localStorage.setItem('pokelocke-pasos-cerrados', '1'); } catch (err) { /* nada */ }
+    return $('pasos').classList.add('oculto');
+  }
+  if (que === 'entrar') return $('o-entrar').click();
+  if (que === 'anadir') return api('/api/anadir');
+  if (que === 'normas') return abrirOpciones();
+  if (que === 'preparar') { const j = ultimo.juegos.find((x) => !x.preparado); if (j) abrirPreparar(j); }
+};
+
 function pintarBiblioteca(e) {
+  pintarPasos(e);
   const hay = e.juegos.length > 0;
   $('vacio').classList.toggle('oculto', hay);
   $('lista').classList.toggle('oculto', !hay);
@@ -1325,6 +1386,7 @@ $('op-actualizar').onclick = () => {
   api('/api/actualizar/instalar');
 };
 $('b-actualizar').onclick = () => abrirOpciones();
+$('op-ligero').onchange = () => api('/api/ajustes', {ligero: $('op-ligero').checked});
 
 // ---------- borrar partida guardada ----------
 // todas las ROM de Pokémon Y usan la misma partida del emulador: se avisa de qué otros juegos la comparten
@@ -1511,6 +1573,7 @@ function pintar(e) {
   pintarOnline(e.online);
   pintarNotas(e.online);
   pintarVersion(e.online);
+  if (document.activeElement !== $('op-ligero')) $('op-ligero').checked = !!e.ligero;
   if (!e.online.sesion && !sinConexion && !(e.jugando && e.activo)) {
     if (hex.abierto && !hex.remoto) { /* el PokéHex propio sigue abierto */ } else {
       vista('login'); pintarLogin(e.online); return;

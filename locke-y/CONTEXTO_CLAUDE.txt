@@ -142,6 +142,10 @@ Pokémon Ostinato (adulta, seca, práctica, con guasa; ver OSTINATO-biblia.md).
   PBKDF2); el PokéHex de otro jugador solo pide ser administrador.
 - Biblioteca: guardar() escribe aparte y cambia de golpe, con biblioteca.bak.json; cargar() recupera la copia.
 - Tipografías en app/web/fuentes (servidas en /fuentes/): nada se pide a Google.
+- Modo ligero (Opciones, biblio['ajustes']['ligero']): Citra a resolution_factor=1 al abrir el juego (guarda la de
+  antes en ajustes.resolucion_antes y la devuelve al quitarlo) y la capa como mucho cada 3 s.
+- Primeros pasos: tarjeta en la biblioteca (entrar, añadir ROM, preparar, ver normas) que se marca sola; se cierra y
+  se recuerda en localStorage.
 
 
 5. IMÁGENES DE ARCE  (../CREDITOS/firefly/)

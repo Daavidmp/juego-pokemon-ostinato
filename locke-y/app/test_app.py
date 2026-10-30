@@ -219,6 +219,21 @@ except RuntimeError:
 main.comprobar_clave_pokehex('mia123')
 ver(True, 'la suya sí')
 
+# ---------- modo ligero ----------
+print('Modo ligero')
+emu = tmp / 'emu' / 'azahar.exe'
+ini = emu.parent / 'user' / 'config' / 'qt-config.ini'
+ini.parent.mkdir(parents=True)
+ini.write_text('[Renderer]\nresolution_factor\\default=false\nresolution_factor=3\n', encoding='utf-8')
+main.azahar_exe = lambda: emu
+main.encaje = lambda: (1, 0, 0)
+main.biblio['ajustes'] = {'ligero': True}
+main.configurar_azahar()
+ver('resolution_factor=1' in ini.read_text(), 'con el modo ligero, Citra a resolución nativa')
+main.biblio['ajustes']['ligero'] = False
+main.configurar_azahar()
+ver('resolution_factor=3' in ini.read_text(), 'al quitarlo vuelve la resolución que había')
+
 # ---------- versiones ----------
 print('Versiones')
 ver(main.version_tupla('2026.10.30.1203') > main.version_tupla('2026.10.30.0959'), 'una versión más nueva se reconoce')

@@ -477,6 +477,22 @@ def configurar_azahar():
         poner('Multiplayer', 'nickname', red['sesion']['usuario'])
         poner('Multiplayer', 'ip', online_direccion())          # el anfitrión, a sí mismo
         poner('Multiplayer', 'port', online.PUERTO_SALA)
+    # modo ligero (Opciones): resolución interna nativa, lo que más pesa en una gráfica integrada. Al quitarlo vuelve
+    # la que hubiera antes
+    ajustes = biblio.setdefault('ajustes', {})
+    if ajustes.get('ligero'):
+        if 'resolucion_antes' not in ajustes:
+            ajustes['resolucion_antes'] = ini.get('Renderer', 'resolution_factor', fallback=None)
+        poner('Renderer', 'resolution_factor', 1)
+    elif 'resolucion_antes' in ajustes:
+        antes = ajustes.pop('resolucion_antes')
+        if antes is None:
+            for clave in ('resolution_factor', 'resolution_factor\\default'):
+                if ini.has_option('Renderer', clave):
+                    ini.remove_option('Renderer', clave)
+        else:
+            poner('Renderer', 'resolution_factor', antes)
+    guardar()
     poner('Layout', 'layout_option', 6)                  # LayoutOption::CustomLayout
     # Citra 1920 no tiene la opción 6 (el lanzador la pasa a 0): usa custom_layout con izquierda/arriba/derecha/abajo
     poner('Layout', 'custom_layout', 'true')
@@ -1171,6 +1187,8 @@ def pintor_capa():
                 huella = huella_capa()
                 if huella != ultima and renderizar_capa():
                     ultima = huella                       # si no se pudo pintar, se reintenta en el siguiente
+                    if biblio.get('ajustes', {}).get('ligero'):
+                        time.sleep(2)                     # modo ligero: como mucho una foto cada 3 s
             elif not jugando():
                 ultima = None
                 cerrar_fotografo()
@@ -1217,6 +1235,7 @@ def foto_estado():
             'avanzado': (DATOS / 'avanzado.rnqs').exists(),
             'online': online_estado(),
             'firma': biblio.get('firma'),
+            'ligero': bool(biblio.get('ajustes', {}).get('ligero')),
         }
 
 
@@ -1490,6 +1509,13 @@ class Servidor(BaseHTTPRequestHandler):
         elif ruta == '/api/copias/restaurar':
             with lock:
                 restaurar_partida(buscar(d.get('id')), str(d.get('nombre', '')))
+        elif ruta == '/api/ajustes':
+            with lock:
+                ajustes = biblio.setdefault('ajustes', {})
+                if 'ligero' in d:
+                    ajustes['ligero'] = bool(d['ligero'])
+                guardar()
+                return {k: v for k, v in ajustes.items() if k == 'ligero'}
         elif ruta == '/api/actualizar/comprobar':
             comprobar_actualizacion()
             return online_estado()
