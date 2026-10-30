@@ -111,6 +111,12 @@ Pokémon Ostinato (adulta, seca, práctica, con guasa; ver OSTINATO-biblia.md).
   cuenta «admin» de app/online.json (Daavidmp) y solo esa, también en usuarios.json ya creados; ese nombre solo
   se puede registrar desde el Pokelocke anfitrión (clave_anfitrion en memoria). Un registro por IP y minuto,
   64 cuentas como mucho; los errores inesperados contestan 500.
+- Torneo (30/10/2026): online.py guarda partidos con «fuentes» (jugador, ganador o perdedor de otro partido). Con
+  impares, uno sin rival en la 1.ª ronda; los perdedores juegan la repesca al mejor de 1 y su ganador juega contra
+  él (con 3 jugadores no hay repesca: el único perdedor va directo). Rondas posteriores impares: el primero pasa
+  directo. Los torneos guardados con el formato de antes (rondas) se convierten solos. Prueba: app/test_torneo.py.
+  La ventana pinta un cuadro con líneas (SVG), la repesca en azul debajo; anima el resultado marcado y celebra al
+  campeón (confeti), salvo con «reducir movimiento».
 - Pendiente de decidir: CLAVE_POKEHEX está escrita en el código (repo público); el servidor online va por http
   sin cifrar (contraseñas y tokens en claro).
 
