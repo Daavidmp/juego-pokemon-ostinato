@@ -1284,6 +1284,8 @@ def contrato_html():
     html = (NORMAS / 'normas.html').read_text(encoding='utf-8')
     html = html.replace('src="../assets/', 'src="/assets/').replace('src="img/', 'src="/docs/img/')
     html = html.replace('</head>', CONTRATO_PANTALLA + '</head>', 1)
+    html = re.sub(r'<link rel="preconnect" href="https://fonts\.googleapis\.com">\s*<link href="https://fonts\.googleapis\.com/[^"]+" rel="stylesheet">',
+                  FUENTES_LOCALES, html, count=1)
     f = biblio.get('firma')
     if not f:
         return html
@@ -1297,8 +1299,7 @@ def contrato_html():
     html = html.replace('<div class="firma"><div class="linea"></div><b>El Entrenador</b><small>Nombre y firma</small></div>',
                         f'<div class="firma"><div class="linea"><span class="rubrica">{nombre}</span></div>'
                         f'<b>El Entrenador</b><small>{nombre}</small></div>', 1)
-    estilo = ('<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600&family=Great+Vibes&display=swap" rel="stylesheet">'
-              '<style>.relleno { font: 600 15pt Caveat, cursive; color: #1d3a8a; padding: 0 1.5mm; }'
+    estilo = ('<style>.relleno { font: 600 15pt Caveat, cursive; color: #1d3a8a; padding: 0 1.5mm; }'
               '.firma .linea { display: flex; align-items: flex-end; justify-content: center; }'
               '.rubrica { font: 32pt "Great Vibes", cursive; color: #1d3a8a; line-height: 1; transform: rotate(-4deg); }</style>')
     return html.replace('</head>', estilo + '</head>', 1)
@@ -1328,19 +1329,21 @@ def elegir_rom():
 
 TIPOS = {'.html': 'text/html; charset=utf-8', '.png': 'image/png', '.jpg': 'image/jpeg',
          '.jpeg': 'image/jpeg', '.webp': 'image/webp', '.js': 'text/javascript', '.css': 'text/css',
-         '.pdf': 'application/pdf', '.mp4': 'video/mp4'}
+         '.pdf': 'application/pdf', '.mp4': 'video/mp4', '.woff2': 'font/woff2'}
+# las tipografías van dentro de la app (web/fuentes): sin internet también, y sin esperar a Google
+FUENTES_LOCALES = '<link rel="stylesheet" href="/fuentes/fuentes.css">'
 
 
 class Servidor(BaseHTTPRequestHandler):
     def log_message(self, *a):
         pass
 
-    def enviar(self, cuerpo, tipo='application/json', codigo=200):
+    def enviar(self, cuerpo, tipo='application/json', codigo=200, cache='no-store'):
         if isinstance(cuerpo, (dict, list)):
             cuerpo = json.dumps(cuerpo, ensure_ascii=False).encode()
         self.send_response(codigo)
         self.send_header('Content-Type', tipo)
-        self.send_header('Cache-Control', 'no-store')
+        self.send_header('Cache-Control', cache)
         self.end_headers()
         self.wfile.write(cuerpo)
 
@@ -1416,6 +1419,11 @@ class Servidor(BaseHTTPRequestHandler):
                 return self.enviar({'error': 'sin arte'}, codigo=404)
         if m := re.fullmatch(r'/assets/([\w.-]+)', ruta):
             return self.archivo(ASSETS / m[1])
+        if m := re.fullmatch(r'/fuentes/([\w.-]+)', ruta):
+            f = WEB / 'fuentes' / m[1]
+            if not f.is_file():
+                return self.enviar({'error': 'no existe'}, codigo=404)
+            return self.enviar(f.read_bytes(), TIPOS.get(f.suffix.lower(), 'application/octet-stream'), cache='max-age=86400')
         # opciones: vídeo de normas, guía y contrato (firmado si ya se ha jugado)
         if ruta == '/docs/video':
             return self.por_trozos(VIDEO)
