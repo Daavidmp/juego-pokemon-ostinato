@@ -11,7 +11,6 @@ del PokéHex. El servidor deja el encargo al Pokelocke de ese jugador, que lo ha
 import hashlib
 import hmac
 import json
-import os
 import re
 import secrets
 import shutil

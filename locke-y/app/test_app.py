@@ -3,13 +3,19 @@
 """
 import http.client
 import json
+import shutil
 import tempfile
 import threading
+import time
 from http.server import ThreadingHTTPServer
 from pathlib import Path
 
-import main
+import comun
+import conexion
+import emulador
+import guardado
 import online
+import web
 
 tmp = Path(tempfile.mkdtemp())
 fallos = []
@@ -22,16 +28,16 @@ def ver(ok, que):
 
 
 # ---------- servidor local (127.0.0.1) ----------
-main.DATOS = tmp / 'datos'
-(main.DATOS / 'juegos' / 'abc123').mkdir(parents=True)
+comun.DATOS = tmp / 'datos'
+(comun.DATOS / 'juegos' / 'abc123').mkdir(parents=True)
 fuera = tmp / 'NO_BORRAR.txt'
 fuera.write_text('partidas')
-guardar_de_verdad = main.guardar
-main.guardar = lambda: None
-main.biblio['juegos'] = [{'id': 'abc123', 'nombre': 'Y', 'ruta': 'x', 'medallas': [False] * 8, 'preparado': True,
+guardar_de_verdad = comun.guardar
+comun.guardar = lambda: None
+comun.biblio['juegos'] = [{'id': 'abc123', 'nombre': 'Y', 'ruta': 'x', 'medallas': [False] * 8, 'preparado': True,
                           'huevos': [{'cogido': False, 'shiny': False, 'especie': 1}] * 30}]
-srv = ThreadingHTTPServer(('127.0.0.1', 0), main.Servidor)
-main.PUERTO = srv.server_port
+srv = ThreadingHTTPServer(('127.0.0.1', 0), web.Servidor)
+comun.PUERTO = srv.server_port
 threading.Thread(target=srv.serve_forever, daemon=True).start()
 
 
@@ -48,7 +54,7 @@ print('Servidor local')
 ver(post('/api/quitar', {'id': 'abc123'}, tipo='text/plain')[0] == 403, 'una web cualquiera (sin JSON) no puede mandar acciones')
 ver(post('/api/quitar', {'id': 'abc123'}, host='malo.ejemplo.com')[0] == 403, 'otro Host (DNS rebinding) se rechaza')
 s, r = post('/api/quitar', {'id': '../..'})
-ver(s == 400 and fuera.exists() and main.DATOS.exists(), 'quitar con id «../..» no borra nada')
+ver(s == 400 and fuera.exists() and comun.DATOS.exists(), 'quitar con id «../..» no borra nada')
 ver(post('/api/huevos/coger', {'id': 'abc123', 'i': -5})[1].get('error') == 'Ese huevo no existe', 'índices de huevo raros')
 ver(post('/api/copias/restaurar', {'id': 'abc123', 'nombre': '../../x'})[0] == 400, 'restaurar una copia que no está en la lista')
 s, r = post('/api/medalla', {'i': 'x', 'valor': True})
@@ -60,7 +66,7 @@ def estado_roto():
     return 1 / 0
 
 
-main.foto_estado = estado_roto
+web.foto_estado = estado_roto
 c = http.client.HTTPConnection('127.0.0.1', srv.server_port, timeout=5)
 c.request('GET', '/api/estado', headers={'Host': f'127.0.0.1:{srv.server_port}'})
 respuesta = c.getresponse()
@@ -74,58 +80,58 @@ print('Copias de la partida')
 partida = tmp / 'sdmc' / 'data' / '00000001'
 partida.mkdir(parents=True)
 (partida / 'main').write_text('partida 0')
-j = main.biblio['juegos'][0]
-main.pokehex_partida = lambda _j: partida / 'main'
-main.jugando = lambda: False
+j = comun.biblio['juegos'][0]
+guardado.pokehex_partida = lambda _j: partida / 'main'
+emulador.jugando = lambda: False
 ahora = [0]
-main.time.strftime = lambda f, *a: f'20261030_1200{ahora[0]:02d}' if f == '%Y%m%d_%H%M%S' else '12:00:00'
+time.strftime = lambda f, *a: f'20261030_1200{ahora[0]:02d}' if f == '%Y%m%d_%H%M%S' else '12:00:00'
 for k in range(12):
     ahora[0] = k
     (partida / 'main').write_text(f'partida {k}')
-    main.copiar_partida(j, 'al-cerrar')
-copias = main.copias_partida(j)
-ver(len(copias) == main.MAX_COPIAS, f'se quedan las {main.MAX_COPIAS} últimas')
+    guardado.copiar_partida(j, 'al-cerrar')
+copias = guardado.copias_partida(j)
+ver(len(copias) == guardado.MAX_COPIAS, f'se quedan las {guardado.MAX_COPIAS} últimas')
 mas_vieja = copias[-1]['nombre']
 ahora[0] = 50
 (partida / 'main').write_text('partida estropeada')
-main.restaurar_partida(j, mas_vieja)
+guardado.restaurar_partida(j, mas_vieja)
 ver((partida / 'main').read_text() == 'partida 2', 'restaurar la más vieja funciona (aunque la copia de antes haga sitio)')
-ver(any(c['motivo'] == 'Antes de restaurar otra' for c in main.copias_partida(j)), 'antes de restaurar se copia la de ahora')
+ver(any(c['motivo'] == 'Antes de restaurar otra' for c in guardado.copias_partida(j)), 'antes de restaurar se copia la de ahora')
 
 # ---------- la randomización en la carpeta de mods del emulador ----------
 print('Mods del emulador')
-mod = main.DATOS / 'juegos' / 'abc123' / 'mod' / '0004000000055E00' / 'romfs'
+mod = comun.DATOS / 'juegos' / 'abc123' / 'mod' / '0004000000055E00' / 'romfs'
 mod.mkdir(parents=True)
 (mod / 'a.bin').write_bytes(b'x' * 1000)
-main.carpeta_mods = lambda: tmp / 'emulador' / 'load' / 'mods'
+emulador.carpeta_mods = lambda: tmp / 'emulador' / 'load' / 'mods'
 j['random'] = {'fecha': 'hoy'}
 copiados = []
-copytree = main.shutil.copytree
-main.shutil.copytree = lambda *a, **k: (copiados.append(a[0]), copytree(*a, **k))[1]
-main.poner_mod(j)
-main.poner_mod(j)
-raiz_mod = main.DATOS / 'juegos' / 'abc123' / 'mod'
-ver(copiados.count(raiz_mod) == 1 and (main.carpeta_mods() / '0004000000055E00' / 'romfs' / 'a.bin').exists(),
+copytree = shutil.copytree
+shutil.copytree = lambda *a, **k: (copiados.append(a[0]), copytree(*a, **k))[1]
+emulador.poner_mod(j)
+emulador.poner_mod(j)
+raiz_mod = comun.DATOS / 'juegos' / 'abc123' / 'mod'
+ver(copiados.count(raiz_mod) == 1 and (emulador.carpeta_mods() / '0004000000055E00' / 'romfs' / 'a.bin').exists(),
     'la randomización se copia una vez y no se vuelve a copiar si no ha cambiado')
 (mod / 'a.bin').write_bytes(b'y' * 1200)
-main.poner_mod(j)
+emulador.poner_mod(j)
 ver(copiados.count(raiz_mod) == 2, 'si cambia (la fase completa), se vuelve a copiar')
-main.shutil.copytree = copytree
+shutil.copytree = copytree
 
 # ---------- la biblioteca no se pierde aunque se rompa al escribirla ----------
 print('Biblioteca')
-main.guardar = guardar_de_verdad
-main.BIBLIOTECA = tmp / 'bib' / 'biblioteca.json'
-main.DATOS = main.BIBLIOTECA.parent
-main.biblio.clear(); main.biblio.update({'juegos': [{'id': 'uno', 'muertos': [1, 2]}]})
-main.guardar()
-main.biblio['juegos'][0]['muertos'].append(3)
-main.guardar()
-main.BIBLIOTECA.write_text('{"juegos": [{"id": "uno", "mue')          # se cortó la luz a mitad
-main.biblio.clear(); main.biblio['juegos'] = []
-main.cargar()
-ver(main.biblio['juegos'] and main.biblio['juegos'][0]['muertos'] == [1, 2], 'una biblioteca a medias se recupera de la copia anterior')
-ver(any(f.name.startswith('biblioteca.rota-') for f in main.DATOS.iterdir()), 'y la rota se guarda aparte para mirarla')
+comun.guardar = guardar_de_verdad
+comun.BIBLIOTECA = tmp / 'bib' / 'biblioteca.json'
+comun.DATOS = comun.BIBLIOTECA.parent
+comun.biblio.clear(); comun.biblio.update({'juegos': [{'id': 'uno', 'muertos': [1, 2]}]})
+comun.guardar()
+comun.biblio['juegos'][0]['muertos'].append(3)
+comun.guardar()
+comun.BIBLIOTECA.write_text('{"juegos": [{"id": "uno", "mue')          # se cortó la luz a mitad
+comun.biblio.clear(); comun.biblio['juegos'] = []
+comun.cargar()
+ver(comun.biblio['juegos'] and comun.biblio['juegos'][0]['muertos'] == [1, 2], 'una biblioteca a medias se recupera de la copia anterior')
+ver(any(f.name.startswith('biblioteca.rota-') for f in comun.DATOS.iterdir()), 'y la rota se guarda aparte para mirarla')
 
 # ---------- servidor online ----------
 print('Servidor online')
@@ -195,7 +201,7 @@ try:
     online.peticion('127.0.0.1', '/entrar', {'usuario': 'Prueba', 'clave': 'clave1'})
     ver(False, 'con otro certificado se rechaza la conexión')
 except OSError as e:
-    ver('certificado del anfitrión' in main.online_motivo(e), f'con otro certificado se rechaza: «{main.online_motivo(e)[:70]}…»')
+    ver('certificado del anfitrión' in conexion.online_motivo(e), f'con otro certificado se rechaza: «{conexion.online_motivo(e)[:70]}…»')
 c = http.client.HTTPConnection('127.0.0.1', online.PUERTO_SERVIDOR, timeout=5)
 c.request('POST', '/entrar', b'{}', {'Content-Type': 'application/json'})
 ver(c.getresponse().status == 426, 'un Pokelocke viejo (http) recibe «actualiza»')
@@ -203,20 +209,20 @@ srv_online.parar()
 
 # ---------- contraseña del PokéHex ----------
 print('PokéHex')
-main.F_POKEHEX = tmp / 'pokehex.json'
+guardado.F_POKEHEX = tmp / 'pokehex.json'
 try:
-    main.comprobar_clave_pokehex('ab')
+    guardado.comprobar_clave_pokehex('ab')
     ver(False, 'la primera contraseña tiene que tener 4 caracteres')
 except RuntimeError:
     ver(True, 'la primera contraseña tiene que tener 4 caracteres')
-main.comprobar_clave_pokehex('mia123')
-ver('mia123' not in main.F_POKEHEX.read_text(), 'la primera vez se crea, y se guarda cifrada')
+guardado.comprobar_clave_pokehex('mia123')
+ver('mia123' not in guardado.F_POKEHEX.read_text(), 'la primera vez se crea, y se guarda cifrada')
 try:
-    main.comprobar_clave_pokehex('Admin123!')
+    guardado.comprobar_clave_pokehex('Admin123!')
     ver(False, 'la contraseña de antes ya no vale')
 except RuntimeError:
     ver(True, 'la contraseña de antes (la del código) ya no vale')
-main.comprobar_clave_pokehex('mia123')
+guardado.comprobar_clave_pokehex('mia123')
 ver(True, 'la suya sí')
 
 # ---------- modo ligero ----------
@@ -225,19 +231,19 @@ emu = tmp / 'emu' / 'azahar.exe'
 ini = emu.parent / 'user' / 'config' / 'qt-config.ini'
 ini.parent.mkdir(parents=True)
 ini.write_text('[Renderer]\nresolution_factor\\default=false\nresolution_factor=3\n', encoding='utf-8')
-main.azahar_exe = lambda: emu
-main.encaje = lambda: (1, 0, 0)
-main.biblio['ajustes'] = {'ligero': True}
-main.configurar_azahar()
+emulador.azahar_exe = lambda: emu
+comun.encaje = lambda: (1, 0, 0)
+comun.biblio['ajustes'] = {'ligero': True}
+emulador.configurar_azahar()
 ver('resolution_factor=1' in ini.read_text(), 'con el modo ligero, Citra a resolución nativa')
-main.biblio['ajustes']['ligero'] = False
-main.configurar_azahar()
+comun.biblio['ajustes']['ligero'] = False
+emulador.configurar_azahar()
 ver('resolution_factor=3' in ini.read_text(), 'al quitarlo vuelve la resolución que había')
 
 # ---------- versiones ----------
 print('Versiones')
-ver(main.version_tupla('2026.10.30.1203') > main.version_tupla('2026.10.30.0959'), 'una versión más nueva se reconoce')
-ver(main.version_tupla('desarrollo') is None, 'la copia de desarrollo no se compara')
+ver(conexion.version_tupla('2026.10.30.1203') > conexion.version_tupla('2026.10.30.0959'), 'una versión más nueva se reconoce')
+ver(conexion.version_tupla('desarrollo') is None, 'la copia de desarrollo no se compara')
 
 print('\nTodo bien.' if not fallos else f'\n{len(fallos)} fallos.')
 raise SystemExit(1 if fallos else 0)

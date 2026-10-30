@@ -148,6 +148,24 @@ Pokémon Ostinato (adulta, seca, práctica, con guasa; ver OSTINATO-biblia.md).
   se recuerda en localStorage.
 
 
+4c. MÓDULOS DE LA APP (30/10/2026)
+-----------------------------------
+main.py se partió por temas (lo que arriba se cita como «main.algo» vive ahora en uno de estos):
+- comun.py     rutas, constantes, estado en memoria (biblio, vivo, red, lock), guardar/cargar/buscar, tarea, avisar,
+               en_segundo_plano, pantalla, encaje
+- locke.py     vidas, huevos, caramelos, fases, niveles_tope, seguimiento, normas_mega, atajos, vial
+- emulador.py  jugando, citra_listo, cargando, Java, randomizar, rom_jugable, poner_mod, configurar_azahar
+               (modo ligero), lanzar, preparar
+- capa.py      huella_capa, Fotografo, renderizar_capa, pintor_capa y la ventana --capa
+- web.py       Servidor (127.0.0.1), foto_estado, arte, contrato_html, firmar, abrir_ventana_app
+- guardado.py  PokéHex (comprobar_clave_pokehex, pokehex_accion), copias automáticas, borrar_partida
+- conexion.py  cliente online, certificado, latidos, encargos, registro_errores, actualizaciones, online_servidor
+- main.py      solo main()
+Se partió con un script (ast + symtable) y se comprobó con pyflakes (también en GitHub), las pruebas y el
+servidor arrancado de verdad. Las referencias entre módulos van como modulo.nombre: para cambiar algo en una
+prueba se parchea en el módulo donde vive (emulador.jugando, comun.DATOS…).
+
+
 5. IMÁGENES DE ARCE  (../CREDITOS/firefly/)
 -------------------------------------------
 Hechas con Gemini Nano Banana 2 editando SIEMPRE la misma base (no generando de cero):

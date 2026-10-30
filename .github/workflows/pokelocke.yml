@@ -20,8 +20,11 @@ jobs:
         with:
           python-version: '3.12'
 
-      - name: El código Python compila
-        run: python -m py_compile *.py
+      - name: El código Python compila y no tiene nombres sin definir
+        run: |
+          python -m py_compile *.py
+          pip install -q pyflakes
+          python -m pyflakes *.py
 
       - name: Lectura de Pokémon de la memoria del juego (PK6)
         run: python test_juego.py
