@@ -174,6 +174,17 @@
   .opciones video { width: 100%; aspect-ratio: 16 / 9; background: #000; border-radius: 14px; }
   .opciones iframe { flex: 1; min-height: 0; width: 100%; border: 1px solid var(--linea); border-radius: 14px; background: #fff; }
   .opciones .doc { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+  .cp-lista { display: flex; flex-direction: column; gap: 8px; max-height: 50vh; overflow-y: auto; }
+  .cp-fila { display: flex; align-items: center; gap: 12px; padding: 10px 14px; border: 1px solid var(--linea); border-radius: 12px; }
+  .cp-fila > div { flex: 1; min-width: 0; }
+  .credito { font-size: 12px; color: var(--suave); }
+  .registro { width: min(1000px, 100%); max-height: calc(100vh - 32px); }
+  .registro .acciones { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+  #lg-texto { margin: 0; height: 52vh; overflow: auto; background: #1B2030; color: #E9ECF5; font: 12px/1.55 Consolas, 'Cascadia Mono', monospace; padding: 14px 16px; border-radius: 12px; white-space: pre-wrap; word-break: break-word; }
+  #lg-texto .lg-error { color: #FF9A85; font-weight: 700; }
+  .lg-tabs { display: flex; gap: 8px; }
+  .lg-tabs button { min-height: 36px; padding: 0 16px; border-radius: 999px; border: 1px solid var(--linea); background: var(--panel); font-weight: 800; font-size: 14px; color: var(--tinta); }
+  .lg-tabs button[aria-pressed="true"] { background: var(--azul); border-color: var(--azul); color: #fff; }
   .opciones .firmado { font-size: 14px; font-weight: 800; color: var(--azul-texto); }
   @media (max-width: 900px) { .opciones .columnas { grid-template-columns: 1fr; overflow-y: auto; } .opciones iframe { min-height: 420px; } }
   .notas-cabecera .btn-icono { width: 36px; min-height: 36px; border-radius: 10px; }
@@ -325,6 +336,7 @@
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></svg>
         Descargar ROM
       </a>
+      <button class="btn btn-rojo oculto" type="button" id="b-actualizar">Nueva versión</button>
       <button class="btn btn-neutro" type="button" id="b-opciones">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/><circle cx="9" cy="6" r="2" fill="#fff"/><circle cx="15" cy="12" r="2" fill="#fff"/><circle cx="8" cy="18" r="2" fill="#fff"/></svg>
         Opciones
@@ -367,6 +379,7 @@
   <footer>
     <span>Overlay para OBS: <strong>localhost:8765/overlay</strong></span>
     <span id="pie-ayuda">Pulsa un juego para jugar</span>
+    <span class="credito">Creado por David Martínez Palacios</span>
   </footer>
 </section>
 
@@ -603,6 +616,14 @@
           <div><h2>Guía del juego</h2><p class="suave">Rutas, líderes, niveles tope y la tabla de tipos.</p></div>
           <a class="btn btn-borde" href="/docs/guia" target="_blank" rel="noopener" style="text-decoration: none;">Abrir la guía</a>
         </div>
+        <div class="tarjeta doc">
+          <div><h2>Actualizaciones</h2><p class="suave" id="op-version-texto">Comprobando la versión…</p></div>
+          <div style="display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end;">
+            <button class="btn btn-neutro" type="button" id="op-buscar">Buscar actualizaciones</button>
+            <button class="btn btn-rojo oculto" type="button" id="op-actualizar">Actualizar ahora</button>
+          </div>
+        </div>
+        <p class="credito" style="margin: 0;">Creado por David Martínez Palacios</p>
       </div>
       <div class="lado">
         <div class="doc">
@@ -620,6 +641,38 @@
 </div>
 
 <!-- ============ BORRAR PARTIDA GUARDADA ============ -->
+<div class="modal-fondo oculto" id="log-fondo">
+  <section class="modal registro" role="dialog" aria-modal="true" aria-labelledby="lg-titulo">
+    <div class="notas-cabecera">
+      <h1 id="lg-titulo" style="margin: 0; font-size: 24px;">Registro</h1>
+      <button class="btn btn-icono" type="button" id="lg-cerrar" aria-label="Cerrar"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
+    </div>
+    <p class="suave" id="lg-info" style="margin: 0;"></p>
+    <div class="acciones">
+      <div class="lg-tabs" role="group" aria-label="Qué registro">
+        <button type="button" id="lg-actual" aria-pressed="true">Esta vez</button>
+        <button type="button" id="lg-anterior" aria-pressed="false">La vez anterior</button>
+      </div>
+      <span style="flex: 1;"></span>
+      <button class="btn btn-neutro" type="button" id="lg-otra">Volver a pedir</button>
+      <button class="btn btn-neutro" type="button" id="lg-copiar">Copiar</button>
+      <button class="btn btn-neutro" type="button" id="lg-guardar">Guardar .log</button>
+    </div>
+    <pre id="lg-texto"></pre>
+  </section>
+</div>
+
+<div class="modal-fondo oculto" id="copias-fondo">
+  <section class="modal" role="dialog" aria-modal="true" aria-labelledby="cp-titulo">
+    <div class="notas-cabecera">
+      <h1 id="cp-titulo" style="margin: 0; font-size: 24px;">Copias de la partida</h1>
+      <button class="btn btn-icono" type="button" id="cp-cerrar" aria-label="Cerrar"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
+    </div>
+    <p class="suave" style="margin: 0; font-size: 15px;">Pokelocke copia la partida de <b id="cp-juego"></b> al abrir y al cerrar el juego, y guarda las 10 últimas. Restaurar una deja la partida como estaba entonces; la de ahora se copia antes, por si te arrepientes.</p>
+    <div class="cp-lista" id="cp-lista"></div>
+  </section>
+</div>
+
 <div class="modal-fondo oculto" id="borrar-fondo">
   <section class="modal" role="alertdialog" aria-modal="true" aria-labelledby="br-titulo" aria-describedby="br-texto">
     <h1 id="br-titulo" style="margin: 0; font-size: 24px;">¿Borrar la partida guardada?</h1>
@@ -805,6 +858,7 @@ function tarjeta(j) {
       ${j.reglas === 'mega' ? `<button type="button" role="menuitem" data-accion="huevos" data-id="${j.id}">Caja de huevos</button>` : ''}
       <button type="button" role="menuitem" data-accion="pokehex" data-id="${j.id}">PokéHex</button>
       <button type="button" role="menuitem" data-accion="registro" data-id="${j.id}" ${j.registro ? '' : 'disabled'}>Ver registro de randomización</button>
+      ${j.preparado ? `<button type="button" role="menuitem" data-accion="copias" data-id="${j.id}">Copias de la partida</button>` : ''}
       ${j.preparado ? `<button type="button" role="menuitem" class="peligro" data-accion="borrar_partida" data-id="${j.id}">Borrar partida guardada</button>` : ''}
       <button type="button" role="menuitem" class="peligro" data-accion="quitar" data-id="${j.id}">Quitar de la biblioteca</button>
     </div>` : '';
@@ -945,6 +999,7 @@ function pintarOnline(o) {
       ${o.error ? `<p class="error">${esc(o.error)}</p>` : ''}
       ${o.conectados.map((c) => `<div class="conectado"><span class="punto"></span><div><b>${esc(c.usuario)}${c.admin ? ' · admin' : ''}</b>
         <span>${c.jugando ? 'Jugando a ' + esc(c.juego || '') : 'En la biblioteca'}</span></div>
+        ${s.admin ? `<button class="btn btn-neutro" type="button" data-log="${esc(c.usuario)}" title="Ver los errores de su Pokelocke">Registro</button>` : ''}
         ${s.admin && c.usuario !== s.usuario ? `<button class="btn btn-neutro" type="button" data-remoto="${esc(c.usuario)}">PokéHex</button>` : ''}</div>`).join('') || '<p class="suave">Nadie conectado.</p>'}
       ${o.servidor ? `<p class="suave" style="font-size: 13px;">Eres el servidor${o.ip ? ` · ${esc(o.ip)}` : ''}${o.upnp === false ? ' · el router no ha abierto los puertos' : ''}</p>` : ''}
       <button class="btn btn-neutro" type="button" id="o-foto">Cambiar foto de perfil</button>
@@ -1230,6 +1285,48 @@ $('foto-archivo').onchange = async () => {
   } catch (err) { alert('No se ha podido leer esa imagen'); }
 };
 
+// ---------- copias automáticas de la partida ----------
+let copiando = null;
+async function abrirCopias(j) {
+  copiando = j;
+  $('cp-juego').textContent = j.nombre;
+  const r = await api('/api/copias', {id: j.id});
+  const copias = r.copias || [];
+  $('cp-lista').innerHTML = copias.length
+    ? copias.map((c) => `<div class="cp-fila"><div><b>${esc(c.fecha)}</b><div class="suave" style="font-size: 13px;">${esc(c.motivo)}</div></div>
+        <button class="btn btn-neutro" type="button" data-copia="${esc(c.nombre)}" data-fecha="${esc(c.fecha)}">Restaurar</button></div>`).join('')
+    : '<p class="suave" style="margin: 0;">Aún no hay copias: se hacen solas al abrir y al cerrar el juego.</p>';
+  $('copias-fondo').classList.remove('oculto');
+}
+$('cp-cerrar').onclick = () => $('copias-fondo').classList.add('oculto');
+$('cp-lista').onclick = async (ev) => {
+  const b = ev.target.closest('[data-copia]');
+  if (!b || !confirm(`¿Restaurar la copia del ${b.dataset.fecha}? La partida de ahora se copia antes, por si te arrepientes.`)) return;
+  const r = await api('/api/copias/restaurar', {id: copiando.id, nombre: b.dataset.copia});
+  if (!r.error) { alert(`Copia restaurada. La próxima vez que abras «${copiando.nombre}» estará como el ${b.dataset.fecha}.`); abrirCopias(copiando); }
+};
+
+// ---------- actualizaciones ----------
+function pintarVersion(o) {
+  const a = o.actualizacion;
+  const tengo = o.version === 'desarrollo' ? 'Es la copia de desarrollo.' : `Tienes la versión ${o.version}.`;
+  $('op-version-texto').textContent = tengo + (!a ? '' : a.error ? ` ${a.error}.` : a.nueva ? ` Hay una nueva: ${a.servidor}.` : a.servidor ? ' Es la última.' : '');
+  $('op-actualizar').classList.toggle('oculto', !(a && a.nueva));
+  $('b-actualizar').classList.toggle('oculto', !(a && a.nueva));
+}
+$('op-buscar').onclick = async () => {
+  $('op-buscar').textContent = 'Buscando…';
+  const o = await api('/api/actualizar/comprobar');
+  $('op-buscar').textContent = 'Buscar actualizaciones';
+  if (o && o.version) pintarVersion(o);
+};
+$('op-actualizar').onclick = () => {
+  if (!confirm('Pokelocke se cerrará, se instalará la versión nueva y volverá a abrirse solo. Tus partidas no se tocan. ¿Actualizar ahora?')) return;
+  cerrarOpciones();
+  api('/api/actualizar/instalar');
+};
+$('b-actualizar').onclick = () => abrirOpciones();
+
 // ---------- borrar partida guardada ----------
 // todas las ROM de Pokémon Y usan la misma partida del emulador: se avisa de qué otros juegos la comparten
 let borrando = null;
@@ -1358,15 +1455,63 @@ $('l-servidor').onchange = $('o-servidor').onchange = async (ev) => {
 $('o-entrar').onclick = () => { sinConexion = false; try { localStorage.removeItem('pokelocke-sin-conexion'); } catch (err) { /* nada */ } actualizar(); };
 $('o-chip').onclick = () => { panelAbierto = !panelAbierto; $('o-chip').setAttribute('aria-expanded', String(panelAbierto)); if (ultimo) pintarOnline(ultimo.online); };
 $('o-panel').onclick = (ev) => {
-  const b = ev.target.closest('[data-remoto]');
+  const b = ev.target.closest('[data-remoto]'), l = ev.target.closest('[data-log]');
   if (b) { panelAbierto = false; abrirHex(null, b.dataset.remoto); }
+  if (l) { panelAbierto = false; abrirRegistro(l.dataset.log); }
 };
+
+// ---------- registro de errores de un jugador conectado (solo el administrador) ----------
+const registro = {usuario: null, datos: null, cual: 'pokelocke.log'};
+async function abrirRegistro(usuario) {
+  Object.assign(registro, {usuario, datos: null, cual: 'pokelocke.log'});
+  $('lg-titulo').textContent = `Registro de ${usuario}`;
+  $('lg-info').textContent = 'Pidiendo el registro a su Pokelocke… (tarda unos segundos)';
+  $('lg-texto').textContent = '';
+  $('log-fondo').classList.remove('oculto');
+  let r;
+  try {
+    r = await (await fetch('/api/online/log', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({usuario})})).json();
+  } catch (err) { r = {error: 'Pokelocke no responde'}; }
+  if (r.error) { $('lg-info').textContent = r.error; return; }
+  registro.datos = r;
+  pintarRegistro();
+}
+function pintarRegistro() {
+  const r = registro.datos, txt = (r && r.registros[registro.cual]) || '';
+  ['actual', 'anterior'].forEach((k) => $('lg-' + k).setAttribute('aria-pressed', String((k === 'actual') === (registro.cual === 'pokelocke.log'))));
+  if (!r) return;
+  const errores = (txt.match(/^Traceback|^Fatal Python error/gm) || []).length;
+  $('lg-info').textContent = `Versión ${r.version}, ${r.jugando ? 'jugando ahora' : 'en la biblioteca'}. Pedido a las ${r.hora.slice(11, 16)}. `
+    + (errores ? `${errores} ${errores === 1 ? 'error' : 'errores'} en este registro.` : 'Sin errores en este registro.');
+  $('lg-texto').innerHTML = txt
+    ? esc(txt).split('\n').map((l) => (/Traceback|Error|Exception|Fatal/.test(l) ? `<span class="lg-error">${l}</span>` : l)).join('\n')
+    : 'Vacío.';
+  $('lg-texto').scrollTop = $('lg-texto').scrollHeight;          // lo último, abajo
+}
+$('lg-actual').onclick = () => { registro.cual = 'pokelocke.log'; pintarRegistro(); };
+$('lg-anterior').onclick = () => { registro.cual = 'pokelocke.old.log'; pintarRegistro(); };
+$('lg-otra').onclick = () => abrirRegistro(registro.usuario);
+$('lg-copiar').onclick = async () => {
+  try { await navigator.clipboard.writeText(registro.datos.registros[registro.cual] || ''); $('lg-copiar').textContent = 'Copiado'; }
+  catch (err) { $('lg-copiar').textContent = 'No se ha podido copiar'; }
+  setTimeout(() => { $('lg-copiar').textContent = 'Copiar'; }, 1500);
+};
+$('lg-guardar').onclick = () => {
+  if (!registro.datos) return;
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([registro.datos.registros[registro.cual] || ''], {type: 'text/plain'}));
+  a.download = `pokelocke-${registro.usuario}${registro.cual === 'pokelocke.log' ? '' : '-anterior'}.log`;
+  a.click();
+  URL.revokeObjectURL(a.href);
+};
+$('lg-cerrar').onclick = () => $('log-fondo').classList.add('oculto');
 
 function pintar(e) {
   ultimo = e;
   const t = e.tarea;
   pintarOnline(e.online);
   pintarNotas(e.online);
+  pintarVersion(e.online);
   if (!e.online.sesion && !sinConexion && !(e.jugando && e.activo)) {
     if (hex.abierto && !hex.remoto) { /* el PokéHex propio sigue abierto */ } else {
       vista('login'); pintarLogin(e.online); return;
@@ -1460,6 +1605,7 @@ $('juegos').onclick = (ev) => {
   if (accion === 'pokehex') return abrirHex(j);
   if (accion === 'huevos') return abrirHuevos(j);
   if (accion === 'borrar_partida') return abrirBorrar(j);
+  if (accion === 'copias') return abrirCopias(j);
   if (accion === 'quitar' && confirm(`¿Quitar «${j.nombre}» de la biblioteca? Se borra su locke; la ROM no se toca.`)) return api('/api/quitar', {id: j.id});
   if (accion === 'nuevo' && confirm('¿Empezar un locke nuevo? Se borran las muertes y las medallas, y vuelves a elegir vidas y randomización.')) {
     return api('/api/reiniciar', {id: j.id}).then(() => abrirPreparar(j));

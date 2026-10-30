@@ -51,3 +51,5 @@ Name: "{autodesktop}\Pokelocke"; Filename: "{app}\Pokelocke.exe"; Tasks: escrito
 
 [Run]
 Filename: "{app}\Pokelocke.exe"; Description: "Abrir Pokelocke"; Flags: nowait postinstall skipifsilent
+; la actualización desde la app es silenciosa: al acabar, Pokelocke se vuelve a abrir solo
+Filename: "{app}\Pokelocke.exe"; Flags: nowait; Check: WizardSilent

@@ -45,6 +45,11 @@ else:
 APP, WEB, ASSETS = RECURSOS / 'app', RECURSOS / 'app' / 'web', RECURSOS / 'assets'
 NORMAS, GUIA_PDF, VIDEO = RECURSOS / 'normas', RECURSOS / 'guia' / 'Guia-Mega-Pokelocke-Y.pdf', RECURSOS / 'video' / 'normas.mp4'
 TOOLS, DATOS, FANART = RAIZ / 'tools', RAIZ / 'datos', RAIZ / 'fanart'
+# la pone app/empaquetar.py al construir el instalador (año.mes.día.horaminuto); la copia de desarrollo no tiene
+try:
+    VERSION_APP = (APP / 'version.txt').read_text(encoding='utf-8').strip()
+except OSError:
+    VERSION_APP = 'desarrollo'
 CACHE_ARTE = TOOLS / 'arte'
 CAPA_PNG = TOOLS / 'capa.png'
 BIBLIOTECA = DATOS / 'biblioteca.json'
@@ -597,7 +602,11 @@ def lanzar(j):
     mod = DATOS / 'juegos' / j['id'] / 'mod'
     if j.get('random') and mod.exists():
         shutil.copytree(mod, mods, dirs_exist_ok=True)
-    vivo.update(activo=j['id'], equipo=[None] * 6, conectado=False, combate_visto_desde=None)
+    try:
+        copiar_partida(j, 'al-abrir')
+    except OSError:
+        traceback.print_exc()                              # sin copia, pero se juega igual
+    vivo.update(activo=j['id'], equipo=[None] * 6, conectado=False, combate_visto_desde=None, jugaba=True)
     vivo.update(lanzado=time.time(), juego_visto=None, mirado=0, ventana_juego=False,
                 citra=(Path(exe).parent / 'citra-qt.exe').exists())
     vivo['proceso'] = subprocess.Popen([str(exe), '-f', rom_jugable(j)])
@@ -666,6 +675,14 @@ def curado_en_centro(antes, ahora):
 def seguimiento():
     rpc = juego.RPC()
     while True:
+        if vivo.get('jugaba') and not jugando():           # se acaba de cerrar el juego: copia de la partida
+            vivo['jugaba'] = False
+            try:
+                with lock:
+                    j = buscar(vivo['activo'])
+                copiar_partida(j, 'al-cerrar')
+            except (RuntimeError, OSError):
+                traceback.print_exc()
         if citra_listo():
             try:
                 equipo = juego.leer_equipo(rpc)
@@ -1314,6 +1331,17 @@ class Servidor(BaseHTTPRequestHandler):
             with lock:
                 buscar(d['id'])['preparado'] = False
                 guardar()
+        elif ruta == '/api/copias':
+            with lock:
+                return {'copias': copias_partida(buscar(d.get('id')))}
+        elif ruta == '/api/copias/restaurar':
+            with lock:
+                restaurar_partida(buscar(d.get('id')), str(d.get('nombre', '')))
+        elif ruta == '/api/actualizar/comprobar':
+            comprobar_actualizacion()
+            return online_estado()
+        elif ruta == '/api/actualizar/instalar':
+            en_segundo_plano('Actualizar Pokelocke', instalar_actualizacion)
         elif ruta == '/api/borrar_partida':
             with lock:
                 borrar_partida(buscar(d['id']))
@@ -1382,6 +1410,60 @@ def pokehex_partida(j):
     for f in sdmc.glob(f'*/*/title/{titulo[:8].lower()}/{titulo[8:].lower()}/data/00000001/main'):
         return f
     raise RuntimeError('Este juego aún no tiene partida guardada en el emulador')
+
+
+# copias de la partida del emulador al abrir y al cerrar el juego: si el archivo se estropea (o Citra se cae al
+# guardar) no se pierde el locke. Se quedan las últimas MAX_COPIAS en datos/juegos/<id>/copias_auto/
+MAX_COPIAS = 10
+MOTIVOS_COPIA = {'al-abrir': 'Al abrir el juego', 'al-cerrar': 'Al cerrar el juego', 'antes-de-restaurar': 'Antes de restaurar otra'}
+
+
+def carpeta_copias(j):
+    return DATOS / 'juegos' / j['id'] / 'copias_auto'
+
+
+def copiar_partida(j, motivo):
+    """Copia la carpeta de la partida (data/00000001). Sin partida todavía, no hace nada."""
+    try:
+        origen = pokehex_partida(j).parent
+    except RuntimeError:
+        return None
+    carpeta = carpeta_copias(j)
+    nombre = f'{time.strftime("%Y%m%d_%H%M%S")}_{motivo}'
+    shutil.copytree(origen, carpeta / nombre, dirs_exist_ok=True)
+    for vieja in sorted(carpeta.iterdir())[:-MAX_COPIAS]:
+        shutil.rmtree(vieja, ignore_errors=True)
+    print(time.strftime('%H:%M:%S'), 'copia de la partida', j['id'], nombre, flush=True)
+    return nombre
+
+
+def copias_partida(j):
+    carpeta = carpeta_copias(j)
+    if not carpeta.exists():
+        return []
+    out = []
+    for c in sorted(carpeta.iterdir(), reverse=True):
+        m = re.fullmatch(r'(\d{8})_(\d{6})_([a-z-]+)', c.name)
+        if m and c.is_dir():
+            f, h = m[1], m[2]
+            out.append({'nombre': c.name, 'fecha': f'{f[6:]}/{f[4:6]}/{f[:4]} {h[:2]}:{h[2:4]}',
+                        'motivo': MOTIVOS_COPIA.get(m[3], m[3])})
+    return out
+
+
+def restaurar_partida(j, nombre):
+    """Pone una copia en lugar de la partida actual (que antes se copia también)."""
+    if jugando():
+        raise RuntimeError('Cierra el juego antes de restaurar una copia')
+    if nombre not in {c['nombre'] for c in copias_partida(j)}:      # solo nombres de la lista: nunca una ruta
+        raise RuntimeError('Esa copia ya no existe')
+    destino = pokehex_partida(j).parent
+    temporal = DATOS / 'juegos' / j['id'] / 'restaurando'
+    shutil.rmtree(temporal, ignore_errors=True)
+    shutil.copytree(carpeta_copias(j) / nombre, temporal)     # primero aparte: la copia de seguridad de ahora
+    copiar_partida(j, 'antes-de-restaurar')                    # podría hacer sitio borrando la más vieja
+    shutil.rmtree(destino)
+    temporal.replace(destino)
 
 
 def borrar_partida(j):
@@ -1490,7 +1572,7 @@ def online_estado():
     s = red['sesion']
     return {'sesion': s and {'usuario': s['usuario'], 'admin': s['admin']}, 'conectados': red['conectados'],
             'error': red['error'], 'servidor': bool(red['servidor']), 'upnp': red['upnp'], 'ip': red['ip'],
-            'direccion': online_config().get('direccion')}
+            'direccion': online_config().get('direccion'), 'version': VERSION_APP, 'actualizacion': red.get('actualizacion')}
 
 
 def online_guardar_sesion():
@@ -1525,11 +1607,89 @@ def online_latidos():
                         threading.Thread(target=online_tarea, args=(direccion, s['token'], t), daemon=True).start()
             except OSError:
                 red['error'], red['conectados'] = 'No se puede conectar con el servidor', []
+        if time.time() - red.get('actualizacion_mirada', 0) > CADA_CUANTO_ACTUALIZACION:
+            red['actualizacion_mirada'] = time.time()
+            threading.Thread(target=comprobar_actualizacion, daemon=True).start()
         time.sleep(online.LATIDO)
 
 
+# ---------- actualizaciones: el anfitrión reparte el instalador; cada Pokelocke compara versiones ----------
+CADA_CUANTO_ACTUALIZACION = 30 * 60
+
+
+def version_tupla(v):
+    try:
+        return tuple(int(x) for x in str(v).split('.'))
+    except ValueError:
+        return None
+
+
+def comprobar_actualizacion():
+    """Pregunta al servidor qué versión del instalador reparte. Hay actualización si es más nueva que esta."""
+    direccion = online_direccion()
+    red['actualizacion_mirada'] = time.time()
+    if not direccion:
+        red['actualizacion'] = None
+        return
+    try:
+        with urllib.request.urlopen(f'http://{direccion}:{online.PUERTO_SERVIDOR}/version', timeout=6) as r:
+            servidor = str(json.load(r).get('version', ''))
+    except (OSError, ValueError):
+        red['actualizacion'] = {'servidor': None, 'nueva': False, 'error': 'No se puede preguntar al servidor'}
+        return
+    yo, suya = version_tupla(VERSION_APP), version_tupla(servidor)
+    red['actualizacion'] = {'servidor': servidor, 'nueva': bool(yo and suya and suya > yo), 'error': None}
+
+
+def instalar_actualizacion():
+    """Descarga el instalador del servidor y lo abre en silencio: cierra Pokelocke, se instala encima (las partidas
+    no se tocan) y lo vuelve a abrir."""
+    if jugando():
+        raise RuntimeError('Cierra el juego antes de actualizar')
+    direccion = online_direccion()
+    if not direccion:
+        raise RuntimeError('Falta la dirección del servidor')
+    tarea('Descargando la actualización…', paso=1)
+    destino, tmp = TOOLS / 'PokelockeSetup.exe', TOOLS / 'PokelockeSetup.descarga'
+    with urllib.request.urlopen(f'http://{direccion}:{online.PUERTO_SERVIDOR}/descargar', timeout=60) as r, open(tmp, 'wb') as f:
+        shutil.copyfileobj(r, f, 1 << 20)
+    with open(tmp, 'rb') as f:
+        if f.read(2) != b'MZ' or tmp.stat().st_size < 1 << 20:
+            tmp.unlink(missing_ok=True)
+            raise RuntimeError('Lo que ha mandado el servidor no es un instalador de Pokelocke')
+    tmp.replace(destino)
+    tarea('Instalando: Pokelocke se cerrará y volverá a abrirse solo…', paso=3)
+    time.sleep(2)
+    subprocess.Popen([str(destino), '/SILENT', '/SUPPRESSMSGBOXES', '/NORESTART'], creationflags=0x00000008)  # DETACHED_PROCESS
+
+
+MAX_LOG = 150_000          # bytes del final de cada registro que se mandan (el servidor admite 1 MB por petición)
+
+
+def registro_errores():
+    """El final de pokelocke.log y de pokelocke.old.log (la vez anterior), para el administrador."""
+    partes = {}
+    for nombre in ('pokelocke.log', 'pokelocke.old.log'):
+        f = RAIZ / nombre
+        try:
+            with open(f, 'rb') as a:
+                a.seek(max(0, f.stat().st_size - MAX_LOG))
+                partes[nombre] = a.read().decode('utf-8', errors='replace')
+        except OSError:
+            partes[nombre] = ''
+    return {'version': VERSION_APP, 'registros': partes, 'jugando': jugando(), 'hora': time.strftime('%Y-%m-%d %H:%M:%S')}
+
+
 def online_tarea(direccion, token, t):
-    """Un encargo del administrador: el PokéHex de este jugador, en su partida (con el juego cerrado)."""
+    """Un encargo del administrador: el PokéHex de este jugador, en su partida (con el juego cerrado), o su registro
+    de errores."""
+    if t.get('que') == 'log':
+        try:
+            res = registro_errores()
+        except Exception as e:
+            res = {'error': str(e)}
+        online.peticion(direccion, '/resultado', {'token': token, 'id': t['id'], 'resultado': res})
+        return
     try:
         with lock:
             juegos = [j for j in biblio['juegos'] if j.get('preparado')]
@@ -1626,6 +1786,16 @@ def online_accion(que, d):
         ruta = {'torneo': '/torneo', 'torneo_editar': '/torneo/editar', 'foto': '/foto'}[que]
         try:
             r = online.peticion(direccion, ruta, {**d, 'token': red['sesion']['token']}, espera=15)
+        except OSError:
+            raise RuntimeError('No se puede conectar con el servidor')
+        if 'error' in r:
+            raise RuntimeError(r['error'])
+        return r
+    if que == 'log':                         # el registro de errores de un jugador conectado (solo el administrador)
+        if not red['sesion']:
+            raise RuntimeError('Entra con tu usuario')
+        try:
+            r = online.peticion(direccion, '/log', {'token': red['sesion']['token'], 'usuario': d.get('usuario')}, espera=40)
         except OSError:
             raise RuntimeError('No se puede conectar con el servidor')
         if 'error' in r:

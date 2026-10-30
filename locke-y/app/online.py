@@ -313,6 +313,17 @@ class Servidor:
             raise PermissionError('Solo el administrador puede abrir el PokéHex de otro jugador')
         if not hmac.compare_digest(clave_hex or '', clave_correcta):
             raise PermissionError('Contraseña del PokéHex incorrecta')
+        return self._encargar(objetivo, que, datos)
+
+    def pedir_log(self, token, objetivo):
+        """El registro de errores (pokelocke.log) de un jugador conectado, para el administrador."""
+        u = self._usuario(token)
+        if not self.usuarios.get(u, {}).get('admin'):
+            raise PermissionError('Solo el administrador puede ver el registro de otro jugador')
+        return self._encargar(objetivo, 'log', {})
+
+    def _encargar(self, objetivo, que, datos):
+        """Deja un encargo al Pokelocke de un jugador conectado (lo recoge en su siguiente latido) y espera su respuesta."""
         with self.lock:
             visto = self.vistos.get(objetivo)
             if not visto or time.time() - visto[0] > CONECTADO:
@@ -410,6 +421,16 @@ class Servidor:
                 pass
 
             def do_GET(self):
+                # /version: la versión del instalador que se reparte (cada Pokelocke la compara con la suya)
+                if self.path.split('?')[0] == '/version':
+                    f = Path(sys.executable).parent / 'PokelockeSetup.version'
+                    cuerpo = json.dumps({'version': f.read_text(encoding='utf-8').strip() if f.exists() else None}).encode()
+                    self.send_response(200)
+                    self.send_header('Content-Type', 'application/json')
+                    self.send_header('Content-Length', str(len(cuerpo)))
+                    self.end_headers()
+                    self.wfile.write(cuerpo)
+                    return
                 # /descargar: el instalador del anfitrión (PokelockeSetup.exe junto a su Pokelocke.exe; lo deja
                 # ahí app/empaquetar.py), para repartirlo con un enlace
                 exe = Path(sys.executable).parent / 'PokelockeSetup.exe'
@@ -448,6 +469,8 @@ class Servidor:
                         r = srv.editar_torneo(d.get('token'), d.get('que'), d)
                     elif ruta == '/foto':
                         r = srv.poner_foto(d.get('token'), d.get('imagen'))
+                    elif ruta == '/log':
+                        r = srv.pedir_log(d.get('token'), d.get('usuario'))
                     elif ruta == '/pokehex':
                         r = srv.pokehex(d.get('token'), d.get('clave_hex'), d.get('usuario'), d.get('que'),
                                         d.get('datos') or {}, clave_hex)

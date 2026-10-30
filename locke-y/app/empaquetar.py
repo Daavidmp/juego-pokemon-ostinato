@@ -54,12 +54,20 @@ def version_pyinstaller():
     return f
 
 
+def version_app():
+    f = TOOLS / 'build' / 'version_app' / 'version.txt'
+    f.parent.mkdir(parents=True, exist_ok=True)
+    f.write_text(VERSION, encoding='utf-8')
+    return f
+
+
 def pyinstaller():
     datos = [('app/web', 'app/web'), ('app/datos_pkx', 'app/datos_pkx'), ('app/LockeSettings.java', 'app'), ('app/MegaFases.java', 'app'),
              ('app/online.json', 'app'), ('assets', 'assets'),
              # opciones de la biblioteca: vídeo de normas, guía y contrato (se rellena con la firma)
              ('video/normas.mp4', 'video'), ('guia/Guia-Mega-Pokelocke-Y.pdf', 'guia'),
-             ('normas/normas.html', 'normas'), ('normas/img', 'normas/img')]
+             ('normas/normas.html', 'normas'), ('normas/img', 'normas/img'),
+             (version_app(), 'app')]          # la versión, para comparar con la del servidor al buscar actualizaciones
     args = [str(Path(sys.executable).parent / 'pyinstaller'), '--noconfirm', '--clean', '--onedir', '--noconsole', '--noupx',
             '--name', 'Pokelocke', '--icon', str(RAIZ / 'assets' / 'icono.ico'), '--version-file', str(version_pyinstaller()),
             '--distpath', str(DIST.parent), '--workpath', str(TOOLS / 'build'), '--specpath', str(TOOLS / 'build')]
@@ -165,10 +173,12 @@ def instalador():
                     f'/DIcono={RAIZ / "assets" / "icono.ico"}', str(RAIZ / 'app' / 'instalador.iss')], check=True)
     setup = SALIDA / 'PokelockeSetup.exe'
     firmar(setup)
-    # el anfitrión lo reparte con /descargar: va junto a su Pokelocke instalado
+    (SALIDA / 'PokelockeSetup.version').write_text(VERSION, encoding='utf-8')
+    # el anfitrión lo reparte con /descargar y anuncia su versión en /version: van junto a su Pokelocke instalado
     instalado = Path(os.environ.get('LOCALAPPDATA', '')) / 'Pokelocke'
     if instalado.is_dir():
         shutil.copy2(setup, instalado / 'PokelockeSetup.exe')
+        shutil.copy2(SALIDA / 'PokelockeSetup.version', instalado / 'PokelockeSetup.version')
     print(f'{setup} · {setup.stat().st_size / 2**20:.0f} MB · versión {VERSION}')
 
 

@@ -1,0 +1,58 @@
+# Pruebas de Pokelocke en cada push que toque locke-y/: nada de esto abre el emulador ni necesita la ROM.
+name: Pokelocke
+
+on:
+  push:
+    paths: ['locke-y/**', '.github/workflows/pokelocke.yml']
+  pull_request:
+    paths: ['locke-y/**']
+
+jobs:
+  pruebas:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: locke-y/app
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: El código Python compila
+        run: python -m py_compile *.py
+
+      - name: Lectura de Pokémon de la memoria del juego (PK6)
+        run: python test_juego.py
+
+      - name: Cuadro del torneo (de 2 a 16 jugadores)
+        run: python test_torneo.py
+
+      - name: Servidores, copias de la partida y versiones
+        run: python test_app.py
+
+      - name: JavaScript de la ventana y del overlay
+        run: |
+          python - <<'E'
+          import pathlib, re
+          for f in ('web/app.html', 'web/overlay.html'):
+              t = pathlib.Path(f).read_text(encoding='utf-8')
+              pathlib.Path(f + '.js').write_text('\n'.join(re.findall(r'<script>(.*?)</script>', t, re.S)), encoding='utf-8')
+          E
+          node --check web/app.html.js
+          node --check web/overlay.html.js
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      # el mismo randomizador que va en el instalador (tools/upr no está en el repo)
+      - name: MegaFases con una ROM inventada
+        run: |
+          curl -sSL -o upr.zip https://github.com/Ajarmar/universal-pokemon-randomizer-zx/releases/download/v4.6.1/PokeRandoZX-v4_6_1.zip
+          unzip -q upr.zip -d upr
+          JAR=$(find upr -name PokeRandoZX.jar)
+          javac -encoding UTF-8 -nowarn -cp "$JAR" -d clases LockeSettings.java MegaFases.java PruebaMegaFases.java
+          java -cp "$JAR:clases" PruebaMegaFases

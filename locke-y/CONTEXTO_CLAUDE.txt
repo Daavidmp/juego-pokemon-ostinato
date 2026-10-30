@@ -117,6 +117,16 @@ Pokémon Ostinato (adulta, seca, práctica, con guasa; ver OSTINATO-biblia.md).
   directo. Los torneos guardados con el formato de antes (rondas) se convierten solos. Prueba: app/test_torneo.py.
   La ventana pinta un cuadro con líneas (SVG), la repesca en azul debajo; anima el resultado marcado y celebra al
   campeón (confeti), salvo con «reducir movimiento».
+- Copias de la partida (30/10/2026): al abrir y al cerrar el juego se copia data/00000001 del emulador en
+  datos/juegos/<id>/copias_auto/ (las 10 últimas); se restauran desde el menú del juego («Copias de la partida»),
+  copiando antes la de ahora.
+- Actualizaciones: empaquetar.py mete la versión (año.mes.día.horaminuto) en app/version.txt y deja
+  PokelockeSetup.version junto al instalador; el servidor del anfitrión la publica en /version y cada Pokelocke la
+  compara cada 30 min. Opciones › Actualizaciones descarga /descargar y lo instala en silencio (se reabre solo).
+- Registro de errores: el administrador pide el pokelocke.log de un jugador conectado («Registro» en el panel de
+  conectados); va por el mismo sistema de encargos que el PokéHex a distancia (online.Servidor._encargar).
+- Pruebas: app/test_juego.py, test_torneo.py, test_app.py y PruebaMegaFases.java; .github/workflows/pokelocke.yml
+  las ejecuta en cada push que toque locke-y/ (con el randomizador v4.6.1, el mismo jar que el de tools/upr).
 - Pendiente de decidir: CLAVE_POKEHEX está escrita en el código (repo público); el servidor online va por http
   sin cifrar (contraseñas y tokens en claro).
 
