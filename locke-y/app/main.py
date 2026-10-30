@@ -247,9 +247,11 @@ def jugando():
 # este Citra se cae (0xc0000005 en citra-qt.exe+0x165ae7) si le llega una petición RPC mientras aún está
 # cargando el juego. Un tiempo fijo no vale: en un PC lento (o con el antivirus mirando cada archivo) la carga
 # dura más y se caía igual. Se espera a que salga la ventana del juego (la misma señal que usa el lanzador para
-# quitarle los bordes) y luego MARGEN_RPC más. Si esa ventana no se ve nunca (Azahar, que usa una sola ventana),
-# se pregunta a los ESPERA_MAX segundos.
-MARGEN_RPC, ESPERA_MAX = 8, 60
+# quitarle los bordes) y luego MARGEN_RPC más. Si esa ventana no se ve nunca, se pregunta a los ESPERA_MAX segundos.
+# Con Azahar (la copia de desarrollo, una sola ventana) se sigue esperando ESPERA_AZAHAR.
+# Mientras tanto la capa enseña un cartel de «Abriendo el juego» en vez del layout (ver capa()), hasta que sale la
+# ventana del juego o pasan CAPA_MAX segundos.
+MARGEN_RPC, ESPERA_MAX, ESPERA_AZAHAR, CAPA_MAX = 8, 60, 15, 120
 
 
 def ventanas_citra():
@@ -276,13 +278,15 @@ def citra_listo():
     if not jugando():
         return False
     ahora = time.time()
+    if not vivo.get('citra'):
+        return ahora - vivo.get('lanzado', 0) > ESPERA_AZAHAR
     if not vivo.get('juego_visto'):
         if ahora - vivo.get('lanzado', 0) > ESPERA_MAX:
             vivo['juego_visto'] = ahora - MARGEN_RPC
         elif os.name == 'nt' and ahora - vivo.get('mirado', 0) >= 1:       # se mira como mucho una vez por segundo
             vivo['mirado'] = ahora
             if ventanas_citra() >= 2:
-                vivo['juego_visto'] = ahora
+                vivo['juego_visto'], vivo['ventana_juego'] = ahora, True
                 print(time.strftime('%H:%M:%S'), f'ventana del juego a los {ahora - vivo["lanzado"]:.0f} s', flush=True)
     return bool(vivo.get('juego_visto')) and ahora - vivo['juego_visto'] > MARGEN_RPC
 
@@ -594,7 +598,8 @@ def lanzar(j):
     if j.get('random') and mod.exists():
         shutil.copytree(mod, mods, dirs_exist_ok=True)
     vivo.update(activo=j['id'], equipo=[None] * 6, conectado=False, combate_visto_desde=None)
-    vivo.update(lanzado=time.time(), juego_visto=None, mirado=0)
+    vivo.update(lanzado=time.time(), juego_visto=None, mirado=0, ventana_juego=False,
+                citra=(Path(exe).parent / 'citra-qt.exe').exists())
     vivo['proceso'] = subprocess.Popen([str(exe), '-f', rom_jugable(j)])
     if completa:
         avisar('¡Randomización completa! · Ahora los rivales sacan cualquier evolución y cualquier ataque', 25)
@@ -1010,6 +1015,16 @@ def pintor_capa():
         time.sleep(1)
 
 
+def cargando():
+    """Segundos que lleva abriéndose el juego, o None si ya ha salido su ventana (o no hay juego)."""
+    if not (jugando() and vivo.get('citra')):
+        return None
+    if not vivo.get('ventana_juego'):
+        citra_listo()                                   # mira la ventana también aquí, no solo en seguimiento()
+    s = time.time() - vivo.get('lanzado', 0)
+    return None if vivo.get('ventana_juego') or s > CAPA_MAX else round(s)
+
+
 def foto_estado():
     with lock:
         activo = None
@@ -1030,7 +1045,7 @@ def foto_estado():
                         'vidas_iniciales': j.get('vidas_iniciales'), 'medallas': sum(j.get('medallas', [])),
                         'registro': (DATOS / 'juegos' / j['id'] / 'randomizacion.log').exists()}
                        for j in biblio['juegos']],
-            'activo': activo, 'jugando': jugando(), 'conectado': vivo['conectado'], 'tarea': vivo['tarea'] and {**vivo['tarea'], 'transcurrido': time.time() - vivo['tarea']['inicio']},
+            'activo': activo, 'jugando': jugando(), 'conectado': vivo['conectado'], 'cargando': cargando(), 'tarea': vivo['tarea'] and {**vivo['tarea'], 'transcurrido': time.time() - vivo['tarea']['inicio']},
             'equipo': [p and {**p, 'muerto': p['id'] in muertos} for p in vivo['equipo']],
             'aviso': vivo['aviso']['texto'] if vivo['aviso'] and time.time() < vivo['aviso']['hasta'] else None,
             'capa': vivo['capa'], 'encaje': encaje() if os.name == 'nt' else (1, 0, 0),
@@ -1592,25 +1607,63 @@ def online_accion(que, d):
 
 def capa():
     """Ventana sin bordes, siempre delante, con los huecos (color clave) transparentes y sin coger
-    el foco: se ve y se toca el juego a través de ella y el teclado sigue en Azahar."""
+    el foco: se ve y se toca el juego a través de ella y el teclado sigue en Azahar.
+    Mientras el juego se abre es solo un cartel pequeño en el centro («Abriendo el juego…», con los segundos),
+    para que se vea que no se ha colgado y para no tapar Citra (ni sus avisos) antes de tiempo: Alt+Q del
+    lanzador solo funciona cuando ya está la ventana del juego, así que antes el layout no se podía quitar."""
     import tkinter as tk
     ctypes.windll.shcore.SetProcessDpiAwareness(2)
     w, h = pantalla()
     s, ox, oy = encaje()
     raiz = tk.Tk()
     raiz.overrideredirect(True)
-    raiz.geometry(f'{w}x{h}+0+0')
-    raiz.configure(bg=CLAVE)
     raiz.attributes('-topmost', True)
     raiz.attributes('-transparentcolor', CLAVE)
     etiqueta = tk.Label(raiz, bd=0, bg=CLAVE)
-    etiqueta.place(x=ox, y=oy)
+    # el cartel de carga
+    FONDO, TINTA, ACENTO = '#1b1820', '#ffffff', '#c8102e'
+    cartel = tk.Frame(raiz, bg=FONDO, highlightthickness=3, highlightbackground=ACENTO)
+    titulo = tk.Label(cartel, text='Abriendo el juego…', bg=FONDO, fg=TINTA, font=('Segoe UI Semibold', 20))
+    detalle = tk.Label(cartel, bg=FONDO, fg='#f2b8c2', font=('Segoe UI', 12), justify='center')
+    barra = tk.Canvas(cartel, width=380, height=10, bg='#3a2f3d', highlightthickness=0)
+    bloque = barra.create_rectangle(0, 0, 90, 10, fill=ACENTO, width=0)
+    for wdg, pad in ((titulo, (26, 6)), (detalle, (0, 14)), (barra, (0, 26))):
+        wdg.pack(padx=34, pady=pad)
     raiz.update_idletasks()
     hwnd = ctypes.windll.user32.GetParent(raiz.winfo_id())
     GWL_EXSTYLE, WS_EX_NOACTIVATE, WS_EX_TOOLWINDOW = -20, 0x08000000, 0x00000080
     estilo = ctypes.windll.user32.GetWindowLongW(hwnd, GWL_EXSTYLE)
     ctypes.windll.user32.SetWindowLongW(hwnd, GWL_EXSTYLE, estilo | WS_EX_NOACTIVATE | WS_EX_TOOLWINDOW)
-    vista = {'version': -1, 'imagen': None, 'arrancado': time.time()}
+    vista = {'version': -1, 'imagen': None, 'arrancado': time.time(), 'modo': None, 'x': 0}
+
+    def modo_cartel(segundos):
+        if vista['modo'] != 'cartel':
+            vista['modo'] = 'cartel'
+            etiqueta.place_forget()
+            raiz.configure(bg=FONDO)
+            cartel.pack()
+            raiz.update_idletasks()
+            cw, ch = cartel.winfo_reqwidth(), cartel.winfo_reqheight()
+            raiz.geometry(f'{cw}x{ch}+{(w - cw) // 2}+{(h - ch) // 2}')
+        texto = f'Lleva {segundos} s · En un PC lento puede tardar hasta un minuto.\nNo cierres nada: el juego saldrá aquí solo.'
+        if segundos > 90:
+            texto = (f'Lleva {segundos} s: está tardando más de lo normal.\n'
+                     'Si Citra enseña un error, ciérralo y vuelve a darle a Jugar.')
+        detalle.configure(text=texto)
+
+    def modo_layout():
+        if vista['modo'] != 'layout':
+            vista['modo'] = 'layout'
+            cartel.pack_forget()
+            raiz.configure(bg=CLAVE)
+            raiz.geometry(f'{w}x{h}+0+0')
+            etiqueta.place(x=ox, y=oy)
+
+    def animar():
+        if vista['modo'] == 'cartel':                    # la barra va y viene: se ve que sigue vivo
+            vista['x'] = (vista['x'] + 6) % 470
+            barra.coords(bloque, vista['x'] - 90, 0, vista['x'], 10)
+        raiz.after(40, animar)
 
     def refrescar():
         try:
@@ -1620,14 +1673,19 @@ def capa():
             return raiz.destroy()
         if not e['jugando'] and time.time() - vista['arrancado'] > 15:
             return raiz.destroy()
-        if e['capa'] != vista['version'] and CAPA_PNG.exists():
-            vista['version'] = e['capa']
-            vista['imagen'] = tk.PhotoImage(file=str(CAPA_PNG))
-            etiqueta.configure(image=vista['imagen'])
+        if e.get('cargando') is not None:
+            modo_cartel(e['cargando'])
+        else:
+            modo_layout()
+            if e['capa'] != vista['version'] and CAPA_PNG.exists():
+                vista['version'] = e['capa']
+                vista['imagen'] = tk.PhotoImage(file=str(CAPA_PNG))
+                etiqueta.configure(image=vista['imagen'])
         raiz.attributes('-topmost', True)
         raiz.after(1000, refrescar)
 
     refrescar()
+    animar()
     raiz.mainloop()
 
 

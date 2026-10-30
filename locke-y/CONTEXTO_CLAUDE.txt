@@ -95,6 +95,9 @@ Pokémon Ostinato (adulta, seca, práctica, con guasa; ver OSTINATO-biblia.md).
 - Citra 1920 se cae si le llega RPC mientras carga. Antes se esperaban 15 s fijos y en PCs lentos se caía:
   ahora citra_listo() espera a ver la ventana del juego (2 ventanas visibles de citra-qt) + 8 s; si no sale
   nunca, a los 60 s.
+- Mientras carga, la capa NO es el layout (tapaba Citra y Alt+Q no lo quitaba, porque el lanzador solo cambia a
+  ventana cuando ya existe la del juego): es un cartel pequeño «Abriendo el juego…» con los segundos y una barra
+  animada (aviso a partir de 90 s). Pasa a layout al salir la ventana del juego o a los 120 s.
 - Se reparte con un instalador (app/empaquetar.py + app/instalador.iss, Inno Setup), PyInstaller --onedir,
   sin el zip pegado ni la autoextracción (main.instalar ya no existe). Instala en %LOCALAPPDATA%\Pokelocke.
   Lleva todo: Citra, randomizador, makerom y un Java mínimo (jlink) con LockeSettings y MegaFases compilados
