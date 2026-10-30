@@ -190,59 +190,74 @@
   .huevo.cogido img { width: 70%; height: 70%; object-fit: contain; }
   .huevo .estrella { position: absolute; top: 4px; right: 6px; color: #B88A00; font-size: 14px; }
   @media (max-width: 700px) { .huevos { grid-template-columns: repeat(5, minmax(0, 1fr)); } }
-  /* torneo: el cuadro, con líneas que unen cada partido con el siguiente; la repesca, en azul, debajo */
+  /* torneo, estilo «cartel»: sello VS en cada partido, líneas rojas y gruesas en los caminos ya decididos, títulos
+     en Bungee y la repesca como un carril azul debajo */
+  #v-torneo .titulo { font: 22px/1.1 Bungee, Nunito, sans-serif; }
   .tn-ava { width: 64px; height: 64px; border-radius: 16px; object-fit: cover; background: var(--fondo); display: flex; align-items: center; justify-content: center; font-size: 26px; font-weight: 900; color: #fff; flex: none; }
-  .tn-scroll { overflow-x: auto; padding: 6px 2px 18px; }
-  .tn-lienzo { position: relative; display: inline-flex; flex-direction: column; gap: 44px; min-width: 100%; }
+  .tn-scroll { overflow-x: auto; padding: 14px 4px 18px 22px; margin-left: -22px; }   /* sitio para el sello VS */
+  .tn-lienzo { position: relative; display: inline-flex; flex-direction: column; gap: 36px; min-width: 100%; }
   .tn-lineas { position: absolute; left: 0; top: 0; pointer-events: none; overflow: visible; }
-  .tn-lineas path { fill: none; stroke: var(--linea-fuerte); stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
-  .tn-lineas path.hecho { stroke: var(--verde); }
-  .tn-lineas path.repesca { stroke: var(--azul); stroke-dasharray: 7 7; }
+  .tn-lineas path { fill: none; stroke: var(--linea-fuerte); stroke-width: 3; stroke-linecap: square; stroke-linejoin: miter; }
+  .tn-lineas path.hecho { stroke: var(--rojo); }
+  .tn-lineas path.repesca { stroke: var(--azul); stroke-dasharray: 8 7; stroke-linecap: butt; }
   .tn-lineas path.dibuja { stroke-dasharray: 600; stroke-dashoffset: 600; animation: tn-dibuja .7s .15s ease-out forwards; }
   @keyframes tn-dibuja { to { stroke-dashoffset: 0; } }
-  .tn-cuadro { display: flex; gap: 64px; align-items: stretch; }
-  .tn-col { display: flex; flex-direction: column; width: 236px; flex: none; }
-  .tn-col-t { font-size: 15px; font-weight: 900; color: var(--suave); margin-bottom: 14px; }
-  .tn-col.final .tn-col-t { color: var(--rojo-texto); }
-  .tn-col-cuerpo { flex: 1; display: flex; flex-direction: column; justify-content: space-around; gap: 22px; }
-  .tn-ficha { position: relative; background: var(--panel); border: 1px solid var(--linea); border-radius: 14px; box-shadow: 0 1px 2px rgba(27,32,48,.06); }
-  .tn-col.final .tn-ficha { border: 2px solid var(--rojo); box-shadow: 0 8px 22px rgba(204,43,11,.14); }
-  .tn-ficha.vivo { border: 2px solid var(--rojo); }
-  .tn-ficha.repesca { border-color: #BBD3EE; }
-  .tn-fila { display: flex; align-items: center; gap: 10px; width: 100%; min-height: 50px; padding: 8px 12px; border: 0; background: none; color: var(--tinta); text-align: left; font: inherit; }
+  .tn-cuadro { display: flex; gap: 80px; align-items: stretch; }
+  .tn-col { display: flex; flex-direction: column; width: 270px; flex: none; }
+  .tn-col-t { font: 18px/1.2 Bungee, Nunito, sans-serif; color: var(--tinta); margin-bottom: 20px; }
+  .tn-col.final .tn-col-t { color: var(--rojo); }
+  .tn-col.campeon .tn-col-t { color: #B88A00; }
+  .tn-col-cuerpo { flex: 1; display: flex; flex-direction: column; justify-content: space-around; gap: 26px; }
+  .tn-ficha { position: relative; background: var(--panel); border: 1px solid var(--linea); border-radius: 16px; }
+  .tn-col.final .tn-ficha { border: 3px solid var(--rojo); box-shadow: 0 12px 30px rgba(204,43,11,.18); }
+  .tn-ficha.vivo { border: 3px solid var(--rojo); }
+  .tn-ficha.plaza { border: 2px solid var(--azul); }
+  .tn-filas { position: relative; }
+  .tn-sello { position: absolute; left: -16px; top: calc(50% - 16px); width: 32px; height: 32px; border-radius: 50%; background: var(--rojo); color: #fff; font: 11px Bungee, sans-serif; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 0 3px var(--fondo); z-index: 1; }
+  .tn-ficha.plaza .tn-sello, .tn-repesca .tn-sello { background: var(--azul); }
+  .tn-repesca .tn-sello { box-shadow: 0 0 0 3px var(--azul-claro); }
+  .tn-fila { display: flex; align-items: center; gap: 12px; width: 100%; min-height: 58px; padding: 8px 16px; border: 0; background: none; color: var(--tinta); text-align: left; font: inherit; }
   .tn-fila + .tn-fila { border-top: 1px solid var(--linea); }
-  .tn-fila:first-of-type { border-radius: 13px 13px 0 0; }
-  .tn-fila:last-of-type { border-radius: 0 0 13px 13px; }
-  .tn-fila .tn-ava { width: 32px; height: 32px; border-radius: 9px; font-size: 15px; }
-  .tn-fila b { flex: 1; min-width: 0; font-size: 15px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .tn-mar { font-size: 18px; font-weight: 900; color: var(--suave); min-width: 18px; text-align: right; }
-  .tn-fila.gana { box-shadow: inset 4px 0 0 var(--verde); background: var(--verde-claro); }
-  .tn-fila.gana b, .tn-fila.gana .tn-mar { color: #166B3C; }
-  .tn-fila.pierde { opacity: .5; }
-  .tn-fila.pierde .tn-ava { filter: grayscale(1); }
+  .tn-filas > .tn-fila:first-child { border-radius: 15px 15px 0 0; }
+  .tn-filas > .tn-fila:last-child { border-radius: 0 0 15px 15px; }
+  .tn-fila .tn-ava { width: 36px; height: 36px; border-radius: 11px; font-size: 17px; }
+  .tn-fila b { flex: 1; min-width: 0; font-size: 16px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .tn-mar { width: 30px; height: 30px; border-radius: 9px; background: #EEF0F5; font-size: 15px; font-weight: 900; display: flex; align-items: center; justify-content: center; flex: none; }
+  .tn-mar:empty { visibility: hidden; }
+  .tn-fila.gana { background: var(--verde-claro); }
+  .tn-fila.gana b { color: #166B3C; }
+  .tn-fila.gana .tn-mar { background: var(--verde); color: #fff; }
+  .tn-fila.pierde { color: #8C94A8; }
+  .tn-fila.pierde .tn-ava { filter: grayscale(1); opacity: .45; }
   .tn-fila.yo .tn-ava { box-shadow: 0 0 0 3px var(--azul); }
-  .tn-fila.vacia { color: #9AA2B4; font-style: italic; font-weight: 700; font-size: 14px; }
-  .tn-hueco { width: 32px; height: 32px; border-radius: 9px; border: 2px dashed var(--linea-fuerte); flex: none; }
-  .tn-ficha.repesca .tn-fila.vacia .tn-hueco { border-color: #9DBEE3; }
+  .tn-fila.vacia { color: #8C94A8; font-style: italic; font-weight: 700; font-size: 15px; }
+  .tn-ficha.plaza .tn-fila.vacia { color: var(--azul-texto); font-style: normal; font-weight: 800; }
+  .tn-hueco { width: 36px; height: 36px; border-radius: 11px; border: 2px dashed var(--linea-fuerte); flex: none; box-sizing: border-box; }
+  .tn-ficha.plaza .tn-hueco, .tn-repesca .tn-hueco { border-color: #9DBEE3; }
   button.tn-fila:hover { background: var(--azul-claro); }
   button.tn-fila.gana:hover { background: #D3EFDF; }
-  .tn-vivo { position: absolute; top: -11px; right: 12px; height: 22px; padding: 0 9px; border-radius: 999px; background: var(--rojo); color: #fff; font-size: 12px; font-weight: 900; display: flex; align-items: center; gap: 6px; z-index: 1; }
+  .tn-vivo { position: absolute; top: -13px; right: 12px; height: 24px; padding: 0 10px; border-radius: 999px; background: var(--rojo); color: #fff; font-size: 12px; font-weight: 900; display: flex; align-items: center; gap: 6px; z-index: 2; }
   .tn-vivo i { width: 7px; height: 7px; border-radius: 50%; background: #fff; animation: tn-late 1.2s ease-in-out infinite; }
   @keyframes tn-late { 50% { opacity: .25; } }
-  .tn-nota { display: block; padding: 7px 12px 0; font-size: 12px; font-weight: 800; color: var(--azul-texto); }
-  .tn-admin { display: flex; align-items: center; gap: 6px; padding: 8px 10px; border-top: 1px dashed var(--linea); font-size: 13px; }
+  .tn-etiqueta { position: absolute; left: 14px; top: -13px; height: 24px; padding: 0 10px; border-radius: 999px; background: var(--azul); color: #fff; font-size: 12px; font-weight: 900; display: flex; align-items: center; white-space: nowrap; z-index: 2; }
+  .tn-nota { display: block; padding: 10px 16px 0; font-size: 13px; font-weight: 800; color: var(--azul-texto); }
+  .tn-admin { display: flex; align-items: center; gap: 6px; padding: 8px 12px; border-top: 1px dashed var(--linea); font-size: 13px; }
   .tn-admin input { width: 40px; min-height: 30px; border: 1px solid var(--linea-fuerte); border-radius: 8px; padding: 2px 4px; font: 800 14px Nunito, sans-serif; text-align: center; }
   .tn-admin button { margin-left: auto; min-height: 30px; padding: 0 10px; border-radius: 8px; border: 1px solid var(--linea); background: var(--panel); font-weight: 800; font-size: 13px; }
-  .tn-repesca { padding: 18px 20px 20px; border-radius: 18px; background: var(--azul-claro); border: 1px solid #C9DCF2; align-self: flex-start; }
-  .tn-repesca h3 { margin: 0; font-size: 17px; font-weight: 900; color: var(--azul-texto); }
-  .tn-repesca p { margin: 2px 0 16px; font-size: 14px; color: var(--suave); max-width: 62ch; }
-  .tn-repesca .tn-cuadro { gap: 48px; }
-  .tn-repesca .tn-col-t { color: var(--azul-texto); }
-  .tn-copa { display: flex; flex-direction: column; align-items: center; gap: 10px; padding: 22px 16px; border-radius: 18px; background: linear-gradient(165deg, #FFF8DD, #FFE58A); border: 2px solid #E5B800; text-align: center; }
+  .tn-repesca { display: flex; align-items: center; gap: 40px; padding: 22px 28px 22px 26px; border-radius: 20px; background: var(--azul-claro); border: 2px solid #C9DCF2; align-self: flex-start; }
+  .tn-repesca-t { width: 230px; flex: none; }
+  .tn-repesca h3 { margin: 0; font: 22px/1.1 Bungee, Nunito, sans-serif; color: var(--azul-texto); }
+  .tn-repesca p { margin: 6px 0 0; font-size: 15px; font-weight: 700; color: #3D4A63; line-height: 1.35; }
+  .tn-repesca .tn-cuadro { gap: 56px; }
+  .tn-repesca .tn-col-t { font: 900 13px Nunito, sans-serif; color: var(--azul-texto); margin-bottom: 10px; }
+  .tn-repesca .tn-ficha { border-color: #C9DCF2; }
+  .tn-copa { display: flex; flex-direction: column; align-items: center; gap: 10px; padding: 24px 16px; border-radius: 20px; background: linear-gradient(165deg, #FFF8DD, #FFE58A); border: 3px solid #E5B800; text-align: center; box-shadow: 0 16px 36px rgba(229,184,0,.28); }
   .tn-copa .tn-ava { width: 72px; height: 72px; box-shadow: 0 0 0 4px #fff, 0 0 0 6px #E5B800; }
-  .tn-copa strong { font: 22px/1.1 Bungee, Nunito, sans-serif; color: #5C4300; word-break: break-word; }
+  .tn-copa strong { font: 24px/1.1 Bungee, Nunito, sans-serif; color: #5C4300; word-break: break-word; }
   .tn-copa .tn-copa-t { font-size: 13px; font-weight: 800; color: #7A5A00; }
-  .tn-copa.pendiente { background: var(--panel); border: 2px dashed var(--linea-fuerte); color: var(--suave); font-weight: 800; }
+  .tn-copa.pendiente { min-height: 210px; justify-content: center; background: var(--oro-claro); border: 2px dashed #E5B800; box-shadow: none; }
+  .tn-copa.pendiente svg { width: 60px; height: 60px; }
+  .tn-copa.pendiente strong { font-size: 18px; color: #7A5A00; }
   /* al marcar un resultado: la fila ganadora se ilumina y el nombre aparece en el partido siguiente */
   .tn-fila.recien { animation: tn-brillo 1.1s ease-out; }
   @keyframes tn-brillo { 0% { background: #B9EBCD; } 100% { background: var(--verde-claro); } }
@@ -1003,11 +1018,11 @@ function ficha(t, p, admin, yo) {
       ? `<button type="button" class="${clase}" data-fila="${p.id}-${k}" data-tn="ganador" data-id="${p.id}" data-lado="${k}" title="${p.gana === k ? 'Quitar la victoria a' : 'Dar la victoria a'} ${esc(n)}">${dentro}</button>`
       : `<div class="${clase}" data-fila="${p.id}-${k}">${dentro}</div>`;
   };
-  return `<div class="tn-ficha ${p.fase} ${p.vivo ? 'vivo' : ''}" data-partido="${p.id}">
+  return `<div class="tn-ficha ${p.fase} ${p.plaza ? 'plaza' : ''} ${p.vivo ? 'vivo' : ''}" data-partido="${p.id}">
     ${p.vivo ? '<span class="tn-vivo"><i></i>En juego</span>' : ''}
-    ${p.plaza ? '<span class="tn-nota">Sin rival en la 1.ª ronda: espera al ganador de la repesca</span>' : ''}
+    ${p.plaza ? '<span class="tn-etiqueta">Sin rival en la 1.ª ronda</span>' : ''}
     ${subeA(t, p) ? `<span class="tn-nota">Quien gana sube a jugar contra ${esc(subeA(t, p))}</span>` : ''}
-    ${fila(0)}${fila(1)}
+    <div class="tn-filas">${fila(0)}${fila(1)}<span class="tn-sello" aria-hidden="true">VS</span></div>
     ${admin && completo ? `<div class="tn-admin">
       <input type="text" inputmode="numeric" aria-label="Victorias de ${esc(p.ab[0])}" value="${esc(p.ma)}" data-tn="ma" data-id="${p.id}">
       <span>–</span>
@@ -1061,14 +1076,15 @@ function pintarTorneo() {
     const sinRival = plaza && plaza.fuentes[0].j;
     html += `<div class="tn-scroll"><div class="tn-lienzo"><svg class="tn-lineas" aria-hidden="true"></svg>
       <div class="tn-cuadro">${columnas(t, 'principal', admin, d.yo, (r, u) => nombreRonda(r, u, !!plaza))}
-        <div class="tn-col"><div class="tn-col-t">Campeón</div><div class="tn-col-cuerpo">${camp
+        <div class="tn-col campeon"><div class="tn-col-t">Campeón</div><div class="tn-col-cuerpo">${camp
           ? `<div class="tn-copa">${avatar(camp)}<strong>${esc(camp)}</strong><span class="tn-copa-t">Campeón del torneo</span></div>`
-          : '<div class="tn-copa pendiente">Por decidir</div>'}</div></div></div>
-      ${t.partidos.some((p) => p.fase === 'repesca') || plaza ? `<section class="tn-repesca"><h3>Repesca</h3>
-        <p>Los que pierden en la primera ronda juegan entre ellos a una sola partida. Quien gana sube a jugar contra ${esc(sinRival || 'el jugador sin rival')}, que no tuvo rival en la primera ronda.</p>
+          : `<div class="tn-copa pendiente">${TROFEO}<strong>Por decidir</strong></div>`}</div></div></div>
+      ${t.partidos.some((p) => p.fase === 'repesca') || plaza ? `<section class="tn-repesca">
+        <div class="tn-repesca-t"><h3>Repesca</h3>
+          <p>Los que pierden en la primera ronda, a una sola partida. Quien gana sube a jugar contra ${esc(sinRival || 'el jugador sin rival')}.</p></div>
         ${t.partidos.some((p) => p.fase === 'repesca')
           ? `<div class="tn-cuadro">${columnas(t, 'repesca', admin, d.yo, (r, u) => (r === u ? (u ? 'Final de la repesca' : 'Repesca') : `Ronda ${r + 1}`))}</div>`
-          : '<p style="margin:0">Solo hay un perdedor en la primera ronda: pasa directo a jugar contra él.</p>'}</section>` : ''}
+          : '<p style="margin:0;max-width:340px">Solo hay un perdedor en la primera ronda: pasa directo a jugar contra él.</p>'}</section>` : ''}
     </div></div>`;
   }
   if (!d && !torneo.error) html = '<p class="suave">Cargando el torneo…</p>';
@@ -1118,7 +1134,7 @@ function dibujarLineas(t, nuevas = new Set()) {
       if (q.fase === 'repesca' && p.fase === 'principal') {
         // del hueco del que no tenía rival baja hasta el recuadro de la repesca (sin cruzar sus textos)
         const caja = lienzo.querySelector('.tn-repesca').getBoundingClientRect();
-        const x = r2.left + 36 - base.left;
+        const x = r2.left + r2.width / 2 - base.left;
         camino = `M${x} ${r2.bottom - base.top + 2} V${caja.top - base.top - 2}`;
         clase += ' repesca';
       } else {
