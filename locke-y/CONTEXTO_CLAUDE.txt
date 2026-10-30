@@ -200,6 +200,18 @@ Se partió con un script (ast + symtable) y se comprobó con pyflakes (también 
 servidor arrancado de verdad. Las referencias entre módulos van como modulo.nombre: para cambiar algo en una
 prueba se parchea en el módulo donde vive (emulador.jugando, comun.DATOS…).
 
+4d. TABLERO Y UNA SOLA ROM (30/10/2026, versión visible 1.0.0)
+--------------------------------------------------------------
+- Solo cabe una ROM (/api/anadir lo rechaza si ya hay una). Con ella puesta, la pantalla principal es un tablero
+  estilo party game: assets/tablero-isla.jpg (isla de Firefly, 1376×768) cubre la ventana y encima van, con código
+  (app.html: HITOS, PUNTOS, pintarTablero), 14 casillas: Pueblo Boceto, inicial, primera captura, 8 gimnasios,
+  Alto Mando, Campeona, torneo final. PUNTOS son px de la imagen: si se cambia la isla, hay que recolocarlas.
+- Avanza al guardar: guardado.tablero(j) lee del archivo de la partida las medallas (byte 0x420C) y el equipo,
+  y solo relee si cambia el archivo. PENDIENTE: leer Alto Mando y Campeona de la partida (ahora no avanzan).
+- Música: assets/musica.mp3 (Suno, «Cozy Game Night») con botón de volumen/silencio en la cabecera; se para al
+  jugar. Edge se abre con --autoplay-policy=no-user-gesture-required.
+- «Versión 1.0.0» es solo el texto del pie; las actualizaciones siguen comparando el número por fecha de empaquetar.py.
+
 
 5. IMÁGENES DE ARCE  (../CREDITOS/firefly/)
 -------------------------------------------

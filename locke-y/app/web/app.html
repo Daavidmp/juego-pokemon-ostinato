@@ -48,12 +48,6 @@
   /* biblioteca */
   .vacio { flex-grow: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; text-align: center; padding: 40px; }
   .vacio h1 { font-size: 30px; }
-  .juegos { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 24px; }
-  .juego { position: relative; background: var(--panel); border: 1px solid var(--linea); border-radius: 18px; box-shadow: 0 2px 8px rgba(27,32,48,.06); }
-  .portada { width: 100%; height: 150px; border: 0; border-radius: 18px 18px 0 0; background: linear-gradient(135deg, #E8F0FB 0%, #FDECE8 100%); display: flex; align-items: center; justify-content: center; padding: 0; }
-  .portada img { width: 76%; }
-  .juego .cuerpo { padding: 16px 16px 18px; display: flex; flex-direction: column; gap: 12px; }
-  .juego .nombre { font-size: 17px; font-weight: 800; overflow-wrap: anywhere; }
   .chips { display: flex; flex-wrap: wrap; gap: 6px; }
   .chip { display: inline-flex; align-items: center; gap: 5px; height: 28px; padding: 0 10px; border-radius: 999px; font-size: 13px; font-weight: 800; }
   .chip.vidas { background: var(--rojo-claro); color: #9E2108; }
@@ -67,8 +61,80 @@
   .menu button:hover:not(:disabled) { background: var(--fondo); }
   .menu button.peligro { color: var(--rojo-texto); }
   .menu button:disabled { color: #9AA2B8; cursor: not-allowed; }
-  .anadir { min-height: 318px; border: 2px dashed var(--linea-fuerte); border-radius: 18px; background: transparent; color: var(--suave); font-weight: 800; font-size: 16px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; }
-  .anadir:hover { border-color: var(--rojo); color: var(--tinta); }
+
+  /* tablero: la isla (una imagen) cubre la ventana; las casillas, el camino y los marcadores van por encima con código.
+     Las casillas se colocan en % de la imagen (1376×768) y miden en cqw, así no se mueven al cambiar la ventana. */
+  #v-biblioteca.con-tablero { position: relative; height: 100vh; overflow: hidden; }
+  #v-biblioteca.con-tablero > header { position: absolute; top: 0; right: 0; z-index: 6; background: none; border: 0; padding: 20px 24px; min-height: 0; }
+  #v-biblioteca.con-tablero > header .marca, #v-biblioteca.con-tablero > footer { display: none; }
+  .tablero { position: absolute; inset: 0; background: #BFE7F2; overflow: hidden; }
+  .tb-escena { position: absolute; left: 50%; top: 50%; width: max(100vw, 179.17vh); aspect-ratio: 1376 / 768; transform: translate(-50%, -50%); container-type: inline-size; }
+  .tb-isla { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .tb-agua { position: absolute; left: 28.8%; top: 69%; width: 3.2%; height: 31%; background: repeating-linear-gradient(180deg, rgba(255,255,255,0) 0 14px, rgba(255,255,255,.55) 14px 18px, rgba(255,255,255,0) 18px 34px); mix-blend-mode: screen; opacity: .6; animation: cascada 1.2s linear infinite; border-radius: 40%; }
+  @keyframes cascada { to { background-position: 0 34px; } }
+  .tb-camino { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+  .tb-camino polyline { fill: none; stroke-linecap: round; stroke-linejoin: round; }
+  .tb-camino .base { stroke: #E0A800; stroke-width: 15; filter: drop-shadow(0 0 6px rgba(255,203,5,.7)); }
+  .tb-camino .brillo { stroke: #FFF3B0; stroke-width: 5; stroke-dasharray: 2 26; animation: brillo 1.6s linear infinite; }
+  @keyframes brillo { to { stroke-dashoffset: -28; } }
+  .tb-casilla { position: absolute; width: 3.7cqw; height: 2cqw; transform: translate(-50%, -50%); }
+  .tb-casilla.gran { width: 4.6cqw; height: 2.5cqw; }
+  .moneda { position: absolute; inset: 0; border-radius: 50%; background: radial-gradient(ellipse at 50% 35%, #E9EDF5 0 55%, #C7CEDC 100%); box-shadow: 0 .45cqw 0 #8E99B0, 0 .9cqw .8cqw rgba(27,32,48,.3); }
+  .hecho .moneda { background: radial-gradient(ellipse at 50% 35%, #FFF1A8 0 40%, #FFCB05 100%); box-shadow: 0 .45cqw 0 #B88A00, 0 .9cqw .8cqw rgba(27,32,48,.3), 0 0 1.2cqw rgba(255,203,5,.55); }
+  .actual .moneda { background: radial-gradient(ellipse at 50% 35%, #FF8A70 0 35%, #CC2B0B 100%); box-shadow: 0 .45cqw 0 #8A1C06, 0 .9cqw .8cqw rgba(27,32,48,.3); }
+  .actual .moneda::after { content: ''; position: absolute; inset: -.6cqw; border-radius: 50%; border: .3cqw solid rgba(255,255,255,.9); animation: pulso 1.6s ease-out infinite; }
+  @keyframes pulso { from { transform: scale(.9); opacity: 1; } to { transform: scale(1.5); opacity: 0; } }
+  .tb-icono { position: absolute; left: 50%; bottom: 45%; transform: translateX(-50%); width: 2.9cqw; height: 2.9cqw; display: flex; align-items: flex-end; justify-content: center; animation: flota 3s ease-in-out infinite; }
+  .tb-icono img, .tb-icono svg { max-width: 100%; max-height: 100%; filter: drop-shadow(0 .3cqw .25cqw rgba(27,32,48,.35)); }
+  .pendiente .tb-icono { filter: grayscale(1) opacity(.55); animation: none; }
+  @keyframes flota { 50% { transform: translateX(-50%) translateY(-.35cqw); } }
+  .tb-ficha { position: absolute; left: 50%; bottom: 30%; width: 2.2cqw; transform: translateX(-50%); animation: bota .9s ease-in-out infinite; z-index: 2; }
+  .tb-ficha svg { width: 100%; display: block; filter: drop-shadow(0 .3cqw .3cqw rgba(27,32,48,.4)); }
+  @keyframes bota { 50% { transform: translateX(-50%) translateY(-.6cqw); } }
+  .tb-aqui { position: absolute; left: 50%; bottom: calc(100% + .3cqw); transform: translateX(-50%); background: var(--rojo); color: #fff; font-weight: 900; font-size: max(12px, .95cqw); padding: .2cqw .8cqw; border-radius: 999px; white-space: nowrap; }
+  .tb-huevo { position: absolute; left: -1.1cqw; top: -1.3cqw; width: 1.3cqw; }
+  .tb-bandera { position: absolute; right: -.6cqw; bottom: 40%; width: 1.6cqw; }
+  .tb-nubes i { position: absolute; left: 0; width: 30vw; height: 10vw; border-radius: 50%; pointer-events: none; opacity: .85;
+    background: radial-gradient(closest-side, #fff 60%, rgba(255,255,255,0)) 0 40% / 45% 80% no-repeat, radial-gradient(closest-side, #fff 60%, rgba(255,255,255,0)) 35% 0 / 50% 100% no-repeat, radial-gradient(closest-side, #fff 60%, rgba(255,255,255,0)) 100% 50% / 45% 75% no-repeat;
+    animation: deriva linear infinite; }
+  .tb-nubes i:nth-child(1) { top: 2%; animation-duration: 95s; animation-delay: -20s; }
+  .tb-nubes i:nth-child(2) { top: 14%; width: 20vw; height: 7vw; opacity: .6; animation-duration: 140s; animation-delay: -90s; }
+  .tb-nubes i:nth-child(3) { top: 80%; width: 38vw; height: 12vw; animation-duration: 110s; animation-delay: -55s; }
+  .tb-nubes i:nth-child(4) { top: 90%; width: 26vw; height: 8vw; opacity: .7; animation-duration: 75s; animation-delay: -10s; }
+  @keyframes deriva { from { transform: translateX(-40vw); } to { transform: translateX(110vw); } }
+  .tb-hud { position: absolute; z-index: 5; }
+  .tb-carta { background: rgba(255,255,255,.96); border: 3px solid #fff; border-radius: 20px; box-shadow: 0 10px 0 rgba(27,32,48,.08), 0 16px 34px rgba(27,32,48,.18); padding: 14px 18px; }
+  .tb-logo { left: 24px; top: 14px; width: 230px; filter: drop-shadow(0 6px 10px rgba(27,32,48,.25)); }
+  .tb-objetivo { left: 24px; top: 140px; width: 290px; display: flex; gap: 14px; align-items: center; }
+  .tb-retrato { width: 76px; height: 76px; flex: none; border-radius: 50%; background: var(--rojo-claro); overflow: hidden; display: flex; align-items: center; justify-content: center; }
+  .tb-retrato img { width: 100%; height: 100%; object-fit: cover; object-position: top; }
+  .tb-objetivo .que { font-size: 13px; font-weight: 800; color: var(--suave); }
+  .tb-objetivo .nombre { font-family: Bungee, Nunito, sans-serif; font-size: 22px; line-height: 1.1; }
+  .tb-pastilla { display: inline-block; margin-top: 6px; background: var(--rojo); color: #fff; font-weight: 900; font-size: 13px; padding: 2px 10px; border-radius: 999px; }
+  .tb-marcador { left: 24px; bottom: 24px; display: flex; flex-direction: column; gap: 10px; }
+  .tb-fila { display: flex; align-items: center; justify-content: space-between; gap: 14px; font-weight: 900; font-size: 15px; }
+  .tb-fila b { font-family: Bungee, Nunito, sans-serif; font-weight: 400; font-size: 18px; }
+  .tb-vidas { display: grid; grid-template-columns: repeat(13, 16px); gap: 2px 3px; }
+  .tb-estuche { display: flex; gap: 6px; padding: 8px 10px; border-radius: 14px; background: linear-gradient(#8E1B33, #6E1226); box-shadow: inset 0 3px 8px rgba(0,0,0,.35), 0 3px 0 #4A0B18; }
+  .tb-estuche span { width: 44px; height: 44px; border-radius: 50%; background: rgba(0,0,0,.25); box-shadow: inset 0 2px 4px rgba(0,0,0,.4); display: flex; align-items: center; justify-content: center; }
+  .tb-estuche img { width: 36px; height: 36px; object-fit: contain; }
+  .tb-estuche .no img { filter: grayscale(1) brightness(1.6); opacity: .25; }
+  .tb-huevos { border: 0; background: var(--oro-claro); color: #7A5A00; border-radius: 999px; padding: 4px 12px; font-weight: 900; font-size: 13px; display: inline-flex; gap: 6px; align-items: center; }
+  .tb-abajo { right: 24px; bottom: 24px; display: flex; align-items: flex-end; gap: 14px; }
+  .tb-equipo { display: grid; grid-template-columns: repeat(6, 64px); gap: 8px; }
+  .tb-burbuja { width: 64px; height: 64px; border-radius: 50%; position: relative; background: radial-gradient(circle at 35% 30%, #fff 0 20%, rgba(255,255,255,.75) 60%, rgba(214,236,250,.9)); border: 3px solid #fff; box-shadow: 0 6px 14px rgba(27,32,48,.2); display: flex; align-items: center; justify-content: center; }
+  .tb-burbuja img { width: 52px; height: 52px; object-fit: contain; }
+  .tb-burbuja .nv { position: absolute; bottom: -10px; left: 50%; transform: translateX(-50%); background: var(--tinta); color: #fff; font-size: 11px; font-weight: 900; padding: 0 7px; border-radius: 999px; white-space: nowrap; }
+  .tb-burbuja.muerto img { filter: grayscale(1); opacity: .45; }
+  .tb-jugar { display: flex; flex-direction: column; gap: 8px; width: 230px; position: relative; }
+  .tb-jugar .btn-jugar { min-height: 64px; border: 0; border-radius: 16px; background: linear-gradient(#E8411F, var(--rojo)); color: #fff; font-family: Bungee, Nunito, sans-serif; font-size: 26px; box-shadow: 0 6px 0 #8A1C06, 0 12px 20px rgba(204,43,11,.3); }
+  .tb-jugar .btn-jugar:active { transform: translateY(4px); box-shadow: 0 2px 0 #8A1C06; }
+  .tb-jugar .menu { top: auto; bottom: calc(100% + 8px); right: 0; }
+  .tb-credito { right: 24px; bottom: 4px; font-size: 11px; color: rgba(27,32,48,.55); }
+  .sonido { display: flex; align-items: center; gap: 6px; }
+  .sonido input { width: 0; opacity: 0; transition: width .2s, opacity .2s; accent-color: var(--rojo); }
+  .sonido:hover input, .sonido:focus-within input { width: 110px; opacity: 1; }
+  @media (prefers-reduced-motion: reduce) { .tablero *, .tablero *::after { animation: none !important; } }
   .anadir span { width: 56px; height: 56px; border-radius: 50%; background: var(--panel); border: 1px solid var(--linea); display: flex; align-items: center; justify-content: center; }
 
   /* preparar */
@@ -348,18 +414,14 @@
       <button class="btn btn-neutro oculto" type="button" id="b-torneo">🏆 Torneo</button>
       <button class="usuario-chip oculto" type="button" id="o-chip" aria-expanded="false"><span class="punto" id="o-punto"></span><span id="o-texto"></span></button>
       <button class="btn btn-neutro oculto" type="button" id="o-entrar">Entrar</button>
-      <a class="btn btn-borde oculto" id="b-rom-cabecera" href="https://drive.google.com/file/d/12I8VEHjsqAPWKxzvyI_T5o9WLf4lZ3Ed/view?usp=sharing" target="_blank" rel="noopener" style="text-decoration: none;">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></svg>
-        Descargar ROM
-      </a>
       <button class="btn btn-rojo oculto" type="button" id="b-actualizar">Nueva versión</button>
+      <div class="sonido oculto" id="sonido">
+        <input type="range" id="s-volumen" min="0" max="100" step="5" aria-label="Volumen de la música">
+        <button class="btn btn-icono" type="button" id="s-boton" aria-label="Silenciar la música" aria-pressed="false"></button>
+      </div>
       <button class="btn btn-neutro" type="button" id="b-opciones">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/><circle cx="9" cy="6" r="2" fill="#fff"/><circle cx="15" cy="12" r="2" fill="#fff"/><circle cx="8" cy="18" r="2" fill="#fff"/></svg>
         Opciones
-      </button>
-      <button class="btn btn-rojo oculto" id="b-anadir-cabecera" type="button">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
-        Añadir juego
       </button>
     </div>
     <div class="conectados oculto" id="o-panel"></div>
@@ -387,19 +449,28 @@
     <span class="suave" style="font-size: 14px;">Formatos: .3ds · .cci · .cxi · .cia</span>
   </div>
 
-  <main class="contenido oculto" id="lista">
-    <div style="display: flex; align-items: baseline; gap: 12px;">
-      <h1>Tus juegos</h1><span class="suave" id="cuantos"></span>
+  <div class="tablero oculto" id="tablero">
+    <div class="tb-escena">
+      <img class="tb-isla" src="/assets/tablero-isla.jpg" alt="">
+      <div class="tb-agua" aria-hidden="true"></div>
+      <svg class="tb-camino" viewBox="0 0 1376 768" preserveAspectRatio="none" aria-hidden="true"><polyline class="base" id="tb-hecho"/><polyline class="brillo" id="tb-brillo"/></svg>
+      <div id="tb-casillas"></div>
     </div>
-    <div class="juegos" id="juegos"></div>
-  </main>
+    <div class="tb-nubes" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+    <img class="tb-hud tb-logo" src="/assets/logo.png" alt="Mega Pokelocke Y">
+    <section class="tb-hud tb-carta tb-objetivo" id="tb-objetivo" aria-label="Siguiente objetivo"></section>
+    <section class="tb-hud tb-carta tb-marcador" id="tb-marcador" aria-label="Vidas y medallas"></section>
+    <div class="tb-hud tb-abajo"><div class="tb-equipo" id="tb-equipo" aria-label="Tu equipo"></div><div class="tb-carta tb-jugar" id="tb-jugar"></div></div>
+    <span class="tb-hud tb-credito">Creado por David Martínez Palacios · Versión 1.0.0</span>
+  </div>
 
   <footer>
     <span>Overlay para OBS: <strong>localhost:8765/overlay</strong></span>
-    <span id="pie-ayuda">Pulsa un juego para jugar</span>
     <span class="credito">Creado por David Martínez Palacios</span>
   </footer>
 </section>
+
+<audio id="musica" src="/assets/musica.mp3" loop preload="auto"></audio>
 
 <!-- ============ PREPARAR ============ -->
 <section class="vista" id="v-preparar">
@@ -871,31 +942,90 @@ const icoPuntos = '<svg width="20" height="20" viewBox="0 0 24 24" fill="#5B6478
 const icoHuevo = '<svg width="12" height="14" viewBox="0 0 20 24" aria-hidden="true"><path d="M10 1C5 1 1 9 1 15a9 9 0 0 0 18 0C19 9 15 1 10 1Z" fill="#F4EEDC" stroke="#9AA2B8" stroke-width="2"/></svg>';
 const icoMas ='<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#CC2B0B" stroke-width="3" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>';
 
-function tarjeta(j) {
-  const chips = j.preparado
-    ? `<span class="chip vidas">${icoCorazon}${j.vidas}/${j.vidas_iniciales}</span><span class="chip medallas">${icoMedalla}${j.medallas}/8</span>${j.reglas === 'mega' ? '<span class="chip random">Mega Pokelocke</span>' : j.random ? '<span class="chip random">Randomizado</span>' : ''}${j.huevos ? `<span class="chip nuevo">${icoHuevo}${j.huevos} ${j.huevos === 1 ? 'huevo' : 'huevos'}</span>` : ''}`
-    : '<span class="chip nuevo">Sin empezar</span>';
-  const abierto = menuAbierto === j.id;
-  const menu = abierto ? `<div class="menu" role="menu">
+function menuJuego(j) {
+  return `<div class="menu" role="menu">
       ${j.preparado ? `<button type="button" role="menuitem" data-accion="nuevo" data-id="${j.id}">Empezar un locke nuevo</button>` : ''}
       ${j.reglas === 'mega' ? `<button type="button" role="menuitem" data-accion="huevos" data-id="${j.id}">Caja de huevos</button>` : ''}
       <button type="button" role="menuitem" data-accion="pokehex" data-id="${j.id}">PokéHex</button>
       <button type="button" role="menuitem" data-accion="registro" data-id="${j.id}" ${j.registro ? '' : 'disabled'}>Ver registro de randomización</button>
       ${j.preparado ? `<button type="button" role="menuitem" data-accion="copias" data-id="${j.id}">Copias de la partida</button>` : ''}
       ${j.preparado ? `<button type="button" role="menuitem" class="peligro" data-accion="borrar_partida" data-id="${j.id}">Borrar partida guardada</button>` : ''}
-      <button type="button" role="menuitem" class="peligro" data-accion="quitar" data-id="${j.id}">Quitar de la biblioteca</button>
-    </div>` : '';
-  return `<article class="juego">
-    <button type="button" class="portada" data-accion="jugar" data-id="${j.id}" aria-label="${j.preparado ? 'Jugar' : 'Preparar'} ${esc(j.nombre)}"><img src="/assets/logo.png" alt=""></button>
-    <div class="cuerpo">
-      <div class="nombre">${esc(j.nombre)}</div>
-      <div class="chips">${chips}</div>
-      <div class="acciones">
-        <button type="button" class="btn ${j.preparado ? 'btn-rojo' : 'btn-borde'}" data-accion="jugar" data-id="${j.id}">${j.preparado ? 'Jugar' : 'Preparar'}</button>
-        <button type="button" class="btn btn-icono" data-accion="menu" data-id="${j.id}" aria-label="Más opciones de ${esc(j.nombre)}" aria-expanded="${abierto}">${icoPuntos}</button>
-      </div>
-    </div>${menu}
-  </article>`;
+      <button type="button" role="menuitem" class="peligro" data-accion="quitar" data-id="${j.id}">Quitar el juego</button>
+    </div>`;
+}
+
+// ---------- tablero ----------
+// Las 14 casillas de la aventura, en orden, y dónde caen sobre la isla (px de la imagen de 1376×768). Avanza con la
+// partida guardada: las medallas y el equipo se leen del archivo cada vez que guardas en el juego.
+// ponytail: el Alto Mando y la Campeona aún no se leen de la partida (se quedan por hacer hasta el torneo)
+const HITOS = [
+  {n: 'Pueblo Boceto', obj: 'Empieza tu aventura', det: 'Guarda la partida en el juego y el tablero avanza', ico: 'casa'},
+  {n: 'Tu inicial', obj: 'Elige a tu inicial', ico: 'ball'},
+  {n: 'Primera captura', obj: 'Tu primera captura', ico: 'captura'},
+  ...['Violeta', 'Lino', 'Corelia', 'Amaro', 'Lem', 'Valeria', 'Ástrid', 'Édel'].map((n, k) => ({n, med: k + 1})),
+  {n: 'Alto Mando', obj: 'Alto Mando', ico: 'mando'},
+  {n: 'Campeona Dianta', obj: 'Campeona Dianta', ico: 'corona'},
+  {n: 'Torneo final', obj: 'Torneo final', ico: 'trofeo'},
+];
+const PUNTOS = [[392, 383], [447, 426], [503, 467], [570, 477], [640, 480], [709, 483], [779, 486], [849, 489], [915, 471],
+  [969, 434], [984, 370], [954, 309], [903, 262], [905, 212]];
+const ball = (x, y) => `<g transform="translate(${x} ${y})"><circle r="11" fill="#fff" stroke="#1B2030" stroke-width="2.5"/><path d="M-11 0a11 11 0 0 1 22 0z" fill="#CC2B0B" stroke="#1B2030" stroke-width="2.5"/><circle r="3.5" fill="#fff" stroke="#1B2030" stroke-width="2.5"/></g>`;
+const ICONOS = {
+  casa: '<svg viewBox="0 0 64 64"><path d="M14 30v24h36V30" fill="#FFF8EE" stroke="#1B2030" stroke-width="3" stroke-linejoin="round"/><path d="M8 32 32 12l24 20" fill="none" stroke="#CC2B0B" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/><path d="M27 54V41h10v13" fill="#2A75BB" stroke="#1B2030" stroke-width="3"/></svg>',
+  ball: `<svg viewBox="0 0 64 48">${ball(14, 32)}${ball(32, 18)}${ball(50, 32)}</svg>`,
+  captura: `<svg viewBox="0 0 64 64">${ball(32, 38)}<path d="M50 12l2 6 6 2-6 2-2 6-2-6-6-2 6-2zM14 14l1.5 4 4 1.5-4 1.5-1.5 4-1.5-4-4-1.5 4-1.5z" fill="#FFCB05" stroke="#B88A00" stroke-width="1.5" stroke-linejoin="round"/></svg>`,
+  mando: '<svg viewBox="0 0 64 48"><g fill="#4A5168"><circle cx="11" cy="20" r="5"/><path d="M4 46c0-11 3-17 7-19 4 2 7 8 7 19z"/><circle cx="53" cy="20" r="5"/><path d="M46 46c0-11 3-17 7-19 4 2 7 8 7 19z"/></g><g fill="#1B2030"><circle cx="25" cy="15" r="5"/><path d="M18 46c0-13 3-20 7-22 4 2 7 9 7 22z"/><circle cx="39" cy="15" r="5"/><path d="M32 46c0-13 3-20 7-22 4 2 7 9 7 22z"/></g></svg>',
+  corona: '<svg viewBox="0 0 64 50"><path d="M8 40 4 12l16 12 12-18 12 18 16-12-4 28z" fill="#FFCB05" stroke="#1B2030" stroke-width="2.5" stroke-linejoin="round"/><rect x="8" y="40" width="48" height="7" rx="2" fill="#E0A800" stroke="#1B2030" stroke-width="2.5"/><circle cx="32" cy="30" r="4" fill="#CC2B0B"/></svg>',
+  trofeo: '<svg viewBox="0 0 64 72"><path d="M18 12H8v4a10 10 0 0 0 10 10M46 12h10v4a10 10 0 0 1-10 10" fill="none" stroke="#1B2030" stroke-width="2.5"/><path d="M18 6h28v18a14 14 0 0 1-28 0z" fill="#FFCB05" stroke="#1B2030" stroke-width="2.5" stroke-linejoin="round"/><path d="M28 38h8v10h-8z" fill="#E0A800" stroke="#1B2030" stroke-width="2.5"/><rect x="16" y="50" width="32" height="14" rx="3" fill="#1B2030"/></svg>',
+};
+const FICHA = '<svg viewBox="0 0 54 104"><ellipse cx="27" cy="98" rx="22" ry="5" fill="#7E1A06"/><path d="M8 97c0-16 7-28 12-34-6-4-9-9-9-16a16 16 0 0 1 32 0c0 7-3 12-9 16 5 6 12 18 12 34z" fill="#CC2B0B" stroke="#7E1A06" stroke-width="2.5"/><ellipse cx="20" cy="40" rx="4" ry="7" fill="#fff" opacity=".45"/></svg>';
+const HUEVO = '<svg viewBox="0 0 24 30"><path d="M12 2C6 2 2 12 2 19a10 10 0 0 0 20 0C22 12 18 2 12 2z" fill="#FFF4D6" stroke="#C99A00" stroke-width="2"/><circle cx="9" cy="16" r="2" fill="#E6B800"/><circle cx="15" cy="21" r="2.5" fill="#E6B800"/></svg>';
+const BANDERA = '<svg viewBox="0 0 40 76"><path d="M6 4v70" stroke="#5B4636" stroke-width="3.5" stroke-linecap="round"/><path d="M7 6l30 10-30 10z" fill="#CC2B0B"/></svg>';
+
+// qué casillas están hechas (si tienes una medalla, lo de antes también) y cuál es la actual (-1: todo hecho)
+function progreso(j) {
+  const t = j.preparado && j.tablero ? j.tablero : {guardada: false, medallas: Array(8).fill(false), equipo: []};
+  const hecho = [t.guardada, t.equipo.length >= 1, t.equipo.length >= 2, ...t.medallas, false, false, false];
+  for (let i = hecho.length - 2; i >= 0; i--) hecho[i] = hecho[i] || hecho[i + 1];
+  return {t, hecho, actual: hecho.indexOf(false)};
+}
+
+function pintarTablero(j) {
+  const {t, hecho, actual} = progreso(j);
+  const casillas = HITOS.map((h, i) => {
+    const [x, y] = PUNTOS[i];
+    const est = hecho[i] ? 'hecho' : i === actual ? 'actual' : 'pendiente';
+    const icono = h.med ? `<img src="/assets/medalla-${h.med}.png" alt="">` : ICONOS[h.ico];
+    return `<div class="tb-casilla ${est}${h.med === 4 ? ' gran' : ''}" style="left: ${x / 13.76}%; top: ${y / 7.68}%; z-index: ${y};" title="${i + 1}. ${h.n}${h.med === 4 ? ' · gran torneo' : ''}">
+      <span class="moneda"></span>${i === 0 ? '' : `<span class="tb-icono">${icono}</span>`}
+      ${h.med === 4 ? `<span class="tb-bandera">${BANDERA}</span>` : ''}${h.med && h.med % 2 === 0 ? `<span class="tb-huevo">${HUEVO}</span>` : ''}
+      ${i === actual ? `<span class="tb-ficha">${FICHA}<span class="tb-aqui">Estás aquí</span></span>` : ''}</div>`;
+  }).join('');
+  const hechos = PUNTOS.slice(0, actual === -1 ? PUNTOS.length : actual + 1).map((p) => p.join(',')).join(' ');
+  const h = HITOS[actual === -1 ? HITOS.length - 1 : actual];
+  const retrato = h.med ? `<img src="/assets/lider-${h.med}.png" alt="">` : `<span style="width: 70%; display: flex;">${ICONOS[h.ico]}</span>`;
+  const objetivo = `<div class="tb-retrato">${retrato}</div><div><div class="que">${actual === -1 ? '¡Aventura completada!' : 'Siguiente objetivo'}</div>
+      <div class="nombre">${esc(h.med ? h.n : h.obj)}</div>
+      ${h.med && j.topes ? `<span class="tb-pastilla">Nivel tope ${j.topes[h.med - 1]}</span>` : h.det ? `<div class="que" style="margin-top: 4px;">${h.det}</div>` : ''}</div>`;
+  const total = j.vidas_iniciales || 25, vivas = j.preparado ? j.vidas : total;
+  const marcador = `<div class="tb-fila"><span>Vidas</span><b>${vivas}/${total}</b></div>
+      <div class="tb-vidas">${Array.from({length: total}, (_, i) => icoCorazon.replace('#CC2B0B', i < vivas ? '#CC2B0B' : '#D5DAE5')).join('')}</div>
+      <div class="tb-fila"><span>Medallas</span><span style="display: flex; gap: 10px; align-items: center;">${j.huevos ? `<button class="tb-huevos" type="button" data-accion="huevos" data-id="${j.id}">${icoHuevo} ${j.huevos} ${j.huevos === 1 ? 'huevo' : 'huevos'} por abrir</button>` : ''}<b>${t.medallas.filter(Boolean).length}/8</b></span></div>
+      <div class="tb-estuche">${t.medallas.map((m, k) => `<span class="${m ? '' : 'no'}"><img src="/assets/medalla-${k + 1}.png" alt="${m ? 'Medalla de ' + HITOS[k + 3].n : ''}"></span>`).join('')}</div>`;
+  const equipo = t.equipo.map((p) => `<div class="tb-burbuja${(j.muertos || []).includes(p.id) ? ' muerto' : ''}" title="${esc(p.mote || p.especie_nombre)}">
+      <img src="/arte/${p.especie}" alt="${esc(p.especie_nombre)}"><span class="nv">Nv. ${p.nivel}</span></div>`).join('');
+  const jugar = `<button class="btn-jugar" type="button" data-accion="jugar" data-id="${j.id}">${j.preparado ? 'Jugar' : 'Preparar'}</button>
+      <button class="btn btn-neutro" type="button" data-accion="menu" data-id="${j.id}" aria-expanded="${menuAbierto === j.id}">Más opciones</button>${menuAbierto === j.id ? menuJuego(j) : ''}`;
+  const html = casillas + objetivo + marcador + equipo + jugar + hechos;
+  if (html === pintado) return;
+  pintado = html;
+  $('tb-casillas').innerHTML = casillas;
+  $('tb-hecho').setAttribute('points', hechos);
+  $('tb-brillo').setAttribute('points', hechos);
+  $('tb-objetivo').innerHTML = objetivo;
+  $('tb-marcador').innerHTML = marcador;
+  $('tb-equipo').innerHTML = equipo;
+  $('tb-jugar').innerHTML = jugar;
 }
 
 // ---------- primeros pasos ----------
@@ -935,16 +1065,12 @@ $('pasos').onclick = (ev) => {
 };
 
 function pintarBiblioteca(e) {
-  pintarPasos(e);
-  const hay = e.juegos.length > 0;
-  $('vacio').classList.toggle('oculto', hay);
-  $('lista').classList.toggle('oculto', !hay);
-  $('b-anadir-cabecera').classList.toggle('oculto', !hay);
-  $('b-rom-cabecera').classList.toggle('oculto', !hay);
-  $('pie-ayuda').textContent = hay ? 'Pulsa un juego para jugar' : '';
-  $('cuantos').textContent = `${e.juegos.length} ${e.juegos.length === 1 ? 'juego' : 'juegos'}`;
-  const html = e.juegos.map(tarjeta).join('') + `<button type="button" class="anadir" data-accion="anadir"><span>${icoMas}</span>Añadir juego</button>`;
-  if (html !== pintado) { $('juegos').innerHTML = html; pintado = html; }
+  // una sola ROM: con ella puesta se ve el tablero (si quedan varias de antes, manda la que ya está preparada)
+  const j = e.juegos.find((x) => x.preparado) || e.juegos[0];
+  $('v-biblioteca').classList.toggle('con-tablero', !!j);
+  $('vacio').classList.toggle('oculto', !!j);
+  $('tablero').classList.toggle('oculto', !j);
+  if (j) { $('pasos').classList.add('oculto'); pintarTablero(j); } else pintarPasos(e);
 }
 
 // ---------- preparar ----------
@@ -1569,6 +1695,7 @@ $('lg-cerrar').onclick = () => $('log-fondo').classList.add('oculto');
 
 function pintar(e) {
   ultimo = e;
+  sonar(e.jugando);
   const t = e.tarea;
   pintarOnline(e.online);
   pintarNotas(e.online);
@@ -1598,6 +1725,33 @@ function pintar(e) {
   vista('biblioteca');
   pintarBiblioteca(e);
 }
+
+// ---------- música ----------
+// assets/musica.mp3 en bucle mientras estás en la app; se para al abrir el juego. Sin el archivo no sale el botón.
+// Volumen y silencio se recuerdan en este PC.
+const musica = $('musica');
+const SONIDO = {si: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9h4l5-4v14l-5-4H4z" fill="currentColor"/><path d="M16.5 8.5a5 5 0 0 1 0 7M19.5 5.5a9 9 0 0 1 0 13"/></svg>',
+  no: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9h4l5-4v14l-5-4H4z" fill="currentColor"/><path d="M17 9l5 6M22 9l-5 6"/></svg>'};
+let sonido = {volumen: 40, mudo: false};
+try { sonido = {...sonido, ...JSON.parse(localStorage.getItem('pokelocke-sonido') || '{}')}; } catch (err) { /* sin almacenamiento */ }
+function ponerSonido() {
+  musica.volume = sonido.volumen / 100;
+  musica.muted = sonido.mudo || sonido.volumen === 0;
+  $('s-volumen').value = sonido.volumen;
+  $('s-boton').innerHTML = musica.muted ? SONIDO.no : SONIDO.si;
+  $('s-boton').setAttribute('aria-pressed', SI(musica.muted));
+  $('s-boton').setAttribute('aria-label', musica.muted ? 'Activar la música' : 'Silenciar la música');
+  try { localStorage.setItem('pokelocke-sonido', JSON.stringify(sonido)); } catch (err) { /* nada */ }
+}
+function sonar(jugando) {
+  if (jugando) musica.pause();
+  else if (musica.paused) musica.play().catch(() => {});   // sin permiso del navegador: suena al primer clic
+}
+musica.addEventListener('canplay', () => $('sonido').classList.remove('oculto'), {once: true});
+$('s-boton').onclick = () => { sonido.mudo = !musica.muted; if (!sonido.mudo && !sonido.volumen) sonido.volumen = 40; ponerSonido(); };
+$('s-volumen').oninput = () => { sonido.volumen = Number($('s-volumen').value); sonido.mudo = false; ponerSonido(); };
+document.addEventListener('pointerdown', () => sonar(ultimo && ultimo.jugando), {once: true});
+ponerSonido();
 
 // un fallo suelto (Pokelocke ocupado un momento) no es que se haya cerrado: el aviso sale tras 5 s seguidos sin
 // respuesta y se quita solo en cuanto vuelve a contestar
@@ -1647,14 +1801,13 @@ $('op-cerrar').onclick = cerrarOpciones;
 $('op-jugar').onclick = () => { const seguir = alEmpezar; cerrarOpciones(); if (seguir) seguir(); };
 
 // ---------- eventos ----------
-$('b-anadir-vacio').onclick = $('b-anadir-cabecera').onclick = () => api('/api/anadir');
+$('b-anadir-vacio').onclick = () => api('/api/anadir');
 
-$('juegos').onclick = (ev) => {
+$('tablero').onclick = (ev) => {
   const b = ev.target.closest('[data-accion]');
   if (!b) return;
   const j = ultimo.juegos.find((x) => x.id === b.dataset.id);
   const accion = b.dataset.accion;
-  if (accion === 'anadir') return api('/api/anadir');
   if (accion === 'menu') { menuAbierto = menuAbierto === j.id ? null : j.id; pintado = ''; return pintarBiblioteca(ultimo); }
   menuAbierto = null; pintado = '';
   if (accion === 'jugar') {
@@ -1675,7 +1828,7 @@ $('juegos').onclick = (ev) => {
   pintarBiblioteca(ultimo);
 };
 document.addEventListener('click', (ev) => {
-  if (menuAbierto && !ev.target.closest('.juego')) { menuAbierto = null; pintado = ''; pintarBiblioteca(ultimo); }
+  if (menuAbierto && !ev.target.closest('.tb-jugar')) { menuAbierto = null; pintado = ''; pintarBiblioteca(ultimo); }
 });
 document.addEventListener('keydown', (ev) => {
   if (ev.key === 'Escape' && menuAbierto) { menuAbierto = null; pintado = ''; pintarBiblioteca(ultimo); }

@@ -52,6 +52,27 @@ def pokehex_partida(j):
     raise RuntimeError('Este juego aún no tiene partida guardada en el emulador')
 
 
+def tablero(j):
+    """Lo que enseña el tablero, leído de la partida guardada: avanza cada vez que se guarda en el juego. Solo se
+    vuelve a leer cuando cambia el archivo; si se lee justo mientras el juego guarda, se queda lo de antes."""
+    try:
+        f = pokehex_partida(j)
+        clave = (str(f), f.stat().st_mtime)
+    except (RuntimeError, OSError):
+        return {'guardada': False, 'medallas': [False] * 8, 'equipo': []}
+    if comun.vivo.get('tablero_de') != clave:
+        try:
+            p = pokehex.Partida(f)
+        except (OSError, ValueError):
+            return comun.vivo.get('tablero') or {'guardada': False, 'medallas': [False] * 8, 'equipo': []}
+        b = p.d[locke.MEDALLAS_EN_PARTIDA]
+        equipo = [{k: x[k] for k in ('id', 'especie', 'especie_nombre', 'mote', 'nivel', 'huevo', 'shiny')}
+                  for x in p.equipo() if x]
+        comun.vivo['tablero_de'] = clave
+        comun.vivo['tablero'] = {'guardada': True, 'medallas': [bool(b >> i & 1) for i in range(8)], 'equipo': equipo}
+    return comun.vivo['tablero']
+
+
 # copias de la partida del emulador al abrir y al cerrar el juego: si el archivo se estropea (o Citra se cae al
 # guardar) no se pierde el locke. Se quedan las últimas MAX_COPIAS en datos/juegos/<id>/copias_auto/
 MAX_COPIAS = 10

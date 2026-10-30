@@ -20,6 +20,7 @@ import locke
 
 
 def foto_estado():
+    jugando = emulador.jugando()
     with comun.lock:
         activo = None
         if comun.vivo['activo'] and any(j['id'] == comun.vivo['activo'] for j in comun.biblio['juegos']):
@@ -37,9 +38,12 @@ def foto_estado():
                         'random': j.get('random'), 'vidas': locke.vidas(j) if j.get('preparado') else None,
                         'reglas': j.get('reglas'), 'huevos': locke.huevos_disponibles(j) if j.get('huevos') else None,
                         'vidas_iniciales': j.get('vidas_iniciales'), 'medallas': sum(j.get('medallas', [])),
-                        'registro': (comun.DATOS / 'juegos' / j['id'] / 'randomizacion.log').exists()}
+                        'registro': (comun.DATOS / 'juegos' / j['id'] / 'randomizacion.log').exists(),
+                        # el tablero: de la partida guardada, y con el juego cerrado (jugando ya está la capa)
+                        'tablero': guardado.tablero(j) if j.get('preparado') and not jugando else None,
+                        'topes': locke.niveles_tope(j) if j.get('preparado') else None, 'muertos': j.get('muertos', [])}
                        for j in comun.biblio['juegos']],
-            'activo': activo, 'jugando': emulador.jugando(), 'conectado': comun.vivo['conectado'], 'cargando': emulador.cargando(), 'tarea': comun.vivo['tarea'] and {**comun.vivo['tarea'], 'transcurrido': time.time() - comun.vivo['tarea']['inicio']},
+            'activo': activo, 'jugando': jugando, 'conectado': comun.vivo['conectado'], 'cargando': emulador.cargando(), 'tarea': comun.vivo['tarea'] and {**comun.vivo['tarea'], 'transcurrido': time.time() - comun.vivo['tarea']['inicio']},
             'equipo': [p and {**p, 'muerto': p['id'] in muertos} for p in comun.vivo['equipo']],
             'aviso': comun.vivo['aviso']['texto'] if comun.vivo['aviso'] and time.time() < comun.vivo['aviso']['hasta'] else None,
             'capa': comun.vivo['capa'], 'encaje': comun.encaje() if os.name == 'nt' else (1, 0, 0),
@@ -160,7 +164,7 @@ def elegir_rom():
 
 TIPOS = {'.html': 'text/html; charset=utf-8', '.png': 'image/png', '.jpg': 'image/jpeg',
          '.jpeg': 'image/jpeg', '.webp': 'image/webp', '.js': 'text/javascript', '.css': 'text/css',
-         '.pdf': 'application/pdf', '.mp4': 'video/mp4', '.woff2': 'font/woff2'}
+         '.pdf': 'application/pdf', '.mp4': 'video/mp4', '.woff2': 'font/woff2', '.mp3': 'audio/mpeg'}
 # las tipografías van dentro de la app (web/fuentes): sin internet también, y sin esperar a Google
 FUENTES_LOCALES = '<link rel="stylesheet" href="/fuentes/fuentes.css">'
 
@@ -297,8 +301,9 @@ class Servidor(BaseHTTPRequestHandler):
                 return {'ok': False}
             with comun.lock:
                 ruta_rom = str(Path(rom))
-                if any(j['ruta'] == ruta_rom for j in comun.biblio['juegos']):
-                    raise RuntimeError('Ese juego ya está en la biblioteca')
+                if comun.biblio['juegos']:
+                    raise RuntimeError('Ya tienes tu Pokémon Y puesto. Para cambiar de ROM, quita antes el que hay '
+                                       '(menú «Más» del tablero)')
                 comun.biblio['juegos'].append({'id': hashlib.sha1(ruta_rom.encode()).hexdigest()[:10],
                                          'nombre': Path(rom).stem, 'ruta': ruta_rom, 'preparado': False,
                                          'random': None, 'vidas_iniciales': 25, 'ajuste_vidas': 0,
@@ -387,7 +392,8 @@ def abrir_ventana_app():
     url = f'{comun.URL}/'
     if nav:
         subprocess.Popen([nav, f'--app={url}', f'--user-data-dir={comun.TOOLS / "edge-perfil"}',
-                          '--window-size=1280,820', '--no-first-run'])
+                          '--window-size=1280,820', '--no-first-run',
+                          '--autoplay-policy=no-user-gesture-required'])   # la música suena sin tener que pulsar antes
     elif ff := emulador.firefox():
         # Firefox no tiene modo app: perfil propio con la barra de título de Windows y sin pestañas ni barra de direcciones
         perfil = emulador.perfil_firefox('firefox-perfil', {'toolkit.legacyUserProfileCustomizations.stylesheets': True,
