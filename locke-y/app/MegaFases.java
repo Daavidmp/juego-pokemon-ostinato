@@ -2,6 +2,8 @@ import com.dabomstew.pkrandom.FileFunctions;
 import com.dabomstew.pkrandom.Randomizer;
 import com.dabomstew.pkrandom.Settings;
 import com.dabomstew.pkrandom.pokemon.Encounter;
+import com.dabomstew.pkrandom.pokemon.Evolution;
+import com.dabomstew.pkrandom.pokemon.EvolutionType;
 import com.dabomstew.pkrandom.pokemon.MegaEvolution;
 import com.dabomstew.pkrandom.pokemon.EncounterSet;
 import com.dabomstew.pkrandom.pokemon.Move;
@@ -39,6 +41,7 @@ public class MegaFases {
     static final int MAX_POTENCIA_RIVAL = 70;     // rivales: iguales o menores de 70
     static final int MAX_POTENCIA_MT = 69;        // MT: inferiores de 70
     static final int MAX_ESPECIE = 721;
+    static final int NIVEL_INTERCAMBIO = 40, HUNTAIL = 367, GOREBYSS = 368;
 
     public static void main(String[] args) throws Exception {
         String rom = args[0], ajustes = args[1], completa = args[2], facil = args[3], registro = args[4];
@@ -57,6 +60,7 @@ public class MegaFases {
             new Randomizer(s, rh, textos, true).randomize(completa, log);
         }
         try {
+            intercambioANivel(rh);
             combatesImportantes(rh, azar);
             asMegaTrasCuartaMedalla(rh, azar);
             if (!rh.saveRomDirectory(completa)) {
@@ -71,6 +75,20 @@ public class MegaFases {
             ((com.dabomstew.pkrandom.romhandlers.Abstract3DSRomHandler) rh).closeInnerRom();
         }
         System.out.println("Hecho");
+    }
+
+    /** Las evoluciones por intercambio, con o sin objeto, pasan a ser por nivel: nadie tiene con quién cambiar en
+     *  mitad de un locke. Clamperl tiene dos: como las dos serían al mismo nivel, el sexo decide cuál. */
+    static void intercambioANivel(RomHandler rh) {
+        for (Pokemon p : rh.getPokemon()) {
+            if (p == null) continue;
+            for (Evolution e : p.evolutionsFrom) {
+                if (e.type != EvolutionType.TRADE && e.type != EvolutionType.TRADE_ITEM && e.type != EvolutionType.TRADE_SPECIAL) continue;
+                e.type = e.to.number == HUNTAIL ? EvolutionType.LEVEL_MALE_ONLY
+                        : e.to.number == GOREBYSS ? EvolutionType.LEVEL_FEMALE_ONLY : EvolutionType.LEVEL;
+                e.extraInfo = e.level = NIVEL_INTERCAMBIO;
+            }
+        }
     }
 
     // Pokémon Y: combates contra villanos y amigos con nombre que no llevan etiqueta propia en el UPR (índices

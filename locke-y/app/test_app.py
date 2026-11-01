@@ -183,6 +183,46 @@ o.resultado(amigo, tareas[0]['id'], {'version': 'x', 'registros': {'pokelocke.lo
 hilo.join(5)
 ver(respuesta.get('r', {}).get('registros', {}).get('pokelocke.log') == 'Traceback…', 'y su respuesta le llega al administrador')
 
+# ---------- actividad de los jugadores: lo que llega al servidor no se puede borrar desde el PC ---------
+print('Actividad')
+import vigia
+primero = len(vigia._leer())
+vigia.cuenta['n'] = None
+e1 = vigia.evento('vidas', 'Se suma una vida con F8', 'sospecha', vidas=26)
+e2 = vigia.evento('abrir', 'Abre el juego')
+ver(vigia.ultimas_vidas() == 26, 'el registro recuerda las últimas vidas apuntadas')
+ver(e2['h'] == online.huella_evento(e1['h'], e2), 'cada evento se encadena con el anterior')
+envio, total = vigia.para_mandar(primero)
+hasta = o.recibir_eventos('Amigo', envio, total)
+ver(hasta == e2['n'], 'el servidor apunta hasta dónde tiene')
+ver(o.latido(amigo, {}, [], total)['eventos_hasta'] == e2['n'], 'el latido devuelve hasta dónde tiene')
+try:
+    o.actividad(amigo, 'Amigo')
+    ver(False, 'solo el administrador ve la actividad')
+except PermissionError:
+    ver(True, 'solo el administrador ve la actividad')
+visto = o.actividad(admin, 'Amigo')['eventos']
+ver(any(x['nivel'] == 'sospecha' and 'F8' in x['texto'] for x in visto), 'el administrador ve la sospecha')
+resumen = next(x for x in o.actividad(admin, None)['jugadores'] if x['usuario'] == 'Amigo')
+ver(resumen['sospechas'] >= 1, 'el resumen cuenta las sospechas aunque no esté conectado')
+o.recibir_eventos('Amigo', [], 0)
+ver(any('vuelto atrás' in x['texto'] for x in o.actividad(admin, 'Amigo')['eventos']), 'si borra su registro, el servidor lo apunta')
+falso = dict(e2, n=5, texto='Todo normal')
+o.recibir_eventos('Amigo', [falso], 5)
+ver(any('Faltan los eventos' in x['texto'] for x in o.actividad(admin, 'Amigo')['eventos']), 'si quita eventos, se nota el hueco')
+siguiente = dict(falso, n=6, texto='Editado a mano')
+o.recibir_eventos('Amigo', [siguiente], 6)
+ver(any('no cuadra' in x['texto'] for x in o.actividad(admin, 'Amigo')['eventos']), 'si cambia un evento, la huella no cuadra')
+for valor in (5, 6, 7):
+    vigia.contador('capturas', valor)
+vigia.contador('capturas', 0)
+ver(not any(x['tipo'] == 'retroceso' for x in vigia._leer()), 'la pantalla de título no cuenta como volver atrás')
+for _ in range(vigia.LECTURAS_RETROCESO):
+    vigia.contador('capturas', 4)
+ver(any(x['tipo'] == 'retroceso' for x in vigia._leer()), 'si baja el contador de capturas, ha vuelto atrás')
+comun.vivo['sin_guardar'] = [(time.time() + 100, 'muerte de Pikachu')]
+vigia.apuntar_sin_guardar('captura en la zona 3')
+ver(len(comun.vivo['sin_guardar']) == 2, 'lo que pasa sin guardar se recuerda para cuando cierre')
 # ---------- el servidor online va cifrado y solo vale con el certificado del anfitrión ----------
 print('Conexión cifrada')
 import os

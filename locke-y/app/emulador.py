@@ -19,6 +19,7 @@ import comun
 import conexion
 import guardado
 import locke
+import vigia
 
 
 def jugando():
@@ -358,17 +359,24 @@ def cerrar_citra_colgado():
     comun.vivo['proceso'] = None
 
 
+def firma_mod(j):
+    """Huella de los archivos de la randomización del juego."""
+    origen = comun.DATOS / 'juegos' / j['id'] / 'mod'
+    if not (j.get('random') and origen.exists()):
+        return 'ninguno'
+    return hashlib.sha1(json.dumps(sorted(
+        (str(f.relative_to(origen)), f.stat().st_size, f.stat().st_mtime_ns) for f in origen.rglob('*') if f.is_file()
+    )).encode()).hexdigest()
+
+
 def poner_mod(j):
     """Copia la randomización del juego a la carpeta de mods del emulador, solo si no es ya la que hay: antes se
     borraba y se copiaba entera cada vez que se abría el juego (segundos en un disco lento)."""
     mods = carpeta_mods()
     marca = mods.parent / 'pokelocke-mod.txt'
-    mod = comun.DATOS / 'juegos' / j['id'] / 'mod'
-    origen = mod if j.get('random') and mod.exists() else None
-    firma = 'ninguno' if not origen else hashlib.sha1(json.dumps(sorted(
-        (str(f.relative_to(origen)), f.stat().st_size, f.stat().st_mtime_ns) for f in origen.rglob('*') if f.is_file()
-    )).encode()).hexdigest()
-    firma = f'{j["id"]} {firma}'
+    origen = comun.DATOS / 'juegos' / j['id'] / 'mod'
+    origen = origen if j.get('random') and origen.exists() else None
+    firma = f'{j["id"]} {firma_mod(j)}'
     try:
         if mods.exists() and marca.read_text(encoding='utf-8') == firma:
             return
@@ -389,8 +397,10 @@ def lanzar(j):
         raise RuntimeError(f'No encuentro la ROM: {j["ruta"]}')
     exe = configurar_azahar()
     with comun.lock:
+        vigia.abrir(j)
         locke.dar_caramelos(j)
         completa = j.get('fase') == 1 and locke.medallas_partida(j) >= locke.MEDALLAS_PARA_COMPLETA and locke.abrir_fase_completa(j)
+        j['firma_mod'] = firma_mod(j)
     poner_mod(j)
     try:
         guardado.copiar_partida(j, 'al-abrir')
@@ -419,12 +429,16 @@ def preparar(j, opciones, vidas_ini, randomizar_juego, avanzado, reglas=None):
     with comun.lock:
         locke.nuevo_locke(j, vidas_ini, reglas)
         j['preparado'] = True
+        j['firma_mod'] = firma_mod(j)
+        vigia.anotar_partida(j)
+        vigia.evento('preparar', f'Prepara el juego · {"normas Mega" if reglas == "mega" else "sin las normas Mega"} · {vidas_ini} vidas'
+                     + (' · ajustes avanzados' if avanzado else ''), 'info' if reglas == 'mega' and not avanzado else 'sospecha',
+                     vidas=locke.vidas(j))
         comun.guardar()
     espera = comun.vivo['tarea']['minimo'] - (time.time() - comun.vivo['tarea']['inicio'])
     if espera > 0:                                    # el modal de carga dura como poco su minuto
         time.sleep(espera)
-    comun.tarea('Abriendo el juego con el layout…', paso=3)
-    lanzar(j)
+    comun.tarea('¡Todo listo!', paso=3)               # se vuelve a la biblioteca: el juego se abre al darle a Jugar
 
 
 def cargando():

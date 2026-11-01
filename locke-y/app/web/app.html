@@ -105,7 +105,7 @@
   .tb-hud { position: absolute; z-index: 5; }
   .tb-carta { background: rgba(255,255,255,.96); border: 3px solid #fff; border-radius: 20px; box-shadow: 0 10px 0 rgba(27,32,48,.08), 0 16px 34px rgba(27,32,48,.18); padding: 14px 18px; }
   .tb-logo { left: 24px; top: 14px; width: 230px; filter: drop-shadow(0 6px 10px rgba(27,32,48,.25)); }
-  .tb-objetivo { left: 24px; top: 140px; width: 290px; display: flex; gap: 14px; align-items: center; }
+  .tb-objetivo { left: 24px; top: 140px; min-width: 290px; width: max-content; max-width: calc(100vw - 48px); box-sizing: border-box; display: flex; gap: 14px; align-items: center; }
   .tb-retrato { width: 76px; height: 76px; flex: none; border-radius: 50%; background: var(--rojo-claro); overflow: hidden; display: flex; align-items: center; justify-content: center; }
   .tb-retrato img { width: 100%; height: 100%; object-fit: cover; object-position: top; }
   .tb-objetivo .que { font-size: 13px; font-weight: 800; color: var(--suave); }
@@ -123,7 +123,7 @@
   .tb-abajo { right: 24px; bottom: 24px; display: flex; align-items: flex-end; gap: 14px; }
   .tb-equipo { display: grid; grid-template-columns: repeat(6, 64px); gap: 8px; }
   .tb-burbuja { width: 64px; height: 64px; border-radius: 50%; position: relative; background: radial-gradient(circle at 35% 30%, #fff 0 20%, rgba(255,255,255,.75) 60%, rgba(214,236,250,.9)); border: 3px solid #fff; box-shadow: 0 6px 14px rgba(27,32,48,.2); display: flex; align-items: center; justify-content: center; }
-  .tb-burbuja img { width: 52px; height: 52px; object-fit: contain; }
+  .tb-burbuja img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; object-position: center 20%; }   /* como las cartas del layout: la cara, no un cromo encogido */
   .tb-burbuja .nv { position: absolute; bottom: -10px; left: 50%; transform: translateX(-50%); background: var(--tinta); color: #fff; font-size: 11px; font-weight: 900; padding: 0 7px; border-radius: 999px; white-space: nowrap; }
   .tb-burbuja.muerto img { filter: grayscale(1); opacity: .45; }
   .tb-jugar { display: flex; flex-direction: column; gap: 8px; width: 230px; position: relative; }
@@ -264,6 +264,9 @@
   .registro .acciones { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
   #lg-texto { margin: 0; height: 52vh; overflow: auto; background: #1B2030; color: #E9ECF5; font: 12px/1.55 Consolas, 'Cascadia Mono', monospace; padding: 14px 16px; border-radius: 12px; white-space: pre-wrap; word-break: break-word; }
   #lg-texto .lg-error { color: #FF9A85; font-weight: 700; }
+  #lg-texto .lg-aviso { color: #FFD479; }
+  #lg-texto .lg-jugador { display: flex; width: 100%; justify-content: space-between; gap: 16px; padding: 8px 10px; margin-bottom: 6px; border: 1px solid #3A4152; border-radius: 8px; background: none; color: inherit; font: inherit; text-align: left; }
+  #lg-texto .lg-jugador:hover { background: #2A3142; }
   .lg-tabs { display: flex; gap: 8px; }
   .lg-tabs button { min-height: 36px; padding: 0 16px; border-radius: 999px; border: 1px solid var(--linea); background: var(--panel); font-weight: 800; font-size: 14px; color: var(--tinta); }
   .lg-tabs button[aria-pressed="true"] { background: var(--azul); border-color: var(--azul); color: #fff; }
@@ -453,6 +456,16 @@
     <div class="tb-escena">
       <img class="tb-isla" src="/assets/tablero-isla.jpg" alt="">
       <div class="tb-agua" aria-hidden="true"></div>
+      <!-- las aspas y las banderas no están en la imagen: van aquí, en px de la imagen, para que se muevan -->
+      <svg class="tb-camino" id="tb-vida" viewBox="0 0 1376 768" preserveAspectRatio="none" aria-hidden="true">
+        <defs><g id="tb-aspa"><rect x="28" y="-36" width="72" height="31" rx="3" fill="#D9B48A"/><rect x="28" y="-33" width="72" height="29" rx="3" fill="#EFD3AE"/><rect x="-4" y="-4" width="106" height="8" rx="3" fill="#9A6A42"/></g></defs>
+        <g transform="matrix(.285 .34 .255 -.27 752 218)">
+          <g><animateTransform attributeName="transform" type="rotate" from="0" to="360" dur="9s" repeatCount="indefinite"/>
+            <use href="#tb-aspa"/><use href="#tb-aspa" transform="rotate(90)"/><use href="#tb-aspa" transform="rotate(180)"/><use href="#tb-aspa" transform="rotate(270)"/></g>
+          <circle r="11" fill="#7E5233"/>
+        </g>
+        <g id="tb-banderas"></g>
+      </svg>
       <svg class="tb-camino" viewBox="0 0 1376 768" preserveAspectRatio="none" aria-hidden="true"><polyline class="base" id="tb-hecho"/><polyline class="brillo" id="tb-brillo"/></svg>
       <div id="tb-casillas"></div>
     </div>
@@ -744,10 +757,12 @@
     <p class="suave" id="lg-info" style="margin: 0;"></p>
     <div class="acciones">
       <div class="lg-tabs" role="group" aria-label="Qué registro">
-        <button type="button" id="lg-actual" aria-pressed="true">Esta vez</button>
+        <button type="button" id="lg-actividad" aria-pressed="true">Actividad</button>
+        <button type="button" id="lg-actual" aria-pressed="false">Esta vez</button>
         <button type="button" id="lg-anterior" aria-pressed="false">La vez anterior</button>
       </div>
       <span style="flex: 1;"></span>
+      <label class="suave" id="lg-solo-caja" style="display: flex; gap: 6px; align-items: center; font-size: 14px;"><input type="checkbox" id="lg-solo"> Solo lo sospechoso</label>
       <button class="btn btn-neutro" type="button" id="lg-otra">Volver a pedir</button>
       <button class="btn btn-neutro" type="button" id="lg-copiar">Copiar</button>
       <button class="btn btn-neutro" type="button" id="lg-guardar">Guardar .log</button>
@@ -902,7 +917,7 @@ const MODOS = {
     resumen: ['Salvajes aleatorios en cada encuentro, de cualquier tipo', 'Iniciales aleatorios con dos evoluciones',
       'Legendarios y Pokémon de regalo totalmente aleatorios', 'Entrenadores con equipos aleatorios y un 15 % más de nivel',
       'Movimientos, habilidades y objetos del suelo aleatorios', 'Lo que te dan en los intercambios del juego, aleatorio',
-      'Estadísticas base, tipos y evoluciones sin cambios', 'Facilidad de captura normal'],
+      'Estadísticas base y tipos sin cambios', 'Las evoluciones por intercambio pasan a ser al nivel 40', 'Facilidad de captura normal'],
     normas: ['Dificultad que sube: hasta la 2.ª medalla, entrenadores y salvajes solo con Pokémon que aún pueden evolucionar, rivales con ataques de 70 o menos y MT de menos de 70',
       'Al ganar la 2.ª medalla se abre la randomización completa (guarda y reinicia el juego)',
       'La 4.ª medalla cierra la primera parte: toca el gran torneo','25 vidas','Las muertes no cuentan hasta acabar el primer combate contra un entrenador (Shauna)',
@@ -919,7 +934,7 @@ const MODOS = {
   personalizado: {resumen: ['Elige cada opción aquí debajo']},
 };
 
-let ultimo = null, preparando = null, modo = 'clasico', menuAbierto = null, pintado = '', errorVisto = null;
+let ultimo = null, preparando = null, enviado = false, modo = 'clasico', menuAbierto = null, pintado = '', errorVisto = null;
 
 async function api(ruta, datos) {
   // una tarea nueva: su error se enseña aunque sea igual que el último que se cerró (si no, parecía que no pasaba nada)
@@ -955,24 +970,36 @@ function menuJuego(j) {
 }
 
 // ---------- tablero ----------
-// Las 14 casillas de la aventura, en orden, y dónde caen sobre la isla (px de la imagen de 1376×768). Avanza con la
-// partida guardada: las medallas y el equipo se leen del archivo cada vez que guardas en el juego.
+// Las casillas de la aventura, en orden, y dónde caen sobre la isla (px de la imagen de 1376×768). Avanza con la
+// partida guardada: medallas, equipo y objetos clave se leen del archivo cada vez que guardas en el juego.
+// ok: si está conseguida. suelto: se puede conseguir en otro orden, así que no da por hechas las de antes.
 // ponytail: el Alto Mando y la Campeona aún no se leen de la partida (se quedan por hacer hasta el torneo)
+const medalla = (n, k) => ({n, med: k + 1, ok: (t) => t.medallas[k]});
 const HITOS = [
-  {n: 'Pueblo Boceto', obj: 'Empieza tu aventura', det: 'Guarda la partida en el juego y el tablero avanza', ico: 'casa'},
-  {n: 'Tu inicial', obj: 'Elige a tu inicial', ico: 'ball'},
-  {n: 'Primera captura', obj: 'Tu primera captura', ico: 'captura'},
-  ...['Violeta', 'Lino', 'Corelia', 'Amaro', 'Lem', 'Valeria', 'Ástrid', 'Édel'].map((n, k) => ({n, med: k + 1})),
-  {n: 'Alto Mando', obj: 'Alto Mando', ico: 'mando'},
-  {n: 'Campeona Dianta', obj: 'Campeona Dianta', ico: 'corona'},
-  {n: 'Torneo final', obj: 'Torneo final', ico: 'trofeo'},
+  {n: 'Pueblo Boceto', obj: 'Empieza tu aventura', det: 'Guarda la partida en el juego y el tablero avanza', ico: 'casa', ok: (t) => t.guardada},
+  {n: 'Tu inicial', obj: 'Elige a tu inicial', ico: 'ball', ok: (t) => t.equipo.length >= 1},
+  {n: 'Primera captura', obj: 'Tu primera captura', ico: 'captura', suelto: true, ok: (t) => t.equipo.length >= 2},
+  {n: 'Cada muerte cuenta', obj: 'Primer combate superado', det: 'Desde aquí, cada Pokémon debilitado es una vida', ico: 'corazon', suelto: true, ok: (t, j) => j.cuenta},
+  medalla('Violeta', 0), medalla('Lino', 1), medalla('Corelia', 2),
+  {n: 'Primera megaevolución', obj: 'Tu primera megaevolución', det: 'Corelia te regala el Megaaro', ico: 'mega', ok: (t) => t.megaaro},
+  medalla('Amaro', 3),
+  {n: 'Central Eléctrica', obj: 'Central Eléctrica de Kalos', det: 'El Team Flare corta la luz de Luminalia', ico: 'rayo', ok: (t) => t.central},
+  medalla('Lem', 4), medalla('Valeria', 5), medalla('Ástrid', 6),
+  {n: 'Base del Team Flare', obj: 'Base del Team Flare', det: 'Detén a Lysson', ico: 'flare', ok: (t) => t.base_flare},
+  medalla('Édel', 7),
+  {n: 'Alto Mando', obj: 'Alto Mando', ico: 'mando', ok: () => false},
+  {n: 'Campeona Dianta', obj: 'Campeona Dianta', ico: 'corona', ok: () => false},
+  {n: 'Torneo final', obj: 'Torneo final', ico: 'trofeo', ok: () => false},
 ];
-const PUNTOS = [[392, 383], [447, 426], [503, 467], [570, 477], [640, 480], [709, 483], [779, 486], [849, 489], [915, 471],
-  [969, 434], [984, 370], [954, 309], [903, 262], [905, 212]];
+const PUNTOS = [[372, 392], [434, 427], [492, 466], [559, 488], [629, 497], [700, 497], [769, 503], [827, 543], [887, 580], [955, 597], [1025, 587], [1062, 530], [1025, 470], [994, 409], [979, 340], [938, 285], [877, 250], [905, 214]];
 const ball = (x, y) => `<g transform="translate(${x} ${y})"><circle r="11" fill="#fff" stroke="#1B2030" stroke-width="2.5"/><path d="M-11 0a11 11 0 0 1 22 0z" fill="#CC2B0B" stroke="#1B2030" stroke-width="2.5"/><circle r="3.5" fill="#fff" stroke="#1B2030" stroke-width="2.5"/></g>`;
 const ICONOS = {
   casa: '<svg viewBox="0 0 64 64"><path d="M14 30v24h36V30" fill="#FFF8EE" stroke="#1B2030" stroke-width="3" stroke-linejoin="round"/><path d="M8 32 32 12l24 20" fill="none" stroke="#CC2B0B" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/><path d="M27 54V41h10v13" fill="#2A75BB" stroke="#1B2030" stroke-width="3"/></svg>',
   ball: `<svg viewBox="0 0 64 48">${ball(14, 32)}${ball(32, 18)}${ball(50, 32)}</svg>`,
+  corazon: '<svg viewBox="0 0 64 60"><path d="M32 56C14 41 4 31 4 19A15 15 0 0 1 32 11a15 15 0 0 1 28 8c0 12-10 22-28 37Z" fill="#CC2B0B" stroke="#1B2030" stroke-width="3" stroke-linejoin="round"/><path d="M14 16a8 8 0 0 1 8-6" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round"/></svg>',
+  rayo: '<svg viewBox="0 0 48 64"><path d="M30 3 7 36h14l-5 25 25-36H27z" fill="#FFCB05" stroke="#1B2030" stroke-width="3" stroke-linejoin="round"/></svg>',
+  flare: '<svg viewBox="0 0 64 64"><path d="M32 3c3 12 15 16 15 31 0 4-1 7-3 10 6-3 10-9 10-15 4 6 5 11 5 16a27 27 0 0 1-54 0c0-7 3-13 8-18 0 6 2 10 6 13-2-14 7-24 13-37Z" fill="#CC2B0B" stroke="#1B2030" stroke-width="3" stroke-linejoin="round"/><path d="M32 30c2 7 9 10 9 18a9 9 0 0 1-18 0c0-7 6-11 9-18Z" fill="#FFCB05"/></svg>',
+  mega: '<svg viewBox="0 0 64 60"><ellipse cx="32" cy="38" rx="25" ry="16" fill="none" stroke="#1B2030" stroke-width="10"/><ellipse cx="32" cy="38" rx="25" ry="16" fill="none" stroke="#C7CEDC" stroke-width="5"/><path d="M32 3 47 22 32 44 17 22Z" fill="#7B4FD6" stroke="#1B2030" stroke-width="3" stroke-linejoin="round"/><path d="M32 3v41M17 22h30" stroke="#fff" stroke-width="2" opacity=".55"/><path d="M26 15l5-6" stroke="#fff" stroke-width="3" stroke-linecap="round"/></svg>',
   captura: `<svg viewBox="0 0 64 64">${ball(32, 38)}<path d="M50 12l2 6 6 2-6 2-2 6-2-6-6-2 6-2zM14 14l1.5 4 4 1.5-4 1.5-1.5 4-1.5-4-4-1.5 4-1.5z" fill="#FFCB05" stroke="#B88A00" stroke-width="1.5" stroke-linejoin="round"/></svg>`,
   mando: '<svg viewBox="0 0 64 48"><g fill="#4A5168"><circle cx="11" cy="20" r="5"/><path d="M4 46c0-11 3-17 7-19 4 2 7 8 7 19z"/><circle cx="53" cy="20" r="5"/><path d="M46 46c0-11 3-17 7-19 4 2 7 8 7 19z"/></g><g fill="#1B2030"><circle cx="25" cy="15" r="5"/><path d="M18 46c0-13 3-20 7-22 4 2 7 9 7 22z"/><circle cx="39" cy="15" r="5"/><path d="M32 46c0-13 3-20 7-22 4 2 7 9 7 22z"/></g></svg>',
   corona: '<svg viewBox="0 0 64 50"><path d="M8 40 4 12l16 12 12-18 12 18 16-12-4 28z" fill="#FFCB05" stroke="#1B2030" stroke-width="2.5" stroke-linejoin="round"/><rect x="8" y="40" width="48" height="7" rx="2" fill="#E0A800" stroke="#1B2030" stroke-width="2.5"/><circle cx="32" cy="30" r="4" fill="#CC2B0B"/></svg>',
@@ -982,11 +1009,20 @@ const FICHA = '<svg viewBox="0 0 54 104"><ellipse cx="27" cy="98" rx="22" ry="5"
 const HUEVO = '<svg viewBox="0 0 24 30"><path d="M12 2C6 2 2 12 2 19a10 10 0 0 0 20 0C22 12 18 2 12 2z" fill="#FFF4D6" stroke="#C99A00" stroke-width="2"/><circle cx="9" cy="16" r="2" fill="#E6B800"/><circle cx="15" cy="21" r="2.5" fill="#E6B800"/></svg>';
 const BANDERA = '<svg viewBox="0 0 40 76"><path d="M6 4v70" stroke="#5B4636" stroke-width="3.5" stroke-linecap="round"/><path d="M7 6l30 10-30 10z" fill="#CC2B0B"/></svg>';
 
+// las banderas del castillo al viento: [x, y (donde se ata al mástil, px de la imagen), escala, desfase en s]
+const VIENTO = ['M0 0C3-1.5 6 1 10 3.5C6 4.5 3 5.5 0 7Z', 'M0 0C3 1 6-1 10 3C6 5.5 3 4 0 7Z', 'M0 0C3-.5 6 .5 9.5 4.5C6 4 3 6 0 7Z', 'M0 0C3-1.5 6 1 10 3.5C6 4.5 3 5.5 0 7Z'].join(';');
+$('tb-banderas').innerHTML = [[900.7, 125, .9, 0], [915, 121.5, 1.1, .35], [950, 137.5, .9, .7], [878.5, 146.7, .9, .2], [930.5, 159, .85, .5]]
+  .map(([x, y, e, d]) => `<g transform="translate(${x} ${y}) scale(${e})"><path d="M0 0v11" stroke="#8A5A5A" stroke-width=".8"/><path fill="#E4555A"><animate attributeName="d" values="${VIENTO}" dur="1.1s" begin="-${d}s" repeatCount="indefinite"/></path></g>`).join('');
+if (matchMedia('(prefers-reduced-motion: reduce)').matches) $('tb-vida').pauseAnimations();
+
 // qué casillas están hechas (si tienes una medalla, lo de antes también) y cuál es la actual (-1: todo hecho)
 function progreso(j) {
   const t = j.preparado && j.tablero ? j.tablero : {guardada: false, medallas: Array(8).fill(false), equipo: []};
-  const hecho = [t.guardada, t.equipo.length >= 1, t.equipo.length >= 2, ...t.medallas, false, false, false];
-  for (let i = hecho.length - 2; i >= 0; i--) hecho[i] = hecho[i] || hecho[i + 1];
+  const hecho = HITOS.map((h) => !!h.ok(t, j));
+  for (let i = hecho.length - 1, despues = false; i >= 0; i--) {
+    hecho[i] = hecho[i] || despues;
+    despues = despues || (hecho[i] && !HITOS[i].suelto);
+  }
   return {t, hecho, actual: hecho.indexOf(false)};
 }
 
@@ -1011,7 +1047,7 @@ function pintarTablero(j) {
   const marcador = `<div class="tb-fila"><span>Vidas</span><b>${vivas}/${total}</b></div>
       <div class="tb-vidas">${Array.from({length: total}, (_, i) => icoCorazon.replace('#CC2B0B', i < vivas ? '#CC2B0B' : '#D5DAE5')).join('')}</div>
       <div class="tb-fila"><span>Medallas</span><span style="display: flex; gap: 10px; align-items: center;">${j.huevos ? `<button class="tb-huevos" type="button" data-accion="huevos" data-id="${j.id}">${icoHuevo} ${j.huevos} ${j.huevos === 1 ? 'huevo' : 'huevos'} por abrir</button>` : ''}<b>${t.medallas.filter(Boolean).length}/8</b></span></div>
-      <div class="tb-estuche">${t.medallas.map((m, k) => `<span class="${m ? '' : 'no'}"><img src="/assets/medalla-${k + 1}.png" alt="${m ? 'Medalla de ' + HITOS[k + 3].n : ''}"></span>`).join('')}</div>`;
+      <div class="tb-estuche">${t.medallas.map((m, k) => `<span class="${m ? '' : 'no'}"><img src="/assets/medalla-${k + 1}.png" alt="${m ? 'Medalla de ' + HITOS.find((h) => h.med === k + 1).n : ''}"></span>`).join('')}</div>`;
   const equipo = t.equipo.map((p) => `<div class="tb-burbuja${(j.muertos || []).includes(p.id) ? ' muerto' : ''}" title="${esc(p.mote || p.especie_nombre)}">
       <img src="/arte/${p.especie}" alt="${esc(p.especie_nombre)}"><span class="nv">Nv. ${p.nivel}</span></div>`).join('');
   const jugar = `<button class="btn-jugar" type="button" data-accion="jugar" data-id="${j.id}">${j.preparado ? 'Jugar' : 'Preparar'}</button>
@@ -1119,7 +1155,7 @@ function opcionesFormulario() {
 const MENSAJES = [[0, 'Despertando al Profesor Ciprés…'], [5, 'Encendiendo la Pokédex…'], [10, 'Preparando el emulador en el Centro Pokémon…'],
   [16, 'Barajando las Poké Balls…'], [22, 'Soltando Pokémon salvajes en la hierba alta…'], [29, 'Cambiando los equipos de los entrenadores…'],
   [35, 'Escondiendo objetos por toda Kalos…'], [41, 'Avisando a los líderes de gimnasio…'], [46, 'Puliendo las ocho medallas…'],
-  [51, 'Contando tus vidas…'], [56, '¡Todo listo! Abriendo el juego…']];
+  [51, 'Contando tus vidas…'], [56, '¡Todo listo!']];
 let carga = null;          // {base: momento local en que empezó la tarea, minimo, paso}
 
 function pintarCarga() {
@@ -1188,10 +1224,12 @@ function pintarOnline(o) {
         ${s.admin ? `<button class="btn btn-neutro" type="button" data-log="${esc(c.usuario)}" title="Ver los errores de su Pokelocke">Registro</button>` : ''}
         ${s.admin && c.usuario !== s.usuario ? `<button class="btn btn-neutro" type="button" data-remoto="${esc(c.usuario)}">PokéHex</button>` : ''}</div>`).join('') || '<p class="suave">Nadie conectado.</p>'}
       ${o.servidor ? `<p class="suave" style="font-size: 13px;">Eres el servidor${o.ip ? ` · ${esc(o.ip)}` : ''}${o.upnp === false ? ' · el router no ha abierto los puertos' : ''}</p>` : ''}
+      ${s.admin ? '<button class="btn btn-neutro" type="button" id="o-actividad">Actividad de los jugadores</button>' : ''}
       <button class="btn btn-neutro" type="button" id="o-foto">Cambiar foto de perfil</button>
       <button class="btn btn-neutro" type="button" id="o-salir">Cerrar sesión</button>`;
     $('o-salir').onclick = async () => { panelAbierto = false; await api('/api/online/salir'); };
     $('o-foto').onclick = () => $('foto-archivo').click();
+    if (s.admin) $('o-actividad').onclick = () => { panelAbierto = false; abrirActividad(); };
   }
 }
 
@@ -1648,26 +1686,78 @@ $('o-panel').onclick = (ev) => {
   if (l) { panelAbierto = false; abrirRegistro(l.dataset.log); }
 };
 
-// ---------- registro de errores de un jugador conectado (solo el administrador) ----------
-const registro = {usuario: null, datos: null, cual: 'pokelocke.log'};
-async function abrirRegistro(usuario) {
-  Object.assign(registro, {usuario, datos: null, cual: 'pokelocke.log'});
-  $('lg-titulo').textContent = `Registro de ${usuario}`;
-  $('lg-info').textContent = 'Pidiendo el registro a su Pokelocke… (tarda unos segundos)';
-  $('lg-texto').textContent = '';
-  $('log-fondo').classList.remove('oculto');
-  let r;
+// ---------- actividad y registro de errores de un jugador (solo el administrador) ----------
+// La actividad la guarda el servidor (se ve aunque el jugador no esté); los errores se piden a su Pokelocke
+const registro = {usuario: null, datos: null, actividad: null, errorLog: null, cual: 'actividad'};
+const pedirOnline = async (que, datos) => {
   try {
-    r = await (await fetch('/api/online/log', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({usuario})})).json();
-  } catch (err) { r = {error: 'Pokelocke no responde'}; }
+    return await (await fetch('/api/online/' + que, {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(datos)})).json();
+  } catch (err) { return {error: 'Pokelocke no responde'}; }
+};
+async function abrirActividad() {
+  Object.assign(registro, {usuario: null, datos: null, actividad: null, cual: 'actividad'});
+  $('lg-titulo').textContent = 'Actividad de los jugadores';
+  $('lg-info').textContent = 'Pidiendo la actividad al servidor…';
+  $('lg-texto').textContent = '';
+  document.querySelector('.lg-tabs').classList.add('oculto');
+  $('lg-solo-caja').classList.add('oculto');
+  $('lg-otra').classList.add('oculto');
+  $('lg-copiar').classList.add('oculto');
+  $('lg-guardar').classList.add('oculto');
+  $('log-fondo').classList.remove('oculto');
+  const r = await pedirOnline('actividad', {});
   if (r.error) { $('lg-info').textContent = r.error; return; }
-  registro.datos = r;
+  $('lg-info').textContent = 'Pulsa en un jugador para ver lo que ha hecho. Se ve aunque no esté conectado.';
+  $('lg-texto').innerHTML = r.jugadores.map((j) => `<button type="button" class="lg-jugador" data-jugador="${esc(j.usuario)}">
+      <b>${esc(j.usuario)}</b>
+      <span class="${j.sospechas ? 'lg-error' : j.avisos ? 'lg-aviso' : ''}">${j.sospechas} sospechosas · ${j.avisos} avisos · ${j.eventos} en total${j.ultimo ? ' · último ' + esc(j.ultimo.slice(0, 16)) : ''}</span>
+    </button>`).join('') || 'Aún no hay jugadores.';
+}
+$('lg-texto').onclick = (ev) => { const b = ev.target.closest('[data-jugador]'); if (b) abrirRegistro(b.dataset.jugador); };
+async function abrirRegistro(usuario) {
+  Object.assign(registro, {usuario, datos: null, actividad: null, errorLog: null, cual: 'actividad'});
+  $('lg-titulo').textContent = `Registro de ${usuario}`;
+  $('lg-info').textContent = 'Pidiendo la actividad al servidor…';
+  $('lg-texto').textContent = '';
+  document.querySelector('.lg-tabs').classList.remove('oculto');
+  ['lg-otra', 'lg-copiar', 'lg-guardar'].forEach((id) => $(id).classList.remove('oculto'));
+  $('log-fondo').classList.remove('oculto');
+  pintarRegistro();
+  const a = await pedirOnline('actividad', {usuario});
+  if (registro.usuario !== usuario) return;
+  registro.actividad = a;
+  pintarRegistro();
+  const r = await pedirOnline('log', {usuario});      // solo si está conectado; si no, sigue viéndose la actividad
+  if (registro.usuario !== usuario) return;
+  if (r.error) registro.errorLog = r.error;
+  else registro.datos = r;
   pintarRegistro();
 }
+const lineaEvento = (e) => `${e.t}  ${e.texto}`;
+const eventosVistos = () => ((registro.actividad && registro.actividad.eventos) || []).filter((e) => !$('lg-solo').checked || e.nivel !== 'info');
+function textoRegistro() {
+  if (registro.cual === 'actividad') return eventosVistos().map(lineaEvento).join('\n');
+  return (registro.datos && registro.datos.registros[registro.cual]) || '';
+}
 function pintarRegistro() {
-  const r = registro.datos, txt = (r && r.registros[registro.cual]) || '';
-  ['actual', 'anterior'].forEach((k) => $('lg-' + k).setAttribute('aria-pressed', String((k === 'actual') === (registro.cual === 'pokelocke.log'))));
-  if (!r) return;
+  ['actividad', 'pokelocke.log', 'pokelocke.old.log'].forEach((c, k) => $(['lg-actividad', 'lg-actual', 'lg-anterior'][k]).setAttribute('aria-pressed', String(registro.cual === c)));
+  $('lg-solo-caja').classList.toggle('oculto', registro.cual !== 'actividad');
+  if (registro.cual === 'actividad') {
+    const a = registro.actividad;
+    if (!a) return;
+    if (a.error) { $('lg-info').textContent = a.error; return; }
+    const sospechas = a.eventos.filter((e) => e.nivel === 'sospecha').length;
+    $('lg-info').textContent = a.eventos.length ? `${a.eventos.length} eventos, ${sospechas} sospechosos. Una sospecha no es una prueba: mira el contexto.` : 'Este jugador aún no ha mandado actividad.';
+    $('lg-texto').innerHTML = eventosVistos().map((e) => `<span class="${e.nivel === 'sospecha' ? 'lg-error' : e.nivel === 'aviso' ? 'lg-aviso' : ''}">${esc(lineaEvento(e))}</span>`).join('\n') || 'Nada que enseñar.';
+    $('lg-texto').scrollTop = $('lg-texto').scrollHeight;
+    return;
+  }
+  const r = registro.datos, txt = textoRegistro();
+  if (!r) {
+    $('lg-info').textContent = registro.errorLog || 'Pidiendo el registro a su Pokelocke… (tarda unos segundos)';
+    $('lg-texto').textContent = '';
+    return;
+  }
   const errores = (txt.match(/^Traceback|^Fatal Python error/gm) || []).length;
   $('lg-info').textContent = `Versión ${r.version}, ${r.jugando ? 'jugando ahora' : 'en la biblioteca'}. Pedido a las ${r.hora.slice(11, 16)}. `
     + (errores ? `${errores} ${errores === 1 ? 'error' : 'errores'} en este registro.` : 'Sin errores en este registro.');
@@ -1676,19 +1766,20 @@ function pintarRegistro() {
     : 'Vacío.';
   $('lg-texto').scrollTop = $('lg-texto').scrollHeight;          // lo último, abajo
 }
+$('lg-actividad').onclick = () => { registro.cual = 'actividad'; pintarRegistro(); };
 $('lg-actual').onclick = () => { registro.cual = 'pokelocke.log'; pintarRegistro(); };
 $('lg-anterior').onclick = () => { registro.cual = 'pokelocke.old.log'; pintarRegistro(); };
+$('lg-solo').onchange = () => pintarRegistro();
 $('lg-otra').onclick = () => abrirRegistro(registro.usuario);
 $('lg-copiar').onclick = async () => {
-  try { await navigator.clipboard.writeText(registro.datos.registros[registro.cual] || ''); $('lg-copiar').textContent = 'Copiado'; }
+  try { await navigator.clipboard.writeText(textoRegistro()); $('lg-copiar').textContent = 'Copiado'; }
   catch (err) { $('lg-copiar').textContent = 'No se ha podido copiar'; }
   setTimeout(() => { $('lg-copiar').textContent = 'Copiar'; }, 1500);
 };
 $('lg-guardar').onclick = () => {
-  if (!registro.datos) return;
   const a = document.createElement('a');
-  a.href = URL.createObjectURL(new Blob([registro.datos.registros[registro.cual] || ''], {type: 'text/plain'}));
-  a.download = `pokelocke-${registro.usuario}${registro.cual === 'pokelocke.log' ? '' : '-anterior'}.log`;
+  a.href = URL.createObjectURL(new Blob([textoRegistro()], {type: 'text/plain'}));
+  a.download = `pokelocke-${registro.usuario}-${registro.cual === 'actividad' ? 'actividad' : registro.cual === 'pokelocke.log' ? 'errores' : 'errores-anterior'}.log`;
   a.click();
   URL.revokeObjectURL(a.href);
 };
@@ -1721,6 +1812,10 @@ function pintar(e) {
   if (hex.abierto) return;
   if (t && (!t.fin || (t.error && t.mensaje !== errorVisto))) pintarModal(t);
   else cerrarModal();
+  if (enviado && t && t.fin) {                         // preparado: de vuelta a la biblioteca (si falló, se sigue en esta pantalla)
+    enviado = false;
+    if (!t.error) preparando = null;
+  }
   if (preparando) { vista('preparar'); return; }
   if (torneo.abierto) { vista('torneo'); return; }
   vista('biblioteca');
@@ -1745,9 +1840,10 @@ function ponerSonido() {
   try { localStorage.setItem('pokelocke-sonido', JSON.stringify(sonido)); } catch (err) { /* nada */ }
 }
 function sonar(jugando) {
-  if (jugando) musica.pause();
+  if (jugando || !$('op-video').paused) musica.pause();    // ni con el juego abierto ni encima de la voz del vídeo de normas
   else if (musica.paused) musica.play().catch(() => {});   // sin permiso del navegador: suena al primer clic
 }
+$('op-video').onplay = $('op-video').onpause = () => sonar(ultimo && ultimo.jugando);
 musica.addEventListener('canplay', () => $('sonido').classList.remove('oculto'), {once: true});
 $('s-boton').onclick = () => { sonido.mudo = !musica.muted; if (!sonido.mudo && !sonido.volumen) sonido.volumen = 40; ponerSonido(); };
 $('s-volumen').oninput = () => { sonido.volumen = Number($('s-volumen').value); sonido.mudo = false; ponerSonido(); };
@@ -1787,7 +1883,6 @@ function abrirOpciones(seguir) {
     $('op-firma').textContent = f ? `Firmado por ${f.nombre} el ${f.fecha.split('-').reverse().join('/')}` : 'Se firma con tu usuario la primera vez que juegues';
   });
   $('opciones-fondo').classList.remove('oculto');
-  if (seguir) $('op-video').play().catch(() => {});
 }
 
 function cerrarOpciones() {
@@ -1809,11 +1904,14 @@ $('tablero').onclick = (ev) => {
   if (!b) return;
   const j = ultimo.juegos.find((x) => x.id === b.dataset.id);
   const accion = b.dataset.accion;
-  if (accion === 'menu') { menuAbierto = menuAbierto === j.id ? null : j.id; pintado = ''; return pintarBiblioteca(ultimo); }
+  if (accion === 'menu') {
+    ev.stopPropagation();                                 // al repintar, el botón ya no está en el tablero y el clic de fuera cerraría el menú
+    menuAbierto = menuAbierto === j.id ? null : j.id; pintado = ''; return pintarBiblioteca(ultimo);
+  }
   menuAbierto = null; pintado = '';
   if (accion === 'jugar') {
     const seguir = () => (j.preparado ? api('/api/jugar', {id: j.id}) : abrirPreparar(j));
-    // la primera vez: se firma el contrato con tu usuario y antes de jugar se ve el vídeo de normas
+    // la primera vez: se firma el contrato con tu usuario y antes de jugar se enseña el vídeo de normas (lo pone él)
     if (!ultimo.firma) return api('/api/firmar').then(() => abrirOpciones(seguir));
     return seguir();
   }
@@ -1848,7 +1946,7 @@ $('b-continuar').onclick = () => {
   api('/api/preparar', {
     id: preparando.id, vidas: $('p-vidas').value, randomizar: modo !== 'original', avanzado, reglas: modo === 'mega' ? 'mega' : null,
     opciones: modo === 'personalizado' ? opcionesFormulario() : (MODOS[modo].opciones || {}),
-  });
+  }).then((r) => { enviado = !r.error; });
 };
 $('b-error-volver').onclick = () => {
   if (fallos >= 5) { $('b-error-volver').textContent = 'Reintentando…'; return actualizar(); }   // sin respuesta: volver a preguntar

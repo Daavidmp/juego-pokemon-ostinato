@@ -11,6 +11,7 @@ import pokehex
 import comun
 import emulador
 import guardado
+import vigia
 
 
 def nuevo_locke(j, vidas, reglas=None):
@@ -68,6 +69,8 @@ def coger_huevo(j, i):
         raise RuntimeError(str(e))
     partida.guardar(comun.DATOS / 'juegos' / j['id'] / 'copias_partida')
     h['cogido'] = True
+    vigia.anotar_partida(j)
+    vigia.evento('huevo', f'Coge un huevo de la caja{" (shiny)" if h["shiny"] else ""}')
     comun.guardar()
     return {**huevos_estado(j), 'donde': 'tu equipo' if lugar[0] == 'equipo' else partida.nombre_caja(lugar[1])}
 
@@ -185,6 +188,8 @@ def seguimiento():
                 with comun.lock:
                     j = comun.buscar(comun.vivo['activo'])
                 guardado.copiar_partida(j, 'al-cerrar')
+                with comun.lock:
+                    vigia.cerrar(j)
             except (RuntimeError, OSError):
                 traceback.print_exc()
         if emulador.citra_listo():
@@ -211,6 +216,8 @@ def seguimiento():
                     except (OSError, TimeoutError):
                         medallas = None
                     if medallas is not None and medallas != j.get('medallas'):
+                        if sum(medallas) < sum(j.get('medallas', [])):
+                            vigia.evento('retroceso', f'La partida ha perdido medallas: de {sum(j["medallas"])} a {sum(medallas)}', 'sospecha')
                         j['medallas'] = medallas
                         # Mega Pokelocke: la 4.ª medalla (Amaro) es la mitad del juego y toca el torneo. Una vez
                         if j.get('reglas') == 'mega' and sum(medallas) >= 4 and not j.get('aviso_torneo'):
@@ -273,7 +280,9 @@ def seguimiento():
                         if a_cero[p['id']] >= 3 and time.time() - comun.vivo.get('conectado_desde', 0) > 15 \
                                 and p['id'] not in j['muertos'] and p['id'] not in perdonados:
                             (j['muertos'] if cuentan else perdonados).append(p['id'])
+                            vigia.muerte(j, p, cuentan)
                             comun.guardar()
+                    vigia.ronda(j, equipo, rpc)
             except (OSError, TimeoutError, RuntimeError):
                 comun.vivo['conectado'] = False
         else:
@@ -331,9 +340,13 @@ def normas_mega():
                 if capturas is not None and ahora is not None and ahora > capturas and zona is not None:
                     if juego.salvaje_shiny(rpc):
                         comun.avisar('¡Shiny! No cuenta como la captura de esta ruta')
+                        vigia.evento('captura', f'Captura de un shiny en la zona {zona}: no gasta la ruta')
                     elif zona not in usadas:
                         usadas.append(zona)
                         comun.avisar('Captura de esta ruta hecha · Aquí ya no puedes capturar más', 3)
+                        vigia.captura(j, zona, False)
+                    else:
+                        vigia.captura(j, zona, True)
                     comun.guardar()
                 if ahora is not None:
                     capturas = ahora
@@ -362,6 +375,8 @@ def corregir(atajo):
             j['ajuste_vidas'] -= 1
         elif atajo == 'mas':
             j['ajuste_vidas'] += 1
+        vigia.evento('vidas', f'Se {"quita" if atajo == "menos" else "suma"} una vida con {"F7" if atajo == "menos" else "F8"}: ahora tiene {vidas(j)}',
+                     'info' if atajo == 'menos' else 'sospecha', vidas=vidas(j))
         comun.guardar()
 
 
@@ -451,4 +466,5 @@ def usar_vial():
             j['vial'] = False
             comun.vivo['vial_usado'] = time.time()
             comun.avisar('¡Has usado el vial! · Vuelve al Centro Pokémon para recargarlo')
+            vigia.evento('vial', 'Usa el vial')
             comun.guardar()

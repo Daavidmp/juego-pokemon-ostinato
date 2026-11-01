@@ -17,6 +17,7 @@ import conexion
 import emulador
 import guardado
 import locke
+import vigia
 
 
 def foto_estado():
@@ -41,7 +42,8 @@ def foto_estado():
                         'registro': (comun.DATOS / 'juegos' / j['id'] / 'randomizacion.log').exists(),
                         # el tablero: de la partida guardada, y con el juego cerrado (jugando ya está la capa)
                         'tablero': guardado.tablero(j) if j.get('preparado') and not jugando else None,
-                        'topes': locke.niveles_tope(j) if j.get('preparado') else None, 'muertos': j.get('muertos', [])}
+                        'topes': locke.niveles_tope(j) if j.get('preparado') else None, 'muertos': j.get('muertos', []),
+                        'cuenta': bool(j.get('muertes_activas'))}
                        for j in comun.biblio['juegos']],
             'activo': activo, 'jugando': jugando, 'conectado': comun.vivo['conectado'], 'cargando': emulador.cargando(), 'tarea': comun.vivo['tarea'] and {**comun.vivo['tarea'], 'transcurrido': time.time() - comun.vivo['tarea']['inicio']},
             'equipo': [p and {**p, 'muerto': p['id'] in muertos} for p in comun.vivo['equipo']],
@@ -312,19 +314,26 @@ class Servidor(BaseHTTPRequestHandler):
         elif ruta == '/api/quitar':
             with comun.lock:
                 j = comun.buscar(d.get('id'))                  # solo ids de la biblioteca: nunca una ruta que llegue de fuera
+                vigia.evento('quitar', f'Quita el juego de la biblioteca (tenía {locke.vidas(j) if j.get("preparado") else "?"} vidas)', 'sospecha')
                 comun.biblio['juegos'].remove(j)
                 shutil.rmtree(comun.DATOS / 'juegos' / j['id'], ignore_errors=True)
                 comun.guardar()
         elif ruta == '/api/reiniciar':          # vuelve a pedir vidas y randomización al jugar
             with comun.lock:
-                comun.buscar(d['id'])['preparado'] = False
+                j = comun.buscar(d['id'])
+                vigia.evento('reiniciar', f'Empieza un locke nuevo (tenía {locke.vidas(j)} vidas y {sum(j.get("medallas", []))} medallas)', 'sospecha')
+                j['preparado'] = False
                 comun.guardar()
         elif ruta == '/api/copias':
             with comun.lock:
                 return {'copias': guardado.copias_partida(comun.buscar(d.get('id')))}
         elif ruta == '/api/copias/restaurar':
             with comun.lock:
-                guardado.restaurar_partida(comun.buscar(d.get('id')), str(d.get('nombre', '')))
+                j = comun.buscar(d.get('id'))
+                guardado.restaurar_partida(j, str(d.get('nombre', '')))
+                vigia.anotar_partida(j)
+                vigia.evento('restaurar', f'Restaura una copia de la partida: {d.get("nombre")}', 'sospecha')
+                comun.guardar()
         elif ruta == '/api/ajustes':
             with comun.lock:
                 ajustes = comun.biblio.setdefault('ajustes', {})
@@ -339,7 +348,11 @@ class Servidor(BaseHTTPRequestHandler):
             comun.en_segundo_plano('Actualizar Pokelocke', conexion.instalar_actualizacion)
         elif ruta == '/api/borrar_partida':
             with comun.lock:
-                guardado.borrar_partida(comun.buscar(d['id']))
+                j = comun.buscar(d['id'])
+                vigia.evento('borrar', f'Borra la partida guardada (tenía {locke.vidas(j)} vidas y {sum(j.get("medallas", []))} medallas)', 'sospecha')
+                guardado.borrar_partida(j)
+                vigia.anotar_partida(j)
+                comun.guardar()
         elif ruta == '/api/registro':
             log = comun.DATOS / 'juegos' / comun.buscar(d.get('id'))['id'] / 'randomizacion.log'
             if not log.exists():
@@ -365,6 +378,7 @@ class Servidor(BaseHTTPRequestHandler):
             j = comun.buscar(d['id'])
             comun.en_segundo_plano('Abrir el juego', lambda: (emulador.herramientas(), emulador.lanzar(j)))
         elif ruta == '/api/upr_completo':
+            vigia.evento('upr', 'Abre el randomizador completo', 'sospecha')
             comun.en_segundo_plano('Abrir el randomizador completo', lambda: (
                 emulador.herramientas(), comun.DATOS.mkdir(exist_ok=True),
                 subprocess.Popen([emulador.java(), '-jar', str(emulador.upr_jar())], cwd=emulador.upr_jar().parent)))
@@ -374,10 +388,14 @@ class Servidor(BaseHTTPRequestHandler):
                 if not 0 <= i < 8:
                     raise RuntimeError('Esa medalla no existe')
                 comun.buscar(comun.vivo['activo'])['medallas'][i] = bool(d['valor'])
+                vigia.evento('medalla', f'Cambia a mano la medalla {i + 1}: {"puesta" if d["valor"] else "quitada"}', 'sospecha')
                 comun.guardar()
         elif ruta == '/api/vidas':
             with comun.lock:
-                comun.buscar(comun.vivo['activo'])['ajuste_vidas'] += int(d['delta'])
+                j = comun.buscar(comun.vivo['activo'])
+                j['ajuste_vidas'] += int(d['delta'])
+                vigia.evento('vidas', f'Cambia las vidas a mano ({int(d["delta"]):+d}): ahora tiene {locke.vidas(j)}',
+                             'sospecha' if int(d['delta']) > 0 else 'info', vidas=locke.vidas(j))
                 comun.guardar()
         elif ruta.startswith('/api/online/'):
             return conexion.online_accion(ruta.rsplit('/', 1)[1], d)

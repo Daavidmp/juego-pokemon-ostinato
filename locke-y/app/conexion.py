@@ -11,6 +11,7 @@ import online
 import comun
 import emulador
 import guardado
+import vigia
 
 
 def certificado_servidor():
@@ -88,8 +89,10 @@ def online_latidos():
             with comun.lock:
                 j = comun.buscar(comun.vivo['activo']) if comun.vivo['activo'] and emulador.jugando() else None
             estado = {'jugando': bool(j), 'juego': j and j['nombre']}
+            # los eventos que aún no tiene el servidor; hasta que diga cuántos tiene, solo se le dice cuántos hay
+            eventos, total = vigia.para_mandar(comun.red.get('eventos_hasta', float('inf')))
             try:
-                r = online.peticion(direccion, '/latido', {'token': s['token'], 'estado': estado}, espera=8)
+                r = online.peticion(direccion, '/latido', {'token': s['token'], 'estado': estado, 'eventos': eventos, 'total': total}, espera=8)
                 if r.get('sesion') is False:
                     comun.red['sesion'], comun.red['conectados'] = None, []
                     online_guardar_sesion()
@@ -97,6 +100,7 @@ def online_latidos():
                     comun.red['error'] = r['error']
                 else:
                     comun.red['error'], comun.red['conectados'] = None, r['conectados']
+                    comun.red['eventos_hasta'] = r.get('eventos_hasta', float('inf'))
                     for t in r['tareas']:
                         threading.Thread(target=online_tarea, args=(direccion, s['token'], t), daemon=True).start()
             except OSError as e:
@@ -299,6 +303,16 @@ def online_accion(que, d):
             raise RuntimeError('Entra con tu usuario')
         try:
             r = online.peticion(direccion, '/log', {'token': comun.red['sesion']['token'], 'usuario': d.get('usuario')}, espera=40)
+        except OSError as e:
+            raise RuntimeError(f'No se puede conectar con el servidor ({online_motivo(e)})')
+        if 'error' in r:
+            raise RuntimeError(r['error'])
+        return r
+    if que == 'actividad':                   # lo que ha hecho cada jugador, aunque no esté conectado (solo el administrador)
+        if not comun.red['sesion']:
+            raise RuntimeError('Entra con tu usuario')
+        try:
+            r = online.peticion(direccion, '/actividad', {'token': comun.red['sesion']['token'], 'usuario': d.get('usuario')})
         except OSError as e:
             raise RuntimeError(f'No se puede conectar con el servidor ({online_motivo(e)})')
         if 'error' in r:

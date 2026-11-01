@@ -12,6 +12,7 @@ import pokehex
 import comun
 import emulador
 import locke
+import vigia
 
 
 # ---------- PokéHex: ver y cambiar el equipo y la mochila de la partida guardada ----------
@@ -52,6 +53,9 @@ def pokehex_partida(j):
     raise RuntimeError('Este juego aún no tiene partida guardada en el emulador')
 
 
+OBJETOS_TABLERO = {'megaaro': {696}, 'central': {695}, 'base_flare': {700}}      # objetos clave que marcan casillas del tablero
+
+
 def tablero(j):
     """Lo que enseña el tablero, leído de la partida guardada: avanza cada vez que se guarda en el juego. Solo se
     vuelve a leer cuando cambia el archivo; si se lee justo mientras el juego guarda, se queda lo de antes."""
@@ -63,13 +67,15 @@ def tablero(j):
     if comun.vivo.get('tablero_de') != clave:
         try:
             p = pokehex.Partida(f)
+            clave_objetos = {o['objeto'] for o in p.mochila()['clave']}
         except (OSError, ValueError):
             return comun.vivo.get('tablero') or {'guardada': False, 'medallas': [False] * 8, 'equipo': []}
         b = p.d[locke.MEDALLAS_EN_PARTIDA]
         equipo = [{k: x[k] for k in ('id', 'especie', 'especie_nombre', 'mote', 'nivel', 'huevo', 'shiny')}
                   for x in p.equipo() if x]
         comun.vivo['tablero_de'] = clave
-        comun.vivo['tablero'] = {'guardada': True, 'medallas': [bool(b >> i & 1) for i in range(8)], 'equipo': equipo}
+        comun.vivo['tablero'] = {'guardada': True, 'medallas': [bool(b >> i & 1) for i in range(8)], 'equipo': equipo,
+                                 **{nombre: bool(ids & clave_objetos) for nombre, ids in OBJETOS_TABLERO.items()}}
     return comun.vivo['tablero']
 
 
@@ -160,6 +166,13 @@ def pokehex_accion(que, d):
     except ValueError as e:
         raise RuntimeError(str(e))
     copias = comun.DATOS / 'juegos' / j['id'] / 'copias_partida'
+    remoto = d.get('token') == hex_vivo['interno']
+
+    def apuntar(texto, nivel='sospecha'):
+        vigia.anotar_partida(j)
+        comun.guardar()
+        vigia.evento('pokehex', ('El administrador: ' if remoto else 'PokéHex: ') + texto, 'info' if remoto else nivel)
+
     if j['id'] not in hex_vivo['datos']:
         hex_vivo['datos'][j['id']] = pokehex.Datos(comun.TOOLS, comun.DATOS / 'juegos' / j['id'] / 'randomizacion.log')
     datos = hex_vivo['datos'][j['id']]
@@ -184,20 +197,24 @@ def pokehex_accion(que, d):
             nuevo = pokehex.aplicar(claro, d.get('cambios', {}), datos)
             partida.poner_en(sitio, nuevo)
             partida.guardar(copias)
+            apuntar(f'cambia un Pokémon ({", ".join(sorted(d.get("cambios", {})))[:120]})')
             return {'pokemon': pokehex.detalle(nuevo)}
         if que == 'mover':
             partida.mover(lugar(d['desde']), lugar(d['hasta']), datos)
             partida.guardar(copias)
+            apuntar('mueve un Pokémon', 'info')
             return {'equipo': partida.equipo(), 'cajas': partida.cajas(datos)}
         if que == 'nuevo':
             if not 1 <= int(d['especie']) <= pokehex.MAX_ESPECIE:
                 raise RuntimeError('Especie no válida')
             partida.nuevo(lugar(d['lugar']), int(d['especie']), int(d.get('nivel', 5)), datos)
             partida.guardar(copias)
+            apuntar(f'crea un Pokémon nuevo (n.º {int(d["especie"])}, nivel {int(d.get("nivel", 5))})')
             return {'equipo': partida.equipo(), 'cajas': partida.cajas(datos)}
         if que == 'bolsillo':
             partida.bolsillo(d['bolsillo'], d.get('objetos', []))
             partida.guardar(copias)
+            apuntar(f'cambia los objetos ({d["bolsillo"]})')
             return {'mochila': partida.mochila()}
     except ValueError as e:
         raise RuntimeError(str(e))

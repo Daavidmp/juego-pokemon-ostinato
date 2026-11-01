@@ -29,6 +29,9 @@ NO jugando. En el PC anfitrión, en este orden:
    [ ] después de la 4.ª medalla, un rival/líder lleva de último un Pokémon con Megapiedra y MEGAEVOLUCIONA
    [ ] cerrar el juego -> «Copias de la partida» tiene la copia; restaurar una
    [ ] encender el servidor; otro PC entra (https), torneo de 3 (repesca), «Registro» de un jugador
+   [ ] preparar acaba en el tablero, sin abrir el juego; el juego solo se abre con Jugar
+   [ ] Jugar sin pulsar nada: el juego sale delante, con teclado y en los huecos del layout; también en un PC donde
+       Citra no se ha abierto nunca, tras usar Alt+Q y cerrar, y con la escala de Windows al 125 %/150 %
    [ ] sala de Citra (dos PCs con la versión nueva): David entra con 127.0.0.1 y el otro con la dirección de
        duckdns, y se ven en el chat
    [ ] sala: combate por PSS entero hasta el final, e intercambio
@@ -72,7 +75,10 @@ La fuente de verdad es el código:
   Desde el 30/10/2026: después de la 4.ª medalla (combates importantes con algún Pokémon por encima del as de
   Amaro), el as es un Pokémon con megaevolución y lleva su Megapiedra (asMegaTrasCuartaMedalla). Sin probar
   con una ROM todavía: comprobar que los rivales megaevolucionan de verdad.
-- Entrenadores +15 % de nivel (trainersLevelModifier 15). Tipos, estadísticas y evoluciones sin cambios.
+- Entrenadores +15 % de nivel (trainersLevelModifier 15). Tipos y estadísticas sin cambios. Evoluciones sin
+  cambios salvo las de intercambio, con o sin objeto, que pasan a nivel 40 (MegaFases.intercambioANivel; Clamperl:
+  Huntail macho y Gorebyss hembra). Slowpoke llega antes a Slowbro (nivel 37): para Slowking hay que cancelar esa
+  evolución. La voz del vídeo y video/GUION.md aún dicen que las evoluciones no cambian.
 
 Normas que NO aplica la app (solo están en el contrato, decididas por David el 29/10/2026):
 - Nivel tope = as del próximo líder con el +15 %.
@@ -141,6 +147,10 @@ Pokémon Ostinato (adulta, seca, práctica, con guasa; ver OSTINATO-biblia.md).
 - Mientras carga, la capa NO es el layout (tapaba Citra y Alt+Q no lo quitaba, porque el lanzador solo cambia a
   ventana cuando ya existe la del juego): es un cartel pequeño «Abriendo el juego…» con los segundos y una barra
   animada (aviso a partir de 90 s). Pasa a layout al salir la ventana del juego o a los 120 s.
+- Lanzador (app/citra/lanzador.cs, 30/10/2026): la ventana del juego es la que sale DESPUÉS de la lista (Citra
+  recuerda tamaños, «la más pequeña» elegía la lista tras usar Alt+Q). Se trae delante con teclado (Delante), se
+  recoloca si se mueve y antes de abrir Citra se quitan los tamaños recordados, los avisos de primera vez y las
+  teclas que descolocan el layout (F8 rotaba las pantallas). Probado con un citra-qt falso, no con el juego.
 - Se reparte con un instalador (app/empaquetar.py + app/instalador.iss, Inno Setup), PyInstaller --onedir,
   sin el zip pegado ni la autoextracción (main.instalar ya no existe). Instala en %LOCALAPPDATA%\Pokelocke.
   Lleva todo: Citra, randomizador, makerom y un Java mínimo (jlink) con LockeSettings y MegaFases compilados
@@ -175,6 +185,9 @@ Pokémon Ostinato (adulta, seca, práctica, con guasa; ver OSTINATO-biblia.md).
   captura, ~0,3 s por foto; antes se lanzaba un Edge nuevo por cada cambio (cada golpe en combate). Si falla, o solo
   hay Firefox, el método de antes. No se pinta mientras Citra carga. La randomización solo se copia a mods/ si ha
   cambiado (pokelocke-mod.txt). normas_mega cada 0,5 s, atajos cada 0,1 s, la ventana escondida pregunta cada 5 s.
+  Ese Edge lleva un perfil por cada Pokelocke (capa.perfil_edge, tools/capa-edge/<pid>) y su pid en edge.pid: con un
+  perfil fijo, un Edge huérfano (Pokelocke cerrado de golpe o por el instalador) lo dejaba cogido y la capa se quedaba
+  congelada en la última foto, sin vidas ni avisos, aunque la lectura del juego funcionara.
 - Errores en pantalla (errores.describir): los RuntimeError de la app se enseñan tal cual; los inesperados dicen
   qué se hacía, tipo, detalle, archivo:línea y un código E-XXXX que también queda en pokelocke.log con la traza.
 - Online cifrado (30/10/2026): API en https:8767 con certificado propio del anfitrión (empaquetar.certificado lo crea
@@ -208,12 +221,37 @@ Se partió con un script (ast + symtable) y se comprobó con pyflakes (también 
 servidor arrancado de verdad. Las referencias entre módulos van como modulo.nombre: para cambiar algo en una
 prueba se parchea en el módulo donde vive (emulador.jugando, comun.DATOS…).
 
+4e. ACTIVIDAD DE LOS JUGADORES (01/11/2026, app/vigia.py)
+---------------------------------------------------------
+Cada evento va a datos/eventos.jsonl, numerado y encadenado con su huella, y con los latidos al servidor
+(datos/servidor/eventos/<usuario>.jsonl). Lo ve el administrador en Conectados › Actividad de los jugadores, aunque el
+jugador no esté conectado. Niveles: info, aviso, sospecha. Una sospecha no es una prueba.
+- Sospecha: salir sin guardar tras una muerte o captura (vigia.cerrar: mira la fecha de la partida); partida que vuelve
+  atrás (contadores de capturas o combates que bajan 3 lecturas seguidas, o medallas que bajan: reinicio o save state);
+  sumar vidas con F8 o la API; vidas distintas de las apuntadas (biblioteca editada); partida cambiada con el juego
+  cerrado (huella de `main`: PKHeX o Citra abierto sin Pokelocke); archivos de la randomización cambiados; trucos de
+  Citra (user/cheats); estados guardados nuevos (user/states); PokéHex propio; restaurar copia; borrar partida; locke
+  nuevo; quitar juego; medallas a mano; UPR completo; preparar sin normas Mega; captura en ruta gastada; nivel por
+  encima del tope; legendario en el equipo.
+- Aviso: jugar sin conexión. Info: abrir, cerrar, muertes, capturas, vial, huevos.
+- Del servidor: registro que vuelve atrás (borrado o cambio de PC), eventos que faltan y huella que no cuadra.
+- Límites: la huella no lleva secreto, así que alguien que entienda el formato podría rehacer su archivo antes de que se
+  mande; lo ya recibido no. Jugando sin conexión los eventos esperan hasta conectar. Sin probar con el juego real:
+  comprobar sobre todo el retroceso, salir sin guardar y que no haya falsos positivos (nivel tope, legendario regalado).
+
 4d. TABLERO Y UNA SOLA ROM (30/10/2026, versión visible 1.0.0)
 --------------------------------------------------------------
 - Solo cabe una ROM (/api/anadir lo rechaza si ya hay una). Con ella puesta, la pantalla principal es un tablero
   estilo party game: assets/tablero-isla.jpg (isla de Firefly, 1376×768) cubre la ventana y encima van, con código
-  (app.html: HITOS, PUNTOS, pintarTablero), 14 casillas: Pueblo Boceto, inicial, primera captura, 8 gimnasios,
-  Alto Mando, Campeona, torneo final. PUNTOS son px de la imagen: si se cambia la isla, hay que recolocarlas.
+  (app.html: HITOS, PUNTOS, pintarTablero), 18 casillas: Pueblo Boceto, inicial, primera captura, cada muerte cuenta,
+  8 gimnasios, primera megaevolución (Megaaro), Central Eléctrica (Pase de la Central), base del Team Flare (Llave del
+  Ascensor), Alto Mando, Campeona, torneo final. David quiere momentos de la historia, no misiones («consigue tal
+  objeto», «ten 6 Pokémon»). PUNTOS son px de la imagen: si se cambia la isla, hay que recolocarlas. Los objetos se leen
+  del bolsillo clave de la partida (guardado.OBJETOS_TABLERO); las casillas con suelto:true no dan por hechas las
+  anteriores. Sin probar con una partida que tenga esos objetos: comprobar que se marcan, y si el juego retira el pase o
+  la llave al usarlos (entonces la casilla se apaga hasta la medalla siguiente).
+- Las aspas del molino y las banderas del castillo se borraron de la imagen y van animadas por encima (app.html:
+  svg #tb-vida y VIENTO, en px de la imagen). Si se cambia la isla, hay que recolocarlas también.
 - Avanza al guardar: guardado.tablero(j) lee del archivo de la partida las medallas (byte 0x420C) y el equipo,
   y solo relee si cambia el archivo. PENDIENTE: leer Alto Mando y Campeona de la partida (ahora no avanzan).
 - Música: assets/musica.mp3 (Suno, «Journey of Discovery») con botón de volumen/silencio en la cabecera; se para al

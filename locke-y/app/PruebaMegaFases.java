@@ -156,6 +156,24 @@ public class PruebaMegaFases {
 
         Map<Trainer, Integer> ultimoOriginal = new HashMap<>();
         for (Trainer t : entrenadores) ultimoOriginal.put(t, t.pokemon.get(t.pokemon.size() - 1).level);
+        System.out.println("\n== 0. Evoluciones por intercambio ==");
+        Pokemon kadabra = especie(64, "Kadabra"), alakazam = especie(65, "Alakazam"), onix = especie(95, "Onix"), steelix = especie(208, "Steelix");
+        Pokemon clamperl = especie(366, "Clamperl"), huntail = especie(367, "Huntail"), gorebyss = especie(368, "Gorebyss");
+        Pokemon karrablast = especie(588, "Karrablast"), escavalier = especie(589, "Escavalier");
+        Object[][] casos = {{kadabra, alakazam, EvolutionType.TRADE, 0}, {onix, steelix, EvolutionType.TRADE_ITEM, 233},
+            {clamperl, huntail, EvolutionType.TRADE_ITEM, 226}, {clamperl, gorebyss, EvolutionType.TRADE_ITEM, 227},
+            {karrablast, escavalier, EvolutionType.TRADE_SPECIAL, 616}};
+        for (Object[] c : casos) {
+            Evolution e = new Evolution((Pokemon) c[0], (Pokemon) c[1], true, (EvolutionType) c[2], (Integer) c[3]);
+            ((Pokemon) c[0]).evolutionsFrom.add(e); ((Pokemon) c[1]).evolutionsTo.add(e);
+        }
+        MegaFases.intercambioANivel(rh);
+        comprobar(kadabra.evolutionsFrom.get(0).type == EvolutionType.LEVEL && kadabra.evolutionsFrom.get(0).extraInfo == 40, "Kadabra evoluciona al nivel 40");
+        comprobar(onix.evolutionsFrom.get(0).type == EvolutionType.LEVEL && onix.evolutionsFrom.get(0).extraInfo == 40, "Onix al nivel 40, sin objeto");
+        comprobar(karrablast.evolutionsFrom.get(0).type == EvolutionType.LEVEL, "el intercambio especial, también por nivel");
+        comprobar(clamperl.evolutionsFrom.get(0).type == EvolutionType.LEVEL_MALE_ONLY && clamperl.evolutionsFrom.get(1).type == EvolutionType.LEVEL_FEMALE_ONLY, "Clamperl: Huntail si es macho, Gorebyss si es hembra");
+        comprobar(bulba.evolutionsFrom.get(0).type == EvolutionType.LEVEL && bulba.evolutionsFrom.get(0).extraInfo == 16, "las evoluciones normales no cambian");
+
         Random azar = new Random(2026);
         System.out.println("\n== 1. Combates importantes con 6 Pokémon ==");
         MegaFases.combatesImportantes(rh, azar);

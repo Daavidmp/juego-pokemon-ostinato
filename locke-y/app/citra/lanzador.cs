@@ -32,13 +32,20 @@ static class Lanzador {
   [DllImport("user32.dll")] static extern uint GetWindowThreadProcessId(IntPtr h, out uint pid);
   [DllImport("user32.dll")] static extern int GetWindowTextLength(IntPtr h);
   [DllImport("user32.dll")] static extern bool SetProcessDPIAware();
+  [DllImport("user32.dll")] static extern IntPtr GetForegroundWindow();
+  [DllImport("user32.dll")] static extern bool SetForegroundWindow(IntPtr h);
+  [DllImport("user32.dll")] static extern bool BringWindowToTop(IntPtr h);
+  [DllImport("user32.dll")] static extern void SwitchToThisWindow(IntPtr h, bool altTab);
+  [DllImport("user32.dll")] static extern bool AttachThreadInput(uint de, uint a, bool unir);
+  [DllImport("kernel32.dll")] static extern uint GetCurrentThreadId();
   delegate bool EnumProc(IntPtr h, IntPtr p);
   [StructLayout(LayoutKind.Sequential)] struct MSG { public IntPtr hwnd; public uint message; public IntPtr wParam, lParam; public uint time; public int x, y; }
   const uint MOD_ALT = 0x1, MOD_NOREPEAT = 0x4000, WM_HOTKEY = 0x312;
   const int GWL_STYLE = -16, GWL_EXSTYLE = -20, WS_EX_TOOLWINDOW = 0x80, WS_EX_NOACTIVATE = 0x08000000;
   const int WS_CAPTION = 0x00C00000, WS_THICKFRAME = 0x00040000, WS_SYSMENU = 0x00080000, WS_MINIMIZEBOX = 0x00020000, WS_MAXIMIZEBOX = 0x00010000;
-  const uint SWP_FRAMECHANGED = 0x20, SWP_NOACTIVATE = 0x10, SWP_SHOWWINDOW = 0x40;
-  static readonly IntPtr HWND_NOTOPMOST = new IntPtr(-2);
+  const uint SWP_FRAMECHANGED = 0x20, SWP_NOACTIVATE = 0x10, SWP_SHOWWINDOW = 0x40, SWP_NOSIZE = 1, SWP_NOMOVE = 2;
+  static readonly IntPtr HWND_NOTOPMOST = new IntPtr(-2), HWND_TOPMOST = new IntPtr(-1);
+  static IntPtr principal = IntPtr.Zero;                // la ventana con la lista de juegos: siempre sale la primera
 
   static List<IntPtr> Ventanas(Func<uint, bool> delProceso, Func<IntPtr, bool> filtro) {
     var l = new List<IntPtr>();
@@ -56,13 +63,35 @@ static class Lanzador {
   [DllImport("user32.dll")] static extern bool GetWindowRect(IntPtr h, out RECT r);
   [StructLayout(LayoutKind.Sequential)] struct RECT { public int l, t, r, b; }
 
-  // la ventana donde Citra pinta el juego: con la lista de juegos abierta hay dos ventanas suyas con titulo;
-  // la del juego es la pequena (Citra la abre de unos 400x480)
+  // la ventana donde Citra pinta el juego: con la lista de juegos abierta hay dos ventanas suyas con titulo, y la
+  // del juego es la que sale despues. El tamano no vale para distinguirlas: Citra las abre con el de la ultima vez.
+  // Los avisos de Citra tambien son ventanas, pero mas bajas que el juego (480 de alto como poco)
   static IntPtr VentanaJuego(Process citra) {
     uint id = (uint)citra.Id;
     var vs = Ventanas(p => p == id, h => IsWindowVisible(h) && GetWindowTextLength(h) > 0);
-    if (vs.Count < 2) return IntPtr.Zero;
-    return vs.OrderBy(h => { RECT r; GetWindowRect(h, out r); return (long)(r.r - r.l) * (r.b - r.t); }).First();
+    if (principal == IntPtr.Zero && vs.Count == 1) principal = vs[0];
+    if (principal == IntPtr.Zero && vs.Count > 1)        // ya estaban las dos al mirar por primera vez
+      principal = vs.OrderByDescending(h => { RECT r; GetWindowRect(h, out r); return (long)(r.r - r.l) * (r.b - r.t); }).First();
+    return vs.Where(h => { RECT r; GetWindowRect(h, out r); return h != principal && r.b - r.t >= 400; }).FirstOrDefault();
+  }
+
+  // delante de todo y con el teclado, sin tener que pulsar en ella: Windows no deja que un programa de fondo se ponga
+  // delante, salvo que comparta entrada con el que esta en primer plano
+  static void Delante(IntPtr h) {
+    SetWindowPos(h, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_SHOWWINDOW);
+    SetWindowPos(h, HWND_NOTOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_SHOWWINDOW);
+    uint pid, suyo = GetWindowThreadProcessId(GetForegroundWindow(), out pid), mio = GetCurrentThreadId();
+    bool unido = suyo != 0 && suyo != mio && AttachThreadInput(mio, suyo, true);
+    BringWindowToTop(h);
+    SetForegroundWindow(h);
+    if (unido) AttachThreadInput(mio, suyo, false);
+    if (GetForegroundWindow() != h) SwitchToThisWindow(h, true);
+  }
+
+  // la ventana del juego ocupa la pantalla entera: si no (Citra la ha cambiado), las pantallas no caen en los huecos
+  static bool Colocada(IntPtr h) {
+    RECT r; GetWindowRect(h, out r);
+    return r.l == 0 && r.t == 0 && r.r == GetSystemMetrics(0) && r.b == GetSystemMetrics(1) - 1;
   }
 
   static void SinBordes(IntPtr h) {
@@ -99,8 +128,21 @@ static class Lanzador {
       return txt.TrimEnd() + "\r\n\r\n[" + grupo + "]\r\n" + nuevo;
     };
     t = poner(t, "Layout", "layout_option=0");    // el 6 de Azahar no existe aqui y no pinta nada
+    t = poner(t, "Layout", "swap_screen=false");
+    t = poner(t, "Layout", "upright_screen=false");
     t = poner(t, "UI", "singleWindowMode=false"); // el juego en su propia ventana, sin menus
     t = poner(t, "UI", "fullscreen=false");
+    // nada que pulsar la primera vez: sin la bienvenida, el aviso de telemetria ni la busqueda de actualizaciones, y
+    // el juego sigue aunque su ventana no tenga el foco
+    t = poner(t, "UI", "firstStart=false");
+    t = poner(t, "UI", "calloutFlags=1");
+    t = poner(t, "UI", "pauseWhenInBackground=false");
+    t = poner(t, "UI", @"Updater\check_for_update_on_start=false");
+    // las teclas de Citra que descolocan las pantallas (F8 y F7 son ademas las de las vidas de Pokelocke)
+    foreach (var atajo in new[] { "Rotate%20Screens%20Upright", "Swap%20Screens", "Toggle%20Screen%20Layout", "Fullscreen", "Exit%20Fullscreen", "Toggle%20Custom%20Textures" })
+      t = poner(t, "UI", @"Shortcuts\Main%20Window\" + atajo + @"\KeySeq=");
+    // sin el tamano de la ultima vez: con la ventana del juego recordada, Citra podia abrirla ya grande
+    t = Regex.Replace(t, @"(?m)^UILayout\\geometry(RenderWindow)?(\\default)?=[^\r\n]*\r?\n", "");
     // los huecos del layout: Pokelocke los escribe como Azahar (x, y, ancho, alto) y este Citra los lee como
     // bordes (izquierda, arriba, derecha, abajo) y solo si custom_layout esta activado
     Func<string, int?> leer = k => { var m = Regex.Match(t, "(?m)^" + Regex.Escape(k) + @"=(-?\d+)"); return m.Success ? int.Parse(m.Groups[1].Value) : (int?)null; };
@@ -123,7 +165,7 @@ static class Lanzador {
     var resto = args.Where(a => a != "-f").Select(a => "\"" + a + "\"");
     var citra = Process.Start(new ProcessStartInfo(Path.Combine(aqui, "citra-qt.exe"), string.Join(" ", resto)) { UseShellExecute = false, WorkingDirectory = aqui });
     bool atajo = RegisterHotKey(IntPtr.Zero, 1, MOD_ALT | MOD_NOREPEAT, (uint)'Q');
-    bool ventana = false; IntPtr juego = IntPtr.Zero; int vista = 0;
+    bool ventana = false; IntPtr juego = IntPtr.Zero; int vista = 0, colocado = 0, vuelta = 0;
     while (!citra.WaitForExit(100)) {
       // espera a que salga la ventana del juego y a que Citra acabe de arrancar en ella: cambiarle el estilo
       // y el tamano mientras crea el contexto de OpenGL lo tira (0xc0000005 en citra-qt.exe+0x165ae7)
@@ -131,13 +173,21 @@ static class Lanzador {
         IntPtr v = VentanaJuego(citra);
         if (v == IntPtr.Zero) vista = 0;
         else if (vista == 0) vista = Environment.TickCount;
-        else if (Environment.TickCount - vista > 6000) { juego = v; SinBordes(juego); }
+        else if (Environment.TickCount - vista > 6000) { juego = v; SinBordes(juego); colocado = Environment.TickCount; }
       }
+      // al colocarla se trae delante hasta que Windows la deje ahi; despues ya no, para no pelear con quien cambie de ventana
+      if (colocado != 0) {
+        bool delante = GetForegroundWindow() == juego;
+        int lleva = Environment.TickCount - colocado;
+        if (lleva > 10000 || (delante && lleva > 3000)) colocado = 0;
+        else if (!delante) Delante(juego);
+      }
+      if (juego != IntPtr.Zero && !ventana && ++vuelta % 10 == 0 && !Colocada(juego)) SinBordes(juego);
       MSG m;
       while (PeekMessage(out m, IntPtr.Zero, 0, 0, 1)) {
         if (m.message != WM_HOTKEY || juego == IntPtr.Zero) continue;
         ventana = !ventana;
-        if (ventana) { Capa(false); EnVentana(juego); } else { SinBordes(juego); Capa(true); }
+        if (ventana) { Capa(false); EnVentana(juego); } else { SinBordes(juego); Capa(true); colocado = Environment.TickCount; }
       }
       if (ventana) Capa(false);                         // la capa se vuelve a poner delante sola cada segundo
     }

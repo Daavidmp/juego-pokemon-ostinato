@@ -3,6 +3,7 @@ import base64
 import ctypes
 import json
 import os
+import shutil
 import socket
 import subprocess
 import time
@@ -30,6 +31,29 @@ def huella_capa():
                       sort_keys=True)
 
 
+CARPETA_EDGE = comun.TOOLS / 'capa-edge'
+
+
+def perfil_edge():
+    """El perfil del navegador de la capa, uno por cada Pokelocke abierto. Con uno fijo, un Edge que se quedara vivo
+    (Pokelocke cerrado de golpe, o cerrado por el instalador al actualizar) lo tenía cogido: los nuevos le pasaban el
+    trabajo y salían sin abrir nada, y la capa se quedaba para siempre con la última foto. Lo que dejó el Pokelocke
+    anterior se recoge aquí."""
+    CARPETA_EDGE.mkdir(parents=True, exist_ok=True)
+    marca = CARPETA_EDGE / 'edge.pid'
+    try:
+        subprocess.run(['taskkill', '/F', '/T', '/FI', 'IMAGENAME eq msedge.exe', '/PID', marca.read_text().strip()],
+                       stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, creationflags=0x08000000)
+    except OSError:
+        pass
+    marca.unlink(missing_ok=True)
+    mio = CARPETA_EDGE / str(os.getpid())
+    for viejo in CARPETA_EDGE.iterdir():
+        if viejo != mio:
+            shutil.rmtree(viejo, ignore_errors=True)
+    return mio
+
+
 class Fotografo:
     """Un Edge (o Chrome) sin ventana que se queda abierto mientras se juega: cada foto de la capa es recargar la
     página y capturarla por su protocolo de depuración, unas décimas de segundo. Antes se lanzaba un navegador nuevo
@@ -52,9 +76,10 @@ class Fotografo:
             puerto = so.getsockname()[1]
         self.n, self.ids, self.escala = 0, 0, escala
         self.proc = subprocess.Popen([nav, '--headless=new', '--disable-gpu', '--hide-scrollbars', '--mute-audio',
-                                      f'--user-data-dir={comun.TOOLS / "edge-capa"}', f'--remote-debugging-port={puerto}',
+                                      f'--user-data-dir={perfil_edge()}', f'--remote-debugging-port={puerto}',
                                       'about:blank'], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
                                      creationflags=0x08000000 if os.name == 'nt' else 0)
+        (CARPETA_EDGE / 'edge.pid').write_text(str(self.proc.pid))
         limite = time.time() + 30
         while True:
             try:
@@ -156,7 +181,7 @@ def renderizar_capa():
         # msedge.exe que se lanza le pasa el trabajo a un hijo y sale enseguida: hay que esperar a que la captura
         # aparezca y deje de crecer, con un límite
         subprocess.run([nav, '--headless=new', '--disable-gpu', '--hide-scrollbars',
-                        f'--user-data-dir={comun.TOOLS / "edge-capa"}', f'--force-device-scale-factor={s}',
+                        f'--user-data-dir={perfil_edge()}', f'--force-device-scale-factor={s}',
                         f'--window-size={round(1920 * s)},{round(1080 * s)}', '--virtual-time-budget=4000',
                         f'--screenshot={tmp}', f'{comun.URL}/overlay?capa=1'],
                        stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, creationflags=0x08000000, timeout=60)

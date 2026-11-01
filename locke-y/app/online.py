@@ -129,6 +129,12 @@ def duckdns(dominio, token):
 
 # ---------- el servidor (solo en el PC del anfitrión) ----------
 
+def huella_evento(anterior, e):
+    """La huella de un evento, encadenada con la del anterior: cambiar o quitar uno descuadra los siguientes."""
+    cuerpo = {k: e[k] for k in ('n', 't', 'tipo', 'nivel', 'texto')}
+    return hashlib.sha256((anterior + json.dumps(cuerpo, sort_keys=True, ensure_ascii=False)).encode()).hexdigest()
+
+
 class SinSesion(PermissionError):
     """El token no vale (servidor reiniciado o sesión cerrada): hay que volver a entrar."""
 
@@ -238,6 +244,8 @@ class Servidor:
         self.citra_room = citra_room
         self.sala = None
         self.http = None
+        self.eventos = {}                # usuario -> {'hasta': último evento recibido, 'h': su huella}
+        self.lock_eventos = threading.Lock()
 
     # --- cuentas ---
     def _guardar(self):
@@ -295,20 +303,82 @@ class Servidor:
         return u
 
     # --- presencia y encargos ---
-    def latido(self, token, estado):
+    def latido(self, token, estado, eventos=None, total=None):
         u = self._usuario(token)
         ahora = time.time()
+        hasta = self.recibir_eventos(u, eventos, total)
         with self.lock:
             self.vistos[u] = (ahora, estado or {})
             tareas, self.tareas[u] = self.tareas.get(u, []), []
             conectados = [{'usuario': k, 'admin': self.usuarios.get(k, {}).get('admin', False), **v[1]}
                           for k, v in sorted(self.vistos.items()) if ahora - v[0] < CONECTADO]
-        return {'conectados': conectados, 'tareas': tareas}
+        return {'conectados': conectados, 'tareas': tareas, 'eventos_hasta': hasta}
 
     def salir(self, token):
         with self.lock:
             u = self.sesiones.pop(token or '', None)
             self.vistos.pop(u, None)
+
+    # --- la actividad de cada jugador (ver vigia.py): lo que llega aquí ya no se puede borrar desde su PC ---
+    def _f_eventos(self, u):
+        return self.carpeta / 'eventos' / f'{u}.jsonl'
+
+    def _leer_eventos(self, u):
+        try:
+            with open(self._f_eventos(u), encoding='utf-8') as f:
+                return [json.loads(l) for l in f if l.strip()]
+        except (OSError, ValueError):
+            return []
+
+    def recibir_eventos(self, u, eventos, total):
+        """Apunta los eventos nuevos de un jugador y dice hasta cuál tiene. Si su archivo no cuadra con lo recibido, lo
+        apunta también: es lo que delata que lo ha borrado o cambiado."""
+        ahora = time.strftime('%Y-%m-%d %H:%M:%S')
+        with self.lock_eventos:
+            s = self.eventos.get(u)
+            if s is None:
+                previos = [e for e in self._leer_eventos(u) if e.get('n')]
+                s = self.eventos[u] = {'hasta': previos[-1]['n'] if previos else 0, 'h': previos[-1]['h'] if previos else ''}
+            nuevos = []
+
+            def aviso(texto):
+                nuevos.append({'t': ahora, 'tipo': 'servidor', 'nivel': 'sospecha', 'texto': texto})
+
+            if isinstance(total, int) and total < s['hasta']:
+                aviso(f'Su registro ha vuelto atrás: el servidor tenía {s["hasta"]} eventos y su PC dice {total}. Lo ha borrado o ha cambiado de PC')
+                s.update(hasta=total, h='')
+            for e in (eventos if isinstance(eventos, list) else [])[:100]:
+                if not isinstance(e, dict) or not isinstance(e.get('n'), int) or not all(isinstance(e.get(k), str) for k in ('t', 'tipo', 'nivel', 'texto', 'h')):
+                    continue
+                if e['n'] <= s['hasta']:
+                    continue
+                if e['n'] > s['hasta'] + 1:
+                    aviso(f'Faltan los eventos {s["hasta"] + 1} a {e["n"] - 1}: los ha quitado de su registro')
+                elif huella_evento(s['h'], e) != e['h']:
+                    aviso(f'El evento {e["n"]} no cuadra con el anterior: su registro está modificado')
+                s.update(hasta=e['n'], h=e['h'])
+                nuevos.append({k: e[k] for k in ('n', 't', 'tipo', 'nivel', 'h')} | {'texto': e['texto'][:300], 'llego': ahora})
+            if nuevos:
+                self._f_eventos(u).parent.mkdir(parents=True, exist_ok=True)
+                with open(self._f_eventos(u), 'a', encoding='utf-8') as f:
+                    f.writelines(json.dumps(e, ensure_ascii=False) + '\n' for e in nuevos)
+            return s['hasta']
+
+    def actividad(self, token, objetivo):
+        """Para el administrador: los eventos de un jugador, o sin jugador, el resumen de todos."""
+        u = self._usuario(token)
+        if not self.usuarios.get(u, {}).get('admin'):
+            raise PermissionError('Solo el administrador puede ver la actividad de los jugadores')
+        if objetivo:
+            if objetivo not in self.usuarios:
+                raise ValueError('Ese jugador no existe')
+            return {'usuario': objetivo, 'eventos': self._leer_eventos(objetivo)[-3000:]}
+        resumen = []
+        for nombre in sorted(self.usuarios, key=str.lower):
+            ev = self._leer_eventos(nombre)
+            resumen.append({'usuario': nombre, 'eventos': len(ev), 'sospechas': sum(e['nivel'] == 'sospecha' for e in ev),
+                            'avisos': sum(e['nivel'] == 'aviso' for e in ev), 'ultimo': ev[-1]['t'] if ev else None})
+        return {'jugadores': resumen}
 
     def pokehex(self, token, objetivo, que, datos):
         u = self._usuario(token)
@@ -480,7 +550,7 @@ class Servidor:
                     elif ruta == '/entrar':
                         r = srv.entrar(d.get('usuario'), d.get('clave'), ip)
                     elif ruta == '/latido':
-                        r = srv.latido(d.get('token'), d.get('estado'))
+                        r = srv.latido(d.get('token'), d.get('estado'), d.get('eventos'), d.get('total'))
                     elif ruta == '/salir':
                         r = srv.salir(d.get('token')) or {'ok': True}
                     elif ruta == '/resultado':
@@ -491,6 +561,8 @@ class Servidor:
                         r = srv.editar_torneo(d.get('token'), d.get('que'), d)
                     elif ruta == '/foto':
                         r = srv.poner_foto(d.get('token'), d.get('imagen'))
+                    elif ruta == '/actividad':
+                        r = srv.actividad(d.get('token'), d.get('usuario'))
                     elif ruta == '/log':
                         r = srv.pedir_log(d.get('token'), d.get('usuario'))
                     elif ruta == '/pokehex':

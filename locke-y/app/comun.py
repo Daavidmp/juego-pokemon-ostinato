@@ -117,7 +117,7 @@ def encaje():
 
 
 def tarea(mensaje, error=False, fin=False, paso=None, pct=None):
-    """paso: 1 herramientas, 2 randomización, 3 abrir el juego (la pantalla de progreso los muestra)."""
+    """paso: 1 herramientas, 2 randomización, 3 acabado (la pantalla de progreso los muestra)."""
     anterior = vivo['tarea'] or {}
     vivo['tarea'] = {'mensaje': mensaje, 'error': error, 'fin': fin, 'pct': pct,
                      'paso': paso or anterior.get('paso'), 'random': anterior.get('random', False),
