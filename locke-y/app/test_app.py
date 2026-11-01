@@ -183,6 +183,45 @@ o.resultado(amigo, tareas[0]['id'], {'version': 'x', 'registros': {'pokelocke.lo
 hilo.join(5)
 ver(respuesta.get('r', {}).get('registros', {}).get('pokelocke.log') == 'Traceback…', 'y su respuesta le llega al administrador')
 
+# ---------- cambiar el nombre y la contraseña ----------
+print('Cuenta')
+o.registros.clear()
+o.registrar('Paco', 'clave3', '4.4.4.4')
+paco = o.entrar('Paco', 'clave3', '4.4.4.4')['token']
+o._torneo_f().write_text(json.dumps({'jugadores': ['Paco', 'Amigo'], 'partidos': [{'ab': ['Paco', None], 'nombre': 'Paco y Pacos'}]}))
+o.recibir_eventos('Paco', [], 0)
+def rechaza(f, *a):
+    try:
+        f(*a)
+        return None
+    except ValueError as e:
+        return str(e)
+ver(rechaza(o.cambiar_nombre, paco, 'Pacote', 'mala', '4.4.4.4') == 'La contraseña no es correcta', 'cambiar el nombre pide la contraseña')
+ver(rechaza(o.cambiar_nombre, paco, 'Amigo', 'clave3', '4.4.4.4') == 'Ese usuario ya existe', 'no se puede coger un nombre ocupado')
+ver(rechaza(o.cambiar_nombre, paco, 'amigo', 'clave3', '4.4.4.4') == 'Ese usuario ya existe', 'tampoco cambiando mayúsculas')
+ver(rechaza(o.cambiar_nombre, paco, 'daavidmp', 'clave3', '4.4.4.4') == 'Ese nombre está reservado', 'ni el del administrador')
+ver(rechaza(o.cambiar_nombre, paco, 'Pa', 'clave3', '4.4.4.4') is not None, 'ni uno demasiado corto')
+ver(rechaza(o.cambiar_nombre, admin, 'Jefe1', 'clave1', '1.1.1.1') is not None, 'el administrador no puede cambiar el suyo')
+o.fallos.clear()
+ver(o.cambiar_nombre(paco, 'Pacote', 'clave3', '4.4.4.4') == {'usuario': 'Pacote'}, 'cambia el nombre')
+ver(o.sesiones[paco] == 'Pacote', 'la sesión abierta sigue valiendo')
+ver('Paco' not in o.usuarios and rechaza(o.entrar, 'Paco', 'clave3', '4.4.4.4') is not None, 'el nombre viejo ya no entra')
+ver(o.entrar('Pacote', 'clave3', '4.4.4.4')['usuario'] == 'Pacote', 'el nuevo entra con su contraseña')
+t = json.loads(o._torneo_f().read_text(encoding='utf-8'))
+ver(t['jugadores'][0] == 'Pacote' and t['partidos'][0]['ab'][0] == 'Pacote' and t['partidos'][0]['nombre'] == 'Paco y Pacos', 'el torneo cambia solo su nombre')
+ver(any('de Paco a Pacote' in x['texto'] for x in o.actividad(admin, 'Pacote')['eventos']), 'el cambio queda en su actividad')
+o._torneo_f().unlink()
+otra = o.entrar('Pacote', 'clave3', '4.4.4.4')['token']
+ver(rechaza(o.cambiar_clave, paco, 'mala', 'nueva1', '4.4.4.4') == 'La contraseña no es correcta', 'cambiar la contraseña pide la actual')
+ver(rechaza(o.cambiar_clave, paco, 'clave3', 'abc', '4.4.4.4') is not None, 'la nueva no puede ser demasiado corta')
+o.fallos.clear()
+ver(o.cambiar_clave(paco, 'clave3', 'nueva1', '4.4.4.4') == {'ok': True}, 'cambia la contraseña')
+ver(rechaza(o.entrar, 'Pacote', 'clave3', '4.4.4.4') is not None and o.entrar('Pacote', 'nueva1', '4.4.4.4'), 'la vieja deja de valer y la nueva vale')
+ver(otra not in o.sesiones and paco in o.sesiones, 'sus otras sesiones se cierran')
+o.fallos.clear()
+o.registros.clear()
+del o.usuarios['Pacote']
+
 # ---------- actividad de los jugadores: lo que llega al servidor no se puede borrar desde el PC ---------
 print('Actividad')
 import vigia

@@ -308,6 +308,26 @@ def online_accion(que, d):
         if 'error' in r:
             raise RuntimeError(r['error'])
         return r
+    if que in ('cuenta_nombre', 'cuenta_clave'):
+        if not comun.red['sesion']:
+            raise RuntimeError('Entra con tu usuario')
+        ruta = '/cuenta/nombre' if que == 'cuenta_nombre' else '/cuenta/clave'
+        try:
+            r = online.peticion(direccion, ruta, {**d, 'token': comun.red['sesion']['token']})
+        except OSError as e:
+            raise RuntimeError(f'No se puede conectar con el servidor ({online_motivo(e)})')
+        if 'error' in r:
+            raise RuntimeError(r['error'])
+        if que == 'cuenta_nombre':
+            viejo = comun.red['sesion']['usuario']
+            comun.red['sesion']['usuario'] = r['usuario']
+            online_guardar_sesion()
+            with comun.lock:                     # el contrato firmado sigue siendo suyo
+                firma = comun.biblio.get('firma')
+                if firma and firma.get('nombre') == viejo:
+                    firma['nombre'] = r['usuario']
+                    comun.guardar()
+        return online_estado()
     if que == 'actividad':                   # lo que ha hecho cada jugador, aunque no esté conectado (solo el administrador)
         if not comun.red['sesion']:
             raise RuntimeError('Entra con tu usuario')

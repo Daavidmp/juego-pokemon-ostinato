@@ -221,6 +221,16 @@ Se partió con un script (ast + symtable) y se comprobó con pyflakes (también 
 servidor arrancado de verdad. Las referencias entre módulos van como modulo.nombre: para cambiar algo en una
 prueba se parchea en el módulo donde vive (emulador.jugando, comun.DATOS…).
 
+4f. CUENTA Y OBJETOS (01/11/2026)
+---------------------------------
+- Conectados: «Cambiar nombre» y «Cambiar contraseña» (online.cambiar_nombre/cambiar_clave). Piden la contraseña actual,
+  con el límite de intentos de entrar. El nombre cambia también en sesiones, torneo y actividad, y se apunta como aviso.
+  El administrador no cambia su nombre (va ligado a online.json). Cambiar la contraseña cierra sus otras sesiones.
+- Mega: los Pokémon de todos los entrenadores llevan objetos aleatorios (randomizeHeldItemsFor...TrainerPokemon).
+- PENDIENTE, decisión de David: los regalos de NPC y entrenadores NO se randomizan. El UPR solo cambia suelo, ocultos y
+  megapiedras; los regalos están en los guiones de zona, que no se encontraron en una búsqueda por GARC. Tocarlos a
+  ciegas puede quitar un objeto de la historia y bloquear la partida.
+
 4e. ACTIVIDAD DE LOS JUGADORES (01/11/2026, app/vigia.py)
 ---------------------------------------------------------
 Cada evento va a datos/eventos.jsonl, numerado y encadenado con su huella, y con los latidos al servidor
@@ -256,7 +266,7 @@ jugador no esté conectado. Niveles: info, aviso, sospecha. Una sospecha no es u
   y solo relee si cambia el archivo. PENDIENTE: leer Alto Mando y Campeona de la partida (ahora no avanzan).
 - Música: assets/musica.mp3 (Suno, «Journey of Discovery») con botón de volumen/silencio en la cabecera; se para al
   jugar. Edge se abre con --autoplay-policy=no-user-gesture-required.
-- «Versión 1.0.1» es solo el texto del pie (app.html); las actualizaciones siguen comparando el número por fecha de empaquetar.py.
+- «Versión 1.0.5» es solo el texto del pie (app.html); las actualizaciones siguen comparando el número por fecha de empaquetar.py.
 
 
 5. IMÁGENES DE ARCE  (../CREDITOS/firefly/)

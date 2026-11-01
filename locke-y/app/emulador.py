@@ -130,7 +130,13 @@ def perfil_firefox(nombre, prefs, css=''):
 
 
 def azahar_exe():
-    return next((comun.TOOLS / 'azahar').rglob('azahar.exe'), None) if (comun.TOOLS / 'azahar').exists() else None
+    """El lanzador de Citra 1920. Un Pokelocke antiguo pudo descargar un Azahar de verdad en tools/azahar: las
+    actualizaciones no lo borran y ese rechaza nuestra ROM («las aplicaciones cifradas no son compatibles»)."""
+    raiz = comun.TOOLS / 'azahar'
+    if not raiz.exists():
+        return None
+    citra = raiz / 'citra-1920' / 'azahar.exe'
+    return citra if citra.exists() else next(raiz.rglob('azahar.exe'), None)
 
 
 def upr_jar():

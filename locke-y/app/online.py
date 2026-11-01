@@ -129,6 +129,15 @@ def duckdns(dominio, token):
 
 # ---------- el servidor (solo en el PC del anfitrión) ----------
 
+def _renombrar(valor, viejo, nuevo):
+    """El mismo dato (el torneo) con un jugador renombrado, solo donde el texto es exactamente su nombre."""
+    if isinstance(valor, dict):
+        return {k: _renombrar(v, viejo, nuevo) for k, v in valor.items()}
+    if isinstance(valor, list):
+        return [_renombrar(v, viejo, nuevo) for v in valor]
+    return nuevo if valor == viejo else valor
+
+
 def huella_evento(anterior, e):
     """La huella de un evento, encadenada con la del anterior: cambiar o quitar uno descuadra los siguientes."""
     cuerpo = {k: e[k] for k in ('n', 't', 'tipo', 'nivel', 'texto')}
@@ -255,12 +264,20 @@ class Servidor:
 
     MAX_CUENTAS, ESPERA_REGISTRO = 64, 60
 
-    def registrar(self, usuario, clave, ip='', anfitrion=''):
-        # el usuario es también el apodo de la sala de Citra, que no deja entrar con menos de 4
-        if not re.fullmatch(r'[A-Za-z0-9_]{4,16}', usuario or ''):
+    @staticmethod
+    def _nombre_valido(usuario):
+        if not isinstance(usuario, str) or not re.fullmatch(r'[A-Za-z0-9_]{4,16}', usuario):
             raise ValueError('El usuario tiene que tener de 4 a 16 letras, números o _')
+
+    @staticmethod
+    def _clave_valida(clave):
         if not isinstance(clave, str) or not 4 <= len(clave) <= 128:
             raise ValueError('La contraseña tiene que tener de 4 a 128 caracteres')
+
+    def registrar(self, usuario, clave, ip='', anfitrion=''):
+        # el usuario es también el apodo de la sala de Citra, que no deja entrar con menos de 4
+        self._nombre_valido(usuario)
+        self._clave_valida(clave)
         anfitrion = hmac.compare_digest(str(anfitrion or ''), self.clave_anfitrion)
         admin = bool(self.admin) and usuario.lower() == self.admin
         if admin and not anfitrion:
@@ -295,6 +312,66 @@ class Servidor:
             self.sesiones[token] = u['nombre']
         return {'token': token, 'usuario': u['nombre'], 'admin': u['admin'],
                 'sala': {'puerto': PUERTO_SALA, 'clave': self.clave_sala, 'activa': self.sala_viva()}}
+
+    def _comprobar_clave(self, u, clave, ip):
+        """Cambiar algo de la cuenta pide la contraseña, con el mismo límite de intentos que entrar."""
+        ahora = time.time()
+        with self.lock:
+            intentos = [t for t in self.fallos.get(ip, []) if ahora - t < 60]
+            self.fallos[ip] = intentos
+            if len(intentos) >= 8:
+                raise ValueError('Demasiados intentos: espera un minuto')
+            c = self.usuarios[u]
+            if not isinstance(clave, str) or not hmac.compare_digest(c['hash'], _hash(clave, c['sal'])):
+                self.fallos[ip].append(ahora)
+                raise ValueError('La contraseña no es correcta')
+
+    def cambiar_clave(self, token, actual, nueva, ip):
+        u = self._usuario(token)
+        self._clave_valida(nueva)
+        self._comprobar_clave(u, actual, ip)
+        sal = secrets.token_hex(16)
+        with self.lock:
+            self.usuarios[u].update(sal=sal, hash=_hash(nueva, sal))
+            self._guardar()
+            # las otras sesiones de esa cuenta se cierran: si alguien la usaba, deja de poder
+            self.sesiones = {t: n for t, n in self.sesiones.items() if n != u or t == token}
+        return {'ok': True}
+
+    def cambiar_nombre(self, token, nuevo, clave, ip):
+        u = self._usuario(token)
+        if self.usuarios[u].get('admin'):
+            raise ValueError('El nombre del administrador no se puede cambiar')
+        self._nombre_valido(nuevo)
+        if nuevo == u:
+            raise ValueError('Ya te llamas así')
+        if self.admin and nuevo.lower() == self.admin:
+            raise ValueError('Ese nombre está reservado')
+        self._comprobar_clave(u, clave, ip)
+        with self.lock:
+            if any(k.lower() == nuevo.lower() and k != u for k in self.usuarios):
+                raise ValueError('Ese usuario ya existe')
+            self.usuarios = {(nuevo if k == u else k): v for k, v in self.usuarios.items()}
+            self._guardar()
+            self.sesiones = {t: (nuevo if n == u else n) for t, n in self.sesiones.items()}
+            if u in self.vistos:
+                self.vistos[nuevo] = self.vistos.pop(u)
+            if u in self.tareas:
+                self.tareas[nuevo] = self.tareas.pop(u)
+            f = self._torneo_f()
+            if f.exists():
+                f.write_text(json.dumps(_renombrar(json.loads(f.read_text(encoding='utf-8')), u, nuevo), ensure_ascii=False, indent=1),
+                             encoding='utf-8')
+        with self.lock_eventos:                # su actividad sigue con él, y queda apuntado el cambio
+            if self._f_eventos(u).exists():
+                self._f_eventos(u).replace(self._f_eventos(nuevo))
+            if u in self.eventos:
+                self.eventos[nuevo] = self.eventos.pop(u)
+            self._f_eventos(nuevo).parent.mkdir(parents=True, exist_ok=True)
+            with open(self._f_eventos(nuevo), 'a', encoding='utf-8') as a:
+                a.write(json.dumps({'t': time.strftime('%Y-%m-%d %H:%M:%S'), 'tipo': 'servidor', 'nivel': 'aviso',
+                                    'texto': f'Cambia su nombre: de {u} a {nuevo}'}, ensure_ascii=False) + '\n')
+        return {'usuario': nuevo}
 
     def _usuario(self, token):
         u = self.sesiones.get(token or '')
@@ -561,6 +638,10 @@ class Servidor:
                         r = srv.editar_torneo(d.get('token'), d.get('que'), d)
                     elif ruta == '/foto':
                         r = srv.poner_foto(d.get('token'), d.get('imagen'))
+                    elif ruta == '/cuenta/nombre':
+                        r = srv.cambiar_nombre(d.get('token'), d.get('nuevo'), d.get('clave'), ip)
+                    elif ruta == '/cuenta/clave':
+                        r = srv.cambiar_clave(d.get('token'), d.get('clave'), d.get('nueva'), ip)
                     elif ruta == '/actividad':
                         r = srv.actividad(d.get('token'), d.get('usuario'))
                     elif ruta == '/log':

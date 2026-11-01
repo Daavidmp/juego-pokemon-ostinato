@@ -70,8 +70,6 @@
   .tablero { position: absolute; inset: 0; background: #BFE7F2; overflow: hidden; }
   .tb-escena { position: absolute; left: 50%; top: 50%; width: max(100vw, 179.17vh); aspect-ratio: 1376 / 768; transform: translate(-50%, -50%); container-type: inline-size; }
   .tb-isla { position: absolute; inset: 0; width: 100%; height: 100%; }
-  .tb-agua { position: absolute; left: 28.8%; top: 69%; width: 3.2%; height: 31%; background: repeating-linear-gradient(180deg, rgba(255,255,255,0) 0 14px, rgba(255,255,255,.55) 14px 18px, rgba(255,255,255,0) 18px 34px); mix-blend-mode: screen; opacity: .6; animation: cascada 1.2s linear infinite; border-radius: 40%; }
-  @keyframes cascada { to { background-position: 0 34px; } }
   .tb-camino { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
   .tb-camino polyline { fill: none; stroke-linecap: round; stroke-linejoin: round; }
   .tb-camino .base { stroke: #E0A800; stroke-width: 15; filter: drop-shadow(0 0 6px rgba(255,203,5,.7)); }
@@ -455,7 +453,6 @@
   <div class="tablero oculto" id="tablero">
     <div class="tb-escena">
       <img class="tb-isla" src="/assets/tablero-isla.jpg" alt="">
-      <div class="tb-agua" aria-hidden="true"></div>
       <!-- las aspas y las banderas no están en la imagen: van aquí, en px de la imagen, para que se muevan -->
       <svg class="tb-camino" id="tb-vida" viewBox="0 0 1376 768" preserveAspectRatio="none" aria-hidden="true">
         <defs><g id="tb-aspa"><rect x="28" y="-36" width="72" height="31" rx="3" fill="#D9B48A"/><rect x="28" y="-33" width="72" height="29" rx="3" fill="#EFD3AE"/><rect x="-4" y="-4" width="106" height="8" rx="3" fill="#9A6A42"/></g></defs>
@@ -474,7 +471,7 @@
     <section class="tb-hud tb-carta tb-objetivo" id="tb-objetivo" aria-label="Siguiente objetivo"></section>
     <section class="tb-hud tb-carta tb-marcador" id="tb-marcador" aria-label="Vidas y medallas"></section>
     <div class="tb-hud tb-abajo"><div class="tb-equipo" id="tb-equipo" aria-label="Tu equipo"></div><div class="tb-carta tb-jugar" id="tb-jugar"></div></div>
-    <span class="tb-hud tb-credito">Creado por David Martínez Palacios · Versión 1.0.1</span>
+    <span class="tb-hud tb-credito">Creado por David Martínez Palacios · Versión 1.0.5</span>
   </div>
 
   <footer>
@@ -748,6 +745,23 @@
 </div>
 
 <!-- ============ BORRAR PARTIDA GUARDADA ============ -->
+<div class="modal-fondo oculto" id="cuenta-fondo">
+  <form class="modal" id="cuenta-form" role="dialog" aria-modal="true" aria-labelledby="ct-titulo" style="width: min(420px, 100%); display: flex; flex-direction: column; gap: 12px;">
+    <h1 id="ct-titulo" style="margin: 0; font-size: 24px;"></h1>
+    <label class="campo oculto" id="ct-nombre-caja">Nombre nuevo<input id="ct-nombre" maxlength="16" autocomplete="username"></label>
+    <span class="suave oculto" id="ct-nombre-nota" style="font-size: 13px;">De 4 a 16 letras, números o _.</span>
+    <label class="campo">Tu contraseña actual<input id="ct-clave" type="password" autocomplete="current-password" required></label>
+    <label class="campo oculto" id="ct-nueva-caja">Contraseña nueva<input id="ct-nueva" type="password" autocomplete="new-password" maxlength="128"></label>
+    <label class="campo oculto" id="ct-repite-caja">Repítela<input id="ct-repite" type="password" autocomplete="new-password" maxlength="128"></label>
+    <p class="error oculto" id="ct-error" role="alert" style="margin: 0;"></p>
+    <p class="suave oculto" id="ct-bien" role="status" style="margin: 0;"></p>
+    <div style="display: flex; justify-content: flex-end; gap: 8px;">
+      <button class="btn btn-neutro" type="button" id="ct-cerrar">Cerrar</button>
+      <button class="btn btn-rojo" type="submit" id="ct-guardar">Guardar</button>
+    </div>
+  </form>
+</div>
+
 <div class="modal-fondo oculto" id="log-fondo">
   <section class="modal registro" role="dialog" aria-modal="true" aria-labelledby="lg-titulo">
     <div class="notas-cabecera">
@@ -928,7 +942,8 @@ const MODOS = {
       startersMod: 'RANDOM_WITH_TWO_EVOLUTIONS', staticPokemonMod: 'COMPLETELY_RANDOM',
       trainersMod: 'RANDOM', trainersUsePokemonOfSimilarStrength: 'false', trainersLevelModified: 'true', trainersLevelModifier: '15',
       typesMod: 'UNCHANGED', abilitiesMod: 'RANDOMIZE', baseStatisticsMod: 'UNCHANGED', evolutionsMod: 'UNCHANGED',
-      movesetsMod: 'COMPLETELY_RANDOM', fieldItemsMod: 'RANDOM', inGameTradesMod: 'RANDOMIZE_GIVEN', useMinimumCatchRate: 'false'},
+      movesetsMod: 'COMPLETELY_RANDOM', fieldItemsMod: 'RANDOM', inGameTradesMod: 'RANDOMIZE_GIVEN', useMinimumCatchRate: 'false',
+      randomizeHeldItemsForBossTrainerPokemon: 'true', randomizeHeldItemsForImportantTrainerPokemon: 'true', randomizeHeldItemsForRegularTrainerPokemon: 'true'},
   },
   original: {resumen: ['Se juega la versión original, sin cambios']},
   personalizado: {resumen: ['Elige cada opción aquí debajo']},
@@ -1226,9 +1241,13 @@ function pintarOnline(o) {
       ${o.servidor ? `<p class="suave" style="font-size: 13px;">Eres el servidor${o.ip ? ` · ${esc(o.ip)}` : ''}${o.upnp === false ? ' · el router no ha abierto los puertos' : ''}</p>` : ''}
       ${s.admin ? '<button class="btn btn-neutro" type="button" id="o-actividad">Actividad de los jugadores</button>' : ''}
       <button class="btn btn-neutro" type="button" id="o-foto">Cambiar foto de perfil</button>
+      ${s.admin ? '' : '<button class="btn btn-neutro" type="button" id="o-nombre">Cambiar nombre</button>'}
+      <button class="btn btn-neutro" type="button" id="o-clave">Cambiar contraseña</button>
       <button class="btn btn-neutro" type="button" id="o-salir">Cerrar sesión</button>`;
     $('o-salir').onclick = async () => { panelAbierto = false; await api('/api/online/salir'); };
     $('o-foto').onclick = () => $('foto-archivo').click();
+    if (!s.admin) $('o-nombre').onclick = () => abrirCuenta('nombre');
+    $('o-clave').onclick = () => abrirCuenta('clave');
     if (s.admin) $('o-actividad').onclick = () => { panelAbierto = false; abrirActividad(); };
   }
 }
@@ -1684,6 +1703,41 @@ $('o-panel').onclick = (ev) => {
   const b = ev.target.closest('[data-remoto]'), l = ev.target.closest('[data-log]');
   if (b) { panelAbierto = false; abrirHex(null, b.dataset.remoto); }
   if (l) { panelAbierto = false; abrirRegistro(l.dataset.log); }
+};
+
+// ---------- cambiar el nombre o la contraseña de tu cuenta ----------
+let cuentaQue = 'nombre';
+function abrirCuenta(que) {
+  cuentaQue = que;
+  panelAbierto = false;
+  const nombre = que === 'nombre';
+  $('ct-titulo').textContent = nombre ? 'Cambiar nombre' : 'Cambiar contraseña';
+  ['ct-nombre-caja', 'ct-nombre-nota'].forEach((id) => $(id).classList.toggle('oculto', !nombre));
+  ['ct-nueva-caja', 'ct-repite-caja'].forEach((id) => $(id).classList.toggle('oculto', nombre));
+  $('ct-nombre').required = nombre;
+  $('ct-nueva').required = $('ct-repite').required = !nombre;
+  ['ct-nombre', 'ct-clave', 'ct-nueva', 'ct-repite'].forEach((id) => { $(id).value = ''; });
+  ['ct-error', 'ct-bien'].forEach((id) => $(id).classList.add('oculto'));
+  $('ct-guardar').disabled = false;
+  $('cuenta-fondo').classList.remove('oculto');
+  $(nombre ? 'ct-nombre' : 'ct-clave').focus();
+}
+const cuentaError = (t) => { $('ct-error').textContent = t; $('ct-error').classList.remove('oculto'); };
+$('ct-cerrar').onclick = () => $('cuenta-fondo').classList.add('oculto');
+$('cuenta-form').onsubmit = async (ev) => {
+  ev.preventDefault();
+  $('ct-error').classList.add('oculto');
+  $('ct-bien').classList.add('oculto');
+  if (cuentaQue === 'clave' && $('ct-nueva').value !== $('ct-repite').value) return cuentaError('Las dos contraseñas nuevas no coinciden');
+  $('ct-guardar').disabled = true;
+  const r = await pedirOnline(cuentaQue === 'nombre' ? 'cuenta_nombre' : 'cuenta_clave',
+    cuentaQue === 'nombre' ? {nuevo: $('ct-nombre').value.trim(), clave: $('ct-clave').value} : {clave: $('ct-clave').value, nueva: $('ct-nueva').value});
+  $('ct-guardar').disabled = false;
+  if (r.error) return cuentaError(r.error);
+  $('ct-clave').value = $('ct-nueva').value = $('ct-repite').value = '';
+  $('ct-bien').textContent = cuentaQue === 'nombre' ? `Listo: ahora eres ${$('ct-nombre').value.trim()}. Se ve en la sala de Citra la próxima vez que abras el juego.` : 'Contraseña cambiada. La próxima vez entra con la nueva.';
+  $('ct-bien').classList.remove('oculto');
+  actualizar();
 };
 
 // ---------- actividad y registro de errores de un jugador (solo el administrador) ----------

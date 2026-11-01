@@ -52,7 +52,8 @@ OPCIONES = {
     'limitMainGameLegendaries', 'trainersMod', 'trainersUsePokemonOfSimilarStrength',
     'trainersLevelModified', 'trainersLevelModifier', 'trainersForceFullyEvolved', 'staticPokemonMod',
     'abilitiesMod', 'typesMod', 'baseStatisticsMod', 'evolutionsMod', 'evosSimilarStrength',
-    'movesetsMod', 'fieldItemsMod', 'inGameTradesMod',
+    'movesetsMod', 'fieldItemsMod', 'inGameTradesMod', 'randomizeHeldItemsForBossTrainerPokemon',
+    'randomizeHeldItemsForImportantTrainerPokemon', 'randomizeHeldItemsForRegularTrainerPokemon',
 }
 
 lock = threading.Lock()
