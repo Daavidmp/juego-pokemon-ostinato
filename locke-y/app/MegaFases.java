@@ -1,8 +1,11 @@
 import com.dabomstew.pkrandom.FileFunctions;
 import com.dabomstew.pkrandom.Randomizer;
 import com.dabomstew.pkrandom.Settings;
+import com.dabomstew.pkrandom.ctr.AMX;
+import com.dabomstew.pkrandom.ctr.GARCArchive;
 import com.dabomstew.pkrandom.pokemon.Encounter;
 import com.dabomstew.pkrandom.pokemon.Evolution;
+import com.dabomstew.pkrandom.pokemon.ItemList;
 import com.dabomstew.pkrandom.pokemon.EvolutionType;
 import com.dabomstew.pkrandom.pokemon.MegaEvolution;
 import com.dabomstew.pkrandom.pokemon.EncounterSet;
@@ -11,12 +14,22 @@ import com.dabomstew.pkrandom.pokemon.MoveLearnt;
 import com.dabomstew.pkrandom.pokemon.Pokemon;
 import com.dabomstew.pkrandom.pokemon.Trainer;
 import com.dabomstew.pkrandom.pokemon.TrainerPokemon;
+import com.dabomstew.pkrandom.romhandlers.Abstract3DSRomHandler;
 import com.dabomstew.pkrandom.romhandlers.Gen6RomHandler;
 import com.dabomstew.pkrandom.romhandlers.RomHandler;
 
 import java.io.FileInputStream;
 import java.io.PrintStream;
+import java.lang.reflect.Method;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -61,6 +74,7 @@ public class MegaFases {
         }
         try {
             intercambioANivel(rh);
+            regalosAleatorios(rh, azar, registro);
             combatesImportantes(rh, azar);
             asMegaTrasCuartaMedalla(rh, azar);
             if (!rh.saveRomDirectory(completa)) {
@@ -89,6 +103,99 @@ public class MegaFases {
                 e.extraInfo = e.level = NIVEL_INTERCAMBIO;
             }
         }
+    }
+
+    // Los regalos de NPC y entrenadores no los toca el UPR: están en los guiones de cada zona (a/0/1/2, comprimidos dentro
+    // de cada archivo). Todos llaman a la misma función del guion con (cantidad, 1, objeto): push.c objeto, push.c 12, call.
+    static final String ZONAS = "a/0/1/2";
+    static final int PUSH_C = 0xBC, CALL = 0x31, RET_ARGS = 0x000C00BC;
+    static final int TM_MIN = 328, TM_MAX = 419, MO_MIN = 420, MO_MAX = 425, MEGA_MIN = 656, MEGA_MAX = 685;
+    // no se cambian aunque el UPR los deje: las ROM de Genesect y los fósiles, que la historia da a elegir
+    static final Set<Integer> DE_LA_HISTORIA = Set.of(116, 117, 118, 119, 710, 711);
+
+    static boolean esMT(int o) { return o >= TM_MIN && o <= TM_MAX || o == 618 || o == 619 || o == 620 || o >= 690 && o <= 694; }
+
+    /** Lo que se puede cambiar: los objetos clave, las MO y las megapiedras los pide la historia. */
+    static boolean cambiable(ItemList permitidos, int o) {
+        return (esMT(o) || permitidos.isAllowed(o)) && !(o >= MO_MIN && o <= MO_MAX) && !(o >= MEGA_MIN && o <= MEGA_MAX) && !DE_LA_HISTORIA.contains(o);
+    }
+
+    /** La función de regalar del guion: lee sus argumentos y mete el objeto en la mochila. */
+    static boolean esRegalo(ByteBuffer c, int destino) {
+        if (destino < 0 || destino % 4 != 0 || destino + 36 > c.capacity()) return false;
+        int x = c.getInt(destino + 4);
+        return c.getInt(destino) == 0x87 && c.getInt(destino + 8) == 0 && c.getInt(destino + 12) == PUSH_C
+                && c.getInt(destino + 16) == 0x000100BC && c.getInt(destino + 20) == 0x87 && c.getInt(destino + 24) == x + 1
+                && c.getInt(destino + 28) == 8 && c.getInt(destino + 32) == 0xFFFC00BF;
+    }
+
+    static void regalosAleatorios(RomHandler rh, Random azar, String registro) throws Exception {
+        Method leer = Abstract3DSRomHandler.class.getDeclaredMethod("readGARC", String.class, boolean.class);
+        Method escribir = Abstract3DSRomHandler.class.getDeclaredMethod("writeGARC", String.class, GARCArchive.class);
+        leer.setAccessible(true);
+        escribir.setAccessible(true);
+        GARCArchive zonas = (GARCArchive) leer.invoke(rh, ZONAS, false);
+        ItemList permitidos = rh.getAllowedItems();
+        String[] nombres = rh.getItemNames();
+        List<Integer> mts = new ArrayList<>(), comunes = new ArrayList<>(), bajos = new ArrayList<>();
+        for (int o = 1; o < nombres.length; o++) {
+            if (esMT(o)) mts.add(o);
+            else if (!cambiable(permitidos, o) || !rh.getNonBadItems().isAllowed(o)) continue;
+            else if (o >= 16) comunes.add(o);
+            else if (o > 1) bajos.add(o);                  // sin la Master Ball
+        }
+        Collections.shuffle(mts, azar);
+        int siguienteMt = 0, cambiados = 0, enteros = 0;
+        StringBuilder log = new StringBuilder("\n--Regalos de NPC y entrenadores--\n");
+        for (int i = 0; i < zonas.files.size(); i++) {
+            for (byte[] d : zonas.files.get(i).values()) {
+                if (d == null) continue;
+                ByteBuffer b = ByteBuffer.wrap(d).order(ByteOrder.LITTLE_ENDIAN);
+                for (int o = 4; o + 4 < d.length; o++) {
+                    if ((d[o] & 255) != 0xE0 || (d[o + 1] & 255) != 0xF1 || d[o + 2] != 0x0A || d[o + 3] != 0x0A) continue;
+                    int largo = b.getInt(o - 4);
+                    if (largo < 32 || o - 4 + largo > d.length) continue;
+                    AMX x = new AMX(Arrays.copyOfRange(d, o - 4, o - 4 + largo));
+                    byte[] copia = x.decData.clone();
+                    ByteBuffer c = ByteBuffer.wrap(x.decData).order(ByteOrder.LITTLE_ENDIAN);
+                    StringBuilder aqui = new StringBuilder();
+                    int enEste = 0;
+                    for (int w = 8; w + 16 <= x.decData.length; w += 4) {
+                        int v = c.getInt(w);
+                        if ((v & 0xFFFF) != PUSH_C || c.getInt(w + 4) != RET_ARGS || c.getInt(w + 8) != CALL) continue;
+                        if (!esRegalo(c, w + 12 + c.getInt(w + 12))) continue;
+                        int viejo = v >>> 16;
+                        if (viejo == 0 || !cambiable(permitidos, viejo)) continue;
+                        // el guion va comprimido: un número de menos de 16 ocupa un byte menos y no cabría igual
+                        int nuevo;
+                        if (esMT(viejo)) nuevo = mts.get(siguienteMt++ % mts.size());
+                        else if (viejo < 16) nuevo = bajos.get(azar.nextInt(bajos.size()));
+                        else nuevo = comunes.get(azar.nextInt(comunes.size()));
+                        c.putInt(w, (nuevo << 16) | PUSH_C);
+                        aqui.append(nombres[viejo]).append(" -> ").append(nombres[nuevo]).append('\n');
+                        enEste++;
+                    }
+                    if (enEste == 0) continue;
+                    byte[] nuevoAmx = x.getBytes();
+                    // mismo tamaño o no se toca: detrás van otros guiones de la zona
+                    if (nuevoAmx.length != largo) {
+                        enteros += enEste;
+                        continue;
+                    }
+                    byte[] prueba = new AMX(nuevoAmx).decData;
+                    if (!Arrays.equals(prueba, x.decData) || prueba.length != copia.length) {
+                        throw new IllegalStateException("Un guion no se relee igual en el archivo " + i);
+                    }
+                    System.arraycopy(nuevoAmx, 0, d, o - 4, largo);
+                    cambiados += enEste;
+                    log.append(aqui);
+                }
+            }
+        }
+        escribir.invoke(rh, ZONAS, zonas);
+        log.append("Cambiados: ").append(cambiados).append(", sin cambiar por tamano: ").append(enteros).append('\n');
+        Files.write(Paths.get(registro), log.toString().getBytes(StandardCharsets.UTF_8), StandardOpenOption.APPEND);
+        System.out.println("Regalos cambiados: " + cambiados + " · sin cambiar por tamaño: " + enteros);
     }
 
     // Pokémon Y: combates contra villanos y amigos con nombre que no llevan etiqueta propia en el UPR (índices

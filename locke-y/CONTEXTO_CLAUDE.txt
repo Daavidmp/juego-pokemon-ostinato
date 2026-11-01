@@ -227,9 +227,12 @@ prueba se parchea en el módulo donde vive (emulador.jugando, comun.DATOS…).
   con el límite de intentos de entrar. El nombre cambia también en sesiones, torneo y actividad, y se apunta como aviso.
   El administrador no cambia su nombre (va ligado a online.json). Cambiar la contraseña cierra sus otras sesiones.
 - Mega: los Pokémon de todos los entrenadores llevan objetos aleatorios (randomizeHeldItemsFor...TrainerPokemon).
-- PENDIENTE, decisión de David: los regalos de NPC y entrenadores NO se randomizan. El UPR solo cambia suelo, ocultos y
-  megapiedras; los regalos están en los guiones de zona, que no se encontraron en una búsqueda por GARC. Tocarlos a
-  ciegas puede quitar un objeto de la historia y bloquear la partida.
+- Regalos de NPC y entrenadores (MegaFases.regalosAleatorios): están en los guiones de zona, comprimidos dentro de cada
+  archivo de a/0/1/2 (720 AMX). Todos llaman a la misma función del guion, reconocible por su cuerpo (esRegalo), con
+  push.c objeto, push.c 12, call. Hay 208 con el objeto directo; se cambian 151. No se tocan: objetos clave, MO,
+  megapiedras, ROM de Genesect y fósiles. Las MT pasan a otra MT sin repetir. El guion solo se cambia si queda del mismo
+  tamaño comprimido (por eso los objetos < 16 se cambian por otros < 16). Lista en randomizacion.log. Los 8 regalos con
+  objeto variable no se tocan. Comprobado comparando los 720 guiones; sin probar aún jugando todos los regalos.
 
 4e. ACTIVIDAD DE LOS JUGADORES (01/11/2026, app/vigia.py)
 ---------------------------------------------------------
@@ -266,7 +269,7 @@ jugador no esté conectado. Niveles: info, aviso, sospecha. Una sospecha no es u
   y solo relee si cambia el archivo. PENDIENTE: leer Alto Mando y Campeona de la partida (ahora no avanzan).
 - Música: assets/musica.mp3 (Suno, «Journey of Discovery») con botón de volumen/silencio en la cabecera; se para al
   jugar. Edge se abre con --autoplay-policy=no-user-gesture-required.
-- «Versión 1.0.6» es solo el texto del pie (app.html); las actualizaciones siguen comparando el número por fecha de empaquetar.py.
+- «Versión 1.0.7» es solo el texto del pie (app.html); las actualizaciones siguen comparando el número por fecha de empaquetar.py.
 
 
 5. IMÁGENES DE ARCE  (../CREDITOS/firefly/)
