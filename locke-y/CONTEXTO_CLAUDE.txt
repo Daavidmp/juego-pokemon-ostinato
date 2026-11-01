@@ -266,7 +266,7 @@ jugador no esté conectado. Niveles: info, aviso, sospecha. Una sospecha no es u
   y solo relee si cambia el archivo. PENDIENTE: leer Alto Mando y Campeona de la partida (ahora no avanzan).
 - Música: assets/musica.mp3 (Suno, «Journey of Discovery») con botón de volumen/silencio en la cabecera; se para al
   jugar. Edge se abre con --autoplay-policy=no-user-gesture-required.
-- «Versión 1.0.5» es solo el texto del pie (app.html); las actualizaciones siguen comparando el número por fecha de empaquetar.py.
+- «Versión 1.0.6» es solo el texto del pie (app.html); las actualizaciones siguen comparando el número por fecha de empaquetar.py.
 
 
 5. IMÁGENES DE ARCE  (../CREDITOS/firefly/)

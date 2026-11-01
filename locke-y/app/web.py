@@ -262,6 +262,11 @@ class Servidor(BaseHTTPRequestHandler):
                 return self.enviar({'error': 'no existe'}, codigo=404)
             return self.enviar(f.read_bytes(), TIPOS.get(f.suffix.lower(), 'application/octet-stream'), cache='max-age=86400')
         # opciones: vídeo de normas, guía y contrato (firmado si ya se ha jugado)
+        if ruta.startswith('/foto/'):                  # las fotos de perfil que ha traído conexion.traer_fotos
+            f = comun.red.get('fotos', {}).get(ruta.split('/', 2)[2])
+            if not f:
+                return self.enviar({'error': 'no existe'}, codigo=404)
+            return self.enviar(f['imagen'], 'image/jpeg', cache='max-age=604800')
         if ruta == '/docs/video':
             return self.por_trozos(comun.VIDEO)
         if ruta == '/docs/guia':

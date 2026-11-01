@@ -219,6 +219,12 @@
   .login input { font: 700 17px Nunito, sans-serif; border: 1px solid var(--linea-fuerte); border-radius: 12px; padding: 10px 14px; min-height: 50px; width: 100%; }
   .enlace { background: none; border: 0; padding: 0; color: var(--azul-texto); font-weight: 800; font-size: 14px; text-decoration: underline; }
   .usuario-chip { display: inline-flex; align-items: center; gap: 8px; min-height: 40px; padding: 0 14px; border-radius: 999px; background: var(--fondo); border: 1px solid var(--linea); font-weight: 800; font-size: 14px; }
+  .avatar { width: 28px; height: 28px; flex: none; border-radius: 50%; object-fit: cover; background: var(--rojo-claro); color: var(--rojo-texto); display: inline-flex; align-items: center; justify-content: center; font-weight: 900; font-size: 14px; }
+  .conectado .avatar { width: 38px; height: 38px; font-size: 17px; }
+  .con-ojo { position: relative; display: flex; width: 100%; }
+  .con-ojo input { flex: 1; min-width: 0; padding-right: 46px !important; }
+  .ojo { position: absolute; right: 4px; top: 50%; transform: translateY(-50%); width: 38px; height: 38px; display: flex; align-items: center; justify-content: center; border: 0; border-radius: 10px; background: transparent; color: var(--suave); }
+  .ojo:hover { background: var(--fondo); color: var(--tinta); }
   .punto { width: 10px; height: 10px; border-radius: 50%; background: var(--verde); flex-shrink: 0; }
   .punto.no { background: #9AA2B8; }
   .conectados { position: absolute; right: 40px; top: 70px; z-index: 5; width: min(380px, calc(100vw - 32px)); padding: 14px; background: var(--panel); border: 1px solid var(--linea); border-radius: 16px; box-shadow: 0 12px 28px rgba(27,32,48,.16); display: flex; flex-direction: column; gap: 10px; }
@@ -413,7 +419,7 @@
       <label class="interruptor oculto" id="o-servidor-caja" title="Enciende el servidor para que los demás puedan conectarse y jugar online"><input type="checkbox" id="o-servidor"> Servidor</label>
       <button class="btn btn-icono" type="button" data-notas aria-label="Cómo entrar en la sala para combatir" title="Cómo entrar en la sala para combatir"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6M8 13h8M8 17h5"/></svg></button>
       <button class="btn btn-neutro oculto" type="button" id="b-torneo">🏆 Torneo</button>
-      <button class="usuario-chip oculto" type="button" id="o-chip" aria-expanded="false"><span class="punto" id="o-punto"></span><span id="o-texto"></span></button>
+      <button class="usuario-chip oculto" type="button" id="o-chip" aria-expanded="false" style="padding-left: 6px;"><span id="o-avatar" style="display: flex;"></span><span class="punto" id="o-punto"></span><span id="o-texto"></span></button>
       <button class="btn btn-neutro oculto" type="button" id="o-entrar">Entrar</button>
       <button class="btn btn-rojo oculto" type="button" id="b-actualizar">Nueva versión</button>
       <div class="sonido oculto" id="sonido">
@@ -471,7 +477,7 @@
     <section class="tb-hud tb-carta tb-objetivo" id="tb-objetivo" aria-label="Siguiente objetivo"></section>
     <section class="tb-hud tb-carta tb-marcador" id="tb-marcador" aria-label="Vidas y medallas"></section>
     <div class="tb-hud tb-abajo"><div class="tb-equipo" id="tb-equipo" aria-label="Tu equipo"></div><div class="tb-carta tb-jugar" id="tb-jugar"></div></div>
-    <span class="tb-hud tb-credito">Creado por David Martínez Palacios · Versión 1.0.5</span>
+    <span class="tb-hud tb-credito">Creado por David Martínez Palacios · Versión 1.0.6</span>
   </div>
 
   <footer>
@@ -1218,6 +1224,11 @@ function cerrarModal() {
 let sinConexion = false, registrando = false, panelAbierto = false;
 try { sinConexion = localStorage.getItem('pokelocke-sin-conexion') === '1'; } catch (err) { /* sin almacenamiento */ }
 
+// la foto de perfil de un jugador, o su inicial si no tiene
+const fotoJugador = (usuario, v) => (v
+  ? `<img class="avatar" src="/foto/${encodeURIComponent(usuario)}?v=${esc(v)}" alt="">`
+  : `<span class="avatar" aria-hidden="true">${esc(usuario[0].toUpperCase())}</span>`);
+
 function pintarOnline(o) {
   const s = o.sesion;
   $('o-chip').classList.toggle('oculto', !s);
@@ -1227,6 +1238,11 @@ function pintarOnline(o) {
   $('o-servidor').checked = o.servidor;
   if (s) {
     const n = o.conectados.length;
+    const mia = s.usuario + '|' + (o.mi_foto || '');
+    if ($('o-avatar').dataset.mia !== mia) {                // se pinta cada segundo: sin cambios no se toca
+      $('o-avatar').dataset.mia = mia;
+      $('o-avatar').innerHTML = fotoJugador(s.usuario, o.mi_foto);
+    }
     $('o-punto').className = 'punto' + (o.error ? ' no' : '');
     $('o-texto').textContent = `${s.usuario}${s.admin ? ' · admin' : ''} · ${o.error ? 'sin servidor' : n + ' conectado' + (n === 1 ? '' : 's')}`;
   }
@@ -1234,7 +1250,7 @@ function pintarOnline(o) {
   if (panelAbierto && s) {
     $('o-panel').innerHTML = `<h2 style="font-size: 17px;">Conectados</h2>
       ${o.error ? `<p class="error">${esc(o.error)}</p>` : ''}
-      ${o.conectados.map((c) => `<div class="conectado"><span class="punto"></span><div><b>${esc(c.usuario)}${c.admin ? ' · admin' : ''}</b>
+      ${o.conectados.map((c) => `<div class="conectado">${fotoJugador(c.usuario, c.foto)}<div><b>${esc(c.usuario)}${c.admin ? ' · admin' : ''}</b>
         <span>${c.jugando ? 'Jugando a ' + esc(c.juego || '') : 'En la biblioteca'}</span></div>
         ${s.admin ? `<button class="btn btn-neutro" type="button" data-log="${esc(c.usuario)}" title="Ver los errores de su Pokelocke">Registro</button>` : ''}
         ${s.admin && c.usuario !== s.usuario ? `<button class="btn btn-neutro" type="button" data-remoto="${esc(c.usuario)}">PokéHex</button>` : ''}</div>`).join('') || '<p class="suave">Nadie conectado.</p>'}
@@ -1705,6 +1721,29 @@ $('o-panel').onclick = (ev) => {
   if (l) { panelAbierto = false; abrirRegistro(l.dataset.log); }
 };
 
+// ---------- el ojo de las contraseñas ----------
+const OJO = {ver: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg>',
+  ocultar: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s4-7 10-7c2 0 3.800.8 5.300 1.800M22 12s-4 7-10 7c-2 0-3.800-.8-5.300-1.800"/><path d="M4 4l16 16"/></svg>'};
+function mostrarClave(i, ver) {
+  const b = i.parentNode.querySelector('.ojo');
+  i.type = ver ? 'text' : 'password';
+  b.innerHTML = ver ? OJO.ocultar : OJO.ver;
+  b.setAttribute('aria-label', ver ? 'Ocultar la contraseña' : 'Mostrar la contraseña');
+  b.setAttribute('aria-pressed', String(ver));
+}
+document.querySelectorAll('input[type="password"]').forEach((i) => {
+  const caja = document.createElement('span');
+  caja.className = 'con-ojo';
+  i.replaceWith(caja);
+  caja.append(i);
+  const b = document.createElement('button');
+  b.type = 'button';
+  b.className = 'ojo';
+  caja.append(b);
+  b.onclick = (ev) => { ev.preventDefault(); mostrarClave(i, i.type === 'password'); i.focus(); };
+  mostrarClave(i, false);
+});
+
 // ---------- cambiar el nombre o la contraseña de tu cuenta ----------
 let cuentaQue = 'nombre';
 function abrirCuenta(que) {
@@ -1717,6 +1756,7 @@ function abrirCuenta(que) {
   $('ct-nombre').required = nombre;
   $('ct-nueva').required = $('ct-repite').required = !nombre;
   ['ct-nombre', 'ct-clave', 'ct-nueva', 'ct-repite'].forEach((id) => { $(id).value = ''; });
+  ['ct-clave', 'ct-nueva', 'ct-repite'].forEach((id) => mostrarClave($(id), false));
   ['ct-error', 'ct-bien'].forEach((id) => $(id).classList.add('oculto'));
   $('ct-guardar').disabled = false;
   $('cuenta-fondo').classList.remove('oculto');

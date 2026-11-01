@@ -183,6 +183,37 @@ o.resultado(amigo, tareas[0]['id'], {'version': 'x', 'registros': {'pokelocke.lo
 hilo.join(5)
 ver(respuesta.get('r', {}).get('registros', {}).get('pokelocke.log') == 'Traceback…', 'y su respuesta le llega al administrador')
 
+# ---------- fotos de perfil ----------
+print('Fotos')
+foto = 'data:image/jpeg;base64,' + 'QUJD' * 4
+o.poner_foto(amigo, foto)
+lista = o.latido(amigo, {'jugando': False, 'foto': 'trampa'})['conectados']
+yo = next(c for c in lista if c['usuario'] == 'Amigo')
+ver(len(yo['foto']) == 10, 'el latido lleva una huella de la foto, no la foto')
+ver(o.fotos(amigo, ['Amigo', 'NoExiste'])['fotos']['Amigo']['imagen'] == foto, 'la foto se pide aparte')
+try:
+    o.fotos('sin sesion', ['Amigo'])
+    ver(False, 'las fotos piden sesión')
+except PermissionError:
+    ver(True, 'las fotos piden sesión')
+llamadas = []
+online_peticion = online.peticion
+online.peticion = lambda d, r, datos, espera=8: (llamadas.append(r), o.fotos(amigo, datos['usuarios']))[1]
+comun.red['fotos'] = {}
+conexion.traer_fotos('x', amigo, lista)
+conexion.traer_fotos('x', amigo, lista)
+online.peticion = online_peticion
+ver(len(llamadas) == 1, 'una foto que no cambia no se vuelve a pedir')
+ver(comun.red['fotos']['Amigo']['imagen'] == b'ABC' * 4, 'se guarda ya como imagen')
+srv = ThreadingHTTPServer(('127.0.0.1', 0), web.Servidor)
+comun.PUERTO = srv.server_port
+threading.Thread(target=srv.serve_forever, daemon=True).start()
+c = http.client.HTTPConnection('127.0.0.1', srv.server_port, timeout=5)
+c.request('GET', '/foto/Amigo', headers={'Host': f'127.0.0.1:{srv.server_port}'})
+respuesta = c.getresponse()
+ver(respuesta.status == 200 and respuesta.read() == b'ABC' * 4, 'la ventana la lee de Pokelocke')
+srv.shutdown()
+
 # ---------- cambiar el nombre y la contraseña ----------
 print('Cuenta')
 o.registros.clear()

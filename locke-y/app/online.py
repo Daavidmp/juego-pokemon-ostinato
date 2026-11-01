@@ -387,9 +387,21 @@ class Servidor:
         with self.lock:
             self.vistos[u] = (ahora, estado or {})
             tareas, self.tareas[u] = self.tareas.get(u, []), []
-            conectados = [{'usuario': k, 'admin': self.usuarios.get(k, {}).get('admin', False), **v[1]}
+            conectados = [{'usuario': k, 'admin': self.usuarios.get(k, {}).get('admin', False), **v[1], 'foto': self._foto_v(k)}
                           for k, v in sorted(self.vistos.items()) if ahora - v[0] < CONECTADO]
         return {'conectados': conectados, 'tareas': tareas, 'eventos_hasta': hasta}
+
+    def _foto_v(self, u):
+        """Una huella de su foto: pesa poco, va en cada latido y la foto solo se pide si cambia."""
+        foto = self.usuarios.get(u, {}).get('foto')
+        return hashlib.sha1(foto.encode()).hexdigest()[:10] if foto else None
+
+    def fotos(self, token, usuarios):
+        self._usuario(token)
+        with self.lock:
+            return {'fotos': {u: {'v': self._foto_v(u), 'imagen': self.usuarios[u]['foto']}
+                              for u in (usuarios if isinstance(usuarios, list) else [])[:64]
+                              if isinstance(u, str) and self.usuarios.get(u, {}).get('foto')}}
 
     def salir(self, token):
         with self.lock:
@@ -636,6 +648,8 @@ class Servidor:
                         r = srv.torneo(d.get('token'))
                     elif ruta == '/torneo/editar':
                         r = srv.editar_torneo(d.get('token'), d.get('que'), d)
+                    elif ruta == '/fotos':
+                        r = srv.fotos(d.get('token'), d.get('usuarios'))
                     elif ruta == '/foto':
                         r = srv.poner_foto(d.get('token'), d.get('imagen'))
                     elif ruta == '/cuenta/nombre':

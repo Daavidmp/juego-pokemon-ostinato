@@ -1,4 +1,5 @@
 """El cliente del online: sesión, latidos, encargos, actualizaciones y encender el servidor."""
+import base64
 import hashlib
 import hmac
 import json
@@ -65,6 +66,7 @@ def online_direccion():
 def online_estado():
     s = comun.red['sesion']
     return {'sesion': s and {'usuario': s['usuario'], 'admin': s['admin']}, 'conectados': comun.red['conectados'],
+            'mi_foto': s and comun.red.get('fotos', {}).get(s['usuario'], {}).get('v'),
             'error': comun.red['error'], 'servidor': bool(comun.red['servidor']), 'upnp': comun.red['upnp'], 'ip': comun.red['ip'],
             'sala': bool(comun.red['servidor']) and comun.red['servidor'].sala_viva(),
             'direccion': online_config().get('direccion'), 'version': comun.VERSION_APP, 'actualizacion': comun.red.get('actualizacion')}
@@ -75,6 +77,20 @@ def online_guardar_sesion():
         comun.F_SESION.write_text(json.dumps(comun.red['sesion']), encoding='utf-8')
     else:
         comun.F_SESION.unlink(missing_ok=True)
+
+
+def traer_fotos(direccion, token, conectados):
+    """Las fotos de perfil que han cambiado, sin esperar a nadie: si fallan, se ven las iniciales."""
+    fotos = comun.red.setdefault('fotos', {})
+    faltan = [c['usuario'] for c in conectados if c.get('foto') and fotos.get(c['usuario'], {}).get('v') != c['foto']]
+    if not faltan:
+        return
+    try:
+        r = online.peticion(direccion, '/fotos', {'token': token, 'usuarios': faltan}, espera=8)
+        for u, f in r.get('fotos', {}).items():
+            fotos[u] = {'v': f['v'], 'imagen': base64.b64decode(f['imagen'].split(',', 1)[1])}
+    except (OSError, ValueError, KeyError, AttributeError, IndexError):
+        pass
 
 
 def online_latidos():
@@ -99,6 +115,7 @@ def online_latidos():
                 elif 'error' in r:
                     comun.red['error'] = r['error']
                 else:
+                    traer_fotos(direccion, s['token'], r['conectados'])
                     comun.red['error'], comun.red['conectados'] = None, r['conectados']
                     comun.red['eventos_hasta'] = r.get('eventos_hasta', float('inf'))
                     for t in r['tareas']:
@@ -316,6 +333,8 @@ def online_accion(que, d):
             r = online.peticion(direccion, ruta, {**d, 'token': comun.red['sesion']['token']})
         except OSError as e:
             raise RuntimeError(f'No se puede conectar con el servidor ({online_motivo(e)})')
+        if r.get('error') == 'No existe':       # un servidor de antes de esta opción
+            raise RuntimeError('El servidor todavía no tiene esta opción: el anfitrión tiene que actualizar Pokelocke')
         if 'error' in r:
             raise RuntimeError(r['error'])
         if que == 'cuenta_nombre':
