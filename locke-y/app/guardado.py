@@ -53,7 +53,8 @@ def pokehex_partida(j):
     raise RuntimeError('Este juego aún no tiene partida guardada en el emulador')
 
 
-OBJETOS_TABLERO = {'megaaro': {696}, 'central': {695}, 'base_flare': {700}}      # objetos clave que marcan casillas del tablero
+# objetos que marcan casillas del tablero, de cualquier bolsillo (los fósiles van en el de objetos)
+OBJETOS_TABLERO = {'flauta': {651}, 'cueva': {710, 711}, 'megaaro': {696}, 'central': {695}, 'base_flare': {700}}
 
 
 def tablero(j):
@@ -67,15 +68,22 @@ def tablero(j):
     if comun.vivo.get('tablero_de') != clave:
         try:
             p = pokehex.Partida(f)
-            clave_objetos = {o['objeto'] for o in p.mochila()['clave']}
+            objetos = {o['objeto'] for bolsillo in p.mochila().values() for o in bolsillo}
         except (OSError, ValueError):
             return comun.vivo.get('tablero') or {'guardada': False, 'medallas': [False] * 8, 'equipo': []}
         b = p.d[locke.MEDALLAS_EN_PARTIDA]
         equipo = [{k: x[k] for k in ('id', 'especie', 'especie_nombre', 'mote', 'nivel', 'huevo', 'shiny')}
                   for x in p.equipo() if x]
         comun.vivo['tablero_de'] = clave
+        # un objeto visto una vez cuenta para siempre: el fósil se gasta al revivirlo y el pase o la llave se pueden
+        # perder, y la casilla no debe apagarse
+        logros = j.setdefault('logros', [])
+        nuevos = [nombre for nombre, ids in OBJETOS_TABLERO.items() if ids & objetos and nombre not in logros]
+        if nuevos:
+            logros.extend(nuevos)
+            comun.guardar()
         comun.vivo['tablero'] = {'guardada': True, 'medallas': [bool(b >> i & 1) for i in range(8)], 'equipo': equipo,
-                                 **{nombre: bool(ids & clave_objetos) for nombre, ids in OBJETOS_TABLERO.items()}}
+                                 **{nombre: nombre in logros for nombre in OBJETOS_TABLERO}}
     return comun.vivo['tablero']
 
 

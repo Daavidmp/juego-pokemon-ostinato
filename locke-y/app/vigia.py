@@ -101,7 +101,6 @@ def trucos_citra():
 
 def abrir(j):
     """Al darle a Jugar: lo que ha cambiado desde que se cerró el juego la última vez."""
-    import conexion
     import emulador
     import locke
     vidas = locke.vidas(j)

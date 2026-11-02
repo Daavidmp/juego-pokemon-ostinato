@@ -327,6 +327,12 @@ def normas_mega():
             else:
                 zona = juego.zona(rpc)
                 combate_desde = None
+                with comun.lock:
+                    vistas = j.setdefault('zonas_vistas', [])     # en orden: de aquí salen las llegadas del tablero
+                    if zona not in vistas:
+                        vistas.append(zona)
+                        vigia.evento('zona', f'Zona nueva: {zona}')
+                        comun.guardar()
                 fuera_desde = fuera_desde or time.time()
             ahora = juego.record(rpc, juego.RECORD_CAPTURAS)
             # segunda medalla en la fase fácil: el cambio se hace al volver a abrir el juego (con la partida

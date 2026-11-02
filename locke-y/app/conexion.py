@@ -69,7 +69,8 @@ def online_estado():
             'mi_foto': s and comun.red.get('fotos', {}).get(s['usuario'], {}).get('v'),
             'error': comun.red['error'], 'servidor': bool(comun.red['servidor']), 'upnp': comun.red['upnp'], 'ip': comun.red['ip'],
             'sala': bool(comun.red['servidor']) and comun.red['servidor'].sala_viva(),
-            'direccion': online_config().get('direccion'), 'version': comun.VERSION_APP, 'actualizacion': comun.red.get('actualizacion')}
+            'direccion': online_config().get('direccion'), 'version': comun.VERSION_APP, 'actualizacion': comun.red.get('actualizacion'),
+            'tablero': comun.red.get('tablero', [])}
 
 
 def online_guardar_sesion():
@@ -104,7 +105,7 @@ def online_latidos():
         if s and direccion:
             with comun.lock:
                 j = comun.buscar(comun.vivo['activo']) if comun.vivo['activo'] and emulador.jugando() else None
-            estado = {'jugando': bool(j), 'juego': j and j['nombre']}
+            estado = {'jugando': bool(j), 'juego': j and j['nombre'], 'tablero': comun.biblio.get('mi_tablero')}
             # los eventos que aún no tiene el servidor; hasta que diga cuántos tiene, solo se le dice cuántos hay
             eventos, total = vigia.para_mandar(comun.red.get('eventos_hasta', float('inf')))
             try:
@@ -115,7 +116,8 @@ def online_latidos():
                 elif 'error' in r:
                     comun.red['error'] = r['error']
                 else:
-                    traer_fotos(direccion, s['token'], r['conectados'])
+                    traer_fotos(direccion, s['token'], r['conectados'] + r.get('tablero', []))
+                    comun.red['tablero'] = r.get('tablero', [])
                     comun.red['error'], comun.red['conectados'] = None, r['conectados']
                     comun.red['eventos_hasta'] = r.get('eventos_hasta', float('inf'))
                     for t in r['tareas']:

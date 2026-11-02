@@ -384,12 +384,31 @@ class Servidor:
         u = self._usuario(token)
         ahora = time.time()
         hasta = self.recibir_eventos(u, eventos, total)
+        estado = dict(estado) if isinstance(estado, dict) else {}
+        tablero = self._casilla(estado.pop('tablero', None))
         with self.lock:
-            self.vistos[u] = (ahora, estado or {})
+            if tablero and self.usuarios.get(u, {}).get('tablero') != tablero:
+                self.usuarios[u]['tablero'] = tablero
+                self._guardar()
+            self.vistos[u] = (ahora, estado)
             tareas, self.tareas[u] = self.tareas.get(u, []), []
             conectados = [{'usuario': k, 'admin': self.usuarios.get(k, {}).get('admin', False), **v[1], 'foto': self._foto_v(k)}
                           for k, v in sorted(self.vistos.items()) if ahora - v[0] < CONECTADO]
-        return {'conectados': conectados, 'tareas': tareas, 'eventos_hasta': hasta}
+            en_linea = {c['usuario'] for c in conectados}
+            tablero = [{'usuario': k, 'foto': self._foto_v(k), 'conectado': k in en_linea, **v['tablero']}
+                       for k, v in sorted(self.usuarios.items()) if v.get('tablero')]
+        return {'conectados': conectados, 'tareas': tareas, 'eventos_hasta': hasta, 'tablero': tablero}
+
+    @staticmethod
+    def _casilla(t):
+        """La casilla del tablero que manda cada jugador, limpia: viene de fuera."""
+        if not isinstance(t, dict):
+            return None
+        try:
+            return {'hito': str(t.get('hito', ''))[:24], 'n': max(0, min(99, int(t.get('n', 0)))),
+                    'medallas': max(0, min(8, int(t.get('medallas', 0)))), 'vidas': max(0, min(999, int(t.get('vidas', 0))))}
+        except (TypeError, ValueError):
+            return None
 
     def _foto_v(self, u):
         """Una huella de su foto: pesa poco, va en cada latido y la foto solo se pide si cambia."""

@@ -265,6 +265,18 @@ jugador no esté conectado. Niveles: info, aviso, sospecha. Una sospecha no es u
   la llave al usarlos (entonces la casilla se apaga hasta la medalla siguiente).
 - Las aspas del molino y las banderas del castillo se borraron de la imagen y van animadas por encima (app.html:
   svg #tb-vida y VIENTO, en px de la imagen). Si se cambia la isla, hay que recolocarlas también.
+- 02/11/2026: 34 casillas con toda la historia de Y (HITOS en app.html, cada una con id). Se reparten solas a la misma
+  distancia por CAMINO (px de la imagen): con otra isla basta con cambiar CAMINO. Zoom (rueda, doble clic, botones) y
+  arrastre: objeto `camara`, mover(), zoomEn(), irAMiFicha().
+  · Llegadas a ciudades/pueblos: por las zonas que se pisan jugando (locke.normas_mega apunta j['zonas_vistas'] y un
+    evento «Zona nueva: N» en la Actividad). PENDIENTE: rellenar ZONAS (zona -> id de casilla) en app.html mirando esa
+    Actividad tras una partida real; hasta entonces se encienden con la casilla siguiente que sí se lee.
+  · Objetos de cualquier bolsillo (guardado.OBJETOS_TABLERO): Pokéflauta 651 (se entrega al del Snorlax: solo cuenta si
+    se guarda llevándola), fósiles 710/711 (Cueva Brillante), Megaaro, Pase de la Central, Llave del Ascensor. Lo visto
+    una vez queda en j['logros'] y la casilla ya no se apaga. La Fábrica Poké Balls no tiene señal (va tras la 6.ª medalla).
+  · Todos en el tablero: la página manda su casilla (/api/casilla -> biblio['mi_tablero']), va en el latido y el servidor
+    la guarda en usuarios[u]['tablero'] (online._casilla la limpia); el latido devuelve 'tablero' con la de todos,
+    también los desconectados. Se pintan con su foto en la casilla (id), borde verde si están conectados.
 - Avanza al guardar: guardado.tablero(j) lee del archivo de la partida las medallas (byte 0x420C) y el equipo,
   y solo relee si cambia el archivo. PENDIENTE: leer Alto Mando y Campeona de la partida (ahora no avanzan).
 - Música: assets/musica.mp3 (Suno, «Journey of Discovery») con botón de volumen/silencio en la cabecera; se para al
