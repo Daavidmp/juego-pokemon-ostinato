@@ -264,8 +264,11 @@ jugador no esté conectado. Niveles: info, aviso, sospecha. Una sospecha no es u
   anteriores. Sin probar con una partida que tenga esos objetos: comprobar que se marcan, y si el juego retira el pase o
   la llave al usarlos (entonces la casilla se apaga hasta la medalla siguiente).
 - 02/11/2026: la isla es ahora Kalos (Firefly con el mapa de WikiDex como composición). Cada casilla está en su sitio
-  real del mapa: PUNTOS en app.html (px de la imagen, mismo orden que HITOS). Entre casilla y casilla, TRAMOS saca una
-  curva suave con un paso pequeño cada 18 px (.tb-paso, en oro los ya recorridos). Animado encima (#tb-vida, px de la
+  real del mapa: PUNTOS en app.html (px de la imagen, mismo orden que HITOS). Entre casilla grande y casilla grande, TRAMOS saca
+  una curva suave, y en ella van las misiones intermedias de MISIONES (rutas, combates contra el rival y Ciprés, Café
+  Lysson, Megayayo, Lapras, Hotel Desolación, Yveltal, último combate contra Lysson, desfile…) como casillas pequeñas.
+  CASILLAS es la lista entera (67) con su sitio: es la que usan el progreso, la ficha y el servidor. Las misiones no se
+  leen de la partida: se encienden al hacer una casilla de después. Animado encima (#tb-vida, px de la
   imagen): agua de las dos cascadas, destellos (reloj de sol, mar, lago), pájaros y banderas del castillo (VIENTO).
   Si se cambia la isla: recolocar PUNTOS y esas animaciones.
 - 02/11/2026: 34 casillas con toda la historia de Y (HITOS en app.html, cada una con id; su sitio en PUNTOS). Zoom (rueda, doble clic, botones) y
