@@ -282,6 +282,12 @@ jugador no esté conectado. Niveles: info, aviso, sospecha. Una sospecha no es u
   · Todos en el tablero: la página manda su casilla (/api/casilla -> biblio['mi_tablero']), va en el latido y el servidor
     la guarda en usuarios[u]['tablero'] (online._casilla la limpia); el latido devuelve 'tablero' con la de todos,
     también los desconectados. Se pintan con su foto en la casilla (id), borde verde si están conectados.
+- Coronas del podio (02/11/2026): al decidirse la final de un torneo, online._podio saca los puestos (1 gana la final,
+  2 la pierde, 3 los que pierden las semifinales: no hay partido por el tercer puesto) y online._coronar los apunta en
+  cada cuenta: usuarios[u]['coronas'] ([{id, nombre, puesto}]). Se quitan o cambian si se deshace el resultado y se
+  quedan aunque se borre el torneo. Van en el latido y con el torneo ('coronas'). La página (conCorona, corona(puesto),
+  mejorPuesto) pinta corona y halo de oro, plata o bronce sobre su foto (panel, tablero, torneo), su chip de arriba del
+  mismo color y la corona en su ficha. Si tiene varias, se ve la mejor. Pruebas en test_app.py.
 - Avanza al guardar: guardado.tablero(j) lee del archivo de la partida las medallas (byte 0x420C) y el equipo,
   y solo relee si cambia el archivo. PENDIENTE: leer Alto Mando y Campeona de la partida (ahora no avanzan).
 - Música: assets/musica.mp3 (Suno, «Journey of Discovery») con botón de volumen/silencio en la cabecera; se para al

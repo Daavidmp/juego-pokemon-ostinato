@@ -397,7 +397,8 @@ class Servidor:
             en_linea = {c['usuario'] for c in conectados}
             tablero = [{'usuario': k, 'foto': self._foto_v(k), 'conectado': k in en_linea, **v['tablero']}
                        for k, v in sorted(self.usuarios.items()) if v.get('tablero')]
-        return {'conectados': conectados, 'tareas': tareas, 'eventos_hasta': hasta, 'tablero': tablero}
+            coronas = self.coronas()
+        return {'conectados': conectados, 'tareas': tareas, 'eventos_hasta': hasta, 'tablero': tablero, 'coronas': coronas}
 
     @staticmethod
     def _casilla(t):
@@ -544,7 +545,7 @@ class Servidor:
         t = _al_dia(json.loads(f.read_text(encoding='utf-8'))) if f.exists() else None
         with self.lock:
             fotos = {k: v['foto'] for k, v in self.usuarios.items() if v.get('foto')}
-            return {'torneo': t, 'fotos': fotos, 'usuarios': sorted(self.usuarios), 'yo': u,
+            return {'torneo': t, 'fotos': fotos, 'usuarios': sorted(self.usuarios), 'yo': u, 'coronas': self.coronas(),
                     'admin': self.usuarios.get(u, {}).get('admin', False)}
 
     def editar_torneo(self, token, que, d):
@@ -561,7 +562,7 @@ class Servidor:
                 raise ValueError('Como mucho 64 jugadores')
             partidos, final = _cuadro(jugadores)
             t = {'nombre': str(d.get('nombre') or 'Gran torneo')[:60], 'tope': d.get('tope'),
-                 'jugadores': jugadores, 'partidos': partidos, 'final': final}
+                 'jugadores': jugadores, 'partidos': partidos, 'final': final, 'id': time.strftime('%Y%m%d%H%M%S')}
         elif que == 'reiniciar':
             f.unlink(missing_ok=True)
             return {'ok': True}
@@ -586,10 +587,50 @@ class Servidor:
                 _propagar(t['partidos'])
         else:
             raise ValueError('Acción desconocida')
+        t.setdefault('id', time.strftime('%Y%m%d%H%M%S'))       # los torneos de antes no lo tenían
+        self._coronar(t)
         tmp = f.with_suffix('.tmp')
         tmp.write_text(json.dumps(t, indent=1), encoding='utf-8')
         tmp.replace(f)
         return {'ok': True}
+
+    @staticmethod
+    def _podio(t):
+        """Los puestos del torneo una vez decidida la final: 1 el que la gana, 2 el que la pierde y 3 los que pierden las
+        semifinales (no hay partido por el tercer puesto). Sin final decidida, nadie."""
+        partidos = {p['id']: p for p in t['partidos']}
+        final = partidos.get(t.get('final'))
+        if not final or final.get('gana') is None:
+            return {}
+        puestos = {final['ab'][final['gana']]: 1, final['ab'][1 - final['gana']]: 2}
+        for f in final['fuentes']:
+            semi = partidos.get((f or {}).get('gana'))
+            if semi and semi['fase'] == 'principal' and semi['ronda'] == final['ronda'] - 1 and semi.get('gana') is not None:
+                puestos.setdefault(semi['ab'][1 - semi['gana']], 3)
+        return puestos
+
+    def _coronar(self, t):
+        """Las coronas del podio (oro, plata y bronce): en cuanto se decide la final se apuntan en sus cuentas, y se
+        quitan o cambian si el resultado se deshace o cambia. Se quedan aunque luego se borre el torneo."""
+        puestos = self._podio(t)
+        with self.lock:
+            cambio = False
+            for k, v in self.usuarios.items():
+                antes = v.get('coronas', [])
+                ahora = [c for c in antes if c['id'] != t['id']] + ([{'id': t['id'], 'nombre': t['nombre'], 'puesto': puestos[k]}] if k in puestos else [])
+                if ahora != antes:
+                    cambio = True
+                    if ahora:
+                        v['coronas'] = ahora
+                    else:
+                        v.pop('coronas', None)
+            if cambio:
+                self._guardar()
+
+    def coronas(self):
+        """Quién tiene corona, de qué torneos y en qué puesto (va en cada latido y con el torneo)."""
+        return {k: [{'nombre': c['nombre'], 'puesto': c.get('puesto', 1)} for c in v['coronas']]
+                for k, v in self.usuarios.items() if v.get('coronas')}
 
     # --- arrancar y parar ---
     def arrancar(self):

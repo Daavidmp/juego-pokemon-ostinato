@@ -156,6 +156,27 @@ try:
     ver(False, 'un usuario de 3 letras no podría entrar en la sala de Citra')
 except ValueError:
     ver(True, 'un usuario de 3 letras no podría entrar en la sala de Citra')
+# la corona del campeón: al decidirse la final va a su cuenta, se quita si se deshace y se queda aunque se borre el torneo
+tk = o.entrar('Daavidmp', 'clave1', '1.1.1.1')['token']
+o.editar_torneo(tk, 'crear', {'jugadores': ['Daavidmp', 'Amigo'], 'nombre': 'Gran torneo'})
+tn = o.torneo(tk)['torneo']
+final = tn['final']
+uno, otro = next(q for q in tn['partidos'] if q['id'] == final)['ab']     # el cuadro se sortea
+o.editar_torneo(tk, 'ganador', {'id': final, 'lado': 1})
+ver(o.coronas() == {otro: [{'nombre': 'Gran torneo', 'puesto': 1}], uno: [{'nombre': 'Gran torneo', 'puesto': 2}]},
+    'el que gana la final se lleva la corona de oro y el otro la de plata')
+ver(o.latido(tk, {})['coronas'][otro][0]['puesto'] == 1, 'y todos la ven en el latido')
+o.editar_torneo(tk, 'ganador', {'id': final, 'lado': 1})
+ver(o.coronas() == {}, 'si se deshace el resultado, la corona se quita')
+o.editar_torneo(tk, 'ganador', {'id': final, 'lado': 0})
+o.editar_torneo(tk, 'reiniciar', {})
+ver(o.coronas()[uno] == [{'nombre': 'Gran torneo', 'puesto': 1}], 'y se queda aunque se borre el torneo')
+# con 4: bronce para los dos que pierden las semifinales
+podio = online.Servidor._podio({'final': 'p1-0', 'partidos': [
+    {'id': 'p0-0', 'fase': 'principal', 'ronda': 0, 'ab': ['A', 'B'], 'gana': 0, 'fuentes': []},
+    {'id': 'p0-1', 'fase': 'principal', 'ronda': 0, 'ab': ['C', 'D'], 'gana': 1, 'fuentes': []},
+    {'id': 'p1-0', 'fase': 'principal', 'ronda': 1, 'ab': ['A', 'D'], 'gana': 1, 'fuentes': [{'gana': 'p0-0'}, {'gana': 'p0-1'}]}]})
+ver(podio == {'D': 1, 'A': 2, 'B': 3, 'C': 3}, 'con 4 jugadores: oro, plata y dos bronces')
 ver(not o.sala_viva(), 'sin citra-room, la sala no sale como activa')
 o.sala = subprocess.Popen([sys.executable, '-c', 'pass'])
 o.sala.wait()

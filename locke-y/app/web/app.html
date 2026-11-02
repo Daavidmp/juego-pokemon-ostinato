@@ -235,6 +235,16 @@
   .login input { font: 700 17px Nunito, sans-serif; border: 1px solid var(--linea-fuerte); border-radius: 12px; padding: 10px 14px; min-height: 50px; width: 100%; }
   .enlace { background: none; border: 0; padding: 0; color: var(--azul-texto); font-weight: 800; font-size: 14px; text-decoration: underline; }
   .usuario-chip { display: inline-flex; align-items: center; gap: 8px; min-height: 40px; padding: 0 14px; border-radius: 999px; background: var(--fondo); border: 1px solid var(--linea); font-weight: 800; font-size: 14px; }
+  .ava-corona { position: relative; display: inline-flex; flex: none; }
+  .ava-corona > .corona-ava { position: absolute; left: 50%; top: -52%; width: 80%; transform: translateX(-50%) rotate(-10deg); filter: drop-shadow(0 1px 1px rgba(27,32,48,.35)); pointer-events: none; }
+  .ava-corona.p1 .avatar, .ava-corona.p1 .tn-ava { box-shadow: 0 0 0 2px #FFCB05, 0 0 10px rgba(255,203,5,.9); background-color: #FFE58A; }
+  .ava-corona.p2 .avatar, .ava-corona.p2 .tn-ava { box-shadow: 0 0 0 2px #B8C0CE, 0 0 10px rgba(184,192,206,.9); background-color: #EEF1F6; }
+  .ava-corona.p3 .avatar, .ava-corona.p3 .tn-ava { box-shadow: 0 0 0 2px #D9904E, 0 0 10px rgba(217,144,78,.8); background-color: #F6DCC4; }
+  .usuario-chip.podio1 { background: linear-gradient(135deg, #FFF6D6, #FFE27A); border-color: #E0A800; }
+  .usuario-chip.podio2 { background: linear-gradient(135deg, #F7F8FB, #DDE2EA); border-color: #A3ABBB; }
+  .usuario-chip.podio3 { background: linear-gradient(135deg, #FBEADC, #EBC09A); border-color: #B9773C; }
+  .tb-ficha > .corona-ava { position: absolute; left: 50%; top: -30%; width: 110%; transform: translateX(-50%) rotate(-8deg); }
+  .tb-ficha > .corona-ava + .tb-aqui { bottom: calc(100% + 1.3cqw); }
   .avatar { width: 28px; height: 28px; flex: none; border-radius: 50%; object-fit: cover; background: var(--rojo-claro); color: var(--rojo-texto); display: inline-flex; align-items: center; justify-content: center; font-weight: 900; font-size: 14px; }
   .conectado .avatar { width: 38px; height: 38px; font-size: 17px; }
   .con-ojo { position: relative; display: flex; width: 100%; }
@@ -1218,6 +1228,7 @@ let casillaMandada = '';
 function pintarTablero(j) {
   const {t, hecho, actual} = progreso(j);
   const otros = otrosJugadores();
+  const miPuesto = ultimo && ultimo.online.sesion ? mejorPuesto(ultimo.online.sesion.usuario) : 9;
   const aqui = CASILLAS[actual === -1 ? CASILLAS.length - 1 : actual];
   const mia = {hito: aqui.id, n: actual === -1 ? CASILLAS.length : actual, medallas: t.medallas.filter(Boolean).length, vidas: j.preparado ? j.vidas : 0};
   if (j.preparado && JSON.stringify(mia) !== casillaMandada) {
@@ -1233,7 +1244,7 @@ function pintarTablero(j) {
       <span class="moneda"></span>${i === 0 || !icono ? '' : `<span class="tb-icono">${icono}</span>`}
       ${h.med === 4 ? `<span class="tb-bandera">${BANDERA}</span>` : ''}${h.med && h.med % 2 === 0 ? `<span class="tb-huevo">${HUEVO}</span>` : ''}
       ${otros[h.id] ? `<span class="tb-otros">${otros[h.id].map((o) => `<span class="tb-otro${o.conectado ? ' en-linea' : ''}" title="${esc(o.usuario)} · ${o.medallas}/8 medallas · ${o.vidas} vidas">${fotoJugador(o.usuario, o.foto)}</span>`).join('')}</span>` : ''}
-      ${i === actual ? `<span class="tb-ficha">${FICHA}<span class="tb-aqui">Estás aquí</span></span>` : ''}</div>`;
+      ${i === actual ? `<span class="tb-ficha">${FICHA}${miPuesto < 9 ? corona(miPuesto) : ''}<span class="tb-aqui">Estás aquí</span></span>` : ''}</div>`;
   }).join('');
   // el camino de oro llega hasta la casilla actual; el resto del camino, en blanco a trazos
   const fin = actual === -1 ? {seg: TRAMOS.length, k: 0} : CASILLAS[actual];
@@ -1407,7 +1418,18 @@ let sinConexion = false, registrando = false, panelAbierto = false;
 try { sinConexion = localStorage.getItem('pokelocke-sin-conexion') === '1'; } catch (err) { /* sin almacenamiento */ }
 
 // la foto de perfil de un jugador, o su inicial si no tiene
-const fotoJugador = (usuario, v) => (v
+// las coronas del podio de los torneos (1 oro, 2 plata, 3 bronce: los que pierden las semifinales): encima de su foto,
+// con un halo del mismo color, en todas partes. Si tiene varias, se ve la mejor
+const METAL = {1: ['#FFCB05', '#8A6400'], 2: ['#DDE2EA', '#6B7486'], 3: ['#D9904E', '#7A4A1F']};
+const PUESTO = {1: 'Campeón', 2: 'Segundo', 3: 'Tercer puesto'};
+const corona = (puesto) => `<svg class="corona-ava" viewBox="0 0 64 44" aria-hidden="true"><path d="M6 38 2 8l15 12L32 2l15 18L62 8l-4 30z" fill="${METAL[puesto][0]}" stroke="${METAL[puesto][1]}" stroke-width="3" stroke-linejoin="round"/><circle cx="32" cy="27" r="4.5" fill="#CC2B0B"/><circle cx="12" cy="31" r="3" fill="#2A75BB"/><circle cx="52" cy="31" r="3" fill="#2A75BB"/></svg>`;
+const coronasDe = (mapa) => mapa || (ultimo && ultimo.online && ultimo.online.coronas) || {};
+const mejorPuesto = (usuario, mapa) => Math.min(...(coronasDe(mapa)[usuario] || []).map((c) => c.puesto), 9);
+const conCorona = (usuario, html, mapa) => {
+  const c = coronasDe(mapa)[usuario], p = mejorPuesto(usuario, mapa);
+  return c ? `<span class="ava-corona p${p}" title="${esc(c.map((x) => `${PUESTO[x.puesto]} de ${x.nombre}`).join(' · '))}">${html}${corona(p)}</span>` : html;
+};
+const fotoJugador = (usuario, v) => conCorona(usuario, v
   ? `<img class="avatar" src="/foto/${encodeURIComponent(usuario)}?v=${esc(v)}" alt="">`
   : `<span class="avatar" aria-hidden="true">${esc(usuario[0].toUpperCase())}</span>`);
 
@@ -1420,10 +1442,11 @@ function pintarOnline(o) {
   $('o-servidor').checked = o.servidor;
   if (s) {
     const n = o.conectados.length;
-    const mia = s.usuario + '|' + (o.mi_foto || '');
+    const mia = s.usuario + '|' + (o.mi_foto || '') + '|' + mejorPuesto(s.usuario, o.coronas || {});
     if ($('o-avatar').dataset.mia !== mia) {                // se pinta cada segundo: sin cambios no se toca
       $('o-avatar').dataset.mia = mia;
       $('o-avatar').innerHTML = fotoJugador(s.usuario, o.mi_foto);
+      for (const k of [1, 2, 3]) $('o-chip').classList.toggle('podio' + k, mejorPuesto(s.usuario, o.coronas || {}) === k);
     }
     $('o-punto').className = 'punto' + (o.error ? ' no' : '');
     $('o-texto').textContent = `${s.usuario}${s.admin ? ' · admin' : ''} · ${o.error ? 'sin servidor' : n + ' conectado' + (n === 1 ? '' : 's')}`;
@@ -1479,10 +1502,10 @@ function cerrarTorneo() { torneo.abierto = false; torneo.creando = false; clearI
 
 const COLORES = ['#2A75BB', '#CC2B0B', '#1F9D55', '#8E44AD', '#D9822B', '#16A085', '#C0392B', '#2C3E50'];
 function avatar(n) {
-  const f = torneo.datos && torneo.datos.fotos[n];
-  if (f) return `<img class="tn-ava" src="${f}" alt="">`;
+  const f = torneo.datos && torneo.datos.fotos[n], coronas = (torneo.datos && torneo.datos.coronas) || {};
+  if (f) return conCorona(n, `<img class="tn-ava" src="${f}" alt="">`, coronas);
   const c = COLORES[[...n].reduce((s, ch) => s + ch.charCodeAt(0), 0) % COLORES.length];
-  return `<span class="tn-ava" style="background:${c}" aria-hidden="true">${esc(n[0].toUpperCase())}</span>`;
+  return conCorona(n, `<span class="tn-ava" style="background:${c}" aria-hidden="true">${esc(n[0].toUpperCase())}</span>`, coronas);
 }
 // con impares, la primera ronda se llama así aunque sean cuartos: la repesca habla de «la primera ronda»
 function nombreRonda(r, ultima, conRepesca) {

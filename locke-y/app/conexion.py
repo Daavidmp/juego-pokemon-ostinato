@@ -70,7 +70,7 @@ def online_estado():
             'error': comun.red['error'], 'servidor': bool(comun.red['servidor']), 'upnp': comun.red['upnp'], 'ip': comun.red['ip'],
             'sala': bool(comun.red['servidor']) and comun.red['servidor'].sala_viva(),
             'direccion': online_config().get('direccion'), 'version': comun.VERSION_APP, 'actualizacion': comun.red.get('actualizacion'),
-            'tablero': comun.red.get('tablero', [])}
+            'tablero': comun.red.get('tablero', []), 'coronas': comun.red.get('coronas', {})}
 
 
 def online_guardar_sesion():
@@ -117,7 +117,7 @@ def online_latidos():
                     comun.red['error'] = r['error']
                 else:
                     traer_fotos(direccion, s['token'], r['conectados'] + r.get('tablero', []))
-                    comun.red['tablero'] = r.get('tablero', [])
+                    comun.red['tablero'], comun.red['coronas'] = r.get('tablero', []), r.get('coronas', {})
                     comun.red['error'], comun.red['conectados'] = None, r['conectados']
                     comun.red['eventos_hasta'] = r.get('eventos_hasta', float('inf'))
                     for t in r['tareas']:
