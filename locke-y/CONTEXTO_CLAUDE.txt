@@ -263,10 +263,12 @@ jugador no esté conectado. Niveles: info, aviso, sospecha. Una sospecha no es u
   del bolsillo clave de la partida (guardado.OBJETOS_TABLERO); las casillas con suelto:true no dan por hechas las
   anteriores. Sin probar con una partida que tenga esos objetos: comprobar que se marcan, y si el juego retira el pase o
   la llave al usarlos (entonces la casilla se apaga hasta la medalla siguiente).
-- Las aspas del molino y las banderas del castillo se borraron de la imagen y van animadas por encima (app.html:
-  svg #tb-vida y VIENTO, en px de la imagen). Si se cambia la isla, hay que recolocarlas también.
-- 02/11/2026: 34 casillas con toda la historia de Y (HITOS en app.html, cada una con id). Se reparten solas a la misma
-  distancia por CAMINO (px de la imagen): con otra isla basta con cambiar CAMINO. Zoom (rueda, doble clic, botones) y
+- 02/11/2026: la isla es ahora Kalos (Firefly con el mapa de WikiDex como composición). Cada casilla está en su sitio
+  real del mapa: PUNTOS en app.html (px de la imagen, mismo orden que HITOS). Entre casilla y casilla, TRAMOS saca una
+  curva suave con un paso pequeño cada 18 px (.tb-paso, en oro los ya recorridos). Animado encima (#tb-vida, px de la
+  imagen): agua de las dos cascadas, destellos (reloj de sol, mar, lago), pájaros y banderas del castillo (VIENTO).
+  Si se cambia la isla: recolocar PUNTOS y esas animaciones.
+- 02/11/2026: 34 casillas con toda la historia de Y (HITOS en app.html, cada una con id; su sitio en PUNTOS). Zoom (rueda, doble clic, botones) y
   arrastre: objeto `camara`, mover(), zoomEn(), irAMiFicha().
   · Llegadas a ciudades/pueblos: por las zonas que se pisan jugando (locke.normas_mega apunta j['zonas_vistas'] y un
     evento «Zona nueva: N» en la Actividad). PENDIENTE: rellenar ZONAS (zona -> id de casilla) en app.html mirando esa
