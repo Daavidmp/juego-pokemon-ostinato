@@ -263,7 +263,7 @@ jugador no esté conectado. Niveles: info, aviso, sospecha. Una sospecha no es u
   del bolsillo clave de la partida (guardado.OBJETOS_TABLERO); las casillas con suelto:true no dan por hechas las
   anteriores. Sin probar con una partida que tenga esos objetos: comprobar que se marcan, y si el juego retira el pase o
   la llave al usarlos (entonces la casilla se apaga hasta la medalla siguiente).
-- 02/11/2026: la isla es ahora Kalos (Firefly con el mapa de WikiDex como composición). Cada casilla está en su sitio
+- 02/11/2026: la isla es ahora Kalos (Firefly con el mapa de WikiDex como composición; ampliada ×2: 2752×1536, las posiciones siguen en px de 1376×768). Cada casilla está en su sitio
   real del mapa: PUNTOS en app.html (px de la imagen, mismo orden que HITOS). Entre casilla grande y casilla grande, TRAMOS saca
   una curva suave, y en ella van las misiones intermedias de MISIONES (rutas, combates contra el rival y Ciprés, Café
   Lysson, Megayayo, Lapras, Hotel Desolación, Yveltal, último combate contra Lysson, desfile…) como casillas pequeñas.
@@ -288,6 +288,11 @@ jugador no esté conectado. Niveles: info, aviso, sospecha. Una sospecha no es u
   quedan aunque se borre el torneo. Van en el latido y con el torneo ('coronas'). La página (conCorona, corona(puesto),
   mejorPuesto) pinta corona y halo de oro, plata o bronce sobre su foto (panel, tablero, torneo), su chip de arriba del
   mismo color y la corona en su ficha. Si tiene varias, se ve la mejor. Pruebas en test_app.py.
+- Ficha que camina (03/11/2026): app.html avances() compara la casilla de cada uno (la tuya: 'yo:<id del juego>'; la de
+  cada amigo: 'u:<usuario>') con la última vista en este navegador (localStorage 'pokelocke-tablero-vistos'). Si avanzó,
+  caminar() mueve una ficha por las casillas del medio (#tb-viajeros, 380 ms por casilla, 6 s como mucho) y al llegar
+  anunciar() saca el aviso de arriba (#tb-aviso); el tuyo, con confeti. Mientras camina, su ficha no se pinta en su
+  casilla (enCamino). Jugando no hay tablero: lo ves al cerrar el juego.
 - Avanza al guardar: guardado.tablero(j) lee del archivo de la partida las medallas (byte 0x420C) y el equipo,
   y solo relee si cambia el archivo. PENDIENTE: leer Alto Mando y Campeona de la partida (ahora no avanzan).
 - Música: assets/musica.mp3 (Suno, «Journey of Discovery») con botón de volumen/silencio en la cabecera; se para al

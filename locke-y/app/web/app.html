@@ -78,6 +78,14 @@
   .tb-casilla { position: absolute; width: 2.3cqw; height: 1.25cqw; transform: translate(-50%, -50%); }
   .tb-casilla.gran { width: 2.9cqw; height: 1.55cqw; }
   .tb-casilla.chica { width: 1.45cqw; height: .8cqw; }
+  #tb-viajeros { position: absolute; inset: 0; pointer-events: none; }
+  .tb-casilla.viajero { width: 2.3cqw; height: 1.25cqw; z-index: 9000; }
+  .tb-aviso { left: 50%; top: 92px; transform: translateX(-50%); min-width: 260px; max-width: 520px; padding: 12px 24px; background: #fff; border-radius: 20px; box-shadow: 0 10px 0 rgba(27,32,48,.08), 0 16px 34px rgba(27,32,48,.22); text-align: center; display: flex; flex-direction: column; gap: 2px; animation: aviso-entra .35s cubic-bezier(.2, .8, .2, 1); }
+  .tb-aviso small { font-weight: 800; font-size: 13px; color: var(--suave); }
+  .tb-aviso b { font-family: Bungee, Nunito, sans-serif; font-weight: 400; font-size: 24px; line-height: 1.15; }
+  .tb-aviso span { font-size: 14px; color: var(--suave); }
+  @keyframes aviso-entra { from { opacity: 0; transform: translate(-50%, -12px); } }
+  .tb-confeti { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 7; }
   .chica .moneda { box-shadow: 0 .25cqw 0 #8E99B0, 0 .45cqw .4cqw rgba(27,32,48,.28); }
   .chica.hecho .moneda { box-shadow: 0 .25cqw 0 #B88A00, 0 .45cqw .4cqw rgba(27,32,48,.28); }
   .chica.actual .moneda { box-shadow: 0 .25cqw 0 #8A1C06, 0 .45cqw .4cqw rgba(27,32,48,.28); }
@@ -494,6 +502,7 @@
       </svg>
       <svg class="tb-camino" viewBox="0 0 1376 768" preserveAspectRatio="none" aria-hidden="true"><polyline class="resto" id="tb-resto"/><polyline class="base" id="tb-hecho"/><polyline class="brillo" id="tb-brillo"/></svg>
       <div id="tb-casillas"></div>
+      <div id="tb-viajeros"></div>
     </div>
     <div class="tb-nubes" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
     <img class="tb-hud tb-logo" src="/assets/logo.png" alt="Mega Pokelocke Y">
@@ -502,6 +511,7 @@
       <button type="button" data-zoom="menos" aria-label="Alejar" title="Alejar"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" aria-hidden="true"><path d="M5 12h14"/></svg></button>
       <button type="button" data-zoom="yo" aria-label="Ir a mi ficha" title="Ir a mi ficha"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="2.5" fill="currentColor"/><path d="M12 1v4M12 19v4M1 12h4M19 12h4"/></svg></button>
     </div>
+    <div class="tb-hud tb-aviso oculto" id="tb-aviso" role="status" aria-live="polite"></div>
     <section class="tb-hud tb-carta tb-objetivo" id="tb-objetivo" aria-label="Siguiente objetivo"></section>
     <section class="tb-hud tb-carta tb-marcador" id="tb-marcador" aria-label="Vidas y medallas"></section>
     <div class="tb-hud tb-abajo"><div class="tb-equipo" id="tb-equipo" aria-label="Tu equipo"></div><div class="tb-carta tb-jugar" id="tb-jugar"></div></div>
@@ -1181,12 +1191,15 @@ function centro(ev) {
   const r = $('tablero').getBoundingClientRect();
   return [ev.clientX - r.left - r.width / 2, ev.clientY - r.top - r.height / 2];
 }
+function centrarEn([px, py], z) {
+  const e = $('tb-escena');
+  mover(z, -(px / 1376 - .5) * e.offsetWidth * z, -(py / 768 - .5) * e.offsetHeight * z, true);
+}
 function irAMiFicha() {
   if (!ultimo) return;
   const j = ultimo.juegos.find((x) => x.preparado) || ultimo.juegos[0];
-  const {actual} = progreso(j), [px, py] = CASILLAS[actual === -1 ? CASILLAS.length - 1 : actual].pos;
-  const e = $('tb-escena'), z = Math.max(camara.z, 2.2);
-  mover(z, -(px / 1376 - .5) * e.offsetWidth * z, -(py / 768 - .5) * e.offsetHeight * z, true);
+  const {actual} = progreso(j);
+  centrarEn(CASILLAS[actual === -1 ? CASILLAS.length - 1 : actual].pos, Math.max(camara.z, 2.2));
 }
 $('tb-escena').addEventListener('wheel', (ev) => { ev.preventDefault(); zoomEn(ev.deltaY < 0 ? 1.15 : 1 / 1.15, ...centro(ev)); }, {passive: false});
 $('tb-escena').addEventListener('dblclick', (ev) => zoomEn(1.6, ...centro(ev), true));
@@ -1221,14 +1234,78 @@ function progreso(j) {
 // los demás jugadores en el tablero: su última casilla, guardada en el servidor (también sin conexión)
 function otrosJugadores() {
   const o = ultimo && ultimo.online, yo = o && o.sesion && o.sesion.usuario, por = {};
-  for (const p of (o && o.tablero) || []) if (p.usuario !== yo) (por[p.hito] = por[p.hito] || []).push(p);
+  for (const p of (o && o.tablero) || []) if (p.usuario !== yo && !enCamino.has('u:' + p.usuario)) (por[p.hito] = por[p.hito] || []).push(p);
   return por;
+}
+
+// ---------- la ficha que camina ----------
+// Si tu casilla (o la de un amigo) ha avanzado desde la última vez que se vio en este PC, la ficha recorre el camino
+// casilla a casilla y sale un aviso; la tuya, además, con confeti. Lo último visto se guarda en este navegador.
+let vistos = {};
+try { vistos = JSON.parse(localStorage.getItem('pokelocke-tablero-vistos') || '{}'); } catch (err) { /* sin almacenamiento */ }
+const enCamino = new Set();          // quién va caminando: su ficha no se pinta en su casilla hasta que llega
+let colaAvisos = Promise.resolve();  // los avisos salen de uno en uno
+function anunciar(arriba, titulo, detalle, fiesta) {
+  colaAvisos = colaAvisos.then(() => new Promise((listo) => {
+    const a = $('tb-aviso');
+    a.innerHTML = `<small>${esc(arriba)}</small><b>${esc(titulo)}</b>${detalle ? `<span>${esc(detalle)}</span>` : ''}`;
+    a.classList.remove('oculto');
+    if (fiesta && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      const c = document.createElement('canvas');
+      c.className = 'tb-confeti';
+      $('tablero').append(c);
+      confeti(c);
+      setTimeout(() => c.remove(), 3500);
+    }
+    setTimeout(() => { a.classList.add('oculto'); setTimeout(listo, 250); }, 4000);
+  }));
+}
+function caminar(quien, desde, hasta, ficha, alLlegar) {
+  enCamino.add(quien);
+  const v = document.createElement('div');
+  v.className = 'tb-casilla viajero';
+  v.innerHTML = ficha;
+  $('tb-viajeros').append(v);
+  const cuadros = CASILLAS.slice(desde, hasta + 1).map((c) => ({left: `${c.pos[0] / 13.76}%`, top: `${c.pos[1] / 7.68}%`}));
+  const lento = !matchMedia('(prefers-reduced-motion: reduce)').matches;
+  v.animate(cuadros, {duration: lento ? Math.min(6000, 380 * (cuadros.length - 1)) : 1, easing: 'linear', fill: 'forwards'}).onfinish = () => {
+    v.remove();
+    enCamino.delete(quien);
+    pintado = '';
+    if (ultimo) pintarBiblioteca(ultimo);
+    alLlegar();
+  };
+}
+function avances(j, actual, miPuesto) {
+  const llega = (antes, ahora) => `Avanzas ${ahora - antes} ${ahora - antes === 1 ? 'casilla' : 'casillas'}`;
+  if (j.preparado && j.tablero) {               // jugando no hay tablero: se mira al cerrar el juego
+    const k = 'yo:' + j.id, ahora = actual === -1 ? CASILLAS.length - 1 : actual, antes = vistos[k];
+    vistos[k] = ahora;
+    if (antes !== undefined && ahora > antes) {
+      const h = CASILLAS[ahora];
+      if (camara.z > 1) centrarEn(h.pos, camara.z);
+      caminar(k, antes, ahora, `<span class="tb-ficha">${FICHA}${miPuesto < 9 ? corona(miPuesto) : ''}</span>`,
+        () => anunciar(llega(antes, ahora), h.med ? `¡Medalla de ${h.n}!` : h.n, h.det, true));
+    }
+  }
+  const o = ultimo && ultimo.online, yo = o && o.sesion && o.sesion.usuario;
+  for (const p of (o && o.tablero) || []) {
+    const ahora = CASILLAS.findIndex((c) => c.id === p.hito), k = 'u:' + p.usuario, antes = vistos[k];
+    if (p.usuario === yo || ahora < 0) continue;
+    vistos[k] = ahora;
+    if (antes !== undefined && ahora > antes) {
+      caminar(k, antes, ahora, `<span class="tb-otros">${fotoJugador(p.usuario, p.foto)}</span>`,
+        () => anunciar(`${p.usuario} avanza ${ahora - antes} ${ahora - antes === 1 ? 'casilla' : 'casillas'}`, CASILLAS[ahora].n, '', false));
+    }
+  }
+  try { localStorage.setItem('pokelocke-tablero-vistos', JSON.stringify(vistos)); } catch (err) { /* nada */ }
 }
 let casillaMandada = '';
 function pintarTablero(j) {
   const {t, hecho, actual} = progreso(j);
-  const otros = otrosJugadores();
   const miPuesto = ultimo && ultimo.online.sesion ? mejorPuesto(ultimo.online.sesion.usuario) : 9;
+  avances(j, actual, miPuesto);
+  const otros = otrosJugadores();
   const aqui = CASILLAS[actual === -1 ? CASILLAS.length - 1 : actual];
   const mia = {hito: aqui.id, n: actual === -1 ? CASILLAS.length : actual, medallas: t.medallas.filter(Boolean).length, vidas: j.preparado ? j.vidas : 0};
   if (j.preparado && JSON.stringify(mia) !== casillaMandada) {
@@ -1244,7 +1321,7 @@ function pintarTablero(j) {
       <span class="moneda"></span>${i === 0 || !icono ? '' : `<span class="tb-icono">${icono}</span>`}
       ${h.med === 4 ? `<span class="tb-bandera">${BANDERA}</span>` : ''}${h.med && h.med % 2 === 0 ? `<span class="tb-huevo">${HUEVO}</span>` : ''}
       ${otros[h.id] ? `<span class="tb-otros">${otros[h.id].map((o) => `<span class="tb-otro${o.conectado ? ' en-linea' : ''}" title="${esc(o.usuario)} · ${o.medallas}/8 medallas · ${o.vidas} vidas">${fotoJugador(o.usuario, o.foto)}</span>`).join('')}</span>` : ''}
-      ${i === actual ? `<span class="tb-ficha">${FICHA}${miPuesto < 9 ? corona(miPuesto) : ''}<span class="tb-aqui">Estás aquí</span></span>` : ''}</div>`;
+      ${i === actual && !enCamino.has('yo:' + j.id) ? `<span class="tb-ficha">${FICHA}${miPuesto < 9 ? corona(miPuesto) : ''}<span class="tb-aqui">Estás aquí</span></span>` : ''}</div>`;
   }).join('');
   // el camino de oro llega hasta la casilla actual; el resto del camino, en blanco a trazos
   const fin = actual === -1 ? {seg: TRAMOS.length, k: 0} : CASILLAS[actual];
