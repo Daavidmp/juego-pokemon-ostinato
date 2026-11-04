@@ -12,6 +12,7 @@ import online
 import comun
 import emulador
 import guardado
+import locke
 import vigia
 
 
@@ -70,7 +71,7 @@ def online_estado():
             'error': comun.red['error'], 'servidor': bool(comun.red['servidor']), 'upnp': comun.red['upnp'], 'ip': comun.red['ip'],
             'sala': bool(comun.red['servidor']) and comun.red['servidor'].sala_viva(),
             'direccion': online_config().get('direccion'), 'version': comun.VERSION_APP, 'actualizacion': comun.red.get('actualizacion'),
-            'tablero': comun.red.get('tablero', []), 'coronas': comun.red.get('coronas', {})}
+            'tablero': comun.red.get('tablero', []), 'coronas': comun.red.get('coronas', {}), 'duelos': comun.red.get('duelos', [])}
 
 
 def online_guardar_sesion():
@@ -105,7 +106,9 @@ def online_latidos():
         if s and direccion:
             with comun.lock:
                 j = comun.buscar(comun.vivo['activo']) if comun.vivo['activo'] and emulador.jugando() else None
-            estado = {'jugando': bool(j), 'juego': j and j['nombre'], 'tablero': comun.biblio.get('mi_tablero')}
+                mio = locke.mi_locke()
+                cuentas = mio and {'medallas': sum(mio.get('medallas', [])), 'perdidas': locke.perdidas(mio)}
+            estado = {'jugando': bool(j), 'juego': j and j['nombre'], 'tablero': comun.biblio.get('mi_tablero'), 'locke': cuentas}
             # los eventos que aún no tiene el servidor; hasta que diga cuántos tiene, solo se le dice cuántos hay
             eventos, total = vigia.para_mandar(comun.red.get('eventos_hasta', float('inf')))
             try:
@@ -118,6 +121,9 @@ def online_latidos():
                 else:
                     traer_fotos(direccion, s['token'], r['conectados'] + r.get('tablero', []))
                     comun.red['tablero'], comun.red['coronas'] = r.get('tablero', []), r.get('coronas', {})
+                    comun.red['duelos'] = r.get('duelos', [])
+                    with comun.lock:
+                        locke.duelos_tick(comun.red['duelos'], s['usuario'])
                     comun.red['error'], comun.red['conectados'] = None, r['conectados']
                     comun.red['eventos_hasta'] = r.get('eventos_hasta', float('inf'))
                     for t in r['tareas']:
@@ -306,16 +312,21 @@ def online_accion(que, d):
         comun.red['sesion'], comun.red['conectados'] = None, []
         online_guardar_sesion()
         return online_estado()
-    if que in ('torneo', 'torneo_editar', 'foto'):    # el torneo lo ven todos; lo cambia el administrador
+    if que in ('torneo', 'torneo_editar', 'foto', 'duelo_retar', 'duelo_responder'):    # el torneo lo cambia el administrador
         if not comun.red['sesion']:
-            raise RuntimeError('Entra con tu usuario para ver el torneo')
-        ruta = {'torneo': '/torneo', 'torneo_editar': '/torneo/editar', 'foto': '/foto'}[que]
+            raise RuntimeError('Entra con tu usuario')
+        ruta = {'torneo': '/torneo', 'torneo_editar': '/torneo/editar', 'foto': '/foto',
+                'duelo_retar': '/duelo/retar', 'duelo_responder': '/duelo/responder'}[que]
         try:
             r = online.peticion(direccion, ruta, {**d, 'token': comun.red['sesion']['token']}, espera=15)
         except OSError as e:
             raise RuntimeError(f'No se puede conectar con el servidor ({online_motivo(e)})')
+        if r.get('error') == 'No existe':       # un servidor de antes de los duelos
+            raise RuntimeError('El servidor todavía no tiene duelos: el anfitrión tiene que actualizar Pokelocke')
         if 'error' in r:
             raise RuntimeError(r['error'])
+        if 'duelos' in r:
+            comun.red['duelos'] = r['duelos']
         return r
     if que == 'log':                         # el registro de errores de un jugador conectado (solo el administrador)
         if not comun.red['sesion']:

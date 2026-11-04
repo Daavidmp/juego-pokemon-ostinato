@@ -141,6 +141,7 @@ DIRECCIONES = (DIR_EQUIPO, DIR_EQUIPO - 0x10)
 # enfermera cura al equipo, aunque no le falte nada. En memoria, el bloque de récords está a esta distancia
 # del equipo (medido en Pokémon Y en español con Citra; se comprueba que lo leído tenga sentido)
 RECORDS_DESDE_EQUIPO = -0x5F254
+RECORD_PASOS = 0                 # pasos dados
 RECORD_ENTRENADORES = 6          # combates contra entrenadores
 RECORD_CENTRO = 11
 

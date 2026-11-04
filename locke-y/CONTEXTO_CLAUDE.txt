@@ -298,12 +298,38 @@ jugador no esté conectado. Niveles: info, aviso, sospecha. Una sospecha no es u
   debajo del tope al ganar), tres (3 Pokémon como mucho). El del vial se quitó (lo pidió David). locke.RETOS,
   retos_estado, aceptar_reto (/api/retos/aceptar) y resolver_reto, que se llama en seguimiento al leer la medalla
   nueva: superado -> j['huevos_extra'] +1 (suma en huevos_disponibles); fallado -> j['vidas_retos'] +1 (resta en
-  vidas). Historial en j['retos']. Pantalla (app.html, abrirRetos): el líder con sus tres cartas (diseño B del lienzo
-  de Claude Design «Pokelocke · Retos»), fila de 8 medallas con el resultado de cada reto. Iconos: arte oficial de
-  PokeAPI (dream-world: caramelo raro, Poké Ball, huevo suerte en assets/reto-*.png) y corazones en SVG. La primera
-  vez lo explica la profesora Arce con el cuadro de Pokémon Ostinato (assets/reto-dlg-*.png: DlgCuadroL, DlgProfesora,
-  DlgNomArce y DlgHoja de Graphics/Titles, colocados como en la pantalla de 1920 de 006_Prologo y escalados; Cambria
-  como textos.ps1). Se vuelve a ver con «?». Pruebas en test_app.py.
+  vidas). Historial en j['retos']. Aviso de reto nuevo (locke.avisar_reto_nuevo): al conseguir cada medalla desde la
+  1.ª, si aparece el reto del líder siguiente, «¡Nuevo reto! · <líder> te ofrece sus cartas en Retos» sale 2 s en el
+  juego (AVISO_RETO), en cola tras los demás avisos (avisar_en_cola). j['reto_avisado'] evita repetirlo.
+- Misiones (04/11/2026, Mega): además de las cartas, locke.MISIONES aparecen en orden en distintos momentos y se
+  avisan 2 s en el juego. Ahora solo rachas de combates contra entrenadores sin perder vidas: «Racha de diez» (combate
+  n.º 30, fácil: Escama Corazón id 93, si falla no quita nada), «Explorador» (3.ª medalla, fácil: 20.000 pasos sin
+  perder vidas, récord 0 de la partida, sin límite de gimnasio), «Racha de quince» (5.ª medalla) e «Imparable» (20,
+  7.ª medalla), difíciles: huevo extra, y si fallan una vida. Las rachas no tienen límite de gimnasio (ni caduca la
+  oferta ni hay plazo). Se quitaron (David) las de capturar 3 y 4 Pokémon y la de «Sin Centro Pokémon». Varias ofertas
+  (j['misiones_ofertas']) y una en marcha (j['mision']); se aceptan en Retos con el juego cerrado
+  (/api/misiones/aceptar). misiones_tick, en seguimiento, toma el contador de combates al volver a jugar y las resuelve;
+  dar_escamas mete las escamas ganadas en la mochila al abrir el juego. En Retos van como boletos dorados arriba a la
+  derecha (pintarMision; compactos si hay más de uno). Pruebas en test_app.py.
+- Duelos entre amigos (04/11/2026, online): en Retos, un boleto azul contra rojo (boletoDuelo, el primero de la
+  columna) para retar a un amigo: gana quien pierda menos vidas desde que se acepta hasta el 4.º gimnasio
+  (DUELO_MEDALLA, el gran torneo); ganador +1 huevo (huevos_extra), perdedor −1 vida (vidas_retos), empate nada. Lo
+  lleva el servidor (online.Servidor: retar, responder_duelo, _mirar_duelos; datos/online/duelos.json; rutas
+  /duelo/retar y /duelo/responder). Cada latido manda estado['locke'] = medallas y vidas perdidas en directo
+  (locke.perdidas = muertos + vidas_retos, también jugando). Quien llega a la 4.ª medalla cierra su cuenta («X ha
+  perdido N vidas») y con las dos se decide solo. Un duelo a la vez por jugador; se retira mientras no se acepte;
+  caduca si alguno llega a la medalla 4 sin aceptarlo. locke.duelos_tick (en cada latido) avisa de cada paso y apunta
+  premio o castigo una vez (j['duelos_vistos']; en un locke nuevo los de antes no cuentan). Hace falta que el
+  anfitrión tenga esta versión. Pruebas en test_app.py.
+- Animación del final (04/11/2026): al acabar un reto, una misión o un duelo con el juego abierto, locke.celebrar pone
+  una «fiesta» en cola; capa.pintor_capa la pinta con el navegador de la capa (fiesta() de overlay.html, canvas) y la
+  capa (tk) la reproduce encima de la pantalla de arriba (1000×440 en 72,324 del layout). Minimalista (lo pidió David,
+  unos 2,7 s): placa oscura pequeña en el tercio de abajo con el sprite, el título, una raya de color y «reto · premio».
+  Sprites en pixel art de Firefly: assets/fiesta-huevo.png y fiesta-corazon.png (tiras de 8 fotogramas 344×384,
+  recortadas de una hoja 4×2 sobre verde, verde quitado y alineadas): el huevo se agrieta, estalla y queda de oro
+  destellando; el corazón de cristal se agrieta, se rompe y queda apagado. Sin hoja (escama), el icono reto-*.png.
+  Fotogramas: entrada 30 + bucle 8 (se repite «pausa» s, lo dice fiesta()) + salida 8, a 20 fps. Lo semitransparente se
+  trama (Bayer 4×4) contra #ff00ff. Sin navegador para la capa, sale el aviso de texto.
 - Tutorial (04/11/2026): la profesora Arce enseña toda la app (app.html, TUTORIALES y empezarTutorial). «inicio» sale
   la primera vez sin juego, «tablero» la primera vez con el juego puesto y «retos» al abrir los retos; se apunta en
   localStorage 'pokelocke-tutorial-<nombre>'. Cada paso tiene un foco (selector): el velo oscurece y desenfoca todo

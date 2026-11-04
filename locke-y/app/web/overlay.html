@@ -182,6 +182,121 @@ function pintar(e) {
   });
 }
 
+// ---------- fiesta: el final de un reto, una misión o un duelo, en fotogramas para la capa (capa.py) ----------
+// Minimalista, sin placa: en el tercio de abajo de la pantalla de arriba, el sprite en pixel art
+// (assets/fiesta-huevo.png y fiesta-corazon.png: 8 fotogramas de Firefly) o el icono, el título, una raya de color y
+// una línea con el reto y el premio, con contorno negro. Unos 2,7 s: la entrada (ENTRA), un bucle corto que se repite PAUSA segundos
+// (el huevo de oro destella) y la salida (SALE). La capa de Windows solo tiene píxeles opacos o el color clave
+// (#ff00ff): lo semitransparente se trama con una matriz de Bayer 4×4.
+const FIESTA = {w: 1000, h: 440, fps: 20, entra: 30, bucle: 8, sale: 8, pausa: .8};
+const BAYER = [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5];
+async function fiesta(d, s) {
+  const {w: W0, h: H0, fps, entra, bucle, sale, pausa} = FIESTA, W = Math.round(W0 * s), H = Math.round(H0 * s);
+  const c = document.createElement('canvas'); c.width = W; c.height = H;
+  const x = c.getContext('2d', {willReadFrequently: true});
+  await Promise.all(['40px Bungee', '600 21px Rubik'].map((f) => document.fonts.load(f)));
+  const cargar = (src) => new Promise((ok) => { const i = new Image(); i.onload = () => ok(i); i.onerror = () => ok(null); i.src = src; });
+  const hoja = ['huevo', 'corazon'].includes(d.icono) ? await cargar(`/assets/fiesta-${d.icono}.png`) : null;
+  const suelto = hoja ? null : await cargar(`/assets/reto-${d.icono}.png`);
+  const gana = !!d.gana, TONO = gana ? '#ffcb05' : '#ff3b55';
+  const cl = (v) => Math.max(0, Math.min(1, v)), tramo = (t, a, b) => cl((t - a) / (b - a));
+  const atras = (p) => { const k = 2.2; return 1 + (k + 1) * (p - 1) ** 3 + k * (p - 1) ** 2; };
+  const suave = (p) => 1 - (1 - p) ** 3, lerp = (a, b, p) => a + (b - a) * p;
+  // medidas: el sprite y el texto, como un bloque centrado en la pantalla (el texto encoge si no cabe). Sin placa:
+  // el texto lleva contorno negro, como los letreros del layout
+  const linea = `${d.nombre} · ${d.efecto}`, VISTO = 92, DIBUJO = 170, HUECO = 30, cy = 300;
+  x.font = '40px Bungee'; const wt0 = x.measureText(d.titulo).width;
+  x.font = '600 22px Rubik'; const wl0 = x.measureText(linea).width;
+  const k = Math.min(1, (940 - VISTO - HUECO) / Math.max(wt0, wl0));
+  const wt = wt0 * k, bloque = VISTO + HUECO + Math.max(wt0, wl0) * k, x0 = 500 - bloque / 2;
+  const ix = x0 + VISTO / 2, tx = x0 + VISTO + HUECO;
+
+  function icono(t) {
+    const aparece = atras(tramo(t, 0, .25));
+    if (aparece <= 0) return;
+    let f = 0, rot = 0, esc = aparece, alfa = 1, apagado = false;
+    if (hoja && gana) {
+      f = t < .3 ? 0 : t < .5 ? 1 : t < .7 ? 2 : t < .9 ? 3 : t < .98 ? 4 : t < 1.08 ? 5 : 6 + Math.floor(t / .2 + 1e-6) % 2;
+      if (f === 4 || f === 5) esc = 1.2;
+      if (f >= 6) esc = .8 + .2 * atras(tramo(t, 1.08, 1.35));
+    } else if (hoja) {
+      f = t < .3 ? 0 : t < .5 ? 1 : t < .7 ? 2 : t < .85 ? 3 : t < .95 ? 4 : t < 1.05 ? 5 : t < 1.15 ? 6 : 7;
+      if (f >= 4) esc = 1.15;
+      if (t >= 1.3) { f = 3; apagado = true; alfa = tramo(t, 1.3, 1.5); esc = .9; }
+      else if (t >= 1.15) alfa = 1 - tramo(t, 1.15, 1.3);
+    }
+    if (t > .3 && t < .9) rot = Math.sin(t * 46) * lerp(.02, .1, tramo(t, .3, .9));
+    if (alfa <= 0) return;
+    x.save(); x.globalAlpha = alfa; x.translate(ix, cy); x.rotate(rot); x.scale(esc, esc);
+    if (apagado) x.filter = 'grayscale(.8) brightness(.55)';
+    if (hoja) {
+      const cw = hoja.width / 8, ch = hoja.height, w = DIBUJO * cw / ch;
+      x.drawImage(hoja, f * cw, 0, cw, ch, -w / 2, -DIBUJO / 2, w, DIBUJO);
+    } else if (suelto) {
+      const r = suelto.width / suelto.height, w = r >= 1 ? VISTO : VISTO * r, h = r >= 1 ? VISTO / r : VISTO;
+      x.drawImage(suelto, -w / 2, -h / 2, w, h);
+    }
+    x.restore();
+    const o = tramo(t, .9, 1.3);                               // una onda al romperse
+    if (o > 0 && o < 1) {
+      x.save(); x.globalAlpha = 1 - o; x.strokeStyle = TONO; x.lineWidth = 4;
+      x.beginPath(); x.arc(ix, cy, 40 + 70 * suave(o), 0, Math.PI * 2); x.stroke(); x.restore();
+    }
+  }
+  // el texto, centrado en vertical con el sprite: título, raya y línea
+  function rotulo(texto, px, py, color, grosor) {
+    x.lineJoin = 'round'; x.lineWidth = grosor; x.strokeStyle = '#000';
+    x.fillStyle = '#000'; x.strokeText(texto, px, py + grosor / 2); x.fillText(texto, px, py + grosor / 2);   // sombra dura
+    x.strokeText(texto, px, py); x.fillStyle = color; x.fillText(texto, px, py);
+  }
+  function textos(t) {
+    const pt = suave(tramo(t, .95, 1.2)), pl = suave(tramo(t, 1.1, 1.35)), pr = suave(tramo(t, 1.0, 1.4));
+    x.save(); x.textBaseline = 'middle';
+    if (pt > 0) {
+      x.globalAlpha = pt; x.font = `${40 * k}px Bungee`;
+      rotulo(d.titulo, tx + 14 * (1 - pt), cy - 22, gana ? '#ffcb05' : '#ffffff', 8);
+    }
+    if (pr > 0) {
+      x.globalAlpha = 1; x.fillStyle = '#000'; x.fillRect(tx - 2, cy + 1, wt * pr + 4, 8);
+      x.fillStyle = TONO; x.fillRect(tx, cy + 3, wt * pr, 4);
+    }
+    if (pl > 0) {
+      x.globalAlpha = pl; x.font = `600 ${22 * k}px Rubik`;
+      rotulo(linea, tx + 10 * (1 - pl), cy + 30, '#ffffff', 5);
+    }
+    x.restore();
+  }
+  function tramar() {
+    const img = x.getImageData(0, 0, W, H), p = img.data;
+    for (let py = 0, i = 0; py < H; py++) {
+      const fila = (py & 3) * 4;
+      for (let px = 0; px < W; px++, i += 4) {
+        if (p[i + 3] * 16 <= (BAYER[fila + (px & 3)] + .5) * 255) { p[i] = 255; p[i + 1] = 0; p[i + 2] = 255; }
+        else if (p[i] === 255 && p[i + 1] === 0 && p[i + 2] === 255) p[i + 2] = 254;   // nunca el color clave por casualidad
+        p[i + 3] = 255;
+      }
+    }
+    x.putImageData(img, 0, 0);
+  }
+  function fotograma(t, salida) {
+    x.setTransform(1, 0, 0, 1, 0, 0); x.clearRect(0, 0, W, H); x.setTransform(s, 0, 0, s, 0, 0);
+    if (salida > 0) x.translate(0, 12 * suave(salida));
+    icono(t); textos(t);
+    if (salida > 0) {                                          // la salida: todo se desvanece a la vez
+      const img = x.getImageData(0, 0, W, H);
+      for (let i = 3; i < img.data.length; i += 4) img.data[i] *= 1 - salida;
+      x.putImageData(img, 0, 0);
+    }
+    tramar();
+    return c.toDataURL('image/png');
+  }
+  const fotos = [];
+  for (let i = 0; i < entra; i++) fotos.push(fotograma(i / fps, 0));
+  for (let i = 0; i < bucle; i++) fotos.push(fotograma((entra + i) / fps, 0));
+  for (let i = 0; i < sale; i++) fotos.push(fotograma((entra + bucle) / fps, (i + 1) / sale));
+  return {fotos, entra, bucle, sale, fps, pausa, x: 72, y: 324};
+}
+
 async function actualizar() {
   try { pintar(await (await fetch('/api/estado')).json()); } catch (err) { /* el lanzador está cerrado */ }
 }

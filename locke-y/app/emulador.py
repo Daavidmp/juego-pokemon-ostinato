@@ -405,6 +405,7 @@ def lanzar(j):
     with comun.lock:
         vigia.abrir(j)
         locke.dar_caramelos(j)
+        locke.dar_escamas(j)
         completa = j.get('fase') == 1 and locke.medallas_partida(j) >= locke.MEDALLAS_PARA_COMPLETA and locke.abrir_fase_completa(j)
         j['firma_mod'] = firma_mod(j)
     poner_mod(j)

@@ -413,6 +413,124 @@ try:
 except RuntimeError:
     ver(True, 'con el juego abierto no se aceptan retos')
 emulador.jugando = jugando_antes
+jr2 = {'id': 'retos2', 'reglas': 'mega', 'preparado': True, 'vidas_iniciales': 25, 'ajuste_vidas': 0, 'muertos': [],
+       'medallas': [True] + [False] * 7}
+comun.vivo['aviso'] = None; comun.vivo['cola_avisos'] = 0       # sin avisos en cola de antes
+locke.avisar_reto_nuevo(jr2)
+ver(comun.vivo['aviso'] and 'Lino' in comun.vivo['aviso']['texto'] and comun.vivo['aviso']['hasta'] - time.time() <= 2.1,
+    'con la 1.ª medalla aparece el reto de Lino y avisa 2 s en el juego')
+comun.vivo['aviso'] = None
+locke.avisar_reto_nuevo(jr2)
+ver(comun.vivo['aviso'] is None, 'el mismo reto no se avisa dos veces')
+jr2['medallas'][1] = True                      # gana a Lino sin haber cogido su carta
+ver(locke.retos_estado(jr2)['medalla'] == 3, 'un reto que ya no se puede hacer (líder ya vencido) desaparece: pasa al de Corelia')
+try:
+    locke.aceptar_reto(dict(jr2, medallas=[True] * 8), 'tres')
+    ver(False, 'con las 8 medallas no quedan retos')
+except RuntimeError:
+    ver(True, 'con las 8 medallas no quedan retos')
+
+# ---------- misiones ----------
+print('Misiones')
+import juego
+cont = {'combates': 5, 'capturas': 2, 'centros': 1}
+record_antes, curas_antes = juego.record, juego.curas_en_centro
+cont['pasos'] = 1000
+juego.record = lambda rpc, i: {juego.RECORD_ENTRENADORES: cont['combates'], juego.RECORD_PASOS: cont['pasos']}.get(i, cont['capturas'])
+juego.curas_en_centro = lambda rpc: cont['centros']
+emulador.jugando = lambda: False
+jm = {'id': 'mis', 'reglas': 'mega', 'preparado': True, 'vidas_iniciales': 25, 'ajuste_vidas': 0, 'muertos': [],
+      'medallas': [True] + [False] * 7}
+comun.vivo['aviso'] = None; comun.vivo['cola_avisos'] = 0; comun.vivo['en_combate'] = False
+ofertas = lambda: [o['id'] for o in jm.get('misiones_ofertas', [])]
+locke.misiones_tick(jm, None)
+ver(not ofertas(), 'con 5 combates aún no hay misión')
+cont['combates'] = 30
+locke.misiones_tick(jm, None)
+ver(ofertas() == ['racha10'] and jm['misiones_ofertas'][0]['hasta'] is None and 'Nueva misión' in comun.vivo['aviso']['texto'],
+    'en el combate 30 aparece «Racha de diez», sin límite de gimnasio, y avisa en el juego')
+jm['medallas'][1] = True
+locke.misiones_tick(jm, None)
+ver(ofertas() == ['racha10'], 'una racha no caduca al conseguir otra medalla')
+locke.aceptar_mision(jm, 'racha10')
+locke.misiones_tick(jm, None)                                  # al volver a jugar se toman los contadores
+cont['combates'] = 40
+locke.misiones_tick(jm, None)
+ver(not jm['mision'] and jm['escamas_pendientes'] == 1 and jm['misiones'][-1]['superada'], 'diez combates sin perder vidas: misión fácil superada, una Escama Corazón')
+jm['medallas'][2] = True                                       # 3.ª medalla: «Explorador» (fácil, pasos)
+locke.misiones_tick(jm, None)
+ver(ofertas() == ['explorador'] and jm['misiones_ofertas'][0]['hasta'] is None, 'con 3 medallas aparece «Explorador», sin límite de gimnasio')
+locke.aceptar_mision(jm, 'explorador')
+locke.misiones_tick(jm, None)
+cont['pasos'] = 15000
+locke.misiones_tick(jm, None)
+ver(jm['mision']['progreso'] == 14000, 'cuenta los pasos desde que se acepta')
+cont['pasos'] = 21000
+locke.misiones_tick(jm, None)
+ver(jm['escamas_pendientes'] == 2 and jm['misiones'][-1]['superada'], '20.000 pasos sin perder vidas: otra Escama Corazón')
+jm['medallas'][3:5] = [True] * 2                               # 5.ª medalla: «Racha de quince» (difícil)
+locke.misiones_tick(jm, None)
+ver(ofertas() == ['racha15'], 'con 5 medallas aparece «Racha de quince»')
+locke.aceptar_mision(jm, 'racha15')
+locke.misiones_tick(jm, None)
+jm['muertos'].append('X')                                      # muere uno antes de los 15 combates
+locke.misiones_tick(jm, None)
+ver(not jm['misiones'][-1]['superada'] and locke.vidas(jm) == 23, 'una difícil fallada (pierdes una vida en la racha): una vida menos más')
+jm['medallas'][5:7] = [True] * 2
+locke.misiones_tick(jm, None)
+jm['medallas'][7] = True
+locke.misiones_tick(jm, None)
+ver(ofertas() == ['racha20'], 'una racha no caduca: «Imparable» sigue ofrecida con las 8 medallas')
+juego.record, juego.curas_en_centro, emulador.jugando = record_antes, curas_antes, jugando_antes
+
+# ---------- duelos ----------
+print('Duelos')
+td, ta = o.entrar('Daavidmp', 'clave1', '1.1.1.1')['token'], o.entrar('Amigo', 'clave2', '2.2.2.2')['token']
+try:
+    o.retar(td, 'Amigo')
+    ver(False, 'sin las cuentas del locke no se puede retar')
+except ValueError:
+    ver(True, 'sin las cuentas del locke no se puede retar')
+o.latido(td, {'locke': {'medallas': 1, 'perdidas': 2}})
+o.latido(ta, {'locke': {'medallas': 2, 'perdidas': 0}})
+o.retar(td, 'Amigo')
+try:
+    o.retar(ta, 'Daavidmp')
+    ver(False, 'un duelo a la vez')
+except ValueError:
+    ver(True, 'un duelo a la vez')
+dl = o.latido(ta, {})['duelos']
+ver(len(dl) == 1 and dl[0]['estado'] == 'pendiente' and dl[0]['de'] == 'Daavidmp', 'el retado ve el duelo pendiente en su latido')
+o.responder_duelo(ta, dl[0]['id'], True)
+o.latido(td, {'locke': {'medallas': 3, 'perdidas': 4}})
+dl = o.latido(ta, {})['duelos']
+ver(dl[0]['estado'] == 'en_marcha' and dl[0]['van'] == {'Daavidmp': 2, 'Amigo': 0}, 'cuenta las vidas perdidas desde que se acepta')
+o.latido(td, {'locke': {'medallas': 4, 'perdidas': 5}})
+dl = o.latido(ta, {})['duelos']
+ver(dl[0]['fin'] == {'Daavidmp': 3} and dl[0]['estado'] == 'en_marcha', 'al llegar al 4.º gimnasio su cuenta se cierra (3 vidas) y espera al otro')
+o.latido(td, {'locke': {'medallas': 4, 'perdidas': 9}})
+ver(o.latido(ta, {})['duelos'][0]['fin']['Daavidmp'] == 3, 'lo que pierda después ya no cuenta')
+# los dos Pokelocke: el aviso de cada paso y el premio o el castigo al cerrarse
+jd = {'id': 'duelo', 'preparado': True, 'vidas_iniciales': 25, 'ajuste_vidas': 0, 'muertos': [], 'medallas': [False] * 8}
+juegos_antes, jugando_antes = comun.biblio['juegos'], emulador.jugando
+comun.biblio['juegos'], emulador.jugando = [jd], lambda: False
+comun.vivo['aviso'] = None; comun.vivo['cola_avisos'] = 0
+locke.duelos_tick(o.latido(ta, {})['duelos'], 'Amigo')
+ver(comun.vivo['aviso'] is None, 'un locke nuevo no avisa de los duelos que ya había')
+o.latido(ta, {'locke': {'medallas': 4, 'perdidas': 1}})
+locke.duelos_tick(o.latido(ta, {})['duelos'], 'Amigo')
+dl = o.latido(ta, {})['duelos']
+ver(dl[0]['estado'] == 'cerrado' and dl[0]['ganador'] == 'Amigo', 'con los dos en el 4.º gimnasio gana el que menos ha perdido (1 a 3)')
+ver(jd.get('huevos_extra') == 1, 'el ganador se lleva un huevo extra')
+locke.duelos_tick(dl, 'Amigo')
+ver(jd.get('huevos_extra') == 1, 'y solo una vez')
+jd2 = dict(jd, duelos_vistos={dl[0]['id']: {'estado': 'en_marcha', 'fin': ['Daavidmp']}}, huevos_extra=0)
+comun.biblio['juegos'] = [jd2]
+locke.duelos_tick(o.latido(td, {})['duelos'], 'Daavidmp')
+ver(locke.vidas(jd2) == 24, 'el que pierde, una vida menos')
+comun.biblio['juegos'], emulador.jugando = juegos_antes, jugando_antes
+o.cambiar_nombre(ta, 'Amiga', 'clave2', '2.2.2.2')
+ver(o.duelos[0]['ganador'] == 'Amiga' and 'Amiga' in o.duelos[0]['fin'], 'al cambiar de nombre, sus duelos siguen con él')
 
 # ---------- versiones ----------
 print('Versiones')

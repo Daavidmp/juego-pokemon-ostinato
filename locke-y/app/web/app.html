@@ -234,6 +234,48 @@
   .rt-coger:disabled { background: #8E99B0; box-shadow: 0 6px 0 #5B6478; cursor: not-allowed; }
   .rt-accion p { margin: 0; color: rgba(255,255,255,.85); font-weight: 700; font-size: 14px; text-align: center; }
   .rt-enjuego { position: absolute; top: 18%; right: -34px; transform: rotate(35deg); background: var(--oro); color: #5A4300; font: 900 14px Nunito, sans-serif; padding: 4px 40px; z-index: 2; }
+  .rt-mision { position: absolute; right: 4vw; top: 11vh; width: min(640px, 46vw); display: flex; flex-direction: column; gap: 8px; z-index: 1; }
+  .rt-mision.compacto .rt-boleto { padding: 6px 12px; gap: 10px; }
+  .rt-mision.compacto .rt-mision-ico { width: 42px; height: 42px; border-radius: 12px; }
+  .rt-mision.compacto .rt-mision-ico img, .rt-mision.compacto .rt-mision-ico svg { width: 32px; height: 32px; }
+  .rt-mision.compacto .rt-mision-txt > span { display: none; }
+  .rt-mision.compacto .rt-mision-lado { flex-direction: row; align-items: center; }
+  .rt-mision.compacto .rt-aceptar { height: 32px; font-size: 12px; padding: 0 10px; }
+  .rt-mas { align-self: flex-end; color: #fff; font-weight: 900; }
+  .rt-boleto { box-sizing: border-box; display: flex; align-items: center; gap: 14px; padding: 10px 16px; border-radius: 18px; background: linear-gradient(135deg, #FFF6D6, #FFE27A); border: 3px solid #B88A00; box-shadow: 0 6px 0 rgba(90,67,0,.35), 0 14px 30px rgba(0,0,0,.35); color: var(--tinta); z-index: 1; }
+  .rt-mision-ico { width: 58px; height: 58px; flex: none; border-radius: 16px; background: #fff; display: flex; align-items: center; justify-content: center; box-shadow: inset 0 0 0 2px rgba(184,138,0,.4); }
+  .rt-mision-ico img, .rt-mision-ico svg { width: 44px; height: 44px; object-fit: contain; }
+  .rt-mision-txt { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+  .rt-mision-txt small { font-weight: 900; color: #7A5A00; font-size: 12px; }
+  .rt-mision-txt b { font: 400 clamp(15px, 1.3vw, 19px) Bungee, Nunito, sans-serif; }
+  .rt-mision-txt span { font-size: 13px; color: #4A4030; }
+  .rt-barra { position: relative; height: 16px; margin-top: 4px; border-radius: 999px; background: rgba(90,67,0,.18); overflow: hidden; }
+  .rt-barra i { position: absolute; inset: 0 auto 0 0; background: linear-gradient(#FF8A70, var(--rojo)); border-radius: 999px; }
+  .rt-barra em { position: relative; display: block; text-align: center; font: 900 11px/16px Nunito, sans-serif; font-style: normal; color: #fff; text-shadow: 0 1px 2px rgba(0,0,0,.4); }
+  .rt-mision-lado { display: flex; flex-direction: column; gap: 6px; align-items: stretch; }
+  .rt-chip { display: flex; align-items: center; gap: 6px; padding: 3px 10px 3px 6px; border-radius: 999px; background: #fff; font-weight: 900; font-size: 12px; white-space: nowrap; }
+  .rt-chip img, .rt-chip svg { width: 20px; height: 20px; object-fit: contain; }
+  .rt-chip.gana { color: #146B3A; } .rt-chip.pierde { color: #9E2108; }
+  .rt-aceptar { height: 38px; border: 0; border-radius: 12px; background: linear-gradient(#E8411F, var(--rojo)); color: #fff; font: 400 14px Bungee, Nunito, sans-serif; box-shadow: 0 4px 0 #8A1C06; }
+  /* duelo entre amigos: el mismo boleto, en azul contra rojo */
+  .rt-boleto.duelo { background: linear-gradient(115deg, #E1EDFA 0 48%, #FFE4DC 52%); border-color: #2A75BB; box-shadow: 0 6px 0 rgba(27,60,110,.35), 0 14px 30px rgba(0,0,0,.35); }
+  .rt-boleto.duelo .rt-mision-txt small { color: #1B4F86; }
+  .rt-vs { flex: none; display: flex; align-items: center; }
+  .rt-jug { width: 46px; height: 46px; box-sizing: border-box; border-radius: 50%; overflow: hidden; border: 3px solid #2A75BB; background: #2A75BB; color: #fff; display: flex; align-items: center; justify-content: center; font: 400 18px Bungee, Nunito, sans-serif; }
+  .rt-jug + .rt-vs-sello + .rt-jug { border-color: var(--rojo); background: var(--rojo); }
+  .rt-jug img { width: 100%; height: 100%; object-fit: cover; }
+  .rt-vs-sello { margin: 0 -8px; z-index: 1; width: 30px; height: 30px; }
+  .rt-marcador { display: flex; gap: 10px; align-items: center; margin-top: 2px; }
+  .rt-marcador > i { font: 400 13px Bungee, Nunito, sans-serif; font-style: normal; color: #5B6478; }
+  .rt-lado { display: flex; align-items: center; gap: 6px; }
+  .rt-lado em { font: 400 24px/1 Bungee, Nunito, sans-serif; font-style: normal; color: #2A75BB; }
+  .rt-lado + i + .rt-lado em { color: var(--rojo); }
+  .rt-lado small { display: flex; flex-direction: column; font-weight: 800; font-size: 11px; line-height: 1.15; color: #4A4030; }
+  .rt-lado small b { font: 900 12px Nunito, sans-serif; color: var(--tinta); }
+  .rt-mision.compacto .rt-boleto.duelo .rt-chip { display: none; }
+  .rt-duelo-elige { display: flex; gap: 6px; }
+  .rt-duelo-elige select { height: 38px; min-width: 0; border-radius: 12px; border: 2px solid #2A75BB; font: 800 14px Nunito, sans-serif; padding: 0 8px; background: #fff; }
+  .rt-aceptar.no { background: #fff; color: var(--tinta); border: 2px solid #CBD1DE; box-shadow: 0 4px 0 #CBD1DE; font: 900 14px Nunito, sans-serif; }
   .rt-historial { position: absolute; right: 4vw; bottom: 3vh; display: flex; align-items: center; gap: 8px; background: rgba(255,255,255,.12); border: 1px solid rgba(255,255,255,.25); border-radius: 16px; padding: 8px 14px; color: #fff; }
   .rt-historial > b { margin-right: 4px; }
   .rt-med { width: 38px; height: 38px; border-radius: 50%; background: rgba(255,255,255,.12); display: flex; align-items: center; justify-content: center; box-shadow: inset 0 0 0 2px rgba(255,255,255,.18); }
@@ -969,6 +1011,7 @@
     <button type="button" id="rt-cerrar" aria-label="Cerrar"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
   </div>
   <div id="rt-cuerpo"></div>
+  <section class="rt-mision oculto" id="rt-mision" aria-label="Misión especial"></section>
   <div class="rt-historial" id="rt-historial"></div>
 </div>
 
@@ -1473,7 +1516,7 @@ function pintarTablero(j) {
   const equipo = t.equipo.map((p) => `<div class="tb-burbuja${(j.muertos || []).includes(p.id) ? ' muerto' : ''}" title="${esc(p.mote || p.especie_nombre)}">
       <img src="/arte/${p.especie}" alt="${esc(p.especie_nombre)}"><span class="nv">Nv. ${p.nivel}</span></div>`).join('');
   const jugar = `<button class="btn-jugar" type="button" data-accion="jugar" data-id="${j.id}">${j.preparado ? 'Jugar' : 'Preparar'}</button>
-      <div class="tb-botones">${j.retos ? `<button class="btn btn-neutro" type="button" data-accion="retos" data-id="${j.id}">Retos${j.retos.puede ? '<span class="tb-punto" aria-label="hay un reto por aceptar"></span>' : ''}</button>` : ''}
+      <div class="tb-botones">${j.retos ? `<button class="btn btn-neutro" type="button" data-accion="retos" data-id="${j.id}">Retos${j.retos.puede || j.retos.misiones.ofertas.length || duelPendiente() ? '<span class="tb-punto" aria-label="hay un reto, una misión o un duelo por aceptar"></span>' : ''}</button>` : ''}
       <button class="btn btn-neutro" type="button" data-accion="menu" data-id="${j.id}" aria-expanded="${menuAbierto === j.id}">Más opciones</button></div>${menuAbierto === j.id ? menuJuego(j) : ''}`;
   const html = resto + casillas + objetivo + marcador + equipo + jugar + hechos;
   if (html === pintado) return;
@@ -2083,6 +2126,8 @@ const TUTORIALES = {
     {foco: '.rt-carta .rt-premio', texto: 'Si cumples el reto al ganar la medalla, te llevas un huevo extra.'},
     {foco: '.rt-carta .rt-premio', texto: 'Si fallas, pierdes una vida. Yo lo compruebo sola al ganar la medalla.'},
     {foco: '.rt-accion', texto: 'Elige una carta y cógela aquí, con el juego cerrado. No se devuelve.'},
+    {foco: '#rt-mision', texto: 'A veces aparecen misiones: las fáciles dan una Escama Corazón y no castigan.'},
+    {foco: '#rt-mision', texto: 'Las difíciles dan un huevo, pero si fallas pierdes una vida.'},
     {foco: '#rt-historial', texto: 'Y aquí ves cómo te fue en el reto de cada medalla. ¡Suerte!'},
   ],
 };
@@ -2235,6 +2280,7 @@ function abrirRetos(id) {
     const t = h ? `${lider(n)}: ${nombreReto(r, h.tipo)} · ${h.superado ? 'superado (+1 huevo)' : 'fallado (−1 vida)'}` : clase === 'ahora' ? `${lider(n)}: en juego` : `${lider(n)}: sin reto`;
     return `<span class="rt-med ${clase}" title="${esc(t)}"><img src="/assets/medalla-${n}.png" alt="${esc(t)}"></span>`;
   }).join('');
+  pintarMision(r.misiones, j);
   $('rt-cuerpo').dataset.id = id;
   $('retos-fondo').classList.remove('oculto');
   requestAnimationFrame(() => empezarTutorial('retos'));
@@ -2247,6 +2293,104 @@ $('rt-cuerpo').onclick = async (ev) => {
   if (!confirm(`¿Coger la carta «${x.nombre}» para la medalla de ${lider(j.retos.medalla)}? No se puede devolver.`)) return;
   const r = await api('/api/retos/aceptar', {id: j.id, tipo: x.id});
   if (r && !r.error) { rtElegido = null; await actualizar(); abrirRetos(j.id); }
+};
+// la misión especial (además de las cartas): un boleto arriba a la derecha, por aceptar o en marcha con su progreso
+const ICONO_MISION = {
+  racha: () => ICONOS.vs,
+  pasos: () => '<svg viewBox="0 0 64 64" aria-hidden="true"><g fill="#7A5A00" stroke="#3B2E00" stroke-width="2"><ellipse cx="22" cy="40" rx="8" ry="12"/><circle cx="15" cy="23" r="3"/><circle cx="21" cy="20" r="3"/><circle cx="27" cy="22" r="3"/><ellipse cx="43" cy="28" rx="8" ry="12"/><circle cx="36" cy="11" r="3"/><circle cx="42" cy="8" r="3"/><circle cx="48" cy="10" r="3"/></g></svg>',
+};
+function boletoMision(x, activa) {
+  const premio = x.premio === 'huevo' ? '<img src="/assets/reto-huevo.png" alt=""> 1 huevo' : '<img src="/assets/reto-escama.png" alt=""> Escama Corazón';
+  const castigo = x.premio === 'huevo' ? `<span class="rt-chip pierde">${ROTO} 1 vida</span>` : '<span class="rt-chip">Si fallas, nada</span>';
+  const plazo = x.hasta ? `hasta la medalla ${x.hasta} (${esc(lider(x.hasta))})` : 'sin límite de gimnasio';
+  const cuerpo = activa
+    ? `<small>Misión en marcha · ${plazo}</small><b>${esc(x.nombre)}</b><span>${esc(x.texto)}</span>
+       ${x.n ? `<div class="rt-barra" role="progressbar" aria-valuemin="0" aria-valuemax="${x.n}" aria-valuenow="${x.progreso}"><i style="width: ${100 * x.progreso / x.n}%;"></i><em>${x.progreso.toLocaleString('es-ES')} / ${x.n.toLocaleString('es-ES')}</em></div>` : ''}`
+    : `<small>¡Nueva misión! · ${plazo}</small><b>${esc(x.nombre)}</b><span>${esc(x.texto)}</span>`;
+  return `<div class="rt-boleto" title="${esc(x.nombre + ': ' + x.texto)}"><span class="rt-mision-ico">${ICONO_MISION[x.tipo]()}</span><div class="rt-mision-txt">${cuerpo}</div>
+    <div class="rt-mision-lado"><span class="rt-chip gana">${premio}</span>${castigo}
+    ${activa ? '' : `<button type="button" class="rt-aceptar" data-mision="${x.id}">Aceptar misión</button>`}</div></div>`;
+}
+// el duelo entre amigos (online): gana quien pierda menos vidas hasta el 4.º gimnasio (lo lleva el servidor)
+const DUELO_MEDALLA = 4;
+const vidasTxt = (n) => `${n} ${n === 1 ? 'vida' : 'vidas'}`;
+function duelosMios() {
+  const o = ultimo && ultimo.online, yo = o && o.sesion && o.sesion.usuario;
+  return {yo, o, duelos: (yo && o.duelos) || []};
+}
+const duelPendiente = () => { const {yo, duelos} = duelosMios(); return duelos.some((d) => d.estado === 'pendiente' && d.a === yo); };
+function boletoDuelo(j) {
+  const {yo, o, duelos} = duelosMios();
+  if (!yo) return '';
+  const vivo = duelos.find((d) => d.estado === 'pendiente' || d.estado === 'en_marcha');
+  const cerrado = [...duelos].reverse().find((d) => d.estado === 'cerrado');
+  const foto = (u) => u === yo ? o.mi_foto : (((o && o.tablero) || []).find((p) => p.usuario === u) || {}).foto;
+  const jug = (u) => `<span class="rt-jug" title="${esc(u)}">${foto(u) ? `<img src="/foto/${encodeURIComponent(u)}?v=${esc(foto(u))}" alt="">` : esc(u[0].toUpperCase())}</span>`;
+  const caras = (a, b) => `<span class="rt-vs">${jug(a)}<span class="rt-vs-sello">${ICONOS.vs}</span>${jug(b)}</span>`;
+  const reglas = `Gana quien pierda menos vidas hasta el ${DUELO_MEDALLA}.º gimnasio`;
+  const premio = `<span class="rt-chip gana"><img src="/assets/reto-huevo.png" alt=""> 1 huevo</span><span class="rt-chip pierde">${ROTO} 1 vida</span>`;
+  // el marcador: las vidas que lleva perdidas cada uno, grandes; debajo, sus medallas o que ya cerró su cuenta
+  const marcador = (d, a, b) => {
+    const uno = (u, nombre) => `<span class="rt-lado"><em>${u in d.fin ? d.fin[u] : d.van[u]}</em><small><b>${esc(nombre)}</b>${u in d.fin ? 'ya llegó' : `${Math.min(d.medallas[u], DUELO_MEDALLA)}/${DUELO_MEDALLA} medallas`}</small></span>`;
+    return `<div class="rt-marcador" title="Vidas perdidas en el duelo">${uno(a, 'Tú')}<i>VS</i>${uno(b, b)}</div>`;
+  };
+  const boleto = (a, b, cuerpo, lado) => `<div class="rt-boleto duelo">${caras(a, b)}<div class="rt-mision-txt">${cuerpo}</div><div class="rt-mision-lado">${lado}</div></div>`;
+  if (vivo) {
+    const otro = vivo.de === yo ? vivo.a : vivo.de;
+    if (vivo.estado === 'pendiente' && vivo.a === yo)
+      return boleto(otro, yo, `<small>Duelo entre amigos</small><b>¡${esc(otro)} te reta!</b><span>${reglas}. Si ganas, un huevo; si pierdes, una vida.</span>`,
+        `<button type="button" class="rt-aceptar" data-duelo="${vivo.id}" data-si="1">Aceptar duelo</button><button type="button" class="rt-aceptar no" data-duelo="${vivo.id}" data-si="0">Rechazar</button>`);
+    if (vivo.estado === 'pendiente')
+      return boleto(yo, otro, `<small>Duelo entre amigos</small><b>Esperando a ${esc(otro)}</b><span>Le saldrá en Retos para aceptarlo o rechazarlo.</span>`,
+        `<button type="button" class="rt-aceptar no" data-duelo="${vivo.id}" data-si="0">Retirar el reto</button>`);
+    return boleto(yo, otro, `<small>Duelo en marcha · vidas perdidas hasta el ${DUELO_MEDALLA}.º gimnasio</small><b>Tú contra ${esc(otro)}</b>
+      ${marcador(vivo, yo, otro)}`, premio);
+  }
+  if (j.medallas < DUELO_MEDALLA) {
+    const amigos = ((o && o.tablero) || []).filter((p) => p.usuario !== yo && p.medallas < DUELO_MEDALLA).map((p) => p.usuario);
+    if (!amigos.length) return '';
+    return boleto(yo, amigos[0], `<small>Duelo entre amigos</small><b>Reta a un amigo</b><span>${reglas}. Con las mismas, empate.</span>`,
+      `${premio}<div class="rt-duelo-elige"><select id="rt-rival" aria-label="Amigo al que retar">${amigos.map((u) => `<option>${esc(u)}</option>`).join('')}</select>
+       <button type="button" class="rt-aceptar" data-duelo="nuevo">Retar</button></div>`);
+  }
+  if (cerrado) {
+    const otro = cerrado.de === yo ? cerrado.a : cerrado.de, gano = cerrado.ganador === yo;
+    const titulo = cerrado.ganador === null ? 'Empate' : gano ? '¡Duelo ganado!' : 'Duelo perdido';
+    return boleto(yo, otro, `<small>Duelo con ${esc(otro)} · cerrado</small><b>${titulo}</b>${marcador(cerrado, yo, otro)}`,
+      cerrado.ganador === null ? '<span class="rt-chip">Nadie gana ni pierde</span>' : gano ? '<span class="rt-chip gana"><img src="/assets/reto-huevo.png" alt=""> +1 huevo</span>' : `<span class="rt-chip pierde">${ROTO} −1 vida</span>`);
+  }
+  return '';
+}
+// la que está en marcha y, debajo, las que hay por aceptar (como mucho se ven dos); el duelo, el primero
+function pintarMision(ms, j) {
+  const duelo = boletoDuelo(j);
+  const caja = $('rt-mision'), lista = [...(duelo ? [duelo] : []), ...(ms.activa ? [boletoMision(ms.activa, true)] : []), ...ms.ofertas.map((x) => boletoMision(x, false))];
+  caja.classList.toggle('oculto', !lista.length);
+  caja.classList.toggle('compacto', lista.length > 1);          // dos boletos enteros taparían las cartas
+  caja.innerHTML = lista.slice(0, 2).join('') + (lista.length > 2 ? `<small class="rt-mas">y ${lista.length - 2} más</small>` : '');
+}
+$('rt-mision').onclick = async (ev) => {
+  const dd = ev.target.closest('[data-duelo]');
+  if (dd) {
+    const id = $('rt-cuerpo').dataset.id;
+    if (dd.dataset.duelo === 'nuevo') {
+      const rival = $('rt-rival').value;
+      if (!confirm(`¿Retar a ${rival}? Gana quien pierda menos vidas hasta el ${DUELO_MEDALLA}.º gimnasio: un huevo para el que gane y una vida menos para el que pierda.`)) return;
+      await api('/api/online/duelo_retar', {usuario: rival});
+    } else {
+      if (dd.dataset.si === '1' && !confirm('¿Aceptar el duelo? Cuentan las vidas que pierdas desde ahora. No se puede deshacer.')) return;
+      await api('/api/online/duelo_responder', {id: dd.dataset.duelo, si: dd.dataset.si === '1'});
+    }
+    await actualizar();
+    return abrirRetos(id);
+  }
+  const b = ev.target.closest('[data-mision]');
+  if (!b) return;
+  const j = ultimo.juegos.find((x) => x.id === $('rt-cuerpo').dataset.id), x = j.retos.misiones.ofertas.find((y) => y.id === b.dataset.mision);
+  if (j.retos.misiones.activa) return alert('Ya tienes una misión en marcha: acaba esa primero.');
+  if (!confirm(`¿Aceptar la misión «${x.nombre}»? No se puede devolver.`)) return;
+  const r = await api('/api/misiones/aceptar', {id: j.id, mision: x.id});
+  if (r && !r.error) { await actualizar(); abrirRetos(j.id); }
 };
 $('rt-cerrar').onclick = () => { $('retos-fondo').classList.add('oculto'); rtElegido = null; };
 $('rt-ayuda').onclick = () => empezarTutorial('retos', true);

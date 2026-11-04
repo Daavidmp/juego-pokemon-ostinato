@@ -2,6 +2,7 @@
 import ctypes
 import re
 import shutil
+import threading
 import time
 import traceback
 from pathlib import Path
@@ -18,7 +19,8 @@ def nuevo_locke(j, vidas, reglas=None):
     j.update(vidas_iniciales=int(vidas), ajuste_vidas=0, muertos=[], medallas=[False] * 8, vial=True,
              reglas=reglas, perdonados=[], caramelos_dados=0, muertes_activas=False,
              fase=1 if reglas == 'mega' else None, rutas_usadas=[], rutas_avisadas=[], balls_escondidas=None,
-             aviso_torneo=False, reto=None, retos=[], huevos_extra=0, vidas_retos=0,
+             aviso_torneo=False, reto=None, retos=[], huevos_extra=0, vidas_retos=0, reto_avisado=None,
+             mision=None, misiones_ofertas=[], misiones=[], misiones_vistas=[], escamas_pendientes=0, duelos_vistos=None,
              huevos=caja_de_huevos() if reglas == 'mega' else None)
 
 
@@ -158,6 +160,28 @@ def dar_caramelos(j):
     comun.guardar()
 
 
+def dar_escamas(j):
+    """Con el juego cerrado: mete en la mochila las Escamas Corazón ganadas en misiones. Sin partida guardada todavía,
+    esperan a la siguiente vez."""
+    if not j.get('escamas_pendientes'):
+        return
+    try:
+        partida = pokehex.Partida(guardado.pokehex_partida(j))
+    except (RuntimeError, ValueError, OSError):
+        return
+    objetos = partida.mochila()['objetos']
+    hueco = next((o for o in objetos if o['objeto'] == ESCAMA_CORAZON), None)
+    if hueco:
+        hueco['cantidad'] = min(MAX_HUECO, hueco['cantidad'] + j['escamas_pendientes'])
+    else:
+        objetos.append({'objeto': ESCAMA_CORAZON, 'cantidad': j['escamas_pendientes']})
+    partida.bolsillo('objetos', objetos)
+    partida.guardar(comun.DATOS / 'juegos' / j['id'] / 'copias_partida')
+    vigia.evento('mision', f'{j["escamas_pendientes"]} Escama(s) Corazón a la mochila')
+    j['escamas_pendientes'] = 0
+    comun.guardar()
+
+
 def vidas(j):
     return max(0, j['vidas_iniciales'] + j['ajuste_vidas'] - len(j['muertos']) - j.get('vidas_retos', 0))
 
@@ -171,12 +195,14 @@ RETOS = {
     'tres': ('Solo tres', 'Gana al líder con 3 Pokémon como mucho en el equipo.'),
 }
 NIVELES_MENOS = 3
+LIDERES = ('Violeta', 'Lino', 'Corelia', 'Amaro', 'Lem', 'Valeria', 'Ástrid', 'Édel')
+AVISO_RETO = 2                  # segundos que dura en el juego el aviso de un reto nuevo
 
 
 def retos_estado(j):
     m = sum(j.get('medallas', []))
     return {'puede': j.get('reglas') == 'mega' and 1 <= m < 8 and not j.get('reto'), 'medalla': m + 1,
-            'activo': j.get('reto'), 'historial': j.get('retos', []),
+            'activo': j.get('reto'), 'historial': j.get('retos', []), 'misiones': misiones_estado(j),
             'lista': [{'id': k, 'nombre': n, 'texto': t} for k, (n, t) in RETOS.items()]}
 
 
@@ -201,7 +227,7 @@ def resolver_reto(j):
     """En cuanto el juego da la medalla del reto (se llama con comun.lock): se mira el equipo de ese momento."""
     r = j.get('reto')
     if not r or sum(j.get('medallas', [])) < r['medalla']:
-        return
+        return False
     equipo = [p for p in comun.vivo['equipo'] if p and not p.get('huevo')]
     tope = niveles_tope(j)[r['medalla'] - 1]
     superado = {'sin_vidas': vidas(j) >= r['vidas'],
@@ -210,14 +236,171 @@ def resolver_reto(j):
     nombre = RETOS[r['tipo']][0]
     if superado:
         j['huevos_extra'] = j.get('huevos_extra', 0) + 1
-        comun.avisar(f'¡Reto superado: {nombre}! · Ganas un huevo extra en la caja de huevos', 10)
+        celebrar(True, '¡Reto superado!', nombre, 'Ganas un huevo extra', 'huevo')
     else:
         j['vidas_retos'] = j.get('vidas_retos', 0) + 1
-        comun.avisar(f'Reto fallado: {nombre} · Pierdes una vida', 10)
+        celebrar(False, 'Reto fallado', nombre, 'Pierdes una vida', 'corazon')
     j.setdefault('retos', []).append({**r, 'superado': superado})
     j['reto'] = None
     vigia.evento('reto', f'Reto «{nombre}» de la medalla {r["medalla"]}: {"superado" if superado else "fallado"}')
     comun.guardar()
+    return True
+
+
+def avisar_en_cola(texto, segundos):
+    """Un aviso en el juego detrás del que esté en pantalla (y de los que ya esperan), para que no se pisen."""
+    ahora = time.time()
+    libre = max(ahora, (comun.vivo.get('aviso') or {}).get('hasta', 0), comun.vivo.get('cola_avisos', 0))
+    comun.vivo['cola_avisos'] = libre + segundos
+    if libre <= ahora:
+        comun.avisar(texto, segundos)
+    else:
+        threading.Timer(libre - ahora + .2, comun.avisar, (texto, segundos)).start()
+
+
+def celebrar(gana, titulo, nombre, efecto, icono):
+    """El final de un reto, una misión o un duelo con el juego abierto: una animación sobre la pantalla de arriba
+    (la pinta y la enseña la capa, ver capa.pintor_capa). Si no se puede pintar, sale como aviso de texto."""
+    if emulador.jugando():
+        comun.vivo.setdefault('fiestas', []).append({'gana': gana, 'titulo': titulo, 'nombre': nombre, 'efecto': efecto,
+                                                     'icono': icono, 'texto': f'{titulo} {nombre} · {efecto}'})
+
+
+def avisar_reto_nuevo(j):
+    """Desde el 2.º gimnasio, al conseguir cada medalla aparece el reto del líder siguiente: si se está jugando, un
+    aviso de AVISO_RETO segundos en el juego (detrás del resultado del reto anterior, si lo hay)."""
+    est = retos_estado(j)
+    if not est['puede'] or j.get('reto_avisado') == est['medalla']:
+        return
+    j['reto_avisado'] = est['medalla']
+    avisar_en_cola(f'¡Nuevo reto! · {LIDERES[est["medalla"] - 1]} te ofrece sus cartas en Retos', AVISO_RETO)
+
+
+# ---------- misiones (Mega Pokelocke) ----------
+# Además de las cartas de los líderes, desde la 1.ª medalla aparecen misiones en distintos momentos: al llegar a un
+# número de combates contra entrenadores o al conseguir ciertas medallas, siempre en este orden. Las que dependen de
+# una medalla (capturas, sin Centro) se ofrecen hasta la medalla siguiente y luego desaparecen; las rachas de combates
+# no tienen límite de gimnasio: ni caduca la oferta ni hay plazo para cumplirlas. Aceptada (con el juego cerrado), se
+# comprueba sola mientras se juega con los contadores del juego. Superada: las fáciles dan una Escama Corazón (va a la
+# mochila la próxima vez que se abra el juego) y las difíciles un huevo extra. Fallada: las fáciles no quitan nada (te
+# quedas sin la escama); las difíciles, una vida. Una en marcha como mucho; ofertas puede haber varias.
+MISIONES = [   # id, cuándo aparece, nombre, texto, tipo, cantidad, difícil
+    ('racha10', ('combates', 30), 'Racha de diez', 'Gana 10 combates contra entrenadores sin perder ninguna vida.', 'racha', 10, False),
+    ('explorador', ('medallas', 3), 'Explorador', 'Camina 20.000 pasos sin perder ninguna vida.', 'pasos', 20000, False),
+    ('racha15', ('medallas', 5), 'Racha de quince', 'Gana 15 combates contra entrenadores sin perder ninguna vida.', 'racha', 15, True),
+    ('racha20', ('medallas', 7), 'Imparable', 'Gana 20 combates contra entrenadores sin perder ninguna vida.', 'racha', 20, True),
+]
+ESCAMA_CORAZON = 93
+
+
+def _ficha_mision(mid):
+    x = next(m for m in MISIONES if m[0] == mid)
+    return {'id': x[0], 'nombre': x[2], 'texto': x[3], 'tipo': x[4], 'n': x[5], 'premio': 'huevo' if x[6] else 'escama'}
+
+
+def _ofertas(j):
+    """Las ofertas de misión (las partidas de antes guardaban una sola, en 'mision_oferta')."""
+    if j.get('mision_oferta'):
+        j.setdefault('misiones_ofertas', []).append(j.pop('mision_oferta'))
+    return j.setdefault('misiones_ofertas', [])
+
+
+def misiones_estado(j):
+    act = j.get('mision')
+    return {'ofertas': [{**_ficha_mision(o['id']), 'hasta': o['hasta']} for o in _ofertas(j)],
+            'activa': act and {**_ficha_mision(act['id']), 'hasta': act['hasta'], 'progreso': act.get('progreso', 0)},
+            'historial': [{**_ficha_mision(h['id']), 'superada': h['superada']} for h in j.get('misiones', [])]}
+
+
+def aceptar_mision(j, mid=None):
+    ofertas = _ofertas(j)
+    of = next((o for o in ofertas if mid in (None, o['id'])), None)
+    if j.get('reglas') != 'mega':
+        raise RuntimeError('Las misiones son de las normas Mega Pokelocke')
+    if not of:
+        raise RuntimeError('Esa misión ya no está disponible')
+    if j.get('mision'):
+        raise RuntimeError('Ya tienes una misión en marcha')
+    if emulador.jugando():
+        raise RuntimeError('Las misiones se aceptan con el juego cerrado')
+    # los contadores de partida (combates, capturas, curas) se toman al volver a jugar: con el juego cerrado no cambian
+    j['mision'] = {'id': of['id'], 'hasta': of['hasta'], 'base': None, 'progreso': 0, 'fecha': time.strftime('%Y-%m-%d %H:%M')}
+    ofertas.remove(of)
+    vigia.evento('mision', f'Acepta la misión «{_ficha_mision(of["id"])["nombre"]}»')
+    comun.guardar()
+
+
+def _cerrar_mision(j, superada):
+    m = _ficha_mision(j['mision']['id'])
+    if superada and m['premio'] == 'huevo':
+        j['huevos_extra'] = j.get('huevos_extra', 0) + 1
+        celebrar(True, '¡Misión superada!', m['nombre'], 'Ganas un huevo extra', 'huevo')
+    elif superada:
+        j['escamas_pendientes'] = j.get('escamas_pendientes', 0) + 1
+        celebrar(True, '¡Misión superada!', m['nombre'], 'Ganas una Escama Corazón (al volver a abrir el juego)', 'escama')
+    elif m['premio'] == 'escama':
+        celebrar(False, 'Misión fallada', m['nombre'], 'Te quedas sin la Escama Corazón', 'escama')
+    else:
+        j['vidas_retos'] = j.get('vidas_retos', 0) + 1
+        celebrar(False, 'Misión fallada', m['nombre'], 'Pierdes una vida', 'corazon')
+    j.setdefault('misiones', []).append({'id': m['id'], 'superada': superada})
+    j['mision'] = None
+    vigia.evento('mision', f'Misión «{m["nombre"]}»: {"superada" if superada else "fallada"}')
+    comun.guardar()
+
+
+def misiones_tick(j, rpc):
+    """Mientras se juega (con comun.lock): caducan las ofertas, aparecen misiones nuevas y se mira la que está en marcha."""
+    if j.get('reglas') != 'mega':
+        return
+    try:
+        cont = {'combates': juego.record(rpc, juego.RECORD_ENTRENADORES), 'pasos': juego.record(rpc, juego.RECORD_PASOS)}
+    except (OSError, TimeoutError):
+        return
+    if None in cont.values():
+        return
+    med = sum(j.get('medallas', []))
+    ofertas = _ofertas(j)
+    pasadas = [o for o in ofertas if o['hasta'] is not None and med >= o['hasta']]
+    for o in pasadas:                                   # ya ha pasado esa parte de la historia
+        ofertas.remove(o)
+    if pasadas:
+        comun.guardar()
+    vistas = j.setdefault('misiones_vistas', [])
+    siguiente = next((m for m in MISIONES if m[0] not in vistas), None)
+    if siguiente and 1 <= med < 8:
+        que, cuanto = siguiente[1]
+        if (cont['combates'] if que == 'combates' else med) >= cuanto:
+            vistas.append(siguiente[0])
+            # las rachas de combates y de pasos no tienen límite de gimnasio (las de otro tipo, hasta la medalla siguiente)
+            ofertas.append({'id': siguiente[0], 'hasta': None if siguiente[4] in ('racha', 'pasos') else med + 1})
+            avisar_en_cola(f'¡Nueva misión! · {siguiente[2]}: la tienes en Retos', AVISO_RETO)
+            comun.guardar()
+    act = j.get('mision')
+    if not act:
+        return
+    if act.get('base') is None:
+        act['base'] = {**cont, 'vidas': vidas(j)}
+        comun.guardar()
+        return
+    m, b, superada = _ficha_mision(act['id']), act['base'], None
+    antes = act.get('progreso', 0)
+    if m['tipo'] == 'pasos':
+        act['progreso'] = max(0, min(m['n'], cont['pasos'] - b['pasos']))
+        if vidas(j) < b['vidas']:
+            superada = False
+        elif act['progreso'] >= m['n']:
+            superada = True
+    elif m['tipo'] == 'racha':
+        act['progreso'] = max(0, min(m['n'], cont['combates'] - b['combates']))
+        if vidas(j) < b['vidas']:
+            superada = False
+        elif act['progreso'] >= m['n'] and not comun.vivo.get('en_combate'):
+            superada = True                              # el contador sube al empezar: cuenta al acabar el combate
+    if superada is not None:
+        _cerrar_mision(j, superada)
+    elif act.get('progreso', 0) != antes:
+        comun.guardar()
 
 
 # ---------- seguimiento del locke ----------
@@ -278,12 +461,14 @@ def seguimiento():
                             vigia.evento('retroceso', f'La partida ha perdido medallas: de {sum(j["medallas"])} a {sum(medallas)}', 'sospecha')
                         j['medallas'] = medallas
                         resolver_reto(j)
+                        avisar_reto_nuevo(j)
                         # Mega Pokelocke: la 4.ª medalla (Amaro) es la mitad del juego y toca el torneo. Una vez
                         if j.get('reglas') == 'mega' and sum(medallas) >= 4 and not j.get('aviso_torneo'):
                             j['aviso_torneo'] = True
                             comun.avisar('¡Has llegado al fin de la primera parte del Mega Pokelocke! · '
                                    'Prepara tu equipo para el gran torneo', 20)
                         comun.guardar()
+                    misiones_tick(j, rpc)
                     # el vial se recarga cada vez que la enfermera de un Centro cura al equipo: sube su
                     # contador en los récords del juego. Si no se puede leer, se adivina por PS y PP
                     try:
@@ -533,3 +718,63 @@ def usar_vial():
             comun.avisar('¡Has usado el vial! · Vuelve al Centro Pokémon para recargarlo')
             vigia.evento('vial', 'Usa el vial')
             comun.guardar()
+
+
+# ---------- duelos entre amigos (online) ----------
+# Un jugador reta a otro desde Retos: gana quien pierda menos vidas hasta el 4.º gimnasio (el gran torneo). Lo lleva el
+# servidor (online.Servidor, con las cuentas que manda cada latido); aquí se avisa de cada paso y, al cerrarse, se
+# apunta el premio (un huevo extra) o el castigo (una vida). Con las mismas vidas perdidas, empate: nada.
+def mi_locke():
+    """El locke de este Pokelocke (solo hay una ROM): el que está preparado."""
+    return next((j for j in comun.biblio['juegos'] if j.get('preparado')), None)
+
+
+def perdidas(j):
+    return len(j.get('muertos', [])) + j.get('vidas_retos', 0)
+
+
+def _vidas_txt(n):
+    return f'{n} {"vida" if n == 1 else "vidas"}'
+
+
+def duelos_tick(duelos, yo):
+    """Con cada latido (con comun.lock): lo nuevo de cada duelo desde la última vez."""
+    j = mi_locke()
+    if not j:
+        return
+    clave = lambda d: {'estado': d['estado'], 'fin': sorted(d['fin'])}
+    if j.get('duelos_vistos') is None:            # locke nuevo: los duelos de antes no cuentan para este
+        j['duelos_vistos'] = {d['id']: clave(d) for d in duelos}
+        comun.guardar()
+        return
+    vistos, cambio = j['duelos_vistos'], False
+    for d in duelos:
+        antes, otro = vistos.get(d['id']), d['a'] if d['de'] == yo else d['de']
+        if antes == clave(d):
+            continue
+        vistos[d['id']], cambio = clave(d), True
+        if d['estado'] == 'pendiente' and d['a'] == yo:
+            avisar_en_cola(f'¡{otro} te reta a un duelo! · Acéptalo o recházalo en Retos', 5)
+        elif d['estado'] == 'rechazado' and d['de'] == yo:
+            avisar_en_cola(f'{otro} rechaza tu duelo', 4)
+        elif d['estado'] in ('en_marcha', 'cerrado') and (antes or {}).get('estado') == 'pendiente' and d['de'] == yo:
+            avisar_en_cola(f'¡{otro} acepta tu duelo! · Gana quien pierda menos vidas hasta el 4.º gimnasio', 5)
+        for p in d['fin']:
+            if p not in (antes or {}).get('fin', []):
+                quien = 'Llegas al 4.º gimnasio: has perdido' if p == yo else f'{p} llega al 4.º gimnasio: ha perdido'
+                falta = '' if len(d['fin']) == 2 else f' · Falta {otro if p == yo else "que llegues tú"}'
+                avisar_en_cola(f'Duelo · {quien} {_vidas_txt(d["fin"][p])}{falta}', 6)
+        if d['estado'] == 'cerrado':
+            mio, suyo = d['fin'][yo], d['fin'][otro]
+            marcador = f'{yo} {_vidas_txt(mio)} · {otro} {_vidas_txt(suyo)} perdidas'
+            if d['ganador'] == yo:
+                j['huevos_extra'] = j.get('huevos_extra', 0) + 1
+                celebrar(True, '¡Duelo ganado!', f'Contra {otro}: {mio} a {suyo}', 'Ganas un huevo extra', 'huevo')
+            elif d['ganador'] == otro:
+                j['vidas_retos'] = j.get('vidas_retos', 0) + 1
+                celebrar(False, 'Duelo perdido', f'Contra {otro}: {mio} a {suyo}', 'Pierdes una vida', 'corazon')
+            else:
+                avisar_en_cola(f'Duelo empatado con {otro} · {_vidas_txt(mio)} cada uno: nadie gana ni pierde', 6)
+            vigia.evento('duelo', f'Duelo con {otro}: {marcador} · ' + ('gana' if d['ganador'] == yo else 'empate' if d['ganador'] is None else 'pierde'))
+    if cambio:
+        comun.guardar()

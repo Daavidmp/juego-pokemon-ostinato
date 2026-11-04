@@ -30,6 +30,7 @@ import errores
 PUERTO_SERVIDOR = 8766          # TCP http: solo /descargar y /version (la primera descarga, desde el navegador)
 PUERTO_SEGURO = 8767            # TCP https: todo lo demás, con el certificado propio del anfitrión
 PUERTO_SALA = 24872             # UDP: la sala de Citra (su puerto de siempre)
+DUELO_MEDALLA = 4               # los duelos acaban al llegar al 4.º gimnasio (el gran torneo, a mitad de aventura)
 LATIDO = 5                      # segundos entre latidos de cada jugador
 CONECTADO = 20                  # sin latido en este tiempo, sale como desconectado
 
@@ -130,9 +131,9 @@ def duckdns(dominio, token):
 # ---------- el servidor (solo en el PC del anfitrión) ----------
 
 def _renombrar(valor, viejo, nuevo):
-    """El mismo dato (el torneo) con un jugador renombrado, solo donde el texto es exactamente su nombre."""
+    """El mismo dato (el torneo, los duelos) con un jugador renombrado, solo donde el texto (o la clave) es exactamente su nombre."""
     if isinstance(valor, dict):
-        return {k: _renombrar(v, viejo, nuevo) for k, v in valor.items()}
+        return {(nuevo if k == viejo else k): _renombrar(v, viejo, nuevo) for k, v in valor.items()}
     if isinstance(valor, list):
         return [_renombrar(v, viejo, nuevo) for v in valor]
     return nuevo if valor == viejo else valor
@@ -239,6 +240,8 @@ class Servidor:
         self.admin = admin.lower()
         for nombre, u in self.usuarios.items():
             u['admin'] = nombre.lower() == self.admin
+        f = self._duelos_f()
+        self.duelos = json.loads(f.read_text(encoding='utf-8')) if f.exists() else []
         self.lock = threading.Lock()
         self.sesiones = {}               # token -> usuario
         self.vistos = {}                 # usuario -> (hora, estado)
@@ -358,6 +361,8 @@ class Servidor:
                 self.vistos[nuevo] = self.vistos.pop(u)
             if u in self.tareas:
                 self.tareas[nuevo] = self.tareas.pop(u)
+            self.duelos = _renombrar(self.duelos, u, nuevo)
+            self._guardar_duelos()
             f = self._torneo_f()
             if f.exists():
                 f.write_text(json.dumps(_renombrar(json.loads(f.read_text(encoding='utf-8')), u, nuevo), ensure_ascii=False, indent=1),
@@ -386,10 +391,15 @@ class Servidor:
         hasta = self.recibir_eventos(u, eventos, total)
         estado = dict(estado) if isinstance(estado, dict) else {}
         tablero = self._casilla(estado.pop('tablero', None))
+        cuentas = self._cuentas(estado.pop('locke', None))
         with self.lock:
             if tablero and self.usuarios.get(u, {}).get('tablero') != tablero:
                 self.usuarios[u]['tablero'] = tablero
                 self._guardar()
+            if cuentas and self.usuarios.get(u, {}).get('locke') != cuentas:
+                self.usuarios[u]['locke'] = cuentas
+                self._guardar()
+                self._mirar_duelos()
             self.vistos[u] = (ahora, estado)
             tareas, self.tareas[u] = self.tareas.get(u, []), []
             conectados = [{'usuario': k, 'admin': self.usuarios.get(k, {}).get('admin', False), **v[1], 'foto': self._foto_v(k)}
@@ -398,7 +408,9 @@ class Servidor:
             tablero = [{'usuario': k, 'foto': self._foto_v(k), 'conectado': k in en_linea, **v['tablero']}
                        for k, v in sorted(self.usuarios.items()) if v.get('tablero')]
             coronas = self.coronas()
-        return {'conectados': conectados, 'tareas': tareas, 'eventos_hasta': hasta, 'tablero': tablero, 'coronas': coronas}
+            duelos = self._duelos_de(u)
+        return {'conectados': conectados, 'tareas': tareas, 'eventos_hasta': hasta, 'tablero': tablero, 'coronas': coronas,
+                'duelos': duelos}
 
     @staticmethod
     def _casilla(t):
@@ -410,6 +422,98 @@ class Servidor:
                     'medallas': max(0, min(8, int(t.get('medallas', 0)))), 'vidas': max(0, min(999, int(t.get('vidas', 0))))}
         except (TypeError, ValueError):
             return None
+
+    @staticmethod
+    def _cuentas(c):
+        """Medallas y vidas perdidas del locke, en directo (con el juego abierto también): vienen de fuera."""
+        if not isinstance(c, dict):
+            return None
+        try:
+            return {'medallas': max(0, min(8, int(c.get('medallas', 0)))), 'perdidas': max(0, min(999, int(c.get('perdidas', 0))))}
+        except (TypeError, ValueError):
+            return None
+
+    # --- duelos: un jugador reta a otro; quien pierda menos vidas hasta el 4.º gimnasio (el gran torneo) gana ---
+    # [{'id', 'de', 'a', 'estado': pendiente|en_marcha|cerrado|rechazado|cancelado|caducado, 'base': {u: perdidas al
+    #   empezar}, 'fin': {u: vidas perdidas al llegar a la medalla}, 'ganador': u o None (empate), 'fecha'}]
+    # Cada uno se cierra al llegar a la medalla DUELO_MEDALLA (queda su cuenta); con los dos, se decide solo. El premio
+    # (un huevo) y el castigo (una vida) los apunta cada Pokelocke en su partida al ver el duelo cerrado.
+    def _duelos_f(self):
+        return self.carpeta / 'duelos.json'
+
+    def _guardar_duelos(self):
+        tmp = self._duelos_f().with_suffix('.tmp')
+        tmp.write_text(json.dumps(self.duelos, ensure_ascii=False, indent=1), encoding='utf-8')
+        tmp.replace(self._duelos_f())
+
+    def _duelos_de(self, u):
+        """Los duelos de un jugador, con lo que lleva perdido cada uno (con self.lock)."""
+        res = []
+        for d in self.duelos:
+            if u not in (d['de'], d['a']):
+                continue
+            van = {}
+            for p in (d['de'], d['a']):
+                c = self.usuarios.get(p, {}).get('locke') or {}
+                van[p] = d['fin'].get(p, max(0, c.get('perdidas', 0) - d['base'].get(p, 0)) if d['estado'] == 'en_marcha' else 0)
+            res.append({**d, 'van': van, 'medallas': {p: (self.usuarios.get(p, {}).get('locke') or {}).get('medallas', 0)
+                                                       for p in (d['de'], d['a'])}})
+        return res
+
+    def _mirar_duelos(self):
+        """Tras cada cambio en las cuentas de alguien (con self.lock): quien llega al 4.º gimnasio cierra su cuenta y,
+        con las dos cerradas, gana el que menos vidas ha perdido (con las mismas, empate)."""
+        cambio = False
+        for d in self.duelos:
+            cuentas = {p: self.usuarios.get(p, {}).get('locke') or {} for p in (d['de'], d['a'])}
+            if d['estado'] == 'pendiente' and any(c.get('medallas', 0) >= DUELO_MEDALLA for c in cuentas.values()):
+                d['estado'], cambio = 'caducado', True
+            if d['estado'] != 'en_marcha':
+                continue
+            for p, c in cuentas.items():
+                if p not in d['fin'] and c.get('medallas', 0) >= DUELO_MEDALLA:
+                    d['fin'][p], cambio = max(0, c.get('perdidas', 0) - d['base'].get(p, 0)), True
+            if len(d['fin']) == 2:
+                a, b = d['fin'][d['de']], d['fin'][d['a']]
+                d['estado'], d['ganador'] = 'cerrado', None if a == b else d['de'] if a < b else d['a']
+        if cambio:
+            self._guardar_duelos()
+
+    def retar(self, token, a):
+        u = self._usuario(token)
+        with self.lock:
+            if a == u or a not in self.usuarios:
+                raise ValueError('Ese jugador no existe')
+            for p in (u, a):
+                c = self.usuarios[p].get('locke')
+                if not c:
+                    raise ValueError(f'{p} aún no tiene un locke empezado con esta versión de Pokelocke')
+                if c['medallas'] >= DUELO_MEDALLA:
+                    raise ValueError(f'{"Ya tienes" if p == u else p + " ya tiene"} la medalla {DUELO_MEDALLA}: el duelo es hasta el gran torneo')
+                if any(p in (d['de'], d['a']) and d['estado'] in ('pendiente', 'en_marcha') for d in self.duelos):
+                    raise ValueError(f'{"Ya tienes" if p == u else p + " ya tiene"} un duelo en marcha o por aceptar')
+            self.duelos.append({'id': secrets.token_hex(4), 'de': u, 'a': a, 'estado': 'pendiente', 'base': {}, 'fin': {},
+                                   'ganador': None, 'fecha': time.strftime('%Y-%m-%d %H:%M')})
+            self._guardar_duelos()
+            return {'duelos': self._duelos_de(u)}
+
+    def responder_duelo(self, token, ident, si):
+        """El retado acepta o rechaza; el que reta puede retirarlo mientras no se acepte."""
+        u = self._usuario(token)
+        with self.lock:
+            d = next((x for x in self.duelos if x['id'] == ident and x['estado'] == 'pendiente'), None)
+            if not d or u not in (d['de'], d['a']):
+                raise ValueError('Ese duelo ya no está pendiente')
+            if u == d['de']:
+                d['estado'] = 'cancelado'
+            elif not si:
+                d['estado'] = 'rechazado'
+            else:
+                d['estado'] = 'en_marcha'
+                d['base'] = {p: (self.usuarios.get(p, {}).get('locke') or {}).get('perdidas', 0) for p in (d['de'], d['a'])}
+                d['empieza'] = time.strftime('%Y-%m-%d %H:%M')
+            self._guardar_duelos()
+            return {'duelos': self._duelos_de(u)}
 
     def _foto_v(self, u):
         """Una huella de su foto: pesa poco, va en cada latido y la foto solo se pide si cambia."""
@@ -708,6 +812,10 @@ class Servidor:
                         r = srv.torneo(d.get('token'))
                     elif ruta == '/torneo/editar':
                         r = srv.editar_torneo(d.get('token'), d.get('que'), d)
+                    elif ruta == '/duelo/retar':
+                        r = srv.retar(d.get('token'), d.get('usuario'))
+                    elif ruta == '/duelo/responder':
+                        r = srv.responder_duelo(d.get('token'), d.get('id'), bool(d.get('si')))
                     elif ruta == '/fotos':
                         r = srv.fotos(d.get('token'), d.get('usuarios'))
                     elif ruta == '/foto':

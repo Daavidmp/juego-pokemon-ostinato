@@ -49,7 +49,7 @@ def foto_estado():
             'activo': activo, 'jugando': jugando, 'conectado': comun.vivo['conectado'], 'cargando': emulador.cargando(), 'tarea': comun.vivo['tarea'] and {**comun.vivo['tarea'], 'transcurrido': time.time() - comun.vivo['tarea']['inicio']},
             'equipo': [p and {**p, 'muerto': p['id'] in muertos} for p in comun.vivo['equipo']],
             'aviso': comun.vivo['aviso']['texto'] if comun.vivo['aviso'] and time.time() < comun.vivo['aviso']['hasta'] else None,
-            'capa': comun.vivo['capa'], 'encaje': comun.encaje() if os.name == 'nt' else (1, 0, 0),
+            'capa': comun.vivo['capa'], 'fiesta': comun.vivo.get('fiesta'), 'encaje': comun.encaje() if os.name == 'nt' else (1, 0, 0),
             'avanzado': (comun.DATOS / 'avanzado.rnqs').exists(),
             'online': conexion.online_estado(),
             'firma': comun.biblio.get('firma'),
@@ -340,6 +340,9 @@ class Servidor(BaseHTTPRequestHandler):
                 vigia.anotar_partida(j)
                 vigia.evento('restaurar', f'Restaura una copia de la partida: {d.get("nombre")}', 'sospecha')
                 comun.guardar()
+        elif ruta == '/api/misiones/aceptar':
+            with comun.lock:
+                locke.aceptar_mision(comun.buscar(d.get('id')), d.get('mision'))
         elif ruta == '/api/retos/aceptar':
             with comun.lock:
                 locke.aceptar_reto(comun.buscar(d.get('id')), d.get('tipo'))

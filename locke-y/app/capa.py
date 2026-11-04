@@ -119,6 +119,15 @@ class Fotografo:
         datos = self.cdp('Page.captureScreenshot', format='png', optimizeForSpeed=True)['data']
         destino.write_bytes(base64.b64decode(datos))
 
+    def fiesta(self, d):
+        """Los fotogramas de la animación del final de un reto (fiesta() de overlay.html), ya tramados."""
+        if not self.n:
+            raise RuntimeError('La capa aún no está cargada')
+        r = self.cdp('Runtime.evaluate', expression=f'fiesta({json.dumps(d)}, {self.escala})', awaitPromise=True, returnByValue=True)
+        if 'exceptionDetails' in r:
+            raise RuntimeError(r['exceptionDetails'].get('text', 'fiesta() ha fallado'))
+        return r['result']['value']
+
     def cerrar(self):
         try:
             self.ws.close()
@@ -202,6 +211,31 @@ def renderizar_capa():
     return True
 
 
+CARPETA_FIESTA = comun.TOOLS / 'fiesta'
+PAUSA_FIESTA = 4                 # segundos que se queda el letrero (el bucle) si fiesta() no dice otra cosa
+
+
+def pintar_fiesta(d):
+    """Pinta la animación del final de un reto y la deja lista para la capa (vivo['fiesta']); si no se puede (sin el
+    navegador que se queda abierto), sale como aviso de texto."""
+    import locke
+    try:
+        if not fotografo['f']:
+            raise RuntimeError('Sin navegador para la capa')
+        r = fotografo['f'].fiesta(d)
+        v = (comun.vivo.get('fiesta') or {}).get('v', 0) + 1
+        shutil.rmtree(CARPETA_FIESTA, ignore_errors=True)
+        CARPETA_FIESTA.mkdir(parents=True, exist_ok=True)
+        for i, f in enumerate(r.pop('fotos')):
+            (CARPETA_FIESTA / f'{v}-{i}.png').write_bytes(base64.b64decode(f.split(',', 1)[1]))
+        comun.vivo['fiesta'] = f = {'pausa': PAUSA_FIESTA, **r, 'v': v, 'n': i + 1}
+        dura = (r['entra'] + r['sale']) / r['fps'] + f['pausa']
+        comun.vivo['fiesta_hasta'] = time.time() + dura + 3          # + lo que tarda la capa en verla y cargarla
+    except Exception:
+        traceback.print_exc()
+        locke.avisar_en_cola(d['texto'], 8)
+
+
 def pintor_capa():
     """Repinta la capa cuando cambia lo que se ve. Nunca se para: si algo falla, lo vuelve a intentar."""
     ultima = None
@@ -209,6 +243,8 @@ def pintor_capa():
         try:
             if emulador.jugando() and emulador.cargando() is None:          # mientras Citra carga, todo el procesador para él
                 huella = huella_capa()
+                if comun.vivo.get('fiestas') and time.time() > comun.vivo.get('fiesta_hasta', 0) and ultima:
+                    pintar_fiesta(comun.vivo['fiestas'].pop(0))
                 if huella != ultima and renderizar_capa():
                     ultima = huella                       # si no se pudo pintar, se reintenta en el siguiente
                     if comun.biblio.get('ajustes', {}).get('ligero'):
@@ -216,6 +252,7 @@ def pintor_capa():
             elif not emulador.jugando():
                 ultima = None
                 cerrar_fotografo()
+                comun.vivo['fiestas'] = []
         except Exception:
             traceback.print_exc()
             ultima = None
@@ -239,6 +276,7 @@ def capa():
     raiz.attributes('-topmost', True)
     raiz.attributes('-transparentcolor', comun.CLAVE)
     etiqueta = tk.Label(raiz, bd=0, bg=comun.CLAVE)
+    fiesta = tk.Label(raiz, bd=0, bg=comun.CLAVE)            # la animación del final de un reto, encima
     # el cartel de carga
     FONDO, TINTA, ACENTO = '#1b1820', '#ffffff', '#c8102e'
     cartel = tk.Frame(raiz, bg=FONDO, highlightthickness=3, highlightbackground=ACENTO)
@@ -253,7 +291,28 @@ def capa():
     GWL_EXSTYLE, WS_EX_NOACTIVATE, WS_EX_TOOLWINDOW = -20, 0x08000000, 0x00000080
     estilo = ctypes.windll.user32.GetWindowLongW(hwnd, GWL_EXSTYLE)
     ctypes.windll.user32.SetWindowLongW(hwnd, GWL_EXSTYLE, estilo | WS_EX_NOACTIVATE | WS_EX_TOOLWINDOW)
-    vista = {'version': -1, 'imagen': None, 'arrancado': time.time(), 'modo': None, 'x': 0, 'fallos': 0}
+    vista = {'version': -1, 'imagen': None, 'arrancado': time.time(), 'modo': None, 'x': 0, 'fallos': 0, 'fiesta': None}
+
+    def empezar_fiesta(f):
+        """La entrada, el bucle repetido durante la pausa y la salida, a f['fps'] fotogramas por segundo."""
+        try:
+            fotos = [tk.PhotoImage(file=str(CARPETA_FIESTA / f'{f["v"]}-{i}.png')) for i in range(f['n'])]
+        except tk.TclError:
+            return
+        e, b = f['entra'], f['bucle']
+        vueltas = max(1, round(f['pausa'] * f['fps'] / b))
+        orden = list(range(e)) + [e + k % b for k in range(vueltas * b)] + list(range(e + b, f['n']))
+        fiesta.place(x=ox + round(f['x'] * s), y=oy + round(f['y'] * s))
+        fiesta.lift()
+
+        def paso(k=0):
+            if k >= len(orden) or vista['modo'] != 'layout':
+                fiesta.place_forget()
+                fiesta.configure(image='')
+                return
+            fiesta.configure(image=fotos[orden[k]])
+            fiesta.after(1000 // f['fps'], paso, k + 1)
+        paso()
 
     def modo_cartel(segundos):
         if vista['modo'] != 'cartel':
@@ -305,6 +364,10 @@ def capa():
                 vista['version'] = e['capa']
                 vista['imagen'] = tk.PhotoImage(file=str(comun.CAPA_PNG))
                 etiqueta.configure(image=vista['imagen'])
+            f = e.get('fiesta')
+            if f and vista['fiesta'] is not None and f['v'] != vista['fiesta']:
+                empezar_fiesta(f)
+            vista['fiesta'] = f['v'] if f else 0     # al abrir la capa, la última fiesta ya no se repite
         raiz.attributes('-topmost', True)
         raiz.after(1000, refrescar)
 
