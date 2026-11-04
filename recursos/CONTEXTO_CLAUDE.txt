@@ -444,3 +444,21 @@ de abajo arriba en motas de polvo de su color (una copia quieta del dibujo recor
 - Entrenadores normales: la de Essentials, como en Pokemon Anil (destellos, dos Poke Balls cruzandose, cunas negras;
   tapa la pantalla entera). Anil solo tiene VS propio (Intro Versus, custom_vs_TIPO + custom_background_TIPO) para los
   importantes; aqui los importantes llevan el "te desafia" (015).
+
+21. CIUDAD DEL GIMNASIO (MAPA 19): MEJORAS POR SCRIPT (2026-11-04, hecho en el PC sin los coches que se mueven)
+- recursos/ciudad_mejoras/aplicar.py (python3, con RPG Maker cerrado). Se puede volver a ejecutar sobre cualquier
+  version del mapa 19 y del tileset 50: lo ya hecho no se repite. Deja copia en ciudad_mejoras/copias/<fecha>/.
+  · Coches aparcados (azul, rojo, rosa, verde) y furgoneta de comida al 72 %: se recomponen desde sus casillas del
+    tileset (VEHICULOS: id de arriba a la izquierda, ancho, alto), media de area y cada pixel al color mas parecido de
+    su paleta; en su mismo hueco, centrados y apoyados abajo. Casillas nuevas al final de Ciudad_Gimnasio.png (filas
+    999-1004, mismo paso y prioridad que las originales); las que quedan vacias salen del mapa (ahi ya se pasa).
+    La furgoneta no se mueve nunca (lo dijo David).
+  · Linea discontinua en el centro de las carreteras de dos carriles (raya de 3 px en el borde de una casilla de
+    asfalto), solo en tramos de 3 casillas o mas y sin cruces ni pasos de cebra cerca.
+  · OJO: Ciudad_Gimnasio.png ya mide 32160 px de alto; RGSS/mkxp no aguantan bitmaps de mas de 32768: quedan 19 filas.
+- SI EL OTRO PC TIENE CAMBIOS SIN SUBIR EN Map019.rxdata / Tilesets.rxdata / Ciudad_Gimnasio.png (los coches que se
+  mueven): son binarios y git no los junta. Alli: guardar copia de esos 3 archivos, quedarse con SU version al
+  juntar (git checkout --ours o copiarlos encima tras el pull), y volver a ejecutar aplicar.py.
+- PENDIENTE (lo pidio David, para cuando esten aqui los coches que se mueven): que sigan siempre la carretera por su
+  carril, que giren en las esquinas y al entrar al parking (no cambiar de direccion de golpe), y que FRENEN cuando el
+  jugador se acerque y no arranquen hasta que se aleje.
