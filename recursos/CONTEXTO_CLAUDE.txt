@@ -459,6 +459,10 @@ de abajo arriba en motas de polvo de su color (una copia quieta del dibujo recor
 - SI EL OTRO PC TIENE CAMBIOS SIN SUBIR EN Map019.rxdata / Tilesets.rxdata / Ciudad_Gimnasio.png (los coches que se
   mueven): son binarios y git no los junta. Alli: guardar copia de esos 3 archivos, quedarse con SU version al
   juntar (git checkout --ours o copiarlos encima tras el pull), y volver a ejecutar aplicar.py.
+- HECHO EN EL OTRO PC (2026-11-04), sobre la version con los coches que se mueven: mismos 5 vehiculos al 72 % y 30 casillas
+  de linea; sus 48 casillas nuevas quedaron en las filas 1014-1019 (alli las 999-1013 ya eran bancos, contenedor y
+  verjas). La imagen mide 1020 filas (32640 px): QUEDAN 4 FILAS LIBRES. Sin pkmn-devkit alli, se hizo con el mismo
+  calculo en Python y el motor del juego (rmxp.ps1) para leer y escribir los .rxdata.
 - PENDIENTE (lo pidio David, para cuando esten aqui los coches que se mueven): que sigan siempre la carretera por su
   carril, que giren en las esquinas y al entrar al parking (no cambiar de direccion de golpe), y que FRENEN cuando el
   jugador se acerque y no arranquen hasta que se aleje.

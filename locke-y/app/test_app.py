@@ -16,6 +16,7 @@ import comun
 import conexion
 import emulador
 import guardado
+import locke
 import online
 import web
 
@@ -57,6 +58,63 @@ ver(post('/api/quitar', {'id': 'abc123'}, tipo='text/plain')[0] == 403, 'una web
 ver(post('/api/quitar', {'id': 'abc123'}, host='malo.ejemplo.com')[0] == 403, 'otro Host (DNS rebinding) se rechaza')
 s, r = post('/api/quitar', {'id': '../..'})
 ver(s == 400 and fuera.exists() and comun.DATOS.exists(), 'quitar con id «../..» no borra nada')
+import pokehex
+ver(len(pokehex.LEGENDARIOS) == 54 and {150, 151, 382, 489, 493, 494, 649, 716, 721} <= pokehex.LEGENDARIOS and not {25, 133, 373, 445, 637, 715} & pokehex.LEGENDARIOS, 'la lista de legendarios y singulares está completa')
+ver(not {pokehex.especie_huevo_azar() for _ in range(5000)} & pokehex.LEGENDARIOS, 'un huevo aleatorio nunca es legendario ni singular')
+import juego
+import struct
+pk = bytearray(254)
+struct.pack_into('<I', pk, 0, 0x1234ABCD)
+struct.pack_into('<H', pk, 8, 25)
+struct.pack_into('<I', pk, 0x74, 0xC0000000 | 12345)
+pk[0x40:0x4A] = 'Huevo'.encode('utf-16-le')
+pk[0xCA] = 120
+viejo = bytearray(pk)
+viejo[0xCA] = 0
+struct.pack_into('<H', viejo, 6, sum(struct.unpack_from('<112H', viejo, 8)) & 0xFFFF)
+struct.pack_into('<H', pk, 6, sum(struct.unpack_from('<112H', pk, 8)) & 0xFFFF)
+r = juego.huevo_retrasado(bytes(viejo))
+ver(r and r[0xCA] == 120 and juego.pokemon(r)['huevo'], 'un huevo con el contador bajo se retrasa y sigue siendo válido')
+ver(juego.huevo_retrasado(bytes(pk)) is None, 'uno que ya lo tiene alto no se toca')
+abierto = juego.huevo_abierto(bytes(pk), 'Pikachu', 8)
+p = juego.pokemon(abierto)
+ver(p and not p['huevo'] and p['mote'] == 'Pikachu' and p['especie'] == 25, 'el huevo abierto en memoria es un Pokémon válido, sin marca de huevo')
+ver(struct.unpack_from('<I', abierto, 0x74)[0] == 12345 and abierto[0xCA] == 70 and struct.unpack_from('<H', abierto, 0xDA)[0] == 8, 'conserva sus IV y coge amistad y sitio')
+ver(juego.descifrar(*juego.cifrar(abierto)[:1], juego.cifrar(abierto)[1][:22])[:232] == abierto[:232], 'se cifra bien para escribirlo en el equipo')
+part = pokehex.Partida.__new__(pokehex.Partida)
+part.d = bytearray(pokehex.TAM_PARTIDA)
+struct.pack_into('<II', part.d, pokehex.TAM_PARTIDA - 0x200 + 0x14, 0x300, 0)
+struct.pack_into('<II', part.d, pokehex.TAM_PARTIDA - 0x200 + 0x14 + 8, 0x20000, 1)
+ver(part._bloque_de(0x16200) == (1, 0x400, 0x20000), 'cada bloque de la partida empieza en múltiplo de 0x200')
+class MemoriaFalsa:
+    def __init__(self, d): self.d, self.escrito = bytearray(d), None
+    def leer(self, x, n): return bytes(self.d[:n])
+    def escribir(self, x, b): self.escrito = (x, b); self.d[0] = b[0]
+ver(juego.entrenador(abierto) is not None and juego.entrenador(bytes(254)) is None, 'el entrenador del primer Pokémon dice de qué partida es')
+jn = {'id': 'n'}
+locke.nuevo_locke(jn, 25, 'mega')
+ver(jn.get('fijo_puesto') is None, 'un locke nuevo vuelve a poner el Fijo')
+m = MemoriaFalsa(bytes.fromhex('61000200'))
+ver(juego.poner_fijo(m) and m.escrito == (juego.DIR_OPCIONES, b'\x69'), 'pone el combate en Fijo en la memoria (0x61 -> 0x69)')
+m = MemoriaFalsa(bytes.fromhex('69000200'))
+ver(juego.poner_fijo(m) and m.escrito is None, 'si ya está en Fijo no escribe nada')
+m = MemoriaFalsa(bytes.fromhex('61ff0200'))
+ver(not juego.poner_fijo(m) and m.escrito is None, 'si lo leído no parecen las opciones, no toca nada')
+jm = {'id': 'm', 'preparado': True, 'medallas': [False] * 8}
+viejo_tablero = guardado.tablero
+guardado.tablero = lambda j: {'medallas': [True, True] + [False] * 6}
+locke.medallas_de_la_partida(jm)
+ver(sum(jm['medallas']) == 2, 'con el juego cerrado, las medallas de la partida guardada ponen al día las de la app')
+jm['medallas'], jm['reto'] = [False] * 8, {'medalla': 1}
+locke.medallas_de_la_partida(jm)
+ver(sum(jm['medallas']) == 0, 'con un reto en marcha no se tocan (se resuelve jugando)')
+guardado.tablero = viejo_tablero
+huevo = {'id': 'A', 'especie': 25, 'huevo': True}
+ver([p['id'] for p in locke.huevos_abiertos([huevo, None], [{**huevo, 'huevo': False}, None])] == ['A'], 'se nota cuando un huevo del equipo se abre')
+ver(not locke.huevos_abiertos([huevo], [huevo]) and not locke.huevos_abiertos([None], [{**huevo, 'huevo': False}]), 'un huevo sin abrir o un Pokémon nuevo no lanzan nada')
+ver(locke._huevo_visible({'cogido': True, 'abierto': False, 'especie': 25, 'shiny': False}) == {'cogido': True, 'abierto': False, 'shiny': False}, 'un huevo sin abrir no dice qué lleva')
+ver(locke._huevo_visible({'cogido': True, 'especie': 25, 'shiny': False})['especie'] == 25, 'los cogidos antes de este cambio se siguen viendo')
+ver([locke.rol(b)[0] for b in ((50, 90, 50, 50, 60, 50), (50, 60, 50, 50, 90, 50), (50, 40, 90, 50, 40, 60), (50, 40, 60, 50, 40, 90))] == ['Atacante físico', 'Atacante especial', 'Tanque físico', 'Tanque especial'], 'el rol sale de las estadísticas base')
 ver(post('/api/huevos/coger', {'id': 'abc123', 'i': -5})[1].get('error') == 'Ese huevo no existe', 'índices de huevo raros')
 ver(post('/api/copias/restaurar', {'id': 'abc123', 'nombre': '../../x'})[0] == 400, 'restaurar una copia que no está en la lista')
 s, r = post('/api/medalla', {'i': 'x', 'valor': True})

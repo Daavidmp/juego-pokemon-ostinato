@@ -10,6 +10,7 @@ import time
 import urllib.request
 from http.server import BaseHTTPRequestHandler
 from pathlib import Path
+from urllib.parse import parse_qs, urlsplit
 
 import errores
 import comun
@@ -17,12 +18,16 @@ import conexion
 import emulador
 import guardado
 import locke
+import pokehex
 import vigia
 
 
 def foto_estado():
     jugando = emulador.jugando()
     with comun.lock:
+        if not jugando:
+            for j in comun.biblio['juegos']:
+                locke.medallas_de_la_partida(j)
         activo = None
         if comun.vivo['activo'] and any(j['id'] == comun.vivo['activo'] for j in comun.biblio['juegos']):
             j = comun.buscar(comun.vivo['activo'])
@@ -49,12 +54,29 @@ def foto_estado():
             'activo': activo, 'jugando': jugando, 'conectado': comun.vivo['conectado'], 'cargando': emulador.cargando(), 'tarea': comun.vivo['tarea'] and {**comun.vivo['tarea'], 'transcurrido': time.time() - comun.vivo['tarea']['inicio']},
             'equipo': [p and {**p, 'muerto': p['id'] in muertos} for p in comun.vivo['equipo']],
             'aviso': comun.vivo['aviso']['texto'] if comun.vivo['aviso'] and time.time() < comun.vivo['aviso']['hasta'] else None,
-            'capa': comun.vivo['capa'], 'fiesta': comun.vivo.get('fiesta'), 'encaje': comun.encaje() if os.name == 'nt' else (1, 0, 0),
+            'capa': comun.vivo['capa'], 'fiesta': comun.vivo.get('fiesta'), 'apertura': bool(comun.vivo.get('apertura')), 'encaje': comun.encaje() if os.name == 'nt' else (1, 0, 0),
             'avanzado': (comun.DATOS / 'avanzado.rnqs').exists(),
             'online': conexion.online_estado(),
             'firma': comun.biblio.get('firma'),
             'ligero': bool(comun.biblio.get('ajustes', {}).get('ligero')),
         }
+
+
+def ani(especie, shiny):
+    """Su animación del juego: se baja la primera vez (Pokémon Showdown) y se queda en datos/ani."""
+    if not 0 < especie <= pokehex.MAX_ESPECIE:
+        raise ValueError('Esa especie no existe')
+    f = comun.DATOS / 'ani' / f'{especie}{"-shiny" if shiny else ""}.gif'
+    if not f.exists():
+        nombre = re.sub('[^a-z0-9]', '', pokehex._json(f'https://pokeapi.co/api/v2/pokemon-species/{especie}')['name'])
+        pedido = urllib.request.Request(f'https://play.pokemonshowdown.com/sprites/{"ani-shiny" if shiny else "ani"}/{nombre}.gif', headers={'User-Agent': 'Pokelocke'})
+        with urllib.request.urlopen(pedido, timeout=8) as r:
+            datos = r.read(3_000_000)
+        if datos[:4] != b'GIF8':
+            raise ValueError('No es una animación')
+        f.parent.mkdir(parents=True, exist_ok=True)
+        f.write_bytes(datos)
+    return f
 
 
 def arte(especie):
@@ -165,7 +187,7 @@ def elegir_rom():
 
 # ---------- servidor ----------
 
-TIPOS = {'.html': 'text/html; charset=utf-8', '.png': 'image/png', '.jpg': 'image/jpeg',
+TIPOS = {'.html': 'text/html; charset=utf-8', '.png': 'image/png', '.gif': 'image/gif', '.jpg': 'image/jpeg',
          '.jpeg': 'image/jpeg', '.webp': 'image/webp', '.js': 'text/javascript', '.css': 'text/css',
          '.pdf': 'application/pdf', '.mp4': 'video/mp4', '.woff2': 'font/woff2', '.mp3': 'audio/mpeg'}
 # las tipografías van dentro de la app (web/fuentes): sin internet también, y sin esperar a Google
@@ -246,6 +268,14 @@ class Servidor(BaseHTTPRequestHandler):
             html = (comun.WEB / 'overlay.html').read_text(encoding='utf-8')
             return self.enviar(html.replace('</head>', f'<script>window.ESTADO = {estado};</script></head>', 1).encode(),
                                'text/html; charset=utf-8')
+        if ruta == '/apertura':
+            return self.archivo(comun.WEB / 'apertura.html')
+        if ruta == '/api/apertura':
+            q = parse_qs(urlsplit(self.path).query)
+            try:
+                return self.enviar(locke.ficha_huevo(int((q.get('especie') or ['0'])[0]), (q.get('shiny') or ['0'])[0] == '1'))
+            except (ValueError, RuntimeError, OSError) as e:
+                return self.enviar({'error': str(e)}, codigo=400)
         if ruta == '/capa.png':
             return self.archivo(comun.CAPA_PNG)
         if ruta == '/api/estado':
@@ -255,6 +285,11 @@ class Servidor(BaseHTTPRequestHandler):
                 return self.archivo(arte(int(m[1])))
             except OSError:
                 return self.enviar({'error': 'sin arte'}, codigo=404)
+        if m := re.fullmatch(r'/ani/(\d{1,3})', ruta):
+            try:
+                return self.archivo(ani(int(m[1]), 'shiny=1' in self.path))
+            except (OSError, ValueError, KeyError):
+                return self.enviar({'error': 'sin animación'}, codigo=404)
         if m := re.fullmatch(r'/assets/([\w.-]+)', ruta):
             return self.archivo(comun.ASSETS / m[1])
         if m := re.fullmatch(r'/fuentes/([\w.-]+)', ruta):

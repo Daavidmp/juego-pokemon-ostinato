@@ -20,7 +20,7 @@ def nuevo_locke(j, vidas, reglas=None):
              reglas=reglas, perdonados=[], caramelos_dados=0, muertes_activas=False,
              fase=1 if reglas == 'mega' else None, rutas_usadas=[], rutas_avisadas=[], balls_escondidas=None,
              aviso_torneo=False, reto=None, retos=[], huevos_extra=0, vidas_retos=0, reto_avisado=None,
-             mision=None, misiones_ofertas=[], misiones=[], misiones_vistas=[], escamas_pendientes=0, duelos_vistos=None,
+             mision=None, misiones_ofertas=[], misiones=[], misiones_vistas=[], escamas_pendientes=0, duelos_vistos=None, fijo_puesto=None,
              huevos=caja_de_huevos() if reglas == 'mega' else None)
 
 
@@ -44,10 +44,104 @@ def huevos_disponibles(j):
 
 def huevos_estado(j):
     """Lo que ve la página: los cogidos con su especie; los demás, sin desvelar."""
+    cerrados = _huevos_en_partida(j)
     return {'disponibles': huevos_disponibles(j), 'medallas': sum(j.get('medallas', [])),
-            'huevos': [{'cogido': True, 'especie': h['especie'], 'shiny': h['shiny'],
-                        'nombre': pokehex.NOMBRES['especies'][h['especie']]} if h['cogido'] else {'cogido': False}
-                       for h in j['huevos']]}
+            'huevos': [_huevo_visible(h, h['especie'] in cerrados) for h in j['huevos']]}
+
+
+def _huevos_en_partida(j):
+    """Las especies de los huevos que siguen sin abrir en la partida guardada."""
+    try:
+        p = pokehex.Partida(guardado.pokehex_partida(j))
+        datos = guardado.hex_vivo['datos'].get(j['id']) or pokehex.Datos(comun.TOOLS, comun.DATOS / 'juegos' / j['id'] / 'randomizacion.log')
+        todos = [*p.equipo(), *(x for c in p.cajas(datos) for x in c['pokemon'])]
+    except (ValueError, RuntimeError, OSError, KeyError):
+        return set()
+    return {x['especie'] for x in todos if x and x['huevo']}
+
+
+def _huevo_visible(h, sigue_cerrado=False):
+    """Hasta que se abre en el juego no se sabe qué lleva dentro."""
+    if not h['cogido']:
+        return {'cogido': False}
+    if sigue_cerrado or not h.get('abierto', True):
+        return {'cogido': True, 'abierto': False, 'shiny': h['shiny']}
+    return {'cogido': True, 'abierto': True, 'especie': h['especie'], 'shiny': h['shiny'], 'nombre': pokehex.NOMBRES['especies'][h['especie']]}
+
+
+PASOS_HUEVO = 5
+
+
+def nacer(j, p):
+    """La animación, y solo al acabar se abre en el juego: hasta entonces, ni el layout ni el juego saben qué es."""
+    nombre = pokehex.NOMBRES['especies'][p['especie']]
+    with comun.lock:
+        mio = next((h for h in j.get('huevos') or [] if h['cogido'] and h.get('abierto') is False and h['especie'] == p['especie']), None)
+    emulador.apertura(p['especie'], bool(mio and mio['shiny']))
+    try:
+        rpc = juego.RPC()
+        if not juego.abrir_huevo(rpc, p['id'], nombre):
+            return
+    except (OSError, TimeoutError):
+        traceback.print_exc()
+        comun.vivo['ya_nacidos'].discard(p['id'])
+        comun.vivo['pasos_huevo'].pop(p['id'], None)
+        return
+    with comun.lock:
+        if mio:
+            mio['abierto'] = True
+        vigia.evento('huevo', f'Se abre un huevo: {nombre}')
+        comun.guardar()
+
+
+def vigilar_huevos(rpc, j, equipo):
+    """Lleva la cuenta de los pasos dados desde que cada huevo va en el equipo y, al llegar, abre uno."""
+    pasos_de = comun.vivo.setdefault('pasos_huevo', {})
+    nacidos = comun.vivo.setdefault('ya_nacidos', set())
+    huevos = [p for p in equipo if p and p['huevo'] and p['id'] not in nacidos]
+    if not huevos or comun.vivo.get('apertura') or comun.vivo.get('en_combate'):
+        return
+    juego.retrasar_huevos(rpc)
+    pasos = juego.record(rpc, juego.RECORD_PASOS)
+    if pasos is None:
+        return
+    listos = [p for p in huevos if pasos - pasos_de.setdefault(p['id'], pasos) >= PASOS_HUEVO]
+    if listos and not juego.en_combate(rpc):
+        nacidos.add(listos[0]['id'])
+        pasos_de.clear()                               # los demás, 5 pasos más cada uno
+        threading.Thread(target=nacer, args=(j, listos[0]), daemon=True).start()
+
+
+def huevos_abiertos(antes, ahora):
+    """Los del equipo que eran huevo en la lectura anterior y ya no lo son."""
+    previos = {p['id']: p for p in antes if p}
+    return [p for p in ahora if p and not p['huevo'] and p['id'] in previos and previos[p['id']]['huevo']]
+
+
+def rol(base):
+    """Atacante si su mejor ataque supera a su mejor defensa; físico o especial según cuál de los dos sea mayor."""
+    _, at, de, _, ate, dee = base
+    if max(at, ate) >= max(de, dee):
+        return ('Atacante físico', 'rol-fisico') if at >= ate else ('Atacante especial', 'rol-especial')
+    return ('Tanque físico', 'tanque-fisico') if de >= dee else ('Tanque especial', 'tanque-especial')
+
+
+def ficha_huevo(especie, shiny):
+    """Lo que enseña la animación: los datos reales de esta partida, que pueden estar aleatorizados."""
+    if not 0 < especie <= pokehex.MAX_ESPECIE:
+        raise RuntimeError('Esa especie no existe')
+    with comun.lock:
+        ids = [comun.vivo['activo']] + [x['id'] for x in comun.biblio['juegos']]
+        jid = next((i for i in ids if i), None)
+    datos = guardado.hex_vivo['datos'].get(jid)
+    if not datos:
+        datos = pokehex.Datos(comun.TOOLS, comun.DATOS / 'juegos' / str(jid) / 'randomizacion.log')
+        if jid:
+            guardado.hex_vivo['datos'][jid] = datos
+    b = datos.stats_base(especie)
+    texto, icono = rol(b)
+    return {'especie': especie, 'nombre': pokehex.NOMBRES['especies'][especie], 'shiny': bool(shiny), 'tipos': datos.tipos_de(especie), 'total': sum(b),
+            'base': dict(zip(('ps', 'ataque', 'defensa', 'velocidad', 'ataque_esp', 'defensa_esp'), b)), 'rol': texto, 'icono': icono}
 
 
 def coger_huevo(j, i):
@@ -70,7 +164,7 @@ def coger_huevo(j, i):
     except ValueError as e:
         raise RuntimeError(str(e))
     partida.guardar(comun.DATOS / 'juegos' / j['id'] / 'copias_partida')
-    h['cogido'] = True
+    h['cogido'], h['abierto'] = True, False
     vigia.anotar_partida(j)
     vigia.evento('huevo', f'Coge un huevo de la caja{" (shiny)" if h["shiny"] else ""}')
     comun.guardar()
@@ -121,6 +215,23 @@ def medallas_partida(j):
     except (RuntimeError, OSError):
         return 0
     return bin(datos[MEDALLAS_EN_PARTIDA]).count('1') if len(datos) == pokehex.TAM_PARTIDA else 0
+
+
+def medallas_de_la_partida(j):
+    """Con el juego cerrado: si la partida guardada tiene más medallas de las que sabe la app (las de la app solo se
+    leen con el juego abierto), se ponen al día, para que tablero, retos y caja de huevos digan lo mismo. Con un reto
+    en marcha no: ese se resuelve al ver la medalla jugando, con el equipo de ese momento."""
+    if not j.get('preparado') or j.get('reto'):
+        return
+    try:
+        t = guardado.tablero(j)
+    except Exception:
+        return
+    nuevas = [bool(m) for m in (t or {}).get('medallas', [])]
+    if len(nuevas) == 8 and sum(nuevas) > sum(j.get('medallas', [])):
+        j['medallas'] = nuevas
+        vigia.evento('medallas', f'La partida guardada tiene {sum(nuevas)} medallas: se ponen al día')
+        comun.guardar()
 
 
 def abrir_fase_completa(j):
@@ -451,6 +562,24 @@ def seguimiento():
                             vacios[i] = 0
                     antes, comun.vivo['equipo'] = comun.vivo['equipo'], equipo
                     j = comun.buscar(comun.vivo['activo'])
+                    vigilar_huevos(rpc, j, equipo)
+                    # Mega: combate en Fijo desde el principio, una vez por partida (luego se respeta lo que elija el jugador)
+                    if j.get('reglas') == 'mega' and any(equipo):
+                        try:
+                            quien = juego.entrenador_equipo(rpc)
+                            if quien and j.get('fijo_puesto') != quien and juego.poner_fijo(rpc):
+                                j['fijo_puesto'] = quien
+                                comun.guardar()
+                        except (OSError, TimeoutError):
+                            pass
+                    # por si el juego abre uno por su cuenta, sin haber pasado por aquí
+                    for p in (x for x in huevos_abiertos(antes, equipo) if x['id'] not in comun.vivo.get('ya_nacidos', ())):
+                        mio = next((h for h in j.get('huevos') or [] if h['cogido'] and h.get('abierto') is False and h['especie'] == p['especie']), None)
+                        if mio:
+                            mio['abierto'] = True
+                            comun.guardar()
+                        vigia.evento('huevo', f'Se abre un huevo: {pokehex.NOMBRES["especies"][p["especie"]]}')
+                        threading.Thread(target=emulador.apertura, args=(p['especie'], bool(mio and mio['shiny'])), daemon=True).start()
                     # las medallas se marcan solas: las lee del juego en cuanto vences al líder
                     try:
                         medallas = juego.medallas_bits(rpc)

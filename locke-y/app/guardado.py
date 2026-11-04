@@ -11,6 +11,7 @@ import online
 import pokehex
 import comun
 import emulador
+import juego
 import locke
 import vigia
 
@@ -38,6 +39,25 @@ def comprobar_clave_pokehex(clave):
     elif not hmac.compare_digest(online._hash(clave, guardada['sal']), guardada['hash']):
         raise RuntimeError('Contraseña incorrecta')
 hex_vivo = {'tokens': set(), 'datos': {}, 'interno': hashlib.sha1(os.urandom(16)).hexdigest()}  # interno: encargos del servidor
+
+
+def fijo_por_defecto(j):
+    """Mega Pokelocke: combate en modo Fijo, una vez por partida (si luego lo cambias a mano, se respeta). La partida se
+    reconoce por el entrenador de su primer Pokémon: si se empieza otra, se vuelve a poner. Hasta el primer guardado
+    no hay dónde ponerlo: se vuelve a intentar la próxima vez que se abra el juego."""
+    if j.get('reglas') != 'mega':
+        return
+    try:
+        partida = pokehex.Partida(pokehex_partida(j))
+        quien = juego.entrenador(partida.claro(0))
+        if not quien or j.get('fijo_puesto') == quien:          # sin Pokémon aún, o ya puesto en esta partida
+            return
+        if partida.poner_fijo():
+            partida.guardar(comun.DATOS / 'juegos' / j['id'] / 'copias_partida')
+    except (RuntimeError, ValueError, OSError):
+        return
+    j['fijo_puesto'] = quien
+    comun.guardar()
 
 
 def pokehex_partida(j):
@@ -211,6 +231,11 @@ def pokehex_accion(que, d):
             partida.mover(lugar(d['desde']), lugar(d['hasta']), datos)
             partida.guardar(copias)
             apuntar('mueve un Pokémon', 'info')
+            return {'equipo': partida.equipo(), 'cajas': partida.cajas(datos)}
+        if que == 'huevo':
+            partida.nuevo(lugar(d['lugar']), pokehex.especie_huevo_azar(), 1, datos, huevo=True)
+            partida.guardar(copias)
+            apuntar('añade un huevo aleatorio')
             return {'equipo': partida.equipo(), 'cajas': partida.cajas(datos)}
         if que == 'nuevo':
             if not 1 <= int(d['especie']) <= pokehex.MAX_ESPECIE:

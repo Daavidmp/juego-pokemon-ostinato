@@ -67,7 +67,8 @@
   #v-biblioteca.con-tablero { position: relative; height: 100vh; overflow: hidden; }
   #v-biblioteca.con-tablero > header { position: absolute; top: 0; right: 0; z-index: 6; background: none; border: 0; padding: 20px 24px; min-height: 0; }
   #v-biblioteca.con-tablero > header .marca, #v-biblioteca.con-tablero > footer { display: none; }
-  .tablero { position: absolute; inset: 0; background: #BFE7F2; overflow: hidden; }
+  .tablero { position: absolute; inset: 0; background: #BFE7F2; overflow: hidden; user-select: none; -webkit-user-select: none; }
+  .tablero img { -webkit-user-drag: none; }
   .tb-escena { position: absolute; left: 50%; top: 50%; width: max(100vw, 179.17vh); aspect-ratio: 1376 / 768; transform: translate(-50%, -50%); container-type: inline-size; }
   .tb-isla { position: absolute; inset: 0; width: 100%; height: 100%; }
   .tb-camino { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
@@ -86,13 +87,38 @@
   .tb-aviso span { font-size: 14px; color: var(--suave); }
   @keyframes aviso-entra { from { opacity: 0; transform: translate(-50%, -12px); } }
   .tb-confeti { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 7; }
-  .chica .moneda { box-shadow: 0 .25cqw 0 #8E99B0, 0 .45cqw .4cqw rgba(27,32,48,.28); }
-  .chica.hecho .moneda { box-shadow: 0 .25cqw 0 #B88A00, 0 .45cqw .4cqw rgba(27,32,48,.28); }
-  .chica.actual .moneda { box-shadow: 0 .25cqw 0 #8A1C06, 0 .45cqw .4cqw rgba(27,32,48,.28); }
+  .tb-casilla::before { content: ''; position: absolute; inset: -.45cqw; border-radius: 50%; }
+  .tb-casilla:hover { z-index: 1000 !important; }
+  .tb-casilla:hover .moneda { filter: brightness(1.12); }
+  .tb-etiqueta { position: absolute; left: 0; top: 0; z-index: 8; width: max-content; min-width: 250px; max-width: 370px; box-sizing: border-box; display: flex; gap: 12px; align-items: center; padding: 11px 15px 12px 11px; pointer-events: none; background: #fff; border: 3px solid #fff; border-radius: 20px; box-shadow: 0 7px 0 rgba(27,32,48,.14), 0 16px 32px rgba(27,32,48,.3); color: var(--tinta); transform-origin: var(--flecha, 50%) 100%; animation: etiqueta .16s cubic-bezier(.2, 1.5, .4, 1); }
+  .tb-etiqueta.abajo { transform-origin: var(--flecha, 50%) 0; }
+  .tb-etiqueta::after { content: ''; position: absolute; left: var(--flecha, 50%); bottom: -10px; width: 18px; height: 18px; margin-left: -9px; background: #fff; border-radius: 4px; transform: rotate(45deg); }
+  .tb-etiqueta.abajo::after { bottom: auto; top: -10px; }
+  @keyframes etiqueta { from { opacity: 0; transform: translateY(6px) scale(.88); } }
+  @media (prefers-reduced-motion: reduce) { .tb-etiqueta { animation: none; } }
+  .tb-etiqueta .foto { width: 66px; height: 66px; flex: none; box-sizing: border-box; padding: 10px; border-radius: 50%; display: flex; align-items: center; justify-content: center; overflow: hidden; background: #E9EDF5; box-shadow: inset 0 0 0 3px #C7CEDC; }
+  .tb-etiqueta.hecho .foto { background: #FFF3B0; box-shadow: inset 0 0 0 3px #FFCB05; }
+  .tb-etiqueta.actual .foto { background: var(--rojo-claro); box-shadow: inset 0 0 0 3px var(--rojo); }
+  .tb-etiqueta .foto.lider { padding: 0; }
+  .tb-etiqueta .foto svg { width: 100%; height: 100%; }
+  .tb-etiqueta .foto img { width: 100%; height: 100%; object-fit: cover; object-position: top; }
+  .tb-etiqueta .texto { min-width: 0; flex: 1; }
+  .tb-etiqueta .cab { display: flex; align-items: center; justify-content: space-between; gap: 16px; font-size: 12px; font-weight: 800; color: var(--suave); }
+  .tb-etiqueta .situ { padding: 1px 9px; border-radius: 999px; font-size: 12px; font-weight: 900; white-space: nowrap; background: #E9EDF5; color: #4A5168; }
+  .tb-etiqueta.hecho .situ { background: #FFCB05; color: #4A3A00; }
+  .tb-etiqueta.actual .situ { background: var(--rojo); color: #fff; }
+  .tb-etiqueta .nombre { font-family: Bungee, Nunito, sans-serif; font-size: 19px; line-height: 1.12; margin-top: 4px; }
+  .tb-etiqueta .obj { font-size: 14px; font-weight: 800; margin-top: 3px; }
+  .tb-etiqueta .det { font-size: 13px; font-weight: 700; color: var(--suave); margin-top: 2px; line-height: 1.3; }
+  .tb-etiqueta .tb-pastilla { margin: 6px 4px 0 0; font-size: 12px; }
+  .tb-etiqueta .jug { font-size: 13px; font-weight: 800; margin-top: 7px; padding-top: 6px; border-top: 2px dotted var(--linea); }
+  .chica .moneda { border-width: .11cqw; box-shadow: 0 .14cqw 0 #7F8BA5, 0 .26cqw .25cqw rgba(27,32,48,.28); }
+  .chica.hecho .moneda { box-shadow: 0 .14cqw 0 #A87C00, 0 .26cqw .25cqw rgba(27,32,48,.28); }
+  .chica.actual .moneda { box-shadow: 0 .14cqw 0 #7E1A06, 0 .26cqw .25cqw rgba(27,32,48,.28); }
   .chica .tb-icono { width: 1.2cqw; height: 1.2cqw; }
   .tb-camino .resto { stroke: rgba(255,255,255,.75); stroke-width: 5; stroke-dasharray: 1 11; }
-  .tb-escena { cursor: grab; touch-action: none; }
-  .tb-escena.arrastrando { cursor: grabbing; }
+  .tb-escena { cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='-1 -1 26 26' fill='none' stroke-linecap='round' stroke-linejoin='round'%3E%3Cg stroke='%23fff' stroke-width='5'%3E%3Cpath d='M18 11V6a2 2 0 0 0-2-2a2 2 0 0 0-2 2'/%3E%3Cpath d='M14 10V4a2 2 0 0 0-2-2a2 2 0 0 0-2 2v2'/%3E%3Cpath d='M10 10.5V6a2 2 0 0 0-2-2a2 2 0 0 0-2 2v8'/%3E%3Cpath d='M18 8a2 2 0 1 1 4 0v6a8 8 0 0 1-8 8h-2c-2.80 0-4.50-.86-5.99-2.34l-3.60-3.60a2 2 0 0 1 2.83-2.82L7 15'/%3E%3C/g%3E%3Cg fill='%23fff' stroke='%231B2030' stroke-width='2'%3E%3Cpath d='M18 11V6a2 2 0 0 0-2-2a2 2 0 0 0-2 2'/%3E%3Cpath d='M14 10V4a2 2 0 0 0-2-2a2 2 0 0 0-2 2v2'/%3E%3Cpath d='M10 10.5V6a2 2 0 0 0-2-2a2 2 0 0 0-2 2v8'/%3E%3Cpath d='M18 8a2 2 0 1 1 4 0v6a8 8 0 0 1-8 8h-2c-2.80 0-4.50-.86-5.99-2.34l-3.60-3.60a2 2 0 0 1 2.83-2.82L7 15'/%3E%3C/g%3E%3C/svg%3E") 15 15, grab; touch-action: none; }
+  .tb-escena.arrastrando { cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='-1 -1 26 26' fill='none' stroke-linecap='round' stroke-linejoin='round'%3E%3Cg stroke='%23fff' stroke-width='5'%3E%3Cpath d='M18 11.50V9a2 2 0 0 0-2-2a2 2 0 0 0-2 2v1.40'/%3E%3Cpath d='M14 10V8a2 2 0 0 0-2-2a2 2 0 0 0-2 2v2'/%3E%3Cpath d='M10 9.90V9a2 2 0 0 0-2-2a2 2 0 0 0-2 2v5'/%3E%3Cpath d='M6 14a2 2 0 0 0-2-2a2 2 0 0 0-2 2'/%3E%3Cpath d='M18 11a2 2 0 1 1 4 0v3a8 8 0 0 1-8 8h-4a8 8 0 0 1-8-8 2 2 0 1 1 4 0'/%3E%3C/g%3E%3Cg fill='%23fff' stroke='%231B2030' stroke-width='2'%3E%3Cpath d='M18 11.50V9a2 2 0 0 0-2-2a2 2 0 0 0-2 2v1.40'/%3E%3Cpath d='M14 10V8a2 2 0 0 0-2-2a2 2 0 0 0-2 2v2'/%3E%3Cpath d='M10 9.90V9a2 2 0 0 0-2-2a2 2 0 0 0-2 2v5'/%3E%3Cpath d='M6 14a2 2 0 0 0-2-2a2 2 0 0 0-2 2'/%3E%3Cpath d='M18 11a2 2 0 1 1 4 0v3a8 8 0 0 1-8 8h-4a8 8 0 0 1-8-8 2 2 0 1 1 4 0'/%3E%3C/g%3E%3C/svg%3E") 15 15, grabbing; }
   .tb-escena.suave { transition: transform .35s cubic-bezier(.2, .8, .2, 1); }
   .tb-zoom { right: 24px; top: 50%; transform: translateY(-50%); display: flex; flex-direction: column; gap: 8px; }
   .tb-zoom button { width: 44px; height: 44px; border-radius: 14px; border: 3px solid #fff; background: rgba(255,255,255,.95); color: var(--tinta); box-shadow: 0 6px 16px rgba(27,32,48,.2); display: flex; align-items: center; justify-content: center; }
@@ -101,9 +127,9 @@
   .tb-otro:first-child { margin-left: 0; }
   .tb-otro .avatar { width: 1.5cqw; height: 1.5cqw; min-width: 14px; min-height: 14px; font-size: max(8px, .7cqw); border: 2px solid #fff; box-shadow: 0 2px 4px rgba(27,32,48,.35); background: #2A75BB; color: #fff; }
   .tb-otro.en-linea .avatar { border-color: var(--verde); }
-  .moneda { position: absolute; inset: 0; border-radius: 50%; background: radial-gradient(ellipse at 50% 35%, #E9EDF5 0 55%, #C7CEDC 100%); box-shadow: 0 .45cqw 0 #8E99B0, 0 .9cqw .8cqw rgba(27,32,48,.3); }
-  .hecho .moneda { background: radial-gradient(ellipse at 50% 35%, #FFF1A8 0 40%, #FFCB05 100%); box-shadow: 0 .45cqw 0 #B88A00, 0 .9cqw .8cqw rgba(27,32,48,.3), 0 0 1.2cqw rgba(255,203,5,.55); }
-  .actual .moneda { background: radial-gradient(ellipse at 50% 35%, #FF8A70 0 35%, #CC2B0B 100%); box-shadow: 0 .45cqw 0 #8A1C06, 0 .9cqw .8cqw rgba(27,32,48,.3); }
+  .moneda { position: absolute; inset: 0; box-sizing: border-box; border-radius: 50%; background: #DDE3EE; border: .16cqw solid #fff; box-shadow: 0 .2cqw 0 #7F8BA5, 0 .38cqw .35cqw rgba(27,32,48,.3); }
+  .hecho .moneda { background: #FFCB05; border-color: #FFF3B0; box-shadow: 0 .2cqw 0 #A87C00, 0 .38cqw .35cqw rgba(27,32,48,.3); }
+  .actual .moneda { background: #CC2B0B; border-color: #fff; box-shadow: 0 .2cqw 0 #7E1A06, 0 .38cqw .35cqw rgba(27,32,48,.3); }
   .actual .moneda::after { content: ''; position: absolute; inset: -.6cqw; border-radius: 50%; border: .3cqw solid rgba(255,255,255,.9); animation: pulso 1.6s ease-out infinite; }
   @keyframes pulso { from { transform: scale(.9); opacity: 1; } to { transform: scale(1.5); opacity: 0; } }
   .tb-icono { position: absolute; left: 50%; bottom: 45%; transform: translateX(-50%); width: 1.9cqw; height: 1.9cqw; display: flex; align-items: flex-end; justify-content: center; animation: flota 3s ease-in-out infinite; }
@@ -233,6 +259,31 @@
   .rt-coger { min-width: 300px; height: 64px; border: 0; border-radius: 16px; background: linear-gradient(#E8411F, var(--rojo)); color: #fff; font-family: Bungee, Nunito, sans-serif; font-size: 22px; box-shadow: 0 6px 0 #8A1C06, 0 14px 30px rgba(0,0,0,.4); }
   .rt-coger:disabled { background: #8E99B0; box-shadow: 0 6px 0 #5B6478; cursor: not-allowed; }
   .rt-accion p { margin: 0; color: rgba(255,255,255,.85); font-weight: 700; font-size: 14px; text-align: center; }
+  /* el reto en juego: la carta grande y, al lado, cómo vas */
+  .rt-mesa.en-juego { top: max(24vh, 220px); bottom: 12vh; align-items: center; gap: 3.5vw; }
+  .rt-escena:has(#rt-mision:not(.oculto)) .rt-mesa.en-juego { top: 33vh; bottom: 6vh; }
+  .rt-mesa.en-juego .rt-carta, .rt-mesa.en-juego .rt-carta:hover { width: min(320px, 20vw); aspect-ratio: auto; transform: rotate(-3deg); cursor: default; flex: none; }
+  .rt-mesa.en-juego .rt-cara { height: auto; aspect-ratio: 5 / 3; flex: none; }
+  .rt-mesa.en-juego .rt-texto { padding-bottom: 14px; }
+  .rt-mesa.en-juego .rt-texto span { font-size: clamp(13px, 1.05vw, 15px); }
+  .rt-estado { width: min(520px, 33vw); box-sizing: border-box; background: #fff; border-radius: 26px; padding: clamp(18px, 2vw, 28px); box-shadow: 0 18px 40px rgba(0,0,0,.45); display: flex; flex-direction: column; gap: clamp(10px, 1.4vh, 16px); }
+  .rt-estado .rt-sello { align-self: flex-start; padding: 4px 14px; border-radius: 999px; background: var(--oro); color: #5A4300; font-weight: 900; font-size: 13px; letter-spacing: .04em; }
+  .rt-estado h2 { margin: 0; font: 400 clamp(22px, 2vw, 30px)/1.05 Bungee, Nunito, sans-serif; }
+  .rt-estado > p { margin: 0; font-size: clamp(14px, 1.1vw, 17px); font-weight: 700; color: var(--suave); }
+  .rt-vas { display: flex; flex-direction: column; gap: 8px; padding: 12px 14px; border-radius: 16px; background: var(--fondo); }
+  .rt-vas > b { font-size: 12px; font-weight: 900; letter-spacing: .06em; color: var(--suave); }
+  .rt-fila { display: flex; align-items: center; gap: 10px; font-weight: 800; font-size: clamp(14px, 1.05vw, 16px); }
+  .rt-fila em { margin-left: auto; font: 400 clamp(18px, 1.5vw, 22px) Bungee, Nunito, sans-serif; font-style: normal; }
+  .rt-fila .rt-ok { width: 26px; height: 26px; flex: none; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 15px; font-weight: 900; background: #1E8E4E; }
+  .rt-fila .rt-ok.mal { background: #C42A12; }
+  .rt-fila .rt-ok.nose { background: #8E99B0; }
+  .rt-premios { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+  .rt-premios > span { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 16px; font-weight: 900; font-size: clamp(15px, 1.2vw, 18px); }
+  .rt-premios small { display: block; font-size: 11px; letter-spacing: .05em; }
+  .rt-premios .gana { background: #E3F5EA; color: #146B3A; }
+  .rt-premios .pierde { background: #FCE4DE; color: #9E2108; }
+  .rt-premios img, .rt-premios svg { width: 36px; height: 36px; object-fit: contain; flex: none; }
+  .rt-estado > small { color: var(--suave); font-weight: 700; font-size: 13px; }
   .rt-enjuego { position: absolute; top: 18%; right: -34px; transform: rotate(35deg); background: var(--oro); color: #5A4300; font: 900 14px Nunito, sans-serif; padding: 4px 40px; z-index: 2; }
   .rt-mision { position: absolute; right: 4vw; top: 11vh; width: min(640px, 46vw); display: flex; flex-direction: column; gap: 8px; z-index: 1; }
   .rt-mision.compacto .rt-boleto { padding: 6px 12px; gap: 10px; }
@@ -453,6 +504,8 @@
   .huevo:disabled { cursor: default; }
   .huevo.cogido { background: var(--panel); color: var(--tinta); }
   .huevo.cogido img { width: 70%; height: 70%; object-fit: contain; }
+  .huevo.cerrado { color: var(--suave); }
+  .huevo.dorado img { filter: sepia(1) saturate(2.6) hue-rotate(-6deg) brightness(1.08); }
   .huevo .estrella { position: absolute; top: 4px; right: 6px; color: #B88A00; font-size: 14px; }
   @media (max-width: 700px) { .huevos { grid-template-columns: repeat(5, minmax(0, 1fr)); } }
   /* torneo, estilo «cartel»: sello VS en cada partido, líneas rojas y gruesas en los caminos ya decididos, títulos
@@ -637,6 +690,7 @@
     </div>
     <div class="tb-nubes" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
     <img class="tb-hud tb-logo" src="/assets/logo.png" alt="Mega Pokelocke Y">
+    <div class="tb-etiqueta oculto" id="tb-etiqueta" role="tooltip"></div>
     <div class="tb-hud tb-zoom" id="tb-zoom" role="group" aria-label="Zoom del tablero">
       <button type="button" data-zoom="mas" aria-label="Acercar" title="Acercar (también con la rueda del ratón)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button>
       <button type="button" data-zoom="menos" aria-label="Alejar" title="Alejar"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" aria-hidden="true"><path d="M5 12h14"/></svg></button>
@@ -706,7 +760,7 @@
           <svg class="check" width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="11" fill="#2A75BB"/><path d="M7 12.5l3.2 3.2L17 9" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
         <button type="button" class="modo" role="radio" data-modo="caos"><strong>Caos</strong><span class="desc">Todo al azar: tipos, habilidades, movimientos y evoluciones.</span>
           <svg class="check" width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="11" fill="#2A75BB"/><path d="M7 12.5l3.2 3.2L17 9" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
-        <button type="button" class="modo" role="radio" data-modo="mega"><span style="display: flex; align-items: center; gap: 8px;"><strong>Normas Mega Pokelocke</strong></span><span class="desc">Dificultad que sube tras la 2.ª medalla, 25 vidas, una captura por ruta, caja de huevos y 10000 Caramelos Raros.</span>
+        <button type="button" class="modo" role="radio" data-modo="mega"><span style="display: flex; align-items: center; gap: 8px;"><strong>Normas Mega Pokelocke</strong></span><span class="desc">Dificultad que sube tras la 2.ª medalla, 25 vidas, una captura por ruta, combate en modo Fijo, caja de huevos y 10000 Caramelos Raros.</span>
           <svg class="check" width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="11" fill="#2A75BB"/><path d="M7 12.5l3.2 3.2L17 9" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
         <button type="button" class="modo" role="radio" data-modo="personalizado"><strong>Personalizado</strong><span class="desc">Elige cada opción tú mismo, o usa el randomizador completo.</span>
           <svg class="check" width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="11" fill="#2A75BB"/><path d="M7 12.5l3.2 3.2L17 9" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
@@ -1148,20 +1202,24 @@ const MODOS = {
   mega: {
     resumen: ['Salvajes aleatorios en cada encuentro, de cualquier tipo', 'Iniciales aleatorios con dos evoluciones',
       'Legendarios y Pokémon de regalo totalmente aleatorios', 'Entrenadores con equipos aleatorios y un 15 % más de nivel',
-      'Movimientos, habilidades y objetos del suelo aleatorios', 'Lo que te dan en los intercambios del juego, aleatorio',
+      'Movimientos, habilidades y objetos del suelo aleatorios', 'La tienda del segundo dependiente de los Centros vende objetos aleatorios',
+      'Lo que te dan en los intercambios del juego, aleatorio',
       'Estadísticas base y tipos sin cambios', 'Las evoluciones por intercambio pasan a ser al nivel 40', 'Facilidad de captura normal'],
     normas: ['Dificultad que sube: hasta la 2.ª medalla, entrenadores y salvajes solo con Pokémon que aún pueden evolucionar, rivales con ataques de 70 o menos y MT de menos de 70',
       'Al ganar la 2.ª medalla se abre la randomización completa (guarda y reinicia el juego)',
       'La 4.ª medalla cierra la primera parte: toca el gran torneo','25 vidas','Las muertes no cuentan hasta acabar el primer combate contra un entrenador (Shauna)',
       'El vial solo se puede usar fuera de combate', 'Una captura por ruta; los shiny no cuentan',
-      '10000 Caramelos Raros: se rellenan solos hasta 999 cada vez que abres el juego',
+      'Combate en modo Fijo: se pone solo al empezar (luego puedes cambiarlo)', '10000 Caramelos Raros: se rellenan solos hasta 999 cada vez que abres el juego',
       'Caja de 30 huevos aleatorios con 2 shiny: coges uno cada 2 medallas y, si sale shiny, otro más'],
     opciones: {wildPokemonMod: 'RANDOM', wildPokemonRestrictionMod: 'NONE', blockWildLegendaries: 'false',
       startersMod: 'RANDOM_WITH_TWO_EVOLUTIONS', staticPokemonMod: 'COMPLETELY_RANDOM',
       trainersMod: 'RANDOM', trainersUsePokemonOfSimilarStrength: 'false', trainersLevelModified: 'true', trainersLevelModifier: '15',
       typesMod: 'UNCHANGED', abilitiesMod: 'RANDOMIZE', baseStatisticsMod: 'UNCHANGED', evolutionsMod: 'UNCHANGED',
       movesetsMod: 'COMPLETELY_RANDOM', fieldItemsMod: 'RANDOM', inGameTradesMod: 'RANDOMIZE_GIVEN', useMinimumCatchRate: 'false',
-      randomizeHeldItemsForBossTrainerPokemon: 'true', randomizeHeldItemsForImportantTrainerPokemon: 'true', randomizeHeldItemsForRegularTrainerPokemon: 'true'},
+      randomizeHeldItemsForBossTrainerPokemon: 'true', randomizeHeldItemsForImportantTrainerPokemon: 'true', randomizeHeldItemsForRegularTrainerPokemon: 'true',
+      // tiendas especiales (el segundo dependiente): al azar, sin objetos inútiles, sin los de la tienda normal ni los que
+      // rompen el juego, y con precios acordes. La tienda normal y las de MT no las toca el randomizador
+      shopItemsMod: 'RANDOM', banBadRandomShopItems: 'true', banRegularShopItems: 'true', banOPShopItems: 'true', balanceShopPrices: 'true'},
   },
   original: {resumen: ['Se juega la versión original, sin cambios']},
   personalizado: {resumen: ['Elige cada opción aquí debajo']},
@@ -1252,13 +1310,13 @@ const HITOS = [
 // dónde va cada casilla en la isla (px de la imagen de 1376×768), en el mismo orden que HITOS: cada una en su sitio
 // del mapa de Kalos (Luminalia en la ciudad redonda, la Cueva Brillante en las rocas del oeste, el castillo al final…)
 const PUNTOS = [
-  [762, 490], [868, 486], [944, 420], [940, 372], [905, 328], [850, 286], [765, 330],              // Boceto … Luminalia
-  [615, 368], [440, 432], [388, 456], [252, 398], [300, 350], [385, 300],                          // Vánitas … Lino
-  [225, 352], [165, 378], [96, 360], [122, 300],                                                   // Crómlech … Megaaro
-  [505, 197], [578, 190], [616, 252], [662, 246],                                                  // Témpera … Lem
+  [762, 490], [868, 486], [925, 455], [950, 405], [893, 322], [838, 262], [765, 330],              // Boceto … Luminalia
+  [615, 368], [520, 403], [388, 456], [252, 398], [300, 350], [385, 300],                          // Vánitas … Lino
+  [258, 335], [165, 378], [96, 360], [122, 300],                                                   // Crómlech … Megaaro
+  [505, 197], [578, 190], [604, 262], [662, 246],                                                  // Témpera … Lem
   [960, 322], [1052, 348], [1094, 318],                                                            // Romantis … Fábrica
   [880, 214], [1008, 160], [1062, 176], [736, 382],                                                // Fresco … Guarida
-  [922, 252], [986, 236], [1150, 386], [1162, 330], [1200, 300], [1252, 300],                      // Fractal … Torneo
+  [922, 252], [986, 236], [1150, 386], [1162, 330], [1192, 302], [1262, 300],                      // Fractal … Torneo
 ];
 // la curva suave (Catmull-Rom) por PUNTOS entre una casilla grande y la siguiente
 const TRAMOS = PUNTOS.slice(0, -1).map((_, i) => {
@@ -1281,14 +1339,15 @@ function puntoEn(curva, f) {
 
 // las misiones de la historia que van ANTES de cada casilla grande: casillas pequeñas en el camino. Ninguna se lee de
 // la partida: se dan por hechas cuando se hace una casilla de después (simulan el avance entre una y otra)
-const M = (id, n, det, ico) => ({id, n, obj: n, det, ico, chica: true, ok: () => false});
+// f (opcional): en qué punto del tramo va, cuando el reparto normal cae encima de otra casilla
+const M = (id, n, det, ico, f) => ({id, n, obj: n, det, ico, f, chica: true, ok: () => false});
 const MISIONES = {
   novarte: [M('ruta2', 'Ruta 2', 'Tus primeros Pokémon salvajes'), M('bosque', 'Bosque de Novarte', 'Atraviésalo con tus amigos', 'bosque'), M('ruta3', 'Ruta 3')],
   medalla1: [M('rival1', 'Combate contra tu rival', 'Antes del gimnasio de Violeta', 'vs')],
-  luminalia: [M('ruta4', 'Ruta 4', 'Los jardines de la entrada a Luminalia')],
+  luminalia: [M('ruta4', 'Ruta 4', 'Los jardines de la entrada a Luminalia', undefined, .6)],
   vanitas: [M('cipres', 'Combate contra Ciprés', 'El profesor te regala un Pokémon de Kanto', 'vs'), M('cafe', 'Café Lysson', 'Conoces a Lysson'), M('ruta5', 'Ruta 5')],
   flauta: [M('ruta6', 'Ruta 6', 'El paseo de árboles hasta el palacio')],
-  petroglifo: [M('snorlax', 'Despierta al Snorlax', 'En el puente de la Ruta 7', 'vs'), M('ruta7', 'Ruta 7', 'La Guardería y el Bastión Batalla'), M('gruta', 'Gruta Tierraunida'), M('ruta8', 'Ruta 8', 'Los acantilados junto al mar')],
+  petroglifo: [M('snorlax', 'Despierta al Snorlax', 'En el puente de la Ruta 7', 'vs', .22), M('ruta7', 'Ruta 7', 'La Guardería y el Bastión Batalla', undefined, .39), M('gruta', 'Gruta Tierraunida', undefined, undefined, .56), M('ruta8', 'Ruta 8', 'Los acantilados junto al mar', undefined, .74)],
   cueva: [M('ruta9', 'Ruta 9', 'Cruza el desierto a lomos de un Rhyhorn')],
   cromlech: [M('ruta10', 'Ruta 10', 'El camino de los menhires')],
   yantra: [M('ruta11', 'Ruta 11'), M('reflejos', 'Cueva de los Reflejos', 'Un laberinto de espejos', 'bosque')],
@@ -1298,40 +1357,42 @@ const MISIONES = {
   central: [M('ruta13', 'Ruta 13', 'El desierto de las turbinas')],
   medalla5: [M('apagon', 'Vuelve la luz a Luminalia', 'La Torre Prisma se enciende')],
   romantis: [M('ruta14', 'Ruta 14', 'El pantano')],
-  fresco: [M('ruta15', 'Ruta 15'), M('hotel', 'Hotel Desolación', 'Un hotel abandonado'), M('ruta16', 'Ruta 16')],
+  fresco: [M('ruta15', 'Ruta 15', undefined, undefined, .27), M('hotel', 'Hotel Desolación', 'Un hotel abandonado', undefined, .42), M('ruta16', 'Ruta 16', undefined, undefined, .56)],
   fluxus: [M('helada', 'Gruta Helada', 'Ayuda a los Pokémon de la cueva', 'bosque'), M('ruta17', 'Ruta 17', 'Cruza la nieve a lomos de un Mamoswine')],
-  flare: [M('anuncio', 'Lysson habla a todo Kalos', 'Anuncia el arma definitiva'), M('labo', 'Laboratorio Lysson', 'Bajo su café, en Luminalia')],
-  fractal: [M('yveltal', 'Yveltal', 'El Pokémon legendario despierta', 'estrella'), M('lysson', 'Último combate contra Lysson', 'El arma definitiva', 'vs'),
-    M('ruta18', 'Ruta 18'), M('mosaico', 'Pueblo Mosaico', 'El pueblo de las cascadas'), M('ruta19', 'Ruta 19')],
-  victoria: [M('ruta21', 'Ruta 21', 'El camino hacia la Liga')],
+  flare: [M('anuncio', 'Lysson habla a todo Kalos', 'Anuncia el arma definitiva'), M('labo', 'Laboratorio Lysson', 'Bajo su café, en Luminalia', undefined, .87)],
+  fractal: [M('yveltal', 'Yveltal', 'El Pokémon legendario despierta', 'yveltal', .14), M('lysson', 'Último combate contra Lysson', 'El arma definitiva', 'vs', .33),
+    M('ruta18', 'Ruta 18', undefined, undefined, .44), M('mosaico', 'Pueblo Mosaico', 'El pueblo de las cascadas', undefined, .6), M('ruta19', 'Ruta 19')],
+  victoria: [M('ruta21', 'Ruta 21', 'El camino hacia la Liga', undefined, .46)],
   torneo: [M('desfile', 'Desfile en Luminalia', 'Todo Kalos celebra a su campeón', 'estrella')],
 };
 // todas las casillas en orden, con su sitio: las grandes en PUNTOS y las misiones repartidas por la curva de antes.
 // seg y k dicen hasta dónde llega el camino de oro cuando esa es la actual
 const CASILLAS = HITOS.flatMap((h, i) => {
   const ms = (MISIONES[h.id] || []).map((m, n, todas) => {
-    const {p, k} = puntoEn(TRAMOS[i - 1], (n + 1) / (todas.length + 1));
+    const {p, k} = puntoEn(TRAMOS[i - 1], m.f || (n + 1) / (todas.length + 1));
     return {...m, pos: p, seg: i - 1, k};
   });
   return [...ms, {...h, pos: PUNTOS[i], seg: i, k: 0}];
 });
-const ball = (x, y) => `<g transform="translate(${x} ${y})"><circle r="11" fill="#fff" stroke="#1B2030" stroke-width="2.5"/><path d="M-11 0a11 11 0 0 1 22 0z" fill="#CC2B0B" stroke="#1B2030" stroke-width="2.5"/><circle r="3.5" fill="#fff" stroke="#1B2030" stroke-width="2.5"/></g>`;
+const ball = (x, y, e = 1) => `<g transform="translate(${x} ${y}) scale(${e})"><circle r="11" fill="#fff" stroke="#1B2030" stroke-width="2.5"/><path d="M-11 0a11 11 0 0 1 22 0z" fill="#CC2B0B" stroke="#1B2030" stroke-width="2.5"/><circle r="3.5" fill="#fff" stroke="#1B2030" stroke-width="2.5"/></g>`;
 const ICONOS = {
   vs: '<svg viewBox="0 0 64 64"><path d="M32 4l7 12 13-4-3 13 12 7-12 7 3 13-13-4-7 12-7-12-13 4 3-13-12-7 12-7-3-13 13 4z" fill="#CC2B0B" stroke="#1B2030" stroke-width="3" stroke-linejoin="round"/><text x="32" y="39" text-anchor="middle" font-family="Bungee, sans-serif" font-size="17" fill="#fff">VS</text></svg>',
+  yveltal: '<svg viewBox="0 0 64 60"><path d="M32 58 25 35 4 7l23 15 5-16 5 16L60 7 39 35z" fill="#CC2B0B" stroke="#1B2030" stroke-width="3" stroke-linejoin="round"/><circle cx="32" cy="27" r="3" fill="#fff"/></svg>',
+  ruta: '<svg viewBox="0 0 64 64"><path d="M28 4h8v56h-8z" fill="#A8754A" stroke="#1B2030" stroke-width="3" stroke-linejoin="round"/><path d="M12 12h36l10 8-10 8H12z" fill="#FFCB05" stroke="#1B2030" stroke-width="3" stroke-linejoin="round"/><path d="M52 32H16L6 40l10 8h36z" fill="#E8F0FB" stroke="#1B2030" stroke-width="3" stroke-linejoin="round"/></svg>',
   estrella: '<svg viewBox="0 0 64 64"><path d="M32 4l8 18 20 2-15 13 5 20-18-11-18 11 5-20L4 24l20-2z" fill="#FFCB05" stroke="#1B2030" stroke-width="3" stroke-linejoin="round"/></svg>',
   bosque: '<svg viewBox="0 0 64 60"><path d="M20 6 6 34h8L4 52h32L26 34h8z" fill="#2E9E4F" stroke="#1B2030" stroke-width="3" stroke-linejoin="round"/><path d="M44 14 32 38h7l-9 14h28l-9-14h7z" fill="#46B85F" stroke="#1B2030" stroke-width="3" stroke-linejoin="round"/><path d="M20 52v6M44 52v6" stroke="#7E5233" stroke-width="4"/></svg>',
   ciudad: '<svg viewBox="0 0 64 60"><path d="M6 56V30h14v26M22 56V12h18v44M42 56V24h16v32" fill="#E8F0FB" stroke="#1B2030" stroke-width="3" stroke-linejoin="round"/><path d="M27 20h8M27 28h8M27 36h8M10 38h6M47 32h6M47 40h6" stroke="#2A75BB" stroke-width="3"/><path d="M2 56h60" stroke="#1B2030" stroke-width="3" stroke-linecap="round"/></svg>',
-  flauta: '<svg viewBox="0 0 64 64"><path d="M10 50 46 14l6 6-36 36z" fill="#E8C27A" stroke="#1B2030" stroke-width="3" stroke-linejoin="round"/><circle cx="24" cy="38" r="2.5" fill="#1B2030"/><circle cx="31" cy="31" r="2.5" fill="#1B2030"/><circle cx="38" cy="24" r="2.5" fill="#1B2030"/><path d="M50 40c4 0 6 3 6 6M54 32c6 1 8 6 8 10" fill="none" stroke="#2A75BB" stroke-width="3" stroke-linecap="round"/></svg>',
+  flauta: `<svg viewBox="0 0 64 64"><g transform="rotate(-42 24 34)" stroke="#1B2030" stroke-width="3" stroke-linejoin="round"><path d="M18 6h12l-1 41 5 11H14l5-11z" fill="#F4E3B8"/><path d="M18 6h12l-.3 11H18.30z" fill="#CC2B0B"/><path d="M19 47h10" fill="none"/><g fill="#1B2030" stroke="none"><circle cx="24" cy="24" r="2.30"/><circle cx="24" cy="32" r="2.30"/><circle cx="24" cy="40" r="2.30"/></g></g><g stroke="#2A75BB" stroke-width="3.50" stroke-linecap="round" fill="none"><path d="M50 6v21c0 3-3 6-7 6s-5-3-3-5 6-2 10 0"/><path d="M50 6c5 1 9 4 10 9"/></g></svg>`,
   fabrica: `<svg viewBox="0 0 64 60"><path d="M4 56V28l14 8v-8l14 8v-8l14 8V10h12v46z" fill="#E9EDF5" stroke="#1B2030" stroke-width="3" stroke-linejoin="round"/>${ball(30, 47)}</svg>`,
-  monte: '<svg viewBox="0 0 64 56"><path d="M2 54 24 14l10 16 8-12 20 36z" fill="#9AA6BC" stroke="#1B2030" stroke-width="3" stroke-linejoin="round"/><path d="M18 25l6-11 6 9-6 3zM38 24l4-6 5 8-5 2z" fill="#fff"/><path d="M30 54l4-14 4 14" fill="#CC2B0B" stroke="#1B2030" stroke-width="2.5" stroke-linejoin="round"/></svg>',
-  casa: '<svg viewBox="0 0 64 64"><path d="M14 30v24h36V30" fill="#FFF8EE" stroke="#1B2030" stroke-width="3" stroke-linejoin="round"/><path d="M8 32 32 12l24 20" fill="none" stroke="#CC2B0B" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/><path d="M27 54V41h10v13" fill="#2A75BB" stroke="#1B2030" stroke-width="3"/></svg>',
-  ball: `<svg viewBox="0 0 64 48">${ball(14, 32)}${ball(32, 18)}${ball(50, 32)}</svg>`,
+  monte: `<svg viewBox="0 0 64 58"><path d="M2 55 25 11l10 18 8-12 19 38z" fill="#9AA6BC" stroke="#1B2030" stroke-width="3" stroke-linejoin="round"/><path d="M25 11l-8 15 5-2 3 4 4-3 3 2zM43 17l-5 8 3-1 3 3 3-2 2 1z" fill="#fff" stroke="#1B2030" stroke-width="1.50" stroke-linejoin="round"/><path d="M22 55V45a10 10 0 0 1 20 0v10z" fill="#1B2030"/><path d="M27 55v-9a5 5 0 0 1 10 0v9" fill="none" stroke="#4A5168" stroke-width="2"/></svg>`,
+  casa: '<svg viewBox="0 0 64 64"><path d="M43 12h9v18h-9z" fill="#A8754A" stroke="#1B2030" stroke-width="3" stroke-linejoin="round"/><path d="M12 30h40v28H12z" fill="#FFF3DE" stroke="#1B2030" stroke-width="3" stroke-linejoin="round"/><path d="M12 45h40v13H12z" fill="#EAD6B4"/><path d="M12 30h40v28H12z" fill="none" stroke="#1B2030" stroke-width="3" stroke-linejoin="round"/><path d="M26 58V44a6 6 0 0 1 12 0v14z" fill="#2A75BB" stroke="#1B2030" stroke-width="3" stroke-linejoin="round"/><circle cx="34" cy="50" r="1.4" fill="#FFCB05"/><path d="M16 38h7v7h-7zM41 38h7v7h-7z" fill="#BFE7F2" stroke="#1B2030" stroke-width="2.4" stroke-linejoin="round"/><path d="M3 35 32 8l29 27-5 5L32 18 8 40z" fill="#E2412A" stroke="#1B2030" stroke-width="3" stroke-linejoin="round"/><path d="M32 13 9 34.5" fill="none" stroke="#FF9C86" stroke-width="2.6" stroke-linecap="round"/></svg>',
+  ball: `<svg viewBox="0 0 64 54">${ball(32, 17, 1.3)}${ball(16, 36, 1.3)}${ball(48, 36, 1.3)}</svg>`,
   corazon: '<svg viewBox="0 0 64 60"><path d="M32 56C14 41 4 31 4 19A15 15 0 0 1 32 11a15 15 0 0 1 28 8c0 12-10 22-28 37Z" fill="#CC2B0B" stroke="#1B2030" stroke-width="3" stroke-linejoin="round"/><path d="M14 16a8 8 0 0 1 8-6" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round"/></svg>',
   rayo: '<svg viewBox="0 0 48 64"><path d="M30 3 7 36h14l-5 25 25-36H27z" fill="#FFCB05" stroke="#1B2030" stroke-width="3" stroke-linejoin="round"/></svg>',
-  flare: '<svg viewBox="0 0 64 64"><path d="M32 3c3 12 15 16 15 31 0 4-1 7-3 10 6-3 10-9 10-15 4 6 5 11 5 16a27 27 0 0 1-54 0c0-7 3-13 8-18 0 6 2 10 6 13-2-14 7-24 13-37Z" fill="#CC2B0B" stroke="#1B2030" stroke-width="3" stroke-linejoin="round"/><path d="M32 30c2 7 9 10 9 18a9 9 0 0 1-18 0c0-7 6-11 9-18Z" fill="#FFCB05"/></svg>',
-  mega: '<svg viewBox="0 0 64 60"><ellipse cx="32" cy="38" rx="25" ry="16" fill="none" stroke="#1B2030" stroke-width="10"/><ellipse cx="32" cy="38" rx="25" ry="16" fill="none" stroke="#C7CEDC" stroke-width="5"/><path d="M32 3 47 22 32 44 17 22Z" fill="#7B4FD6" stroke="#1B2030" stroke-width="3" stroke-linejoin="round"/><path d="M32 3v41M17 22h30" stroke="#fff" stroke-width="2" opacity=".55"/><path d="M26 15l5-6" stroke="#fff" stroke-width="3" stroke-linecap="round"/></svg>',
-  captura: `<svg viewBox="0 0 64 64">${ball(32, 38)}<path d="M50 12l2 6 6 2-6 2-2 6-2-6-6-2 6-2zM14 14l1.5 4 4 1.5-4 1.5-1.5 4-1.5-4-4-1.5 4-1.5z" fill="#FFCB05" stroke="#B88A00" stroke-width="1.5" stroke-linejoin="round"/></svg>`,
-  mando: '<svg viewBox="0 0 64 48"><g fill="#4A5168"><circle cx="11" cy="20" r="5"/><path d="M4 46c0-11 3-17 7-19 4 2 7 8 7 19z"/><circle cx="53" cy="20" r="5"/><path d="M46 46c0-11 3-17 7-19 4 2 7 8 7 19z"/></g><g fill="#1B2030"><circle cx="25" cy="15" r="5"/><path d="M18 46c0-13 3-20 7-22 4 2 7 9 7 22z"/><circle cx="39" cy="15" r="5"/><path d="M32 46c0-13 3-20 7-22 4 2 7 9 7 22z"/></g></svg>',
+  flare: `<svg viewBox="0 0 64 64"><path d="M33 3c3 13 15 18 15 31 0 2-.4 4-1 6 3.40-2.60 5-6.40 5-11 5 5 7 11 7 17 0 9-12 15-27 15S5 55 5 46c0-8 4-14 9-19 0 5 2 9 5 11-2-14 8-23 14-35Z" fill="#CC2B0B" stroke="#1B2030" stroke-width="3" stroke-linejoin="round"/><path d="M32 30c2 7 10 11 10 19 0 5-4.50 8-10 8s-10-3-10-8c0-7 7-12 10-19Z" fill="#FFCB05"/></svg>`,
+  mega: `<svg viewBox="0 0 64 62"><ellipse cx="32" cy="43" rx="25" ry="14" fill="none" stroke="#1B2030" stroke-width="10"/><ellipse cx="32" cy="43" rx="25" ry="14" fill="none" stroke="#C7CEDC" stroke-width="5"/><circle cx="32" cy="23" r="19" fill="#7B4FD6" stroke="#1B2030" stroke-width="3"/><path d="M23 9c18 8-2 20 18 28" fill="none" stroke="#FFCB05" stroke-width="3.50" stroke-linecap="round"/><path d="M41 9C23 17 43 29 23 37" fill="none" stroke="#FF8A70" stroke-width="3.50" stroke-linecap="round"/></svg>`,
+  captura: `<svg viewBox="0 0 64 64">${ball(30, 39, 1.8)}<path d="M51 4l2.50 7.50L61 14l-7.50 2.50L51 24l-2.50-7.50L41 14l7.50-2.50zM13 6l2 5 5 2-5 2-2 5-2-5-5-2 5-2z" fill="#FFCB05" stroke="#1B2030" stroke-width="2" stroke-linejoin="round"/></svg>`,
+  mando: `<svg viewBox="0 0 64 50"><g fill="#9AA6BC" stroke="#1B2030" stroke-width="2.50" stroke-linejoin="round"><circle cx="11" cy="20" r="5.50"/><path d="M3 47c0-10 3-16 8-18 5 2 8 8 8 18z"/><circle cx="53" cy="20" r="5.50"/><path d="M45 47c0-10 3-16 8-18 5 2 8 8 8 18z"/></g><g fill="#4A5168" stroke="#1B2030" stroke-width="2.50" stroke-linejoin="round"><circle cx="24" cy="13" r="6"/><path d="M15 47c0-14 4-22 9-25 5 3 9 11 9 25z"/><circle cx="40" cy="13" r="6"/><path d="M31 47c0-14 4-22 9-25 5 3 9 11 9 25z"/></g></svg>`,
   corona: '<svg viewBox="0 0 64 50"><path d="M8 40 4 12l16 12 12-18 12 18 16-12-4 28z" fill="#FFCB05" stroke="#1B2030" stroke-width="2.5" stroke-linejoin="round"/><rect x="8" y="40" width="48" height="7" rx="2" fill="#E0A800" stroke="#1B2030" stroke-width="2.5"/><circle cx="32" cy="30" r="4" fill="#CC2B0B"/></svg>',
   trofeo: '<svg viewBox="0 0 64 72"><path d="M18 12H8v4a10 10 0 0 0 10 10M46 12h10v4a10 10 0 0 1-10 10" fill="none" stroke="#1B2030" stroke-width="2.5"/><path d="M18 6h28v18a14 14 0 0 1-28 0z" fill="#FFCB05" stroke="#1B2030" stroke-width="2.5" stroke-linejoin="round"/><path d="M28 38h8v10h-8z" fill="#E0A800" stroke="#1B2030" stroke-width="2.5"/><rect x="16" y="50" width="32" height="14" rx="3" fill="#1B2030"/></svg>',
 };
@@ -1377,8 +1438,11 @@ function irAMiFicha() {
 }
 $('tb-escena').addEventListener('wheel', (ev) => { ev.preventDefault(); zoomEn(ev.deltaY < 0 ? 1.15 : 1 / 1.15, ...centro(ev)); }, {passive: false});
 $('tb-escena').addEventListener('dblclick', (ev) => zoomEn(1.6, ...centro(ev), true));
+$('tb-escena').addEventListener('dragstart', (ev) => ev.preventDefault());
 $('tb-escena').addEventListener('pointerdown', (ev) => {
   if (ev.button !== 0) return;
+  ev.preventDefault();
+  getSelection()?.removeAllRanges();
   const desde = {cx: ev.clientX, cy: ev.clientY, x: camara.x, y: camara.y}, e = $('tb-escena');
   e.setPointerCapture(ev.pointerId);
   e.classList.add('arrastrando');
@@ -1475,11 +1539,56 @@ function avances(j, actual, miPuesto) {
   try { localStorage.setItem('pokelocke-tablero-vistos', JSON.stringify(vistos)); } catch (err) { /* nada */ }
 }
 let casillaMandada = '';
+
+// qué es cada casilla, al pasar el ratón. Va fuera de la escena para que no crezca con el zoom ni la tapen otras casillas
+let vistaTablero = null;
+const GIMNASIOS = ['Ciudad Novarte', 'Ciudad Relieve', 'Ciudad Yantra', 'Ciudad Témpera', 'Ciudad Luminalia', 'Ciudad Romantis', 'Ciudad Fluxus', 'Ciudad Fractal'];
+function textoCasilla(i) {
+  const h = CASILLAS[i], {j, hecho, actual, otros} = vistaTablero;
+  const estado = hecho[i] ? 'Hecho' : i === actual ? 'Estás aquí' : 'Por hacer';
+  const pastillas = h.med ? [j.topes && `Nivel tope ${j.topes[h.med - 1]}`, h.med % 2 === 0 && 'Da un huevo', h.med === 4 && 'Gran torneo'].filter(Boolean) : [];
+  const obj = h.med ? `Gimnasio de ${GIMNASIOS[h.med - 1]}` : h.obj !== h.n ? h.obj : '';
+  return `<div class="foto${h.med ? ' lider' : ''}">${h.med ? `<img src="/assets/lider-${h.med}.png" alt="">` : ICONOS[h.ico] || ICONOS.ruta}</div>
+    <div class="texto"><div class="cab"><span>Casilla ${i + 1} de ${CASILLAS.length}</span><span class="situ">${estado}</span></div>
+    <div class="nombre">${esc(h.med ? 'Líder ' + h.n : h.n)}</div>
+    ${obj ? `<div class="obj">${esc(obj)}</div>` : ''}${h.det ? `<div class="det">${esc(h.det)}</div>` : ''}
+    ${pastillas.map((p) => `<span class="tb-pastilla">${esc(p)}</span>`).join('')}
+    ${(otros[h.id] || []).map((o) => `<div class="jug">${esc(o.usuario)} · ${o.medallas}/8 medallas · ${o.vidas} vidas</div>`).join('')}</div>`;
+}
+function verEtiqueta(c) {
+  const e = $('tb-etiqueta'), caja = $('tablero').getBoundingClientRect(), r = c.getBoundingClientRect(), i = +c.dataset.i;
+  const {hecho, actual} = vistaTablero;
+  e.innerHTML = textoCasilla(i);
+  e.className = `tb-etiqueta ${hecho[i] ? 'hecho' : i === actual ? 'actual' : 'pendiente'}`;
+  // encima de lo más alto de la casilla (icono o ficha); si no cabe, debajo. La flecha sigue apuntando a la casilla
+  const arriba = Math.min(r.top, ...[...c.querySelectorAll('.tb-icono, .tb-ficha, .tb-aqui, .tb-otros')].map((x) => x.getBoundingClientRect().top));
+  const centro = r.left + r.width / 2 - caja.left, y = arriba - e.offsetHeight - 16 - caja.top;
+  const x = Math.min(caja.width - e.offsetWidth - 12, Math.max(12, centro - e.offsetWidth / 2)), debajo = y < 12;
+  e.classList.toggle('abajo', debajo);
+  e.style.left = `${Math.round(x)}px`;
+  e.style.top = `${Math.round(debajo ? r.bottom + 18 - caja.top : y)}px`;
+  e.style.setProperty('--flecha', `${Math.round(Math.min(e.offsetWidth - 26, Math.max(26, centro - x)))}px`);
+  e.style.animation = 'none';
+  void e.offsetWidth;
+  e.style.animation = '';
+}
+const sinEtiqueta = () => $('tb-etiqueta').classList.add('oculto');
+$('tb-casillas').addEventListener('pointerover', (ev) => {
+  const c = ev.target.closest('.tb-casilla');
+  if (c && vistaTablero) verEtiqueta(c);
+});
+$('tb-casillas').addEventListener('pointerout', (ev) => {
+  const de = ev.target.closest('.tb-casilla');
+  if (de && !de.contains(ev.relatedTarget)) sinEtiqueta();
+});
+$('tb-escena').addEventListener('pointerdown', sinEtiqueta);
+$('tb-escena').addEventListener('wheel', sinEtiqueta, {passive: true});
 function pintarTablero(j) {
   const {t, hecho, actual} = progreso(j);
   const miPuesto = ultimo && ultimo.online.sesion ? mejorPuesto(ultimo.online.sesion.usuario) : 9;
   avances(j, actual, miPuesto);
   const otros = otrosJugadores();
+  vistaTablero = {j, hecho, actual, otros};
   const aqui = CASILLAS[actual === -1 ? CASILLAS.length - 1 : actual];
   const mia = {hito: aqui.id, n: actual === -1 ? CASILLAS.length : actual, medallas: t.medallas.filter(Boolean).length, vidas: j.preparado ? j.vidas : 0};
   if (j.preparado && JSON.stringify(mia) !== casillaMandada) {
@@ -1490,11 +1599,10 @@ function pintarTablero(j) {
     const [x, y] = h.pos;
     const est = hecho[i] ? 'hecho' : i === actual ? 'actual' : 'pendiente';
     const icono = h.med ? `<img src="/assets/medalla-${h.med}.png" alt="">` : ICONOS[h.ico] || '';
-    const titulo = h.chica ? `${h.n}${h.det ? ' · ' + h.det : ''}` : `${h.n}${h.med ? '' : ' · ' + h.obj}${h.med === 4 ? ' · gran torneo' : ''}`;
-    return `<div class="tb-casilla ${est}${h.chica ? ' chica' : ''}${h.med === 4 ? ' gran' : ''}" style="left: ${x / 13.76}%; top: ${y / 7.68}%; z-index: ${Math.round(y)};" title="${i + 1}. ${esc(titulo)}">
-      <span class="moneda"></span>${i === 0 || !icono ? '' : `<span class="tb-icono">${icono}</span>`}
+    return `<div class="tb-casilla ${est}${h.chica ? ' chica' : ''}${h.med === 4 ? ' gran' : ''}" style="left: ${x / 13.76}%; top: ${y / 7.68}%; z-index: ${Math.round(y)};" data-i="${i}">
+      <span class="moneda"></span>${i === actual || !icono ? '' : `<span class="tb-icono">${icono}</span>`}
       ${h.med === 4 ? `<span class="tb-bandera">${BANDERA}</span>` : ''}${h.med && h.med % 2 === 0 ? `<span class="tb-huevo">${HUEVO}</span>` : ''}
-      ${otros[h.id] ? `<span class="tb-otros">${otros[h.id].map((o) => `<span class="tb-otro${o.conectado ? ' en-linea' : ''}" title="${esc(o.usuario)} · ${o.medallas}/8 medallas · ${o.vidas} vidas">${fotoJugador(o.usuario, o.foto)}</span>`).join('')}</span>` : ''}
+      ${otros[h.id] ? `<span class="tb-otros">${otros[h.id].map((o) => `<span class="tb-otro${o.conectado ? ' en-linea' : ''}">${fotoJugador(o.usuario, o.foto)}</span>`).join('')}</span>` : ''}
       ${i === actual && !enCamino.has('yo:' + j.id) ? `<span class="tb-ficha">${FICHA}${miPuesto < 9 ? corona(miPuesto) : ''}<span class="tb-aqui">Estás aquí</span></span>` : ''}</div>`;
   }).join('');
   // el camino de oro llega hasta la casilla actual; el resto del camino, en blanco a trazos
@@ -1503,7 +1611,7 @@ function pintarTablero(j) {
   const hechos = linea([...TRAMOS.slice(0, fin.seg).flat(), ...(TRAMOS[fin.seg] || []).slice(0, fin.k + 1)]);
   const resto = linea(TRAMOS.flat());
   const h = CASILLAS[actual === -1 ? CASILLAS.length - 1 : actual];
-  const retrato = h.med ? `<img src="/assets/lider-${h.med}.png" alt="">` : `<span style="width: 70%; display: flex;">${ICONOS[h.ico] || ICONOS.estrella}</span>`;
+  const retrato = h.med ? `<img src="/assets/lider-${h.med}.png" alt="">` : `<span style="width: 70%; display: flex;">${ICONOS[h.ico] || ICONOS.ruta}</span>`;
   const objetivo = `<div class="tb-retrato">${retrato}</div><div><div class="que">${actual === -1 ? '¡Aventura completada!' : 'Siguiente objetivo'}</div>
       <div class="nombre">${esc(h.med ? h.n : h.obj)}</div>
       ${h.med && j.topes ? `<span class="tb-pastilla">Nivel tope ${j.topes[h.med - 1]}</span>` : h.det ? `<div class="que" style="margin-top: 4px;">${h.det}</div>` : ''}
@@ -1513,8 +1621,8 @@ function pintarTablero(j) {
       <div class="tb-vidas">${Array.from({length: total}, (_, i) => icoCorazon.replace('#CC2B0B', i < vivas ? '#CC2B0B' : '#D5DAE5')).join('')}</div>
       <div class="tb-fila"><span>Medallas</span><span style="display: flex; gap: 10px; align-items: center;">${j.huevos ? `<button class="tb-huevos" type="button" data-accion="huevos" data-id="${j.id}">${icoHuevo} ${j.huevos} ${j.huevos === 1 ? 'huevo' : 'huevos'} por abrir</button>` : ''}<b>${t.medallas.filter(Boolean).length}/8</b></span></div>
       <div class="tb-estuche">${t.medallas.map((m, k) => `<span class="${m ? '' : 'no'}"><img src="/assets/medalla-${k + 1}.png" alt="${m ? 'Medalla de ' + HITOS.find((h) => h.med === k + 1).n : ''}"></span>`).join('')}</div>`;
-  const equipo = t.equipo.map((p) => `<div class="tb-burbuja${(j.muertos || []).includes(p.id) ? ' muerto' : ''}" title="${esc(p.mote || p.especie_nombre)}">
-      <img src="/arte/${p.especie}" alt="${esc(p.especie_nombre)}"><span class="nv">Nv. ${p.nivel}</span></div>`).join('');
+  const equipo = t.equipo.map((p) => `<div class="tb-burbuja${(j.muertos || []).includes(p.id) ? ' muerto' : ''}" title="${p.huevo ? 'Huevo sin abrir' : esc(p.mote || p.especie_nombre)}">
+      <img src="${p.huevo ? '/assets/huevo-entero.png' : `/arte/${p.especie}`}" alt="${p.huevo ? 'Huevo' : esc(p.especie_nombre)}"><span class="nv">${p.huevo ? 'Huevo' : `Nv. ${p.nivel}`}</span></div>`).join('');
   const jugar = `<button class="btn-jugar" type="button" data-accion="jugar" data-id="${j.id}">${j.preparado ? 'Jugar' : 'Preparar'}</button>
       <div class="tb-botones">${j.retos ? `<button class="btn btn-neutro" type="button" data-accion="retos" data-id="${j.id}">Retos${j.retos.puede || j.retos.misiones.ofertas.length || duelPendiente() ? '<span class="tb-punto" aria-label="hay un reto, una misión o un duelo por aceptar"></span>' : ''}</button>` : ''}
       <button class="btn btn-neutro" type="button" data-accion="menu" data-id="${j.id}" aria-expanded="${menuAbierto === j.id}">Más opciones</button></div>${menuAbierto === j.id ? menuJuego(j) : ''}`;
@@ -1522,6 +1630,7 @@ function pintarTablero(j) {
   if (html === pintado) return;
   pintado = html;
   $('tb-casillas').innerHTML = casillas;
+  $('tb-etiqueta').classList.add('oculto');
   $('tb-resto').setAttribute('points', resto);
   $('tb-hecho').setAttribute('points', hechos);
   $('tb-brillo').setAttribute('points', hechos);
@@ -2084,7 +2193,9 @@ function pintarHuevos(e) {
   const n = e.disponibles;
   $('hv-info').textContent = (n ? `Puedes coger ${n} ${n === 1 ? 'huevo' : 'huevos'}.` : `Ahora no puedes coger ninguno: uno cada 2 medallas (llevas ${e.medallas}).`)
     + ' Si el que coges es shiny, puedes coger otro.';
-  $('hv-rejilla').innerHTML = e.huevos.map((h, i) => h.cogido
+  $('hv-rejilla').innerHTML = e.huevos.map((h, i) => h.cogido && !h.abierto
+    ? `<button type="button" class="huevo cogido cerrado${h.shiny ? ' dorado' : ''}" disabled title="Se abre en el juego: llévalo en tu equipo y camina">${h.shiny ? '<span class="estrella">★</span>' : ''}<img src="/assets/huevo-entero.png" alt=""><span>Por abrir</span></button>`
+    : h.cogido
     ? `<button type="button" class="huevo cogido" disabled title="${esc(h.nombre)}${h.shiny ? ' · shiny' : ''}">${h.shiny ? '<span class="estrella">★</span>' : ''}<img src="/arte/${h.especie}" alt=""><span>${esc(h.nombre)}</span></button>`
     : `<button type="button" class="huevo" data-huevo="${i}" ${n && !huevos.ocupado ? '' : 'disabled'} aria-label="Huevo ${i + 1}">${icoHuevoGrande}</button>`).join('');
 }
@@ -2096,39 +2207,39 @@ function pintarHuevos(e) {
 // Las frases caben en las dos líneas del cuadro, como en Ostinato (unos 80 caracteres).
 const TUTORIALES = {
   inicio: [
-    {texto: '¡Hola! Soy la profesora Arce. Te enseño en un momento cómo funciona esto.'},
-    {foco: '#pasos', texto: 'Aquí tienes los primeros pasos. Se van marcando solos según los haces.'},
-    {foco: '#b-anadir-vacio', texto: 'Lo primero: añade tu ROM de Pokémon Y. Se queda donde está, no se copia.'},
-    {foco: '#vacio .btn-borde', texto: '¿No la tienes? Desde aquí puedes descargarla.'},
-    {foco: '#o-chip', texto: 'Esta es tu cuenta: el torneo, la sala online y quién está conectado.'},
-    {foco: '#b-opciones', texto: 'En Opciones están el vídeo de normas, la guía y el contrato.'},
-    {texto: 'Cuando prepares tu juego, te enseñaré el tablero. ¡Nos vemos allí!'},
+    {texto: '¡Hola! Soy la profesora Arce y voy a enseñarte cómo funciona Pokelocke.'},
+    {foco: '#pasos', texto: 'Estos son tus primeros pasos. Cada uno se marca solo cuando lo completas.'},
+    {foco: '#b-anadir-vacio', texto: 'Empieza añadiendo tu ROM de Pokémon Y. La app la usa desde donde está.'},
+    {foco: '#vacio .btn-borde', texto: 'Si todavía no la tienes, puedes descargarla desde aquí.'},
+    {foco: '#o-chip', texto: 'Aquí está tu cuenta. Con ella entras al torneo y ves quién está conectado.'},
+    {foco: '#b-opciones', texto: 'En Opciones tienes el vídeo de las normas, la guía y el contrato.'},
+    {texto: 'Cuando tengas tu juego preparado, te enseñaré el tablero. ¡Hasta luego!'},
   ],
   tablero: [
-    {texto: '¡Ya tienes tu juego! Te enseño el tablero de tu aventura.'},
-    {texto: 'Cada casilla es un momento de la historia. Tu ficha avanza al guardar la partida.'},
-    {foco: '#tb-zoom', texto: 'Con la rueda del ratón o estos botones te acercas; arrastrando, te mueves.'},
-    {foco: '#tb-objetivo', texto: 'Tu siguiente objetivo y el nivel tope del líder. ¡No lo pases!'},
-    {foco: '#tb-marcador', texto: 'Tus vidas y tus medallas. Cada dos medallas, un huevo para tu caja.'},
-    {foco: '#tb-equipo', texto: 'Tu equipo, tal como lo guardaste. Los caídos salen en gris.'},
-    {foco: '.btn-jugar', texto: 'Con Jugar se abre el juego. Las vidas y las medallas se cuentan solas.'},
-    {foco: '[data-accion="retos"]', texto: 'En Retos, cada líder te ofrece cartas: un huevo si cumples, una vida si fallas.'},
-    {foco: '[data-accion="menu"]', texto: 'Más opciones: la caja de huevos, el PokéHex y las copias de tu partida.'},
-    {foco: '#b-torneo', texto: 'El torneo. ¡Los tres primeros se llevan corona de oro, plata o bronce!'},
-    {foco: '#o-chip', texto: 'Tu cuenta: quién está conectado, tu foto de perfil y la sala para combatir.'},
-    {foco: '#sonido', texto: 'La música: pasa el ratón para el volumen o pulsa para silenciarla.'},
-    {foco: '#b-opciones', texto: 'Opciones: normas, guía, contrato, actualizaciones y este tutorial.'},
+    {texto: '¡Tu juego ya está listo! Ahora te enseño el tablero de tu aventura.'},
+    {texto: 'Cada casilla es un momento de la historia. Tu ficha avanza cuando guardas.'},
+    {foco: '#tb-zoom', texto: 'Acércate con la rueda del ratón o con estos botones, y arrastra para moverte.'},
+    {foco: '#tb-objetivo', texto: 'Aquí ves tu próximo objetivo y el nivel tope del líder. ¡No lo superes!'},
+    {foco: '#tb-marcador', texto: 'Tus vidas y tus medallas. Por cada dos medallas puedes coger un huevo.'},
+    {foco: '#tb-equipo', texto: 'Este es tu equipo tal como lo guardaste. Los Pokémon caídos salen en gris.'},
+    {foco: '.btn-jugar', texto: 'Pulsa Jugar para abrir el juego. Las vidas y las medallas se cuentan solas.'},
+    {foco: '[data-accion="retos"]', texto: 'En Retos, cada líder te ofrece cartas: si cumples, huevo; si fallas, una vida.'},
+    {foco: '[data-accion="menu"]', texto: 'En Más opciones están la caja de huevos, el PokéHex y las copias de tu partida.'},
+    {foco: '#b-torneo', texto: 'Este es el torneo. Los tres primeros ganan una corona de oro, plata o bronce.'},
+    {foco: '#o-chip', texto: 'En tu cuenta tienes tu foto de perfil, quién está conectado y la sala.'},
+    {foco: '#sonido', texto: 'La música: pasa el ratón por encima para el volumen o pulsa para quitarla.'},
+    {foco: '#b-opciones', texto: 'En Opciones tienes las normas, la guía, las actualizaciones y este tutorial.'},
     {texto: '¡Eso es todo! Mucha suerte en tu Mega Pokelocke.'},
   ],
   retos: [
-    {texto: 'En los Retos, cada líder te ofrece sus cartas antes de su gimnasio.'},
-    {foco: '.rt-mesa', texto: 'Desde el segundo gimnasio puedes coger una. Solo una por líder.'},
-    {foco: '.rt-carta .rt-premio', texto: 'Si cumples el reto al ganar la medalla, te llevas un huevo extra.'},
-    {foco: '.rt-carta .rt-premio', texto: 'Si fallas, pierdes una vida. Yo lo compruebo sola al ganar la medalla.'},
-    {foco: '.rt-accion', texto: 'Elige una carta y cógela aquí, con el juego cerrado. No se devuelve.'},
-    {foco: '#rt-mision', texto: 'A veces aparecen misiones: las fáciles dan una Escama Corazón y no castigan.'},
+    {texto: 'En Retos, cada líder te ofrece sus cartas antes de que te enfrentes a él.'},
+    {foco: '.rt-mesa', texto: 'A partir del segundo gimnasio puedes coger una carta, solo una por líder.'},
+    {foco: '.rt-carta .rt-premio', texto: 'Si cumples el reto cuando ganas la medalla, te llevas un huevo extra.'},
+    {foco: '.rt-carta .rt-premio', texto: 'Si no lo cumples, pierdes una vida. Lo compruebo yo al ganar la medalla.'},
+    {foco: '.rt-accion', texto: 'Elige una carta y cógela aquí, con el juego cerrado. No se puede devolver.'},
+    {foco: '#rt-mision', texto: 'A veces salen misiones. Las fáciles dan una Escama Corazón y no castigan.'},
     {foco: '#rt-mision', texto: 'Las difíciles dan un huevo, pero si fallas pierdes una vida.'},
-    {foco: '#rt-historial', texto: 'Y aquí ves cómo te fue en el reto de cada medalla. ¡Suerte!'},
+    {foco: '#rt-historial', texto: 'Aquí ves cómo te fue en el reto de cada medalla. ¡Mucha suerte!'},
   ],
 };
 let tuto = null;
@@ -2248,6 +2359,34 @@ function carta(x, j, extra = '') {
     <span class="rt-cara">${CARAS[x.id]}<span class="rt-esquina">${ESQUINA[x.id]}</span></span>
     <span class="rt-texto"><b>${esc(x.nombre)}</b><span>${esc(texto)}</span></span>${PREMIO}</button>`;
 }
+const cuando = (f) => {
+  const m = /^(\d{4})-(\d\d)-(\d\d) (\d\d:\d\d)/.exec(f || '');
+  return m ? `La cogiste el ${+m[3]}/${+m[2]} a las ${m[4]}.` : '';
+};
+// el panel del reto en juego: qué hay que hacer, cómo vas ahora (con la partida guardada) y qué te juegas
+function estadoReto(x, a, j) {
+  const quien = lider(a.medalla), equipo = ((j.tablero && j.tablero.equipo) || []).filter((p) => !p.huevo);
+  const marca = (bien) => bien === null ? '<span class="rt-ok nose">?</span>' : `<span class="rt-ok${bien ? '' : ' mal'}">${bien ? '✓' : '✗'}</span>`;
+  const fila = (bien, texto, valor) => `<div class="rt-fila">${marca(bien)}<span>${texto}</span><em>${valor}</em></div>`;
+  let condicion = x.texto, vas = '';
+  if (x.id === 'sin_vidas') {
+    const ahora = j.preparado ? j.vidas : a.vidas;
+    vas = fila(null, 'Vidas al coger la carta', a.vidas) + fila(ahora >= a.vidas, ahora >= a.vidas ? 'Vidas ahora: no has perdido ninguna' : 'Vidas ahora: ya has perdido alguna', ahora);
+  } else if (x.id === 'nivel_bajo') {
+    const tope = j.topes ? j.topes[a.medalla - 1] - 3 : null, alto = equipo.length ? Math.max(...equipo.map((p) => p.nivel)) : null;
+    condicion = tope ? `Gana a ${quien} con todo el equipo a nivel ${tope} o menos.` : x.texto;
+    vas = fila(null, 'Nivel máximo permitido', tope ?? '—') + fila(alto === null || tope === null ? null : alto <= tope, 'Tu Pokémon de más nivel', alto ?? '—');
+  } else if (x.id === 'tres') {
+    vas = fila(null, 'Máximo en el equipo', 3) + fila(equipo.length ? equipo.length <= 3 : null, 'Pokémon que llevas ahora', equipo.length || '—');
+  }
+  return `<section class="rt-estado" aria-label="Tu reto">
+    <span class="rt-sello">RETO EN JUEGO · MEDALLA ${a.medalla} · ${esc(quien.toUpperCase())}</span>
+    <h2>${esc(x.nombre)}</h2><p>${esc(condicion)}</p>
+    <div class="rt-vas"><b>CÓMO VAS (SEGÚN TU ÚLTIMO GUARDADO)</b>${vas}</div>
+    <div class="rt-premios"><span class="gana"><img src="/assets/reto-huevo.png" alt=""><span><small>SI CUMPLES</small>Ganas 1 huevo</span></span>
+      <span class="pierde">${ROTO}<span><small>SI FALLAS</small>Pierdes 1 vida</span></span></div>
+    <small>Se resuelve solo en cuanto ganes a ${esc(quien)}. ${cuando(a.fecha)}</small></section>`;
+}
 function abrirRetos(id) {
   const j = ultimo && ultimo.juegos.find((x) => x.id === id);
   if (!j || !j.retos) return;
@@ -2258,8 +2397,7 @@ function abrirRetos(id) {
   if (r.activo) {
     const x = r.lista.find((y) => y.id === r.activo.tipo);
     bocadillo = 'Has cogido tu carta. Te espero en el gimnasio: ¡cumple el reto!';
-    mesa = carta(x, j, '<span class="rt-enjuego">En juego</span>');
-    accion = '<p>Se resuelve sola en cuanto consigas la medalla.</p>';
+    mesa = carta(x, j, '<span class="rt-enjuego">En juego</span>') + estadoReto(x, r.activo, j);
   } else if (r.puede) {
     bocadillo = '¿Te atreves con una de mis cartas?';
     mesa = r.lista.map((x) => carta(x, j)).join('');
@@ -2271,7 +2409,7 @@ function abrirRetos(id) {
     bocadillo = '¡Ya tienes las 8 medallas! No quedan cartas de gimnasio.';
   }
   $('rt-cuerpo').innerHTML = `<img class="rt-lider" src="/assets/lider-${m}.png" alt="${esc(lider(m))}">
-    <div class="rt-bocadillo">${esc(bocadillo)}</div><div class="rt-mesa">${mesa}</div><div class="rt-accion">${accion}</div>`;
+    <div class="rt-bocadillo">${esc(bocadillo)}</div><div class="rt-mesa${r.activo ? ' en-juego' : ''}">${mesa}</div><div class="rt-accion">${accion}</div>`;
   const hechos = {};
   for (const h of r.historial) hechos[h.medalla] = h.superado ? 'bien' : 'mal';
   $('rt-historial').innerHTML = '<b>Tus retos</b>' + Array.from({length: 8}, (_, k) => {
@@ -2409,13 +2547,13 @@ $('hv-rejilla').onclick = async (ev) => {
   const b = ev.target.closest('[data-huevo]');
   if (!b || b.disabled || huevos.ocupado || !confirm('¿Coger este huevo?')) return;
   huevos.ocupado = true;
-  b.innerHTML = '<span>Abriendo…</span>';
+  b.innerHTML = '<span>Cogiendo…</span>';
   const e = await pedirHuevos('/api/huevos/coger', {i: Number(b.dataset.huevo)});
   huevos.ocupado = false;
   if (e.error) { alert(e.error); return abrirHuevos(huevos.juego); }
   pintarHuevos(e);
   const h = e.huevos[Number(b.dataset.huevo)];
-  alert(`¡Un huevo de ${h.nombre}${h.shiny ? ' ★ SHINY! Puedes coger otro' : ''}! Lo tienes en ${e.donde}.`);
+  alert(`${h.shiny ? '¡Es un huevo shiny ★! Puedes coger otro. ' : '¡Huevo cogido! '}Lo tienes en ${e.donde}. Llévalo en tu equipo y camina para abrirlo.`);
 };
 
 // notas para entrar en la sala de Citra: lo que va en «Multijugador > Conectar directamente a una sala»
@@ -2872,13 +3010,15 @@ async function leerHex() {
   } catch (e) { alert(e.message); cerrarHex(); }
 }
 
+const arteHex = (p) => p.huevo ? '/assets/huevo-entero.png' : `/arte/${p.especie}`;
+
 function pintarHex() {
   document.querySelectorAll('[data-hex]').forEach((b) => b.setAttribute('aria-selected', String(b.dataset.hex === hex.pestana)));
   $('hex-equipo').classList.toggle('oculto', hex.pestana !== 'equipo');
   $('hex-mochila').classList.toggle('oculto', hex.pestana !== 'mochila');
   $('hex-caja').classList.toggle('oculto', hex.pestana !== 'caja');
   $('hex-huecos').innerHTML = hex.equipo.map((p, i) => p
-    ? `<button type="button" class="hex-poke" data-hueco="${i}" aria-pressed="${mismo(hex.sel, {tipo: 'equipo', hueco: i})}"><img src="/arte/${p.especie}" alt=""><b>${esc(p.mote)}</b><span>${esc(p.especie_nombre)} · Nv. ${p.nivel}</span><span>${p.ps}/${p.stats[0]} PS${p.shiny ? ' · ★' : ''}</span></button>`
+    ? `<button type="button" class="hex-poke" data-hueco="${i}" aria-pressed="${mismo(hex.sel, {tipo: 'equipo', hueco: i})}"><img src="${arteHex(p)}" alt=""><b>${esc(p.mote)}</b><span>${p.huevo ? 'Sin abrir' : `${esc(p.especie_nombre)} · Nv. ${p.nivel}`}</span><span>${p.huevo ? '' : `${p.ps}/${p.stats[0]} PS`}${p.shiny ? ' · ★' : ''}</span></button>`
     : `<div class="hex-poke" style="justify-content: center; min-height: 168px; color: var(--suave);">Vacío</div>`).join('');
   pintarCaja();
   pintarEditor();
@@ -2889,7 +3029,7 @@ function mini(p, lugar) {
   const sel = mismo(hex.sel, lugar), dest = hex.moviendo && !mismo(hex.moviendo, lugar) ? ' destino' : '';
   const datos = `data-tipo="${lugar.tipo}" data-caja="${lugar.caja || 0}" data-hueco="${lugar.hueco}"`;
   return p
-    ? `<button type="button" class="hex-mini${dest}" ${datos} aria-pressed="${sel || mismo(hex.moviendo, lugar)}" title="${esc(p.mote)} · ${esc(p.especie_nombre)} Nv. ${p.nivel}"><img src="/arte/${p.especie}" alt=""><span>${esc(p.mote)} · ${p.nivel}</span></button>`
+    ? `<button type="button" class="hex-mini${dest}" ${datos} aria-pressed="${sel || mismo(hex.moviendo, lugar)}" title="${p.huevo ? 'Huevo sin abrir' : `${esc(p.mote)} · ${esc(p.especie_nombre)} Nv. ${p.nivel}`}"><img src="${arteHex(p)}" alt=""><span>${p.huevo ? 'Huevo' : `${esc(p.mote)} · ${p.nivel}`}</span></button>`
     : `<button type="button" class="hex-mini vacio${dest}" ${datos} aria-pressed="${mismo(hex.nuevoEn, lugar)}" aria-label="Hueco vacío">+</button>`;
 }
 
@@ -2911,9 +3051,17 @@ function pintarCaja() {
     <label class="campo" style="flex-grow: 1;">Especie<select id="hx-nv-especie">${opciones(hex.nombres.especies, 25, 1)}</select></label>
     <label class="campo" style="width: 110px;">Nivel<input id="hx-nv-nivel" type="number" min="1" max="100" value="5"></label>
     <button class="btn btn-neutro" type="button" id="hx-nv-cancelar">Cancelar</button>
+    <button class="btn btn-neutro" type="button" id="hx-nv-huevo">Huevo aleatorio</button>
     <button class="btn btn-rojo" type="button" id="hx-nv-crear">Crear</button>
-    <p class="suave" style="width: 100%;">Sale con tu nombre de entrenador, IV al azar, sus movimientos por nivel y en Poké Ball. Luego puedes cambiarle lo que quieras.</p>`;
+    <p class="suave" style="width: 100%;">Sale con tu nombre de entrenador, IV al azar, sus movimientos por nivel y en Poké Ball. Luego puedes cambiarle lo que quieras. El huevo aleatorio nunca es legendario ni singular, y no se sabe qué lleva hasta que se abre.</p>`;
   $('hx-nv-cancelar').onclick = () => { hex.nuevoEn = null; pintarCaja(); };
+  $('hx-nv-huevo').onclick = async () => {
+    try {
+      const j = await hexApi('huevo', {lugar: hex.nuevoEn});
+      hex.equipo = j.equipo; hex.cajas = j.cajas; hex.nuevoEn = null; hex.sel = null;
+      pintarHex();
+    } catch (e) { alert(e.message); }
+  };
   $('hx-nv-crear').onclick = async () => {
     try {
       const j = await hexApi('nuevo', {lugar: hex.nuevoEn, especie: +$('hx-nv-especie').value, nivel: +$('hx-nv-nivel').value});
@@ -2945,6 +3093,17 @@ function pintarEditor() {
   const ed = $('hex-editor'), p = hex.pestana === 'mochila' || hex.moviendo ? null : enSitio(hex.sel);
   ed.classList.toggle('oculto', !p);
   if (!p) return;
+  const moverlo = () => {
+    hex.moviendo = hex.sel; hex.pestana = 'caja';
+    if (hex.sel.tipo === 'caja') hex.caja = hex.sel.caja;
+    pintarHex();
+  };
+  if (p.huevo) {
+    ed.innerHTML = `<h2>Huevo sin abrir</h2><p class="suave">Lo que lleva dentro no se ve hasta que se abra en el juego.</p>
+      <div style="display: flex; justify-content: flex-end;"><button class="btn btn-neutro" type="button" id="hx-mover">Mover…</button></div>`;
+    $('hx-mover').onclick = moverlo;
+    return;
+  }
   const N = hex.nombres;
   const balls = Object.entries(hex.balls).map(([i, n]) => `<option value="${i}"${+i === p.ball ? ' selected' : ''}>${esc(n)}</option>`).join('');
   const seis = (clave, max) => `<div class="hex-seis">${NOM_STATS.map((s, k) => `<label>${s}<input type="number" min="0" max="${max}" data-${clave}="${k}" value="${p[clave][k]}"></label>`).join('')}</div>`;
@@ -2976,11 +3135,7 @@ function pintarEditor() {
     </div>`;
   $('hx-guardar').onclick = () => guardarPokemon(false);
   $('hx-curar').onclick = () => guardarPokemon(true);
-  $('hx-mover').onclick = () => {
-    hex.moviendo = hex.sel; hex.pestana = 'caja';
-    if (hex.sel.tipo === 'caja') hex.caja = hex.sel.caja;
-    pintarHex();
-  };
+  $('hx-mover').onclick = moverlo;
 }
 
 async function guardarPokemon(curar) {

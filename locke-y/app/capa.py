@@ -34,24 +34,30 @@ def huella_capa():
 CARPETA_EDGE = comun.TOOLS / 'capa-edge'
 
 
-def perfil_edge():
-    """El perfil del navegador de la capa, uno por cada Pokelocke abierto. Con uno fijo, un Edge que se quedara vivo
-    (Pokelocke cerrado de golpe, o cerrado por el instalador al actualizar) lo tenía cogido: los nuevos le pasaban el
-    trabajo y salían sin abrir nada, y la capa se quedaba para siempre con la última foto. Lo que dejó el Pokelocke
-    anterior se recoge aquí."""
-    CARPETA_EDGE.mkdir(parents=True, exist_ok=True)
-    marca = CARPETA_EDGE / 'edge.pid'
+def cerrar_edges_de(carpeta):
+    """Cierra los navegadores que usan esa carpeta de perfil. Por la carpeta y no por el proceso lanzado: msedge.exe le
+    pasa el trabajo a otro proceso y sale, así que matar el lanzado deja vivo al de verdad (y ese se quedaba con la
+    carpeta: el siguiente le pasaba el trabajo, no contestaba y la capa no se volvía a pintar)."""
+    if os.name != 'nt':
+        return
+    orden = ("Get-CimInstance Win32_Process -Filter \"Name='msedge.exe'\" | Where-Object { $_.CommandLine -like '*"
+             + str(carpeta).replace("'", "''") + "*' } | ForEach-Object { Stop-Process -Id $_.ProcessId -Force -ErrorAction SilentlyContinue }")
     try:
-        subprocess.run(['taskkill', '/F', '/T', '/FI', 'IMAGENAME eq msedge.exe', '/PID', marca.read_text().strip()],
-                       stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, creationflags=0x08000000)
-    except OSError:
+        subprocess.run(['powershell', '-NoProfile', '-NonInteractive', '-Command', orden], stdout=subprocess.DEVNULL,
+                       stderr=subprocess.DEVNULL, creationflags=0x08000000, timeout=20)
+    except (OSError, subprocess.TimeoutExpired):
         pass
-    marca.unlink(missing_ok=True)
-    mio = CARPETA_EDGE / str(os.getpid())
+
+
+def perfil_edge():
+    """El perfil del navegador de la capa: una carpeta nueva cada vez que se abre. Antes de abrirlo se cierra cualquier
+    navegador que se quedara vivo con una carpeta de la capa (de esta vez o de un Pokelocke anterior) y se recogen."""
+    CARPETA_EDGE.mkdir(parents=True, exist_ok=True)
+    cerrar_edges_de(CARPETA_EDGE)
+    (CARPETA_EDGE / 'edge.pid').unlink(missing_ok=True)
     for viejo in CARPETA_EDGE.iterdir():
-        if viejo != mio:
-            shutil.rmtree(viejo, ignore_errors=True)
-    return mio
+        shutil.rmtree(viejo, ignore_errors=True)
+    return CARPETA_EDGE / f'{os.getpid()}-{int(time.time() * 1000)}'
 
 
 class Fotografo:
@@ -75,8 +81,9 @@ class Fotografo:
             so.bind(('127.0.0.1', 0))
             puerto = so.getsockname()[1]
         self.n, self.ids, self.escala = 0, 0, escala
+        self.perfil = perfil_edge()
         self.proc = subprocess.Popen([nav, '--headless=new', '--disable-gpu', '--hide-scrollbars', '--mute-audio',
-                                      f'--user-data-dir={perfil_edge()}', f'--remote-debugging-port={puerto}',
+                                      f'--user-data-dir={self.perfil}', f'--remote-debugging-port={puerto}',
                                       'about:blank'], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
                                      creationflags=0x08000000 if os.name == 'nt' else 0)
         (CARPETA_EDGE / 'edge.pid').write_text(str(self.proc.pid))
@@ -133,12 +140,10 @@ class Fotografo:
             self.ws.close()
         except Exception:
             pass
-        if self.proc.poll() is None:          # Edge deja procesos hijos: se cierra el árbol entero
-            if os.name == 'nt':
-                subprocess.run(['taskkill', '/F', '/T', '/PID', str(self.proc.pid)], stdout=subprocess.DEVNULL,
-                               stderr=subprocess.DEVNULL, creationflags=0x08000000)
-            else:
-                self.proc.terminate()
+        if os.name == 'nt':                   # el de verdad, por su carpeta (el lanzado puede haber salido ya)
+            cerrar_edges_de(self.perfil)
+        elif self.proc.poll() is None:
+            self.proc.terminate()
 
 
 fotografo = {'f': None}

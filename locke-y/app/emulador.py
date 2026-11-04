@@ -109,6 +109,111 @@ def navegador():
     return None
 
 
+def _ventana_titulada(inicio):
+    """La ventana visible cuyo título empieza así, o None."""
+    u, hallada = ctypes.windll.user32, []
+
+    @ctypes.WINFUNCTYPE(ctypes.c_bool, ctypes.c_void_p, ctypes.c_void_p)
+    def mira(h, _):
+        b = ctypes.create_unicode_buffer(128)
+        u.GetWindowTextW(ctypes.c_void_p(h), b, 128)
+        if b.value.startswith(inicio):
+            hallada.append(h)
+        return True
+
+    u.EnumWindows(mira, None)
+    return hallada[0] if hallada else None
+
+
+def volumen_citra():
+    """El volumen que tiene puesto el emulador (0-1), de su configuración; 1 si no se puede leer."""
+    try:
+        t = (azahar_exe().parent / 'user' / 'config' / 'qt-config.ini').read_text(encoding='utf-8', errors='ignore')
+        audio = t.split('[Audio]', 1)[1].split('\n[', 1)[0]
+        if re.search(r'(?m)^volume\\default=true', audio):
+            return 1.0
+        return max(0.0, min(1.0, float(re.search(r'(?m)^volume=([0-9.]+)', audio)[1])))
+    except (OSError, IndexError, TypeError, ValueError, AttributeError):
+        return 1.0
+
+
+def _al_frente(hwnd):
+    """Delante y con el teclado: Windows solo lo deja si compartes entrada con quien está delante (como en el lanzador)."""
+    u, h = ctypes.windll.user32, ctypes.c_void_p(hwnd)
+    yo, suyo = ctypes.windll.kernel32.GetCurrentThreadId(), u.GetWindowThreadProcessId(ctypes.c_void_p(u.GetForegroundWindow()), None)
+    unido = suyo and suyo != yo and u.AttachThreadInput(yo, suyo, True)
+    u.BringWindowToTop(h)
+    u.SetForegroundWindow(h)
+    if unido:
+        u.AttachThreadInput(yo, suyo, False)
+    if u.GetForegroundWindow() != hwnd:
+        u.SwitchToThisWindow(h, True)
+
+
+def _cerrar_titulada(inicio):
+    """Cierra el navegador de la ventana con ese título: es su proceso quien manda, no el que se lanzó (ese sale enseguida)."""
+    u = ctypes.windll.user32
+    while (hwnd := _ventana_titulada(inicio)):
+        pid = ctypes.c_ulong()
+        u.GetWindowThreadProcessId(ctypes.c_void_p(hwnd), ctypes.byref(pid))
+        subprocess.run(['taskkill', '/F', '/T', '/PID', str(pid.value)], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, creationflags=0x08000000)
+        time.sleep(0.2)
+        if _ventana_titulada(inicio) == hwnd:
+            break
+
+
+MARGEN, MARGEN_ARRIBA = 12, 46        # lo que la ventana se sale del hueco: la barra de título mide 31 y hay 8 de borde invisible
+MAX_APERTURA = 150                    # la página se rompe sola al minuto sin pulsar y dura medio más: esto es por si se cuelga
+
+
+def apertura(especie, shiny):
+    """La animación de un huevo: un navegador sin marco justo encima de la pantalla grande del juego. Se queda
+    con el teclado (el huevo se rompe a golpes de Enter) y al acabar se lo devuelve al juego."""
+    nav = navegador()
+    if not nav or os.name != 'nt' or comun.vivo.get('apertura'):
+        return
+    u = ctypes.windll.user32
+    s, ox, oy = comun.encaje()
+    x, y, w, h = (round(v * s) for v in comun.HUECO_ARRIBA)
+    x, y = x + ox, y + oy
+    delante = u.GetForegroundWindow()
+    comun.vivo['apertura'] = True
+    for t in ('Pokelocke apertura', 'Pokelocke fin'):                  # lo que dejara una vez anterior
+        _cerrar_titulada(t)
+    # un perfil por vez: con uno fijo, un navegador que se hubiera quedado vivo se lleva la ventana y el lanzado sale
+    base = comun.TOOLS / 'apertura-edge'
+    shutil.rmtree(base, ignore_errors=True)
+    perfil = base / str(int(time.time()))
+    proc = subprocess.Popen([nav, f'--app={comun.URL}/apertura?especie={especie}&shiny={int(shiny)}&vol={volumen_citra():.3f}', f'--user-data-dir={perfil}', '--no-first-run', '--no-default-browser-check',
+                             '--autoplay-policy=no-user-gesture-required', '--disable-features=Translate', '--window-position=-6000,0', f'--window-size={w},{h}'],
+                            stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, creationflags=0x08000000)
+    try:
+        limite = time.time() + 20
+        hwnd = None
+        while time.time() < limite and not hwnd:
+            hwnd = _ventana_titulada('Pokelocke apertura') or _ventana_titulada('Pokelocke fin')
+            time.sleep(0.05)
+        if not hwnd:
+            return
+        h_ = ctypes.c_void_p(hwnd)
+        # como la ventana del juego: debajo de la capa y algo más grande que el hueco, para que el layout tape la barra
+        # de título y los bordes del navegador (Edge los vuelve a pintar aunque se le quiten o se le recorten)
+        u.SetWindowPos(h_, None, x - MARGEN, y - MARGEN_ARRIBA, w + 2 * MARGEN, h + MARGEN_ARRIBA + MARGEN, 0x40)
+        _al_frente(hwnd)
+        limite = time.time() + MAX_APERTURA
+        while time.time() < limite and not _ventana_titulada('Pokelocke fin') and u.IsWindow(h_):
+            if u.GetForegroundWindow() != hwnd:
+                _al_frente(hwnd)
+            time.sleep(0.25)
+    finally:
+        comun.vivo['apertura'] = False
+        for t in ('Pokelocke apertura', 'Pokelocke fin'):
+            _cerrar_titulada(t)
+        subprocess.run(['taskkill', '/F', '/T', '/PID', str(proc.pid)], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, creationflags=0x08000000)
+        if delante:
+            _al_frente(delante)
+
+
 def firefox():
     for base in (os.environ.get('ProgramFiles'), os.environ.get('ProgramFiles(x86)'), os.environ.get('LOCALAPPDATA')):
         if base and (Path(base) / 'Mozilla Firefox' / 'firefox.exe').exists():
@@ -409,6 +514,7 @@ def lanzar(j):
         completa = j.get('fase') == 1 and locke.medallas_partida(j) >= locke.MEDALLAS_PARA_COMPLETA and locke.abrir_fase_completa(j)
         j['firma_mod'] = firma_mod(j)
     poner_mod(j)
+    guardado.fijo_por_defecto(j)
     try:
         guardado.copiar_partida(j, 'al-abrir')
     except OSError:

@@ -6,6 +6,7 @@ CitraRNG (Admiral-Fish), manager_xy.py y crypto.py.
 import random
 import socket
 import struct
+import time
 
 PUERTO = 45987
 DIR_EQUIPO = 0x8CE1CF8      # primer hueco del equipo en X/Y
@@ -311,6 +312,93 @@ def curado(claro):
     struct.pack_into('<I', d, 0xE8, 0)                            # estado (veneno, quemado, sueño…)
     struct.pack_into('<H', d, 0xF0, p['psmax'])
     return bytes(d)
+
+
+# las opciones del juego en memoria (fija: la misma en partidas distintas). Medido cambiando a mano Cambio/Fijo/Cambio:
+# 0x61 -> 0x69 -> 0x61, como el byte 0x16200 del guardado. Bit 0x08: estilo de combate Fijo
+DIR_OPCIONES, BIT_FIJO = 0x8C7B6C4, 0x08
+
+
+def entrenador(claro):
+    """Quién es el entrenador original de un Pokémon (su ID y su ID secreto juntos), o None si el hueco está vacío.
+    El del primero del equipo dice de qué partida es: en una partida nueva, cambia."""
+    return f'{struct.unpack_from("<I", claro, 0x0C)[0]:08X}' if pokemon(claro) else None
+
+
+def entrenador_equipo(rpc):
+    inicio = getattr(rpc, 'equipo', None)
+    if inicio is None:
+        return None
+    return entrenador(descifrar(rpc.leer(inicio, 232), rpc.leer(inicio + DESPL_STATS, 22)))
+
+
+def poner_fijo(rpc):
+    """Pone el estilo de combate en Fijo. Devuelve True si queda en Fijo, False si lo leído no parecen las opciones."""
+    d = rpc.leer(DIR_OPCIONES, 4)
+    if d[1] != 0 or d[3] != 0 or d[0] & 0x03 == 3:            # como las medidas: «xx 00 02 00», velocidad de texto 0-2
+        return False
+    if not d[0] & BIT_FIJO:
+        rpc.escribir(DIR_OPCIONES, bytes([d[0] | BIT_FIJO]))
+    return True
+
+
+AMISTAD_AL_NACER = 70
+
+
+def huevo_abierto(claro, nombre, lugar):
+    """Copia del huevo ya abierto: sin marca de huevo, con su nombre, su amistad y la fecha y el sitio de hoy."""
+    d = bytearray(claro)
+    iv32 = struct.unpack_from('<I', d, 0x74)[0]
+    struct.pack_into('<I', d, 0x74, iv32 & 0x3FFFFFFF)                 # ni huevo ni mote
+    d[0x40:0x5A] = nombre.encode('utf-16-le')[:24].ljust(26, b'\0')
+    d[0xCA] = AMISTAD_AL_NACER
+    t = time.localtime()
+    d[0xD4:0xD7] = bytes([t.tm_year - 2000, t.tm_mon, t.tm_mday])      # fecha del encuentro
+    struct.pack_into('<H', d, 0xDA, lugar)                             # el sitio del encuentro
+    struct.pack_into('<H', d, 0x06, sum(struct.unpack_from('<112H', d, 0x08)) & 0xFFFF)
+    return bytes(d)
+
+
+def huevo_retrasado(claro, ciclos=120):
+    """Copia del huevo con el contador alto, para que el juego no lo abra por su cuenta. None si no hace falta."""
+    p = pokemon(claro)
+    if not p or not p['huevo'] or claro[0xCA] >= ciclos // 2:
+        return None
+    d = bytearray(claro)
+    d[0xCA] = ciclos
+    struct.pack_into('<H', d, 0x06, sum(struct.unpack_from('<112H', d, 0x08)) & 0xFFFF)
+    return bytes(d)
+
+
+def retrasar_huevos(rpc):
+    """Los huevos del equipo cogidos con versiones anteriores tienen el contador bajo y el juego los abriría antes."""
+    inicio = getattr(rpc, 'equipo', None)
+    if inicio is None:
+        return
+    for i in range(6):
+        base = inicio + i * PASO_HUECO
+        nuevo = huevo_retrasado(descifrar(rpc.leer(base, 232), rpc.leer(base + DESPL_STATS, 22)))
+        if nuevo:
+            rpc.escribir(base, cifrar(nuevo)[0])
+
+
+def abrir_huevo(rpc, ident, nombre):
+    """Abre en la memoria el huevo del equipo con ese id. El sitio se copia de otro del equipo, para que sea uno que
+    existe. Devuelve si lo ha abierto."""
+    leer_equipo(rpc)
+    inicio = getattr(rpc, 'equipo', None)
+    if inicio is None:
+        return False
+    claros = [descifrar(rpc.leer(inicio + i * PASO_HUECO, 232), rpc.leer(inicio + i * PASO_HUECO + DESPL_STATS, 22)) for i in range(6)]
+    lugar = next((struct.unpack_from('<H', c, 0xDA)[0] for c in claros if (p := pokemon(c)) and not p['huevo']), 0)
+    for i, c in enumerate(claros):
+        p = pokemon(c)
+        if p and p['huevo'] and p['id'] == ident:
+            bloque, stats = cifrar(huevo_abierto(c, nombre, lugar))
+            rpc.escribir(inicio + i * PASO_HUECO, bloque)
+            rpc.escribir(inicio + i * PASO_HUECO + DESPL_STATS, stats)
+            return True
+    return False
 
 
 def curar_equipo(rpc):

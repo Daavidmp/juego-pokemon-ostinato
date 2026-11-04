@@ -52,13 +52,14 @@ class Datos:
 
     def __init__(self, tools, registro=None):
         self.tools = Path(tools)
-        self.base, self.habilidad = {}, {}
+        self.base, self.habilidad, self.tipos = {}, {}, {}
         en = [l.strip().lower() for l in (DATOS / 'Abilities_en.txt').read_text(encoding='utf-8-sig').splitlines()]
         if registro and Path(registro).exists():
             for l in Path(registro).read_text(encoding='utf-8', errors='ignore').splitlines():
-                m = re.match(r'\s*(\d+)\|[^|]*\|[^|]*\|\s*(\d+)\|\s*(\d+)\|\s*(\d+)\|\s*(\d+)\|\s*(\d+)\|\s*(\d+)\|', l)
+                m = re.match(r'\s*(\d+)\|[^|]*\|([^|]*)\|\s*(\d+)\|\s*(\d+)\|\s*(\d+)\|\s*(\d+)\|\s*(\d+)\|\s*(\d+)\|', l)
                 if m and int(m[1]) <= MAX_ESPECIE:
-                    ps, at, de, ate, dee, ve = map(int, m.groups()[1:])
+                    ps, at, de, ate, dee, ve = map(int, m.groups()[2:])
+                    self.tipos.setdefault(int(m[1]), m[2].strip().upper().split('/'))
                     self.base.setdefault(int(m[1]), (ps, at, de, ve, ate, dee))   # orden del PK6
                     resto = l.split('|')[9:12]                                       # sus 3 habilidades (randomizadas)
                     if len(resto) == 3 and int(m[1]) not in self.habilidad:
@@ -78,6 +79,12 @@ class Datos:
             self.tools.mkdir(exist_ok=True)
             self._cache_base.write_text(json.dumps(guardado))
         return self.base[especie]
+
+    def tipos_de(self, especie):
+        """Sus tipos en inglés y en mayúsculas: los del registro (pueden estar aleatorizados) o, sin él, los de PokéAPI."""
+        if especie not in self.tipos:
+            self.tipos[especie] = [t['type']['name'].upper() for t in _json(f'https://pokeapi.co/api/v2/pokemon/{especie}')['types']]
+        return self.tipos[especie]
 
     def _especie(self, especie):
         """Movimientos por nivel en X/Y, sexo y habilidades, de PokéAPI (caché en tools/pkx_especies.json)."""
@@ -369,7 +376,18 @@ def nuevo_pokemon(plantilla, especie, nivel, datos):
 
 
 LUGAR_GUARDERIA = 60002          # «una pareja de la guardería», de donde salen los huevos en X/Y
-CICLOS_HUEVO = 10                # pasos para abrirse, en ciclos de 256 pasos (en los huevos, la amistad)
+# ciclos de 256 pasos que le quedan (en los huevos, la amistad). Alto a propósito: el juego no debe abrirlo nunca, porque
+# enseñaría el Pokémon antes que la animación. Lo abre Pokelocke a los 5 pasos (locke.vigilar_huevos)
+CICLOS_HUEVO = 120
+
+
+# legendarios y singulares hasta la 6.ª generación: nunca salen en un huevo aleatorio
+LEGENDARIOS = frozenset({144, 145, 146, 150, 151, 243, 244, 245, 249, 250, 251, *range(377, 387), *range(480, 495), *range(638, 650), *range(716, 722)})
+
+
+def especie_huevo_azar():
+    import random
+    return random.SystemRandom().choice([e for e in range(1, MAX_ESPECIE + 1) if e not in LEGENDARIOS])
 
 
 def nuevo_huevo(plantilla, especie, shiny, datos):
@@ -396,6 +414,7 @@ BLOQUE_EQUIPO, EQUIPO, TAM_BLOQUE_EQUIPO, PASO = 18, 0x14200, 0x61C, 0x104
 CUENTA_EQUIPO = EQUIPO + 6 * PASO
 BLOQUE_CAJAS, CAJAS, TAM_BLOQUE_CAJAS, PASO_CAJA, NUM_CAJAS = 53, 0x22600, 0x34AD0, 232, 31
 NOMBRES_CAJAS, CAJAS_ABIERTAS = 0x4400, 0x4400 + 0x43E
+OPCIONES, BIT_FIJO = 0x16200, 0x08                           # medido en la partida: al poner Estilo de combate en Fijo, 0x61 -> 0x69
 VACIO_EQUIPO = b''.join(juego.cifrar(bytes(PASO)))          # un hueco vacío, como lo deja PKHeX
 VACIO_CAJA = juego.cifrar(bytes(PASO_CAJA))[0]
 
@@ -416,6 +435,30 @@ class Partida:
         self.d = bytearray(self.ruta.read_bytes())
         if len(self.d) != TAM_PARTIDA or not self._crc_bien(BLOQUE_EQUIPO, EQUIPO, TAM_BLOQUE_EQUIPO)                 or not self._crc_bien(BLOQUE_MOCHILA, MOCHILA, TAM_BLOQUE_MOCHILA)                 or not self._crc_bien(BLOQUE_CAJAS, CAJAS, TAM_BLOQUE_CAJAS):
             raise ValueError('Este archivo no parece una partida de Pokémon X/Y')
+
+    def _bloque_de(self, ofs):
+        """El bloque en el que cae esa posición: (número, inicio, tamaño). Los tamaños van en la tabla, y cada bloque
+        empieza en múltiplo de 0x200."""
+        inicio = 0
+        for k in range(100):
+            tam = struct.unpack_from('<I', self.d, TAM_PARTIDA - 0x200 + 0x14 + k * 8)[0]
+            if not 0 < tam < TAM_PARTIDA:
+                break
+            if inicio <= ofs < inicio + tam:
+                return k, inicio, tam
+            inicio += (tam + 0x1FF) & ~0x1FF
+        raise ValueError('Esa posición no está en ningún bloque')
+
+    def poner_fijo(self):
+        """Estilo de combate: Fijo. Devuelve si ha cambiado algo."""
+        if self.d[OPCIONES] & BIT_FIJO:
+            return False
+        k, inicio, tam = self._bloque_de(OPCIONES)
+        if not self._crc_bien(k, inicio, tam):
+            raise ValueError('El bloque de opciones no cuadra')
+        self.d[OPCIONES] |= BIT_FIJO
+        struct.pack_into('<H', self.d, self._crc_pos(k), crc16(self.d[inicio:inicio + tam]))
+        return True
 
     def _crc_pos(self, bloque):
         return TAM_PARTIDA - 0x200 + 0x14 + bloque * 8 + 6
@@ -519,14 +562,14 @@ class Partida:
                 self.d[EQUIPO + i * PASO:EQUIPO + (i + 1) * PASO] = VACIO_EQUIPO
         self.d[CUENTA_EQUIPO] = len(equipo)
 
-    def nuevo(self, lugar, especie, nivel, datos):
+    def nuevo(self, lugar, especie, nivel, datos, huevo=False):
         if self.en(lugar, datos):
             raise ValueError('Ese hueco ya está ocupado')
         if lugar[0] == 'equipo' and lugar[2] != self.d[CUENTA_EQUIPO]:
             lugar = ('equipo', 0, self.d[CUENTA_EQUIPO])
         if lugar[0] == 'equipo' and lugar[2] >= 6:
             raise ValueError('El equipo ya tiene 6 Pokémon')
-        nuevo = nuevo_pokemon(self.claro(0), int(especie), nivel, datos)
+        nuevo = nuevo_huevo(self.claro(0), int(especie), False, datos) if huevo else nuevo_pokemon(self.claro(0), int(especie), nivel, datos)
         self.poner_en(lugar, nuevo)
         if lugar[0] == 'equipo':
             self.d[CUENTA_EQUIPO] += 1

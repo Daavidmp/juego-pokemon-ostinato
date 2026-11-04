@@ -267,7 +267,16 @@ jugador no esté conectado. Niveles: info, aviso, sospecha. Una sospecha no es u
   real del mapa: PUNTOS en app.html (px de la imagen, mismo orden que HITOS). Entre casilla grande y casilla grande, TRAMOS saca
   una curva suave, y en ella van las misiones intermedias de MISIONES (rutas, combates contra el rival y Ciprés, Café
   Lysson, Megayayo, Lapras, Hotel Desolación, Yveltal, último combate contra Lysson, desfile…) como casillas pequeñas.
-  CASILLAS es la lista entera (67) con su sitio: es la que usan el progreso, la ficha y el servidor. Las misiones no se
+  Una misión puede fijar su sitio en el tramo con el 5.º argumento de M (f, 0-1) si el reparto normal cae sobre otra casilla.
+  Al pasar el ratón sale #tb-etiqueta (textoCasilla, verEtiqueta): va fuera de la escena para que no crezca con el zoom.
+  La mano de arrastrar son dos SVG dentro del CSS de .tb-escena. medalla-2 y 3 están redibujadas a 256 px (las de antes, borrosas).
+  Huevos (en obras, sin instalador): en la caja salen cerrados hasta abrirse en el juego (h['abierto']); seguimiento los ve con
+  huevos_abiertos y lanza emulador.apertura: un Edge --app que va DEBAJO de la capa y algo mayor que HUECO_ARRIBA (el layout tapa su barra, que Edge repinta aunque se le quite o se recorte), con el teclado, que pinta web/apertura.html
+  (20 Enter rompen el huevo; datos de locke.ficha_huevo, del registro de esa partida) y al acabar devuelve el foco a Citra.
+  El juego marca el huevo como abierto al FINAL de su escena, tarde para la animación: por eso CICLOS_HUEVO es alto y lo abre Pokelocke (locke.vigilar_huevos cuenta 5 pasos con el récord 0 y nacer lanza la animación y luego juego.abrir_huevo). Pendiente: confirmar en el juego que el récord de pasos sube en vivo.
+  Combate fijo (Mega), una vez por partida (j['fijo_puesto']): en memoria (juego.poner_fijo, 0x8C7B6C4 bit 0x08, medido) en cuanto hay
+  primer Pokémon; y si la partida ya existía, en el guardado al pulsar Jugar (guardado.fijo_por_defecto, byte 0x16200, bloque 23).
+  CASILLAS es la lista entera (71) con su sitio: es la que usan el progreso, la ficha y el servidor. Las misiones no se
   leen de la partida: se encienden al hacer una casilla de después. Animado encima (#tb-vida, px de la
   imagen): agua de las dos cascadas, destellos (reloj de sol, mar, lago), pájaros y banderas del castillo (VIENTO).
   Si se cambia la isla: recolocar PUNTOS y esas animaciones.

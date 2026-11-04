@@ -54,6 +54,7 @@ OPCIONES = {
     'abilitiesMod', 'typesMod', 'baseStatisticsMod', 'evolutionsMod', 'evosSimilarStrength',
     'movesetsMod', 'fieldItemsMod', 'inGameTradesMod', 'randomizeHeldItemsForBossTrainerPokemon',
     'randomizeHeldItemsForImportantTrainerPokemon', 'randomizeHeldItemsForRegularTrainerPokemon',
+    'shopItemsMod', 'banBadRandomShopItems', 'banRegularShopItems', 'banOPShopItems', 'balanceShopPrices',
 }
 
 lock = threading.Lock()
