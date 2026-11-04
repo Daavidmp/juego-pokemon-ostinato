@@ -157,6 +157,44 @@
   .tb-punto { position: absolute; top: 6px; right: 8px; width: 10px; height: 10px; border-radius: 50%; background: var(--rojo); box-shadow: 0 0 0 2px #fff; }
   .tb-pastilla.reto { background: var(--oro); color: #5A4300; margin-left: 4px; }
   /* retos: las cartas del líder y la profesora Arce (su cuadro es el de Pokémon Ostinato, medido en 1920 de ancho) */
+  /* tutorial: el cuadro de Arce es el de Pokémon Ostinato, medido en la pantalla de 1920 (006_Prologo) y escalado.
+     El pico del cuadro (punta en 3,124 del dibujo) apunta a su boca (312,172 de su retrato) */
+  .tutorial { position: fixed; inset: 0; z-index: 60; font-family: Nunito, sans-serif; }
+  .tu-velo { position: absolute; inset: 0; background: rgba(20,24,38,.55); backdrop-filter: blur(7px); cursor: pointer; animation: tu-entra .3s ease-out; }
+  .tu-foco { position: absolute; border-radius: 22px; box-shadow: 0 0 0 5px #FFD84A, 0 0 0 9px #B88A00, 0 0 40px 10px rgba(255,203,5,.55); pointer-events: none; animation: tu-late 1.6s ease-in-out infinite; }
+  @keyframes tu-late { 50% { box-shadow: 0 0 0 6px #FFD84A, 0 0 0 10px #B88A00, 0 0 56px 16px rgba(255,203,5,.75); } }
+  .tu-flecha { position: absolute; width: 0; height: 0; pointer-events: none; z-index: 2; }
+  .tu-flecha svg { position: absolute; left: -50px; top: -45px; width: 100px; height: 90px; filter: drop-shadow(0 5px 6px rgba(0,0,0,.45)); animation: tu-empuja .8s ease-in-out infinite; }
+  @keyframes tu-empuja { 50% { transform: translateX(12px); } }
+  .tu-arce { position: absolute; bottom: 0; width: 1262px; height: 615px; transform-origin: 0 100%; cursor: pointer; }
+  .tu-arce.derecha { transform-origin: 100% 100%; }
+  .tu-arce .prof { position: absolute; left: 0; top: 0; width: 636px; height: 615px; animation: arce-entra .4s cubic-bezier(.2,.8,.2,1); }
+  .tu-arce .caja { position: absolute; left: 329px; top: 48px; }
+  .tu-arce .nom { position: absolute; left: 468px; top: 86px; }
+  .tu-arce .txt { position: absolute; left: 468px; top: 136px; width: 690px; height: 92px; font: 34px/44px Cambria, Georgia, serif; color: rgb(59,50,38); }
+  .tu-arce .hoja { position: absolute; left: 1155px; top: 204px; animation: hoja 1s ease-in-out infinite; }
+  .tu-arce .seguir { position: absolute; right: 70px; top: 266px; font: 800 20px Nunito, sans-serif; color: #fff; text-shadow: 0 2px 6px rgba(0,0,0,.6); }   /* debajo del cuadro: dentro pisaría la segunda línea */
+  @keyframes hoja { 50% { transform: translateY(-6px); } }
+  @keyframes arce-entra { from { opacity: 0; transform: translateX(-40px); } }
+  @keyframes tu-entra { from { opacity: 0; } }
+  .tu-arriba { position: absolute; top: 18px; left: 50%; transform: translateX(-50%); display: flex; align-items: center; gap: 12px; }
+  .tu-progreso { display: flex; align-items: center; gap: 10px; padding: 8px 14px; background: rgba(27,32,48,.85); border: 2px solid rgba(255,255,255,.25); border-radius: 999px; }
+  .tu-progreso b { font: 400 15px Bungee, Nunito, sans-serif; color: #fff; }
+  .tu-progreso .monedas { display: flex; gap: 5px; align-items: center; }
+  .tu-progreso i { width: 14px; height: 14px; border-radius: 50%; background: #5B6478; box-shadow: 0 2px 0 #3A4256; }
+  .tu-progreso i.hecha { background: radial-gradient(circle at 40% 35%, #FFF1A8, #FFCB05); box-shadow: 0 2px 0 #B88A00; }
+  .tu-progreso i.ahora { width: 20px; height: 20px; background: radial-gradient(circle at 40% 35%, #FF8A70, #CC2B0B); box-shadow: 0 2px 0 #8A1C06, 0 0 0 3px rgba(255,255,255,.6); }
+  .tu-escape { display: inline-flex; align-items: center; gap: 10px; height: 44px; padding: 0 16px 0 8px; border-radius: 999px; border: 2px solid rgba(255,255,255,.25); background: rgba(27,32,48,.85); color: #fff; font: 800 15px Nunito, sans-serif; }
+  .tu-escape kbd { min-width: 44px; height: 30px; display: inline-flex; align-items: center; justify-content: center; background: linear-gradient(#fff, #DDE1EA); color: var(--tinta); border-radius: 8px; box-shadow: 0 3px 0 #8E99B0; font: 400 13px Bungee, Nunito, sans-serif; }
+  .tu-modal-fondo { position: absolute; inset: 0; background: rgba(20,24,38,.55); backdrop-filter: blur(4px); display: flex; align-items: center; justify-content: center; z-index: 3; }
+  .tu-modal { width: min(500px, 90vw); box-sizing: border-box; background: #fff; border: 5px solid #fff; border-radius: 26px; box-shadow: 0 0 0 5px var(--oro), 0 24px 60px rgba(0,0,0,.5); padding: 30px 34px 24px; display: flex; flex-direction: column; align-items: center; gap: 12px; text-align: center; animation: tu-entra .2s ease-out; }
+  .tu-modal h2 { margin: 0; font: 400 26px Bungee, Nunito, sans-serif; color: var(--tinta); }
+  .tu-modal p { margin: 0; font-size: 16px; color: var(--suave); }
+  .tu-modal small { font-size: 13px; font-weight: 800; color: #8E99B0; }
+  .tu-modal-botones { display: flex; gap: 12px; margin-top: 6px; }
+  .tu-modal-botones button { height: 54px; padding: 0 24px; border-radius: 14px; }
+  .tu-modal-botones .no { border: 2px solid #DDE1EA; background: #fff; font: 900 17px Nunito, sans-serif; color: var(--tinta); box-shadow: 0 4px 0 #CBD1DE; }
+  .tu-modal-botones .si { border: 0; background: linear-gradient(#E8411F, var(--rojo)); font: 400 17px Bungee, Nunito, sans-serif; color: #fff; box-shadow: 0 5px 0 #8A1C06; }
   .rt-escena { position: fixed; inset: 0; z-index: 40; overflow: hidden; font-family: Nunito, sans-serif; color: var(--tinta); }
   .rt-velo { position: absolute; inset: 0; background: rgba(20,24,38,.74); backdrop-filter: blur(8px); }
   .rt-cab { position: absolute; left: 4vw; top: 4vh; display: flex; align-items: center; gap: 14px; color: #fff; }
@@ -203,18 +241,6 @@
   .rt-med.bien { background: #1F9D55; box-shadow: none; } .rt-med.bien img { filter: none; }
   .rt-med.mal { background: #CC2B0B; box-shadow: none; } .rt-med.mal img { filter: none; }
   .rt-med.ahora { box-shadow: inset 0 0 0 3px var(--oro); } .rt-med.ahora img { filter: none; }
-  /* la profesora Arce: retrato y cuadro de Ostinato, en su sitio de la pantalla de 1920 y escalados */
-  .rt-arce-velo { position: absolute; inset: 0; z-index: 2; background: rgba(20,24,38,.45); backdrop-filter: blur(10px); cursor: pointer; animation: velo-entra .3s ease-out; }
-  @keyframes velo-entra { from { opacity: 0; } }
-  .rt-dialogo { position: absolute; left: 0; bottom: 0; width: 1262px; height: 615px; transform-origin: 0 100%; cursor: pointer; z-index: 3; }
-  .rt-dialogo .prof { position: absolute; left: 0; top: 0; width: 636px; height: 615px; animation: arce-entra .4s cubic-bezier(.2,.8,.2,1); }
-  /* el pico del cuadro (su punta, en 3,124 del dibujo) apunta a la boca de Arce (312,172 de su retrato) */
-  .rt-dialogo .caja { position: absolute; left: 329px; top: 48px; }
-  .rt-dialogo .nom { position: absolute; left: 468px; top: 86px; }
-  .rt-dialogo .txt { position: absolute; left: 468px; top: 136px; width: 690px; height: 92px; font: 34px/44px Cambria, Georgia, serif; color: rgb(59,50,38); }
-  .rt-dialogo .hoja { position: absolute; left: 1155px; top: 204px; animation: hoja 1s ease-in-out infinite; }
-  @keyframes hoja { 50% { transform: translateY(-6px); } }
-  @keyframes arce-entra { from { opacity: 0; transform: translateX(-40px); } }
   .tb-credito { right: 24px; bottom: 4px; font-size: 11px; color: rgba(27,32,48,.55); }
   .sonido { display: flex; align-items: center; gap: 6px; }
   .sonido input { width: 0; opacity: 0; transition: width .2s, opacity .2s; accent-color: var(--rojo); }
@@ -823,6 +849,10 @@
           <a class="btn btn-borde" href="/docs/guia" target="_blank" rel="noopener" style="text-decoration: none;">Abrir la guía</a>
         </div>
         <div class="tarjeta doc">
+          <div><h2>Tutorial</h2><p class="suave">La profesora Arce te enseña la app paso a paso.</p></div>
+          <button class="btn btn-borde" type="button" id="op-tutorial">Ver el tutorial</button>
+        </div>
+        <div class="tarjeta doc">
           <div><h2>Actualizaciones</h2><p class="suave" id="op-version-texto">Comprobando la versión…</p></div>
           <div style="display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end;">
             <button class="btn btn-neutro" type="button" id="op-buscar">Buscar actualizaciones</button>
@@ -940,13 +970,32 @@
   </div>
   <div id="rt-cuerpo"></div>
   <div class="rt-historial" id="rt-historial"></div>
-  <div class="rt-arce-velo oculto" id="rt-arce-velo"></div>
-  <div class="rt-dialogo oculto" id="rt-dialogo" role="status" aria-live="polite">
+</div>
+
+<!-- La profesora Arce enseña la app: ilumina cada cosa, una flecha la señala y lo explica con su cuadro de Ostinato -->
+<div class="tutorial oculto" id="tutorial">
+  <div class="tu-velo" id="tu-velo"></div>
+  <div class="tu-foco oculto" id="tu-foco"></div>
+  <div class="tu-flecha oculto" id="tu-flecha" aria-hidden="true"><svg viewBox="0 0 110 100"><defs><linearGradient id="tu-oro" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FFE57A"/><stop offset=".55" stop-color="#FFCB05"/><stop offset="1" stop-color="#D99A00"/></linearGradient></defs><path d="M8 38h52V20l42 30-42 30V62H8z" fill="url(#tu-oro)" stroke="#5A4300" stroke-width="5" stroke-linejoin="round"/><path d="M16 44h44" stroke="#FFF6C4" stroke-width="5" stroke-linecap="round"/></svg></div>
+  <div class="tu-arce" id="tu-arce" role="status" aria-live="polite">
     <img class="prof" src="/assets/reto-dlg-profesora.png" alt="Profesora Arce">
     <img class="caja" src="/assets/reto-dlg-cuadrol.png" alt="">
     <img class="nom" src="/assets/reto-dlg-nomarce.png" alt="">
-    <div class="txt" id="rt-arce"></div>
-    <img class="hoja" id="rt-hoja" src="/assets/reto-dlg-hoja.png" alt="">
+    <div class="txt" id="tu-texto"></div>
+    <span class="seguir" id="tu-seguir-txt">pulsa para seguir</span>
+    <img class="hoja" id="tu-hoja" src="/assets/reto-dlg-hoja.png" alt="">
+  </div>
+  <div class="tu-arriba"><div class="tu-progreso" id="tu-paso"></div><button type="button" class="tu-escape" id="tu-escape"><kbd>ESC</kbd>Saltar tutorial</button></div>
+  <div class="tu-modal-fondo oculto" id="tu-modal">
+    <section class="tu-modal" role="alertdialog" aria-modal="true" aria-labelledby="tu-modal-t">
+      <h2 id="tu-modal-t">¿Saltar el tutorial?</h2>
+      <p>Podrás verlo otra vez cuando quieras desde Opciones.</p>
+      <div class="tu-modal-botones">
+        <button type="button" class="no" id="tu-seguir">No, seguir</button>
+        <button type="button" class="si" id="tu-saltar">Sí, saltarlo</button>
+      </div>
+      <small>Esc otra vez para seguir</small>
+    </section>
   </div>
 </div>
 
@@ -1482,6 +1531,9 @@ function pintarBiblioteca(e) {
   $('vacio').classList.toggle('oculto', !!j);
   $('tablero').classList.toggle('oculto', !j);
   if (j) { $('pasos').classList.add('oculto'); pintarTablero(j); } else pintarPasos(e);
+  // el tutorial, la primera vez: sin ventanas encima (carga, opciones, retos…)
+  const libre = ['modal-carga', 'opciones-fondo', 'retos-fondo', 'huevos-fondo', 'copias-fondo', 'borrar-fondo'].every((id) => !$(id) || $(id).classList.contains('oculto'));
+  if (libre) requestAnimationFrame(() => empezarTutorial(j ? 'tablero' : 'inicio'));
 }
 
 // ---------- preparar ----------
@@ -1994,6 +2046,142 @@ function pintarHuevos(e) {
     : `<button type="button" class="huevo" data-huevo="${i}" ${n && !huevos.ocupado ? '' : 'disabled'} aria-label="Huevo ${i + 1}">${icoHuevoGrande}</button>`).join('');
 }
 
+// ---------- tutorial: la profesora Arce enseña la app ----------
+// Cada uno sale solo la primera vez (se apunta en este navegador): «inicio» sin juego todavía, «tablero» con el juego
+// puesto y «retos» al abrir los retos. Cada paso ilumina una cosa (foco, un selector; sin foco, todo desenfocado),
+// una flecha la señala y Arce lo explica. Escape (botón o tecla) pregunta si se quiere saltar.
+// Las frases caben en las dos líneas del cuadro, como en Ostinato (unos 80 caracteres).
+const TUTORIALES = {
+  inicio: [
+    {texto: '¡Hola! Soy la profesora Arce. Te enseño en un momento cómo funciona esto.'},
+    {foco: '#pasos', texto: 'Aquí tienes los primeros pasos. Se van marcando solos según los haces.'},
+    {foco: '#b-anadir-vacio', texto: 'Lo primero: añade tu ROM de Pokémon Y. Se queda donde está, no se copia.'},
+    {foco: '#vacio .btn-borde', texto: '¿No la tienes? Desde aquí puedes descargarla.'},
+    {foco: '#o-chip', texto: 'Esta es tu cuenta: el torneo, la sala online y quién está conectado.'},
+    {foco: '#b-opciones', texto: 'En Opciones están el vídeo de normas, la guía y el contrato.'},
+    {texto: 'Cuando prepares tu juego, te enseñaré el tablero. ¡Nos vemos allí!'},
+  ],
+  tablero: [
+    {texto: '¡Ya tienes tu juego! Te enseño el tablero de tu aventura.'},
+    {texto: 'Cada casilla es un momento de la historia. Tu ficha avanza al guardar la partida.'},
+    {foco: '#tb-zoom', texto: 'Con la rueda del ratón o estos botones te acercas; arrastrando, te mueves.'},
+    {foco: '#tb-objetivo', texto: 'Tu siguiente objetivo y el nivel tope del líder. ¡No lo pases!'},
+    {foco: '#tb-marcador', texto: 'Tus vidas y tus medallas. Cada dos medallas, un huevo para tu caja.'},
+    {foco: '#tb-equipo', texto: 'Tu equipo, tal como lo guardaste. Los caídos salen en gris.'},
+    {foco: '.btn-jugar', texto: 'Con Jugar se abre el juego. Las vidas y las medallas se cuentan solas.'},
+    {foco: '[data-accion="retos"]', texto: 'En Retos, cada líder te ofrece cartas: un huevo si cumples, una vida si fallas.'},
+    {foco: '[data-accion="menu"]', texto: 'Más opciones: la caja de huevos, el PokéHex y las copias de tu partida.'},
+    {foco: '#b-torneo', texto: 'El torneo. ¡Los tres primeros se llevan corona de oro, plata o bronce!'},
+    {foco: '#o-chip', texto: 'Tu cuenta: quién está conectado, tu foto de perfil y la sala para combatir.'},
+    {foco: '#sonido', texto: 'La música: pasa el ratón para el volumen o pulsa para silenciarla.'},
+    {foco: '#b-opciones', texto: 'Opciones: normas, guía, contrato, actualizaciones y este tutorial.'},
+    {texto: '¡Eso es todo! Mucha suerte en tu Mega Pokelocke.'},
+  ],
+  retos: [
+    {texto: 'En los Retos, cada líder te ofrece sus cartas antes de su gimnasio.'},
+    {foco: '.rt-mesa', texto: 'Desde el segundo gimnasio puedes coger una. Solo una por líder.'},
+    {foco: '.rt-carta .rt-premio', texto: 'Si cumples el reto al ganar la medalla, te llevas un huevo extra.'},
+    {foco: '.rt-carta .rt-premio', texto: 'Si fallas, pierdes una vida. Yo lo compruebo sola al ganar la medalla.'},
+    {foco: '.rt-accion', texto: 'Elige una carta y cógela aquí, con el juego cerrado. No se devuelve.'},
+    {foco: '#rt-historial', texto: 'Y aquí ves cómo te fue en el reto de cada medalla. ¡Suerte!'},
+  ],
+};
+let tuto = null;
+const visible = (sel) => {
+  const el = sel && document.querySelector(sel);
+  if (!el) return null;
+  const r = el.getBoundingClientRect();
+  return r.width > 0 && r.height > 0 && el.offsetParent !== null ? r : null;
+};
+function empezarTutorial(nombre, forzar) {
+  if (tuto) return;
+  try { if (!forzar && localStorage.getItem('pokelocke-tutorial-' + nombre) === '1') return; } catch (err) { /* sin almacenamiento */ }
+  const pasos = TUTORIALES[nombre].filter((p) => !p.foco || visible(p.foco));
+  tuto = {nombre, pasos, i: 0, letras: 0};
+  $('tutorial').classList.remove('oculto');
+  mostrarPaso();
+}
+function mostrarPaso() {
+  colocarTuto();
+  tuto.letras = 0;
+  escribirTuto();
+}
+// el foco, la flecha y Arce en su sitio (también al cambiar el tamaño de la ventana, sin volver a escribir la frase)
+function colocarTuto() {
+  const p = tuto.pasos[tuto.i], r = visible(p.foco), vw = innerWidth, vh = innerHeight;
+  const k = Math.min(1, Math.max(.5, vw / 1920 * 1.05)), aw = 1262 * k, ah = 615 * k;
+  $('tu-paso').innerHTML = `<b>${tuto.i + 1} / ${tuto.pasos.length}</b><span class="monedas" aria-hidden="true">${tuto.pasos.map((_, k) => `<i class="${k < tuto.i ? 'hecha' : k === tuto.i ? 'ahora' : ''}"></i>`).join('')}</span>`;
+  // el velo, con un agujero donde está lo que se explica (lo demás, oscuro y desenfocado)
+  const foco = $('tu-foco'), velo = $('tu-velo');
+  if (r) {
+    const m = 8, x1 = r.left - m, y1 = r.top - m, x2 = r.right + m, y2 = r.bottom + m;
+    velo.style.clipPath = `polygon(evenodd, 0 0, ${vw}px 0, ${vw}px ${vh}px, 0 ${vh}px, 0 0, ${x1}px ${y1}px, ${x1}px ${y2}px, ${x2}px ${y2}px, ${x2}px ${y1}px, ${x1}px ${y1}px)`;
+    Object.assign(foco.style, {left: x1 + 'px', top: y1 + 'px', width: x2 - x1 + 'px', height: y2 - y1 + 'px'});
+    foco.classList.remove('oculto');
+  } else {
+    velo.style.clipPath = 'none';
+    foco.classList.add('oculto');
+  }
+  // Arce abajo a la izquierda; si tapa lo que se explica, a la derecha
+  const arce = $('tu-arce'), tapa = r && r.left < aw && r.bottom > vh - ah * .62;
+  arce.classList.toggle('derecha', !!tapa);
+  arce.style.transform = `scale(${k})`;
+  arce.style.left = tapa ? 'auto' : '0';
+  arce.style.right = tapa ? '0' : 'auto';
+  // la flecha: fuera de lo iluminado, del lado del centro de la pantalla, apuntándolo
+  const flecha = $('tu-flecha');
+  if (r) {
+    const cx = (r.left + r.right) / 2, cy = (r.top + r.bottom) / 2;
+    let dx = vw / 2 - cx, dy = vh / 2 - cy;
+    const l = Math.hypot(dx, dy) || 1;
+    dx /= l; dy /= l;
+    const borde = Math.abs(dx) * r.width / 2 + Math.abs(dy) * r.height / 2 + 60;
+    flecha.style.left = cx + dx * borde + 'px';
+    flecha.style.top = cy + dy * borde + 'px';
+    flecha.style.transform = `rotate(${Math.atan2(-dy, -dx)}rad)`;
+    flecha.classList.remove('oculto');
+  } else {
+    flecha.classList.add('oculto');
+  }
+}
+function escribirTuto() {
+  const f = tuto.pasos[tuto.i].texto, n = matchMedia('(prefers-reduced-motion: reduce)').matches ? f.length : tuto.letras;
+  $('tu-texto').textContent = f.slice(0, n);
+  $('tu-hoja').style.visibility = $('tu-seguir-txt').style.visibility = n >= f.length ? 'visible' : 'hidden';
+  if (n < f.length) { tuto.letras += 2; tuto.reloj = setTimeout(escribirTuto, 28); }
+}
+function acabarTutorial() {
+  clearTimeout(tuto.reloj);
+  try { localStorage.setItem('pokelocke-tutorial-' + tuto.nombre, '1'); } catch (err) { /* nada */ }
+  tuto = null;
+  $('tutorial').classList.add('oculto');
+  $('tu-modal').classList.add('oculto');
+}
+function siguienteTuto() {
+  if (!tuto || !$('tu-modal').classList.contains('oculto')) return;
+  clearTimeout(tuto.reloj);
+  if (tuto.letras < tuto.pasos[tuto.i].texto.length) { tuto.letras = tuto.pasos[tuto.i].texto.length; return escribirTuto(); }
+  if (++tuto.i < tuto.pasos.length) return mostrarPaso();
+  acabarTutorial();
+}
+const preguntarSaltar = () => { $('tu-modal').classList.remove('oculto'); $('tu-seguir').focus(); };
+$('tu-velo').onclick = $('tu-arce').onclick = siguienteTuto;
+$('tu-escape').onclick = preguntarSaltar;
+$('tu-saltar').onclick = acabarTutorial;
+$('tu-seguir').onclick = () => $('tu-modal').classList.add('oculto');
+document.addEventListener('keydown', (ev) => {
+  if (!tuto) return;
+  if (ev.key === 'Escape') { ev.preventDefault(); ev.stopPropagation(); if ($('tu-modal').classList.contains('oculto')) preguntarSaltar(); else $('tu-modal').classList.add('oculto'); }
+  else if ((ev.key === 'Enter' || ev.key === ' ') && $('tu-modal').classList.contains('oculto')) { ev.preventDefault(); siguienteTuto(); }
+}, true);
+addEventListener('resize', () => { if (tuto) colocarTuto(); });
+setInterval(() => { if (tuto) colocarTuto(); }, 500);      // por si algo se mueve debajo (el tablero se repinta solo)
+$('op-tutorial').onclick = () => {
+  cerrarOpciones();
+  const hay = ultimo && ultimo.juegos.length;
+  empezarTutorial(hay ? 'tablero' : 'inicio', true);
+};
+
 // ---------- retos ----------
 // Desde el 2.º gimnasio: el líder te ofrece tres cartas y coges una, con el juego cerrado y sin vuelta atrás. Se resuelve
 // sola al conseguir la medalla: superado, un huevo extra; fallado, una vida menos. La primera vez lo explica Arce.
@@ -2049,9 +2237,7 @@ function abrirRetos(id) {
   }).join('');
   $('rt-cuerpo').dataset.id = id;
   $('retos-fondo').classList.remove('oculto');
-  let visto = false;
-  try { visto = localStorage.getItem('pokelocke-retos-arce') === '1'; } catch (err) { /* sin almacenamiento */ }
-  if (!visto) explicarRetos();
+  requestAnimationFrame(() => empezarTutorial('retos'));
 }
 $('rt-cuerpo').onclick = async (ev) => {
   const c = ev.target.closest('.rt-carta');
@@ -2062,42 +2248,9 @@ $('rt-cuerpo').onclick = async (ev) => {
   const r = await api('/api/retos/aceptar', {id: j.id, tipo: x.id});
   if (r && !r.error) { rtElegido = null; await actualizar(); abrirRetos(j.id); }
 };
-$('rt-cerrar').onclick = () => { $('retos-fondo').classList.add('oculto'); $('rt-dialogo').classList.add('oculto'); $('rt-arce-velo').classList.add('oculto'); rtElegido = null; };
-$('rt-ayuda').onclick = () => explicarRetos();
+$('rt-cerrar').onclick = () => { $('retos-fondo').classList.add('oculto'); rtElegido = null; };
+$('rt-ayuda').onclick = () => empezarTutorial('retos', true);
 
-// la profesora Arce lo explica, como en Pokémon Ostinato: el texto se escribe solo y la hoja avisa de que hay más
-const ARCE = [
-  '¡Hola! Soy la profesora Arce. En los Retos, cada líder te ofrece sus cartas.',
-  'Desde el segundo gimnasio puedes coger una antes de cada líder.',
-  'Solo una por gimnasio, con el juego cerrado, y no se puede devolver.',
-  'Si cumples el reto al ganar la medalla, te llevas un huevo extra.',
-  'Si fallas, pierdes una vida. Yo lo compruebo sola. ¡Mucha suerte!',
-];
-let arce = null;
-function explicarRetos() {
-  const d = $('rt-dialogo');
-  d.style.transform = `scale(${Math.min(1, Math.max(.55, innerWidth / 1920 * 1.05))})`;
-  d.classList.remove('oculto');
-  $('rt-arce-velo').classList.remove('oculto');      // lo demás, desenfocado: que no se solape nada con ella
-  arce = {frase: 0, letras: 0};
-  escribirArce();
-}
-function escribirArce() {
-  const f = ARCE[arce.frase], tope = matchMedia('(prefers-reduced-motion: reduce)').matches ? f.length : arce.letras;
-  $('rt-arce').textContent = f.slice(0, tope);
-  $('rt-hoja').style.visibility = tope >= f.length ? 'visible' : 'hidden';
-  if (tope < f.length) { arce.letras += 2; arce.reloj = setTimeout(escribirArce, 28); }
-}
-$('rt-dialogo').onclick = $('rt-arce-velo').onclick = () => {
-  if (!arce) return;
-  clearTimeout(arce.reloj);
-  if (arce.letras < ARCE[arce.frase].length) { arce.letras = ARCE[arce.frase].length; return escribirArce(); }
-  if (++arce.frase < ARCE.length) { arce.letras = 0; return escribirArce(); }
-  arce = null;
-  $('rt-dialogo').classList.add('oculto');
-  $('rt-arce-velo').classList.add('oculto');
-  try { localStorage.setItem('pokelocke-retos-arce', '1'); } catch (err) { /* nada */ }
-};
 
 async function abrirHuevos(j) {
   huevos.juego = j;

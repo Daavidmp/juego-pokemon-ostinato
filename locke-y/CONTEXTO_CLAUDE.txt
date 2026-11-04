@@ -304,6 +304,15 @@ jugador no esté conectado. Niveles: info, aviso, sospecha. Una sospecha no es u
   vez lo explica la profesora Arce con el cuadro de Pokémon Ostinato (assets/reto-dlg-*.png: DlgCuadroL, DlgProfesora,
   DlgNomArce y DlgHoja de Graphics/Titles, colocados como en la pantalla de 1920 de 006_Prologo y escalados; Cambria
   como textos.ps1). Se vuelve a ver con «?». Pruebas en test_app.py.
+- Tutorial (04/11/2026): la profesora Arce enseña toda la app (app.html, TUTORIALES y empezarTutorial). «inicio» sale
+  la primera vez sin juego, «tablero» la primera vez con el juego puesto y «retos» al abrir los retos; se apunta en
+  localStorage 'pokelocke-tutorial-<nombre>'. Cada paso tiene un foco (selector): el velo oscurece y desenfoca todo
+  menos ese hueco (clip-path con agujero), un aro dorado late alrededor y una flecha que empuja lo señala; Arce se pasa a
+  la derecha si tapa lo que explica. Frases de 2 líneas como mucho (unos 80 caracteres). Botón «Escape» y tecla Esc:
+  aviso en medio «¿Saltar el tutorial?» (Sí, saltarlo / No, seguir). Se repite desde Opciones › Tutorial.
+  Aspecto «juego de mesa» (opción B del lienzo de Claude Design «Pokelocke · Tutorial de Arce»): aro dorado como el
+  canto de las monedas, flecha dorada con volumen, contador de monedas (doradas hechas, roja la actual), tecla ESC y
+  tarjeta de saltar con borde dorado (sin el retrato de Arce: lo pidió David). «pulsa para seguir» va debajo del cuadro.
 - Avanza al guardar: guardado.tablero(j) lee del archivo de la partida las medallas (byte 0x420C) y el equipo,
   y solo relee si cambia el archivo. PENDIENTE: leer Alto Mando y Campeona de la partida (ahora no avanzan).
 - Música: assets/musica.mp3 (Suno, «Journey of Discovery») con botón de volumen/silencio en la cabecera; se para al
