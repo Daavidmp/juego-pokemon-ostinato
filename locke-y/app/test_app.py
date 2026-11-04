@@ -383,6 +383,37 @@ comun.biblio['ajustes']['ligero'] = False
 emulador.configurar_azahar()
 ver('resolution_factor=3' in ini.read_text(), 'al quitarlo vuelve la resolución que había')
 
+# ---------- retos ----------
+print('Retos')
+import locke
+jugando_antes = emulador.jugando
+emulador.jugando = lambda: False
+jr = {'id': 'retos', 'reglas': 'mega', 'preparado': True, 'vidas_iniciales': 25, 'ajuste_vidas': 0, 'muertos': [],
+      'medallas': [False] * 8, 'huevos': [{'especie': 1, 'shiny': False, 'cogido': False}] * 30}
+try:
+    locke.aceptar_reto(jr, 'sin_vidas')
+    ver(False, 'antes de la 1.ª medalla no hay retos')
+except RuntimeError:
+    ver(True, 'antes de la 1.ª medalla no hay retos')
+jr['medallas'][0] = True
+locke.aceptar_reto(jr, 'sin_vidas')
+ver(jr['reto']['medalla'] == 2, 'con una medalla, el reto es para la segunda')
+comun.vivo['equipo'] = [{'nivel': 20, 'huevo': False}] * 4 + [None, None]
+jr['medallas'][1] = True
+locke.resolver_reto(jr)
+ver(jr['huevos_extra'] == 1 and locke.huevos_disponibles(jr) == 2 and not jr['reto'], 'superado: un huevo extra en la caja')
+locke.aceptar_reto(jr, 'tres')
+jr['medallas'][2] = True
+locke.resolver_reto(jr)
+ver(locke.vidas(jr) == 24 and not jr['retos'][-1]['superado'], 'fallado (4 Pokémon con «Solo tres»): una vida menos')
+emulador.jugando = lambda: True
+try:
+    locke.aceptar_reto(jr, 'nivel_bajo')
+    ver(False, 'con el juego abierto no se aceptan retos')
+except RuntimeError:
+    ver(True, 'con el juego abierto no se aceptan retos')
+emulador.jugando = jugando_antes
+
 # ---------- versiones ----------
 print('Versiones')
 ver(conexion.version_tupla('2026.10.30.1203') > conexion.version_tupla('2026.10.30.0959'), 'una versión más nueva se reconoce')

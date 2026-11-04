@@ -18,7 +18,7 @@ def nuevo_locke(j, vidas, reglas=None):
     j.update(vidas_iniciales=int(vidas), ajuste_vidas=0, muertos=[], medallas=[False] * 8, vial=True,
              reglas=reglas, perdonados=[], caramelos_dados=0, muertes_activas=False,
              fase=1 if reglas == 'mega' else None, rutas_usadas=[], rutas_avisadas=[], balls_escondidas=None,
-             aviso_torneo=False,
+             aviso_torneo=False, reto=None, retos=[], huevos_extra=0, vidas_retos=0,
              huevos=caja_de_huevos() if reglas == 'mega' else None)
 
 
@@ -37,7 +37,7 @@ def caja_de_huevos():
 
 def huevos_disponibles(j):
     gastados = sum(1 for h in j.get('huevos') or [] if h['cogido'] and not h['shiny'])
-    return max(0, sum(j.get('medallas', [])) // MEDALLAS_POR_HUEVO - gastados)
+    return max(0, sum(j.get('medallas', [])) // MEDALLAS_POR_HUEVO + j.get('huevos_extra', 0) - gastados)
 
 
 def huevos_estado(j):
@@ -159,7 +159,65 @@ def dar_caramelos(j):
 
 
 def vidas(j):
-    return max(0, j['vidas_iniciales'] + j['ajuste_vidas'] - len(j['muertos']))
+    return max(0, j['vidas_iniciales'] + j['ajuste_vidas'] - len(j['muertos']) - j.get('vidas_retos', 0))
+
+
+# ---------- retos (Mega Pokelocke) ----------
+# Desde el 2.º gimnasio, antes de cada líder se puede aceptar un reto, con el juego cerrado y sin vuelta atrás. Se
+# resuelve solo en cuanto se consigue esa medalla: superado, un huevo extra en la caja; fallado, una vida menos.
+RETOS = {
+    'sin_vidas': ('Sin perder ninguna vida', 'Consigue la medalla sin perder ninguna vida desde que aceptas el reto.'),
+    'nivel_bajo': ('Por debajo del tope', 'Gana al líder con todo el equipo 3 niveles o más por debajo del nivel tope.'),
+    'tres': ('Solo tres', 'Gana al líder con 3 Pokémon como mucho en el equipo.'),
+}
+NIVELES_MENOS = 3
+
+
+def retos_estado(j):
+    m = sum(j.get('medallas', []))
+    return {'puede': j.get('reglas') == 'mega' and 1 <= m < 8 and not j.get('reto'), 'medalla': m + 1,
+            'activo': j.get('reto'), 'historial': j.get('retos', []),
+            'lista': [{'id': k, 'nombre': n, 'texto': t} for k, (n, t) in RETOS.items()]}
+
+
+def aceptar_reto(j, tipo):
+    if j.get('reglas') != 'mega':
+        raise RuntimeError('Los retos son de las normas Mega Pokelocke')
+    if tipo not in RETOS:
+        raise RuntimeError('Ese reto no existe')
+    if j.get('reto'):
+        raise RuntimeError('Ya tienes un reto en marcha: se resuelve al conseguir la medalla')
+    if not retos_estado(j)['puede']:
+        raise RuntimeError('Los retos se pueden aceptar a partir del segundo gimnasio y hasta el octavo')
+    if emulador.jugando():
+        raise RuntimeError('Los retos se aceptan con el juego cerrado')
+    medalla = sum(j.get('medallas', [])) + 1
+    j['reto'] = {'tipo': tipo, 'medalla': medalla, 'vidas': vidas(j), 'fecha': time.strftime('%Y-%m-%d %H:%M')}
+    vigia.evento('reto', f'Acepta el reto «{RETOS[tipo][0]}» para la medalla {medalla}')
+    comun.guardar()
+
+
+def resolver_reto(j):
+    """En cuanto el juego da la medalla del reto (se llama con comun.lock): se mira el equipo de ese momento."""
+    r = j.get('reto')
+    if not r or sum(j.get('medallas', [])) < r['medalla']:
+        return
+    equipo = [p for p in comun.vivo['equipo'] if p and not p.get('huevo')]
+    tope = niveles_tope(j)[r['medalla'] - 1]
+    superado = {'sin_vidas': vidas(j) >= r['vidas'],
+                'nivel_bajo': bool(equipo) and all(p['nivel'] <= tope - NIVELES_MENOS for p in equipo),
+                'tres': 0 < len(equipo) <= 3}[r['tipo']]
+    nombre = RETOS[r['tipo']][0]
+    if superado:
+        j['huevos_extra'] = j.get('huevos_extra', 0) + 1
+        comun.avisar(f'¡Reto superado: {nombre}! · Ganas un huevo extra en la caja de huevos', 10)
+    else:
+        j['vidas_retos'] = j.get('vidas_retos', 0) + 1
+        comun.avisar(f'Reto fallado: {nombre} · Pierdes una vida', 10)
+    j.setdefault('retos', []).append({**r, 'superado': superado})
+    j['reto'] = None
+    vigia.evento('reto', f'Reto «{nombre}» de la medalla {r["medalla"]}: {"superado" if superado else "fallado"}')
+    comun.guardar()
 
 
 # ---------- seguimiento del locke ----------
@@ -219,6 +277,7 @@ def seguimiento():
                         if sum(medallas) < sum(j.get('medallas', [])):
                             vigia.evento('retroceso', f'La partida ha perdido medallas: de {sum(j["medallas"])} a {sum(medallas)}', 'sospecha')
                         j['medallas'] = medallas
+                        resolver_reto(j)
                         # Mega Pokelocke: la 4.ª medalla (Amaro) es la mitad del juego y toca el torneo. Una vez
                         if j.get('reglas') == 'mega' and sum(medallas) >= 4 and not j.get('aviso_torneo'):
                             j['aviso_torneo'] = True

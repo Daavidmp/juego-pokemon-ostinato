@@ -293,6 +293,17 @@ jugador no esté conectado. Niveles: info, aviso, sospecha. Una sospecha no es u
   caminar() mueve una ficha por las casillas del medio (#tb-viajeros, 380 ms por casilla, 6 s como mucho) y al llegar
   anunciar() saca el aviso de arriba (#tb-aviso); el tuyo, con confeti. Mientras camina, su ficha no se pinta en su
   casilla (enCamino). Jugando no hay tablero: lo ves al cerrar el juego.
+- Retos (04/11/2026, Mega): desde la 1.ª medalla, antes de cada líder se coge UNA carta (con el juego cerrado, sin
+  vuelta atrás): sin_vidas (sin perder vidas desde que se acepta), nivel_bajo (todo el equipo 3 niveles o más por
+  debajo del tope al ganar), tres (3 Pokémon como mucho). El del vial se quitó (lo pidió David). locke.RETOS,
+  retos_estado, aceptar_reto (/api/retos/aceptar) y resolver_reto, que se llama en seguimiento al leer la medalla
+  nueva: superado -> j['huevos_extra'] +1 (suma en huevos_disponibles); fallado -> j['vidas_retos'] +1 (resta en
+  vidas). Historial en j['retos']. Pantalla (app.html, abrirRetos): el líder con sus tres cartas (diseño B del lienzo
+  de Claude Design «Pokelocke · Retos»), fila de 8 medallas con el resultado de cada reto. Iconos: arte oficial de
+  PokeAPI (dream-world: caramelo raro, Poké Ball, huevo suerte en assets/reto-*.png) y corazones en SVG. La primera
+  vez lo explica la profesora Arce con el cuadro de Pokémon Ostinato (assets/reto-dlg-*.png: DlgCuadroL, DlgProfesora,
+  DlgNomArce y DlgHoja de Graphics/Titles, colocados como en la pantalla de 1920 de 006_Prologo y escalados; Cambria
+  como textos.ps1). Se vuelve a ver con «?». Pruebas en test_app.py.
 - Avanza al guardar: guardado.tablero(j) lee del archivo de la partida las medallas (byte 0x420C) y el equipo,
   y solo relee si cambia el archivo. PENDIENTE: leer Alto Mando y Campeona de la partida (ahora no avanzan).
 - Música: assets/musica.mp3 (Suno, «Journey of Discovery») con botón de volumen/silencio en la cabecera; se para al

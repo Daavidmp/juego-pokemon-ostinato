@@ -43,7 +43,8 @@ def foto_estado():
                         # el tablero: de la partida guardada, y con el juego cerrado (jugando ya está la capa)
                         'tablero': guardado.tablero(j) if j.get('preparado') and not jugando else None,
                         'topes': locke.niveles_tope(j) if j.get('preparado') else None, 'muertos': j.get('muertos', []),
-                        'cuenta': bool(j.get('muertes_activas')), 'zonas': j.get('zonas_vistas', [])}
+                        'cuenta': bool(j.get('muertes_activas')),
+                        'retos': locke.retos_estado(j) if j.get('reglas') == 'mega' and j.get('preparado') else None, 'zonas': j.get('zonas_vistas', [])}
                        for j in comun.biblio['juegos']],
             'activo': activo, 'jugando': jugando, 'conectado': comun.vivo['conectado'], 'cargando': emulador.cargando(), 'tarea': comun.vivo['tarea'] and {**comun.vivo['tarea'], 'transcurrido': time.time() - comun.vivo['tarea']['inicio']},
             'equipo': [p and {**p, 'muerto': p['id'] in muertos} for p in comun.vivo['equipo']],
@@ -339,6 +340,9 @@ class Servidor(BaseHTTPRequestHandler):
                 vigia.anotar_partida(j)
                 vigia.evento('restaurar', f'Restaura una copia de la partida: {d.get("nombre")}', 'sospecha')
                 comun.guardar()
+        elif ruta == '/api/retos/aceptar':
+            with comun.lock:
+                locke.aceptar_reto(comun.buscar(d.get('id')), d.get('tipo'))
         elif ruta == '/api/casilla':          # dónde está tu ficha: va al servidor con los latidos (conexion)
             t = {'hito': str(d.get('hito', ''))[:24], 'n': int(d.get('n', 0)), 'medallas': int(d.get('medallas', 0)),
                  'vidas': int(d.get('vidas', 0))}
