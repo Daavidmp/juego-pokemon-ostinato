@@ -469,3 +469,9 @@ de abajo arriba en motas de polvo de su color (una copia quieta del dibujo recor
   (por_kaia: van frenando desde FRENA_KAIA, se paran a PARA px y no arrancan hasta que ella esta a mas de SIGUE;
   si ya la han dejado atras, siguen). En la curva no cambian de vista de golpe: la vista vieja se inclina hacia el
   giro y la nueva aparece encima, inclinada al reves, hasta quedar recta (sprite2, INCLINA). Sin probar en el juego.
+- GENTE POR LAS ACERAS (2026-11-05, Plugins/Ostinato/037_GenteCiudad.rb): 6 vecinos (hombre1, mujer2, chaval2,
+  anciano2, chica1, mujer1) pintados desde el plugin, como los coches (no son eventos). PASEOS: casillas en linea recta
+  de una a otra, de ida y vuelta o en vuelta entera (el jardin de la cerveceria); acera izquierda x 5, plaza del metro,
+  acera de arriba de la calle (fila 24), acera derecha x 68, delante del Centro Pokemon (fila 13 y x 67). Nunca pisan
+  la calzada (comprobado casilla a casilla con el paso del tileset 50). A veces se paran en una esquina; si Kaia les
+  corta el paso esperan mirandola y, si no se aparta, se dan la vuelta (ESPERA). Kaia no los atraviesa. Sin probar.
