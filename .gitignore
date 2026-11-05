@@ -51,3 +51,4 @@ herramienta/
 # --- Copias de seguridad del pkmn-devkit -------------------------------------
 # Las deja el kit antes de tocar un mapa, el System o el PBS. Son locales.
 .devkit_backups/
+Pokémon Ostinato/debug_choques.txt

@@ -261,9 +261,9 @@ module OstCiudad
   CUADRO     = { 2 => 0, 4 => 1, 6 => 2, 8 => 3 }
   BARRERA_X  = (54..59)   # casillas donde un coche abre las barreras
   BARRERA_Y  = 4          # a cuantas casillas
-  PARA       = 130.0      # Kaia a menos de estos px del morro: se para
-  SIGUE      = 200.0      # parado por ella, no arranca hasta que este a mas de estos px
-  FRENA_KAIA = 260.0      # a menos de estos px ya va frenando
+  PARA       = 64.0       # Kaia a dos casillas (64 px) del morro: se para
+  SIGUE      = 112.0      # parado por ella, no arranca hasta que este a mas de estos px
+  FRENA_KAIA = 192.0      # a menos de estos px ya va frenando
   INCLINA    = 0.2        # en la curva, cuanto gira cada vista (de los 90 grados del giro)
   ANGULO     = { 6 => 0, 8 => 90, 4 => 180, 2 => -90 }
 
@@ -530,7 +530,17 @@ module OstCiudad
       end
       alto = [2, 8].include?(c.dir) ? LARGO[c.dir] : ANCHO[c.dir]
       z = (c.y + alto - oy).round + 31
-      [[c.sprite, d1, giro * INCLINA * w, c.alfa], [c.sprite2, d2, -giro * INCLINA * (1 - w), c.alfa * w]].each_with_index do |e, i|
+      # una sola vista cada vez (las dos a la vez, una medio transparente encima de la
+      # otra, salian como dos coches montados): la vieja se va inclinando hacia el giro
+      # hasta la mitad de la curva y ahi pasa a la nueva, inclinada al reves, que se endereza
+      vistas = if d2.nil?
+                 [[c.sprite, d1, 0, c.alfa], [c.sprite2, nil, 0, 0]]
+               elsif w < 0.5
+                 [[c.sprite, d1, giro * INCLINA * (w / 0.5), c.alfa], [c.sprite2, nil, 0, 0]]
+               else
+                 [[c.sprite, d2, -giro * INCLINA * ((1 - w) / 0.5), c.alfa], [c.sprite2, nil, 0, 0]]
+               end
+      vistas.each_with_index do |e, i|
         sp, d, ang, op = e
         sp.visible = c.espera == 0 && d != nil && op > 0
         next if !sp.visible

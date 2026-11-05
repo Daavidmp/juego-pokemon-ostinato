@@ -475,3 +475,17 @@ de abajo arriba en motas de polvo de su color (una copia quieta del dibujo recor
   acera de arriba de la calle (fila 24), acera derecha x 68, delante del Centro Pokemon (fila 13 y x 67). Nunca pisan
   la calzada (comprobado casilla a casilla con el paso del tileset 50). A veces se paran en una esquina; si Kaia les
   corta el paso esperan mirandola y, si no se aparta, se dan la vuelta (ESPERA). Kaia no los atraviesa. Sin probar.
+- 2026-11-05 (PC de casa, probado en el juego): PASO Y PRIORIDAD DEL MAPA 19 REVISADOS.
+  · Muros de ladrillo: son de 3 filas (7943 borde, 7951 centro de la cara, 7959 base). Solo la base bloquea; borde y centro
+    se pisan desde detras con prioridad 2. Lo que va encima de un muro (tejados de tapas, pizzeria, heladeria, furgoneta,
+    maquinas, farola, sombrilla) va a prioridad 3 para no quedar debajo del ladrillo.
+  · Copias que dejan pasar, solo donde hacian falta: 8544 (ladrillo 7943, debajo de los tejados de tapas/pizzeria/heladeria)
+    y 8552/8553 (esquina 7936/7944 de la heladeria). Ocupan las filas 1020-1021: QUEDAN 2 FILAS LIBRES en Ciudad_Gimnasio.png.
+  · Tejados planos de los edificios de abajo, tienda de discos, marquesina del metro y fila de arriba de la taberna: se pisan
+    hasta la cornisa, con prioridad 2. Partes de arriba de objetos (troncos, verjas, contenedores, bancos, senal del bus,
+    pizarra, moto, papeleras) a prioridad 2 (con 1 no tapan a Kaia).
+  · Comprobado con un recorrido de regiones contra la version de git: solo se une el jardincito de detras de la fuente.
+  · Coches (036): una sola vista en las curvas (antes se veian dos coches montados) y paran a 2 casillas de Kaia
+    (PARA 64, SIGUE 112, FRENA_KAIA 192).
+  · Mapa 18: la escalera SubirALaCiudad tenia los datos del traslado en el comando de sonido (petaba); arreglado.
+  · Plugin 038_DebugChoques: en debug apunta cada choque de Kaia en debug_choques.txt (ignorado en git).
