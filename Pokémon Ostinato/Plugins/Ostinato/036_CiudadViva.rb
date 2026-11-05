@@ -4,8 +4,9 @@
 #   - Portones: con Enter delante de uno se abre o se cierra, y lo recuerda.
 #   - Bancos: delante de uno sale "ENTER SENTARSE"; Kaia se sienta segun como
 #     este puesto el banco y se levanta con una direccion o con Enter.
-#   - Coches: circulan en sentido unico, se ceden los cruces, paran si
-#     Kaia esta delante y las barreras del parking suben cuando se acercan.
+#   - Coches: circulan en sentido unico, se ceden los cruces, frenan cuando
+#     Kaia se acerca (y no arrancan hasta que se aleja), giran poco a poco en
+#     las esquinas y las barreras del parking suben cuando se acercan.
 #   Se buscan por sus casillas en el mapa: se pueden mover en RPG Maker.
 #===============================================================================
 module OstCiudad
@@ -260,9 +261,14 @@ module OstCiudad
   CUADRO     = { 2 => 0, 4 => 1, 6 => 2, 8 => 3 }
   BARRERA_X  = (54..59)   # casillas donde un coche abre las barreras
   BARRERA_Y  = 4          # a cuantas casillas
+  PARA       = 130.0      # Kaia a menos de estos px del morro: se para
+  SIGUE      = 200.0      # parado por ella, no arranca hasta que este a mas de estos px
+  FRENA_KAIA = 260.0      # a menos de estos px ya va frenando
+  INCLINA    = 0.2        # en la curva, cuanto gira cada vista (de los 90 grados del giro)
+  ANGULO     = { 6 => 0, 8 => 90, 4 => 180, 2 => -90 }
 
   class Coche
-    attr_accessor :x, :y, :dir, :de, :a, :sig, :s, :t, :v, :color, :espera, :alfa, :sprite
+    attr_accessor :x, :y, :dir, :de, :a, :sig, :s, :t, :v, :color, :espera, :alfa, :sprite, :sprite2, :kaia, :prisa
     def initialize(de, a, f, color)
       @de = de
       @a = a
@@ -272,6 +278,9 @@ module OstCiudad
       @v = 0.0
       @t = nil
       @sprite = nil
+      @sprite2 = nil
+      @kaia = false
+      @prisa = 0.85 + rand * 0.25    # no todos van igual de rapido
       @sig = OstCiudad.elegir(a)
       @s = OstCiudad.largo(de, a) * f
       OstCiudad.colocar(self)
@@ -343,21 +352,35 @@ module OstCiudad
   end
 
   def self.soltar_coches
-    coches.each { |c| OstDlg.soltar(c.sprite) if c.sprite }
+    coches.each do |c|
+      OstDlg.soltar(c.sprite) if c.sprite
+      OstDlg.soltar(c.sprite2) if c.sprite2
+    end
     @coches = nil
     @cruces = nil
     @vp_coches = nil
   end
 
-  # lo que le queda a Kaia por delante del coche, o nil si no esta en su camino
-  def self.hasta_kaia(c)
+  # Kaia cerca del morro (delante o al lado, en la calzada o en la acera): el coche
+  # frena y se para, y no arranca hasta que ella se aleja (SIGUE > PARA). Si ya la
+  # ha dejado atras, no le afecta. Devuelve los px que puede avanzar por ella, o nil.
+  def self.por_kaia(c)
     pl = $game_player
-    x = pl.x * 32 + 16
-    y = pl.y * 32 + 16
-    a = c.dir == 6 ? x - c.x : c.dir == 4 ? c.x - x : c.dir == 2 ? y - c.y : c.y - y
-    b = [2, 8].include?(c.dir) ? x - c.x : y - c.y
-    return nil if a <= 0 || a > 180 || b.abs > 44
-    return a - LARGO[c.dir] - 28
+    # su posicion de verdad (no la casilla a la que va): asi frena y arranca sin saltos al andar
+    kx = pl.real_x.to_f / Game_Map::X_SUBPIXELS + 16
+    ky = pl.real_y.to_f / Game_Map::Y_SUBPIXELS + 16
+    ux = c.dir == 6 ? 1 : c.dir == 4 ? -1 : 0
+    uy = c.dir == 2 ? 1 : c.dir == 8 ? -1 : 0
+    if (kx - c.x) * ux + (ky - c.y) * uy < -LARGO[c.dir]
+      c.kaia = false
+      return nil
+    end
+    fx = c.x + ux * LARGO[c.dir]
+    fy = c.y + uy * LARGO[c.dir]
+    d = Math.sqrt((kx - fx) ** 2 + (ky - fy) ** 2)
+    c.kaia = c.kaia ? d < SIGUE : d < PARA
+    return 0.0 if c.kaia
+    return d < FRENA_KAIA ? d - PARA : nil
   end
 
   # cuantos px puede avanzar antes de tener que estar parado
@@ -379,7 +402,7 @@ module OstCiudad
         g = [g, resto + (o.t ? largo(o.de, o.a) : o.s) - HUECO].min
       end
     end
-    k = hasta_kaia(c)
+    k = por_kaia(c)
     g = [g, k].min if k
     return g
   end
@@ -396,7 +419,7 @@ module OstCiudad
         next
       end
       g = libre(c)
-      tope = VELOCIDAD
+      tope = VELOCIDAD * c.prisa
       tope = EN_CURVA if c.t || (gira?(c) && largo(c.de, c.a) - c.s < 90)
       quiere = g <= 0 ? 0.0 : [tope, g * 0.035].min
       if quiere > c.v
@@ -481,26 +504,52 @@ module OstCiudad
     vp = (Spriteset_Map.viewport rescue nil)
     return if !vp || vp.disposed? || !@coches
     if @vp_coches != vp
-      @coches.each { |c| c.sprite = nil }
+      @coches.each do |c|
+        c.sprite = nil
+        c.sprite2 = nil
+      end
       @vp_coches = vp
     end
     ox = $game_map.display_x.to_f / Game_Map::X_SUBPIXELS
     oy = $game_map.display_y.to_f / Game_Map::Y_SUBPIXELS
     @coches.each do |c|
-      if !c.sprite || c.sprite.disposed?
-        c.sprite = Sprite.new(vp)
-        c.sprite.bitmap = OstDlg.bmp("Graphics/Pictures/Coches/coche_#{c.color}.png")
-        c.sprite.ox = CELDA[0] / 2
-        c.sprite.oy = CELDA[1] / 2
+      c.sprite = vista_coche(vp, c) if !c.sprite || c.sprite.disposed?
+      c.sprite2 = vista_coche(vp, c) if !c.sprite2 || c.sprite2.disposed?
+      # en la curva no cambia de vista de golpe: la vieja se inclina hacia el giro y la
+      # nueva aparece encima, inclinada al reves, hasta quedar recta
+      d1 = c.dir
+      d2 = nil
+      w = 0.0
+      giro = 0
+      if c.t && c.sig
+        d1 = rumbo(c.de, c.a)
+        d2 = rumbo(c.a, c.sig)
+        w = [[(c.t - 0.2) / 0.6, 0.0].max, 1.0].min
+        w = w * w * (3 - 2 * w)
+        giro = (ANGULO[d2] - ANGULO[d1] + 540) % 360 - 180
       end
-      c.sprite.visible = c.espera == 0
-      c.sprite.opacity = c.alfa
-      c.sprite.src_rect = Rect.new(CUADRO[c.dir] * CELDA[0], 0, CELDA[0], CELDA[1])
-      c.sprite.x = (c.x - ox).round
-      c.sprite.y = (c.y - oy).round
       alto = [2, 8].include?(c.dir) ? LARGO[c.dir] : ANCHO[c.dir]
-      c.sprite.z = (c.y + alto - oy).round + 31
+      z = (c.y + alto - oy).round + 31
+      [[c.sprite, d1, giro * INCLINA * w, c.alfa], [c.sprite2, d2, -giro * INCLINA * (1 - w), c.alfa * w]].each_with_index do |e, i|
+        sp, d, ang, op = e
+        sp.visible = c.espera == 0 && d != nil && op > 0
+        next if !sp.visible
+        sp.opacity = op.to_i
+        sp.angle = ang
+        sp.src_rect = Rect.new(CUADRO[d] * CELDA[0], 0, CELDA[0], CELDA[1])
+        sp.x = (c.x - ox).round
+        sp.y = (c.y - oy).round
+        sp.z = z + i
+      end
     end
+  end
+
+  def self.vista_coche(vp, c)
+    sp = Sprite.new(vp)
+    sp.bitmap = OstDlg.bmp("Graphics/Pictures/Coches/coche_#{c.color}.png")
+    sp.ox = CELDA[0] / 2
+    sp.oy = CELDA[1] / 2
+    return sp
   end
 
   #--- cada fotograma -------------------------------------------------------------

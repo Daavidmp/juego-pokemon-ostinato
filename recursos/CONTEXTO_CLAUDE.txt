@@ -463,6 +463,9 @@ de abajo arriba en motas de polvo de su color (una copia quieta del dibujo recor
   de linea; sus 48 casillas nuevas quedaron en las filas 1014-1019 (alli las 999-1013 ya eran bancos, contenedor y
   verjas). La imagen mide 1020 filas (32640 px): QUEDAN 4 FILAS LIBRES. Sin pkmn-devkit alli, se hizo con el mismo
   calculo en Python y el motor del juego (rmxp.ps1) para leer y escribir los .rxdata.
-- PENDIENTE (lo pidio David, para cuando esten aqui los coches que se mueven): que sigan siempre la carretera por su
-  carril, que giren en las esquinas y al entrar al parking (no cambiar de direccion de golpe), y que FRENEN cuando el
-  jugador se acerque y no arranquen hasta que se aleje.
+- COCHES QUE SE MUEVEN (Plugins/Ostinato/036_CiudadViva.rb): rutas por el centro de cada calle (CRUCES en esquinas
+  de casilla, sentido unico), curvas en Bezier en cada cruce, se ceden los cruces y guardan distancia.
+  2026-11-05 (lo pidio David): FRENAN cuando Kaia se acerca al morro, delante o al lado, en la calzada o en la acera
+  (por_kaia: van frenando desde FRENA_KAIA, se paran a PARA px y no arrancan hasta que ella esta a mas de SIGUE;
+  si ya la han dejado atras, siguen). En la curva no cambian de vista de golpe: la vista vieja se inclina hacia el
+  giro y la nueva aparece encima, inclinada al reves, hasta quedar recta (sprite2, INCLINA). Sin probar en el juego.
