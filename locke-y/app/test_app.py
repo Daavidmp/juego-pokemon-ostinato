@@ -541,6 +541,48 @@ locke.misiones_tick(jm, None)
 ver(ofertas() == ['racha20'], 'una racha no caduca: «Imparable» sigue ofrecida con las 8 medallas')
 juego.record, juego.curas_en_centro, emulador.jugando = record_antes, curas_antes, jugando_antes
 
+# ---------- mochila ----------
+print('Mochila')
+import struct
+import pokehex
+memoria = bytearray(pokehex.TAM_MOCHILA)
+struct.pack_into('<HH', memoria, 0, 141, 1)                    # una Carta Pregunta en Objetos (de una tienda aleatoria)
+lector = type('L', (), {'leer': lambda _, a, n: bytes(memoria[a:a + n]),
+                        'escribir': lambda _, a, d: memoria.__setitem__(slice(a, a + len(d)), d)})()
+antes = pokehex.leer_mochila(lector, 0)['objetos']
+pokehex.escribir_bolsillo(lector, 0, 'objetos', antes + [{'objeto': 93, 'cantidad': 1}], ya={o['objeto'] for o in antes})
+ver([o['objeto'] for o in pokehex.leer_mochila(lector, 0)['objetos']] == [141, 93],
+    'la Escama Corazón entra aunque en el bolsillo haya una Carta Pregunta (y la carta se queda)')
+try:
+    pokehex.escribir_bolsillo(lector, 0, 'objetos', [{'objeto': 141, 'cantidad': 1}])
+    ver(False, 'un objeto nuevo que no es de ese bolsillo no entra')
+except ValueError:
+    ver(True, 'un objeto nuevo que no es de ese bolsillo no entra')
+
+# ---------- el PokéHex, solo para Daavidmp ----------
+print('PokéHex')
+ver(o.yo(o.entrar('Daavidmp', 'clave1', '1.1.1.1')['token'])['usuario'] == 'Daavidmp', 'el servidor dice quién es el dueño de una sesión')
+peticion_antes, sesion_antes, direccion_antes = online.peticion, comun.red.get('sesion'), conexion.online_direccion
+conexion.online_direccion = lambda: 'servidor'
+def puede():
+    try:
+        conexion.comprobar_dueno_pokehex()
+        return True
+    except RuntimeError:
+        return False
+comun.red['sesion'] = None
+ver(not puede(), 'sin sesión online no se abre el PokéHex')
+comun.red['sesion'] = {'token': 'x', 'usuario': 'Daavidmp', 'admin': True}        # sesión tocada a mano en el PC
+online.peticion = lambda *a, **k: {'usuario': 'Amigo', 'admin': False}
+ver(not puede(), 'aunque la sesión guardada diga Daavidmp, manda lo que diga el servidor')
+online.peticion = lambda *a, **k: {'usuario': 'Daavidmp', 'admin': True}
+ver(puede(), 'Daavidmp sí entra')
+def sin_red(*a, **k):
+    raise OSError('sin red')
+online.peticion = sin_red
+ver(not puede(), 'sin conexión con el servidor, nadie')
+online.peticion, comun.red['sesion'], conexion.online_direccion = peticion_antes, sesion_antes, direccion_antes
+
 # ---------- duelos ----------
 print('Duelos')
 td, ta = o.entrar('Daavidmp', 'clave1', '1.1.1.1')['token'], o.entrar('Amigo', 'clave2', '2.2.2.2')['token']

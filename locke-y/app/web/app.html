@@ -700,7 +700,7 @@
     <section class="tb-hud tb-carta tb-objetivo" id="tb-objetivo" aria-label="Siguiente objetivo"></section>
     <section class="tb-hud tb-carta tb-marcador" id="tb-marcador" aria-label="Vidas y medallas"></section>
     <div class="tb-hud tb-abajo"><div class="tb-equipo" id="tb-equipo" aria-label="Tu equipo"></div><div class="tb-carta tb-jugar" id="tb-jugar"></div></div>
-    <span class="tb-hud tb-credito">Creado por David Martínez Palacios · Versión 1.2.0</span>
+    <span class="tb-hud tb-credito">Creado por David Martínez Palacios · Versión 1.2.7</span>
   </div>
 
   <footer>
@@ -1252,7 +1252,7 @@ function menuJuego(j) {
   return `<div class="menu" role="menu">
       ${j.preparado ? `<button type="button" role="menuitem" data-accion="nuevo" data-id="${j.id}">Empezar un locke nuevo</button>` : ''}
       ${j.reglas === 'mega' ? `<button type="button" role="menuitem" data-accion="huevos" data-id="${j.id}">Caja de huevos</button>` : ''}
-      <button type="button" role="menuitem" data-accion="pokehex" data-id="${j.id}">PokéHex</button>
+      ${esDueno() ? `<button type="button" role="menuitem" data-accion="pokehex" data-id="${j.id}">PokéHex</button>` : ''}
       <button type="button" role="menuitem" data-accion="registro" data-id="${j.id}" ${j.registro ? '' : 'disabled'}>Ver registro de randomización</button>
       ${j.preparado ? `<button type="button" role="menuitem" data-accion="copias" data-id="${j.id}">Copias de la partida</button>` : ''}
       ${j.preparado ? `<button type="button" role="menuitem" class="peligro" data-accion="borrar_partida" data-id="${j.id}">Borrar partida guardada</button>` : ''}
@@ -2986,6 +2986,8 @@ function opciones(lista, actual, desde = 0, filtro = null) {
     .map(([n, i]) => `<option value="${i}"${i === actual ? ' selected' : ''}>${esc(n)}</option>`).join('');
 }
 
+// el PokéHex solo es para Daavidmp (lo comprueba también el servidor al entrar): a los demás ni se les enseña
+const esDueno = () => !!(ultimo && ultimo.online.sesion && ultimo.online.sesion.usuario === 'Daavidmp');
 function abrirHex(j, remoto = null) {
   Object.assign(hex, {juego: j ? j.id : null, remoto, sel: null, borrador: null, pestana: 'equipo', caja: 0, moviendo: null, nuevoEn: null});
   $('hex-titulo').textContent = remoto ? `PokéHex de ${remoto}` : 'PokéHex';

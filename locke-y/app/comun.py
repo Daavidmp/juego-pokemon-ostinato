@@ -154,4 +154,5 @@ def avisar(texto, segundos=4):
 # en datos/online.json, que manda sobre el de dentro.
 
 F_ONLINE, F_SESION = DATOS / 'online.json', DATOS / 'sesion.json'
+DUENO_POKEHEX = 'Daavidmp'              # el único usuario que puede abrir el PokéHex (en su propio Pokelocke)
 red = {'sesion': None, 'conectados': [], 'error': None, 'servidor': None, 'upnp': None, 'ip': None}

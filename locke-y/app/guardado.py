@@ -179,6 +179,8 @@ def borrar_partida(j):
 
 def pokehex_accion(que, d):
     if que == 'entrar':
+        import conexion                                  # aquí: conexion ya importa guardado
+        conexion.comprobar_dueno_pokehex()
         comprobar_clave_pokehex(d.get('clave'))
         token = hashlib.sha1(os.urandom(16)).hexdigest()
         hex_vivo['tokens'].add(token)

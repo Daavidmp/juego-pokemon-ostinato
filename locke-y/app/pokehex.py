@@ -314,9 +314,12 @@ def leer_mochila(rpc, inicio):
     return out
 
 
-def escribir_bolsillo(rpc, inicio, nombre, objetos):
+def escribir_bolsillo(rpc, inicio, nombre, objetos, ya=()):
+    """Reescribe el bolsillo entero. Los objetos nuevos tienen que ser de ese bolsillo (la lista de PKHeX); los que
+    ya estaban en él (ya) se quedan aunque no estén en la lista: si el juego los puso ahí (una tienda aleatoria vende
+    una Carta Pregunta, por ejemplo), están bien."""
     despl, huecos, maximo = next((b[1], b[2], b[3]) for b in BOLSILLOS if b[0] == nombre)
-    validos = set(ADMITIDOS[nombre])
+    validos = set(ADMITIDOS[nombre]) | set(ya)
     datos = bytearray(4 * huecos)
     k = 0
     for o in objetos:
@@ -595,7 +598,7 @@ class Partida:
 
     def bolsillo(self, nombre, objetos):
         escr = type('Escritor', (), {'escribir': lambda _, a, datos: self.d.__setitem__(slice(a, a + len(datos)), datos)})()
-        escribir_bolsillo(escr, MOCHILA, nombre, objetos)
+        escribir_bolsillo(escr, MOCHILA, nombre, objetos, ya={o['objeto'] for o in self.mochila()[nombre]})
 
     def guardar(self, copias):
         """Rehace las sumas de los bloques tocados, guarda una copia del archivo de antes y escribe."""

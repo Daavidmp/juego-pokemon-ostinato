@@ -352,7 +352,14 @@ jugador no esté conectado. Niveles: info, aviso, sospecha. Una sospecha no es u
   y solo relee si cambia el archivo. PENDIENTE: leer Alto Mando y Campeona de la partida (ahora no avanzan).
 - Música: assets/musica.mp3 (Suno, «Journey of Discovery») con botón de volumen/silencio en la cabecera; se para al
   jugar. Edge se abre con --autoplay-policy=no-user-gesture-required.
-- «Versión 1.2.0» (misiones, duelos y la animación del final) es solo el texto del pie (app.html); las actualizaciones siguen comparando el número por fecha de empaquetar.py.
+- PokéHex solo para Daavidmp (1.2.7, 10/11/2026): al entrar (guardado.pokehex_accion 'entrar'), conexion.comprobar_dueno_pokehex
+  pregunta al servidor quién es el dueño de la sesión (ruta /yo de online.Servidor) y solo deja a comun.DUENO_POKEHEX; la sesión
+  guardada en el PC no vale (se puede tocar a mano). Sin conexión, nadie. Después sigue pidiendo su contraseña. A los demás no se les
+  enseña el botón (esDueno en app.html). El PokéHex remoto (abrir el de otro jugador) ya era solo del administrador en el servidor.
+- Mochila (10/11/2026): escribir_bolsillo deja los objetos que YA estaban en el bolsillo aunque no estén en la lista de PKHeX (una
+  Carta Pregunta de una tienda aleatoria en Objetos hacía fallar dar_escamas: «no va en este bolsillo», y no se abría el juego).
+  Dar escamas/caramelos ya no corta la apertura del juego si falla.
+- «Versión 1.2.7» es solo el texto del pie (app.html); las actualizaciones siguen comparando el número por fecha de empaquetar.py.
 
 
 5. IMÁGENES DE ARCE  (../CREDITOS/firefly/)

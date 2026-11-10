@@ -378,6 +378,11 @@ class Servidor:
                                     'texto': f'Cambia su nombre: de {u} a {nuevo}'}, ensure_ascii=False) + '\n')
         return {'usuario': nuevo}
 
+    def yo(self, token):
+        """Quién es el dueño de una sesión, dicho por el servidor (el PokéHex solo se abre a DUENO_POKEHEX)."""
+        u = self._usuario(token)
+        return {'usuario': u, 'admin': self.usuarios.get(u, {}).get('admin', False)}
+
     def _usuario(self, token):
         u = self.sesiones.get(token or '')
         if not u:
@@ -812,6 +817,8 @@ class Servidor:
                         r = srv.torneo(d.get('token'))
                     elif ruta == '/torneo/editar':
                         r = srv.editar_torneo(d.get('token'), d.get('que'), d)
+                    elif ruta == '/yo':
+                        r = srv.yo(d.get('token'))
                     elif ruta == '/duelo/retar':
                         r = srv.retar(d.get('token'), d.get('usuario'))
                     elif ruta == '/duelo/responder':

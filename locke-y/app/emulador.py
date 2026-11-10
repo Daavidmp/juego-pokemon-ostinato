@@ -509,8 +509,11 @@ def lanzar(j):
     exe = configurar_azahar()
     with comun.lock:
         vigia.abrir(j)
-        locke.dar_caramelos(j)
-        locke.dar_escamas(j)
+        for dar in (locke.dar_caramelos, locke.dar_escamas):
+            try:
+                dar(j)
+            except (ValueError, OSError):           # si no se pueden dar, se juega igual y se prueba la próxima vez
+                traceback.print_exc()
         completa = j.get('fase') == 1 and locke.medallas_partida(j) >= locke.MEDALLAS_PARA_COMPLETA and locke.abrir_fase_completa(j)
         j['firma_mod'] = firma_mod(j)
     poner_mod(j)

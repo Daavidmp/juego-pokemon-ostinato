@@ -278,6 +278,22 @@ def online_servidor(activar):
         comun.red['conectados'] = []
 
 
+def comprobar_dueno_pokehex():
+    """El PokéHex es solo para DUENO_POKEHEX: con su sesión abierta y confirmada por el servidor (la sesión guardada en
+    el PC se puede tocar a mano; el servidor no se deja engañar). Sin conexión, nadie."""
+    s, direccion = comun.red['sesion'], online_direccion()
+    if not s or not direccion:
+        raise RuntimeError(f'El PokéHex solo lo puede abrir {comun.DUENO_POKEHEX}, con su sesión online abierta')
+    try:
+        r = online.peticion(direccion, '/yo', {'token': s['token']}, espera=8)
+    except OSError as e:
+        raise RuntimeError(f'Para abrir el PokéHex hace falta conexión con el servidor ({online_motivo(e)})')
+    if r.get('error') == 'No existe':
+        raise RuntimeError('El servidor todavía no comprueba el PokéHex: el anfitrión tiene que actualizar Pokelocke')
+    if r.get('usuario') != comun.DUENO_POKEHEX:
+        raise RuntimeError(f'El PokéHex solo lo puede abrir {comun.DUENO_POKEHEX}')
+
+
 def online_accion(que, d):
     if que == 'servidor':
         online_servidor(bool(d.get('activar')))
