@@ -919,10 +919,10 @@ class SinCertificado(OSError):
     pass
 
 
-def abrir(direccion, ruta, datos=None, espera=10):
+def abrir(direccion, ruta, datos=None, espera=10, pem=None):
     """Una petición https al servidor, que solo vale si contesta con el certificado del anfitrión: nadie puede hacerse
     pasar por él ni leer lo que va y viene (contraseñas, registros, el instalador)."""
-    pem = certificado()
+    pem = pem or certificado()
     if not pem:
         raise SinCertificado('este Pokelocke no tiene el certificado del servidor; instálalo con el instalador del anfitrión')
     contexto = ssl.create_default_context(cadata=pem)
@@ -947,9 +947,9 @@ def huella_instalador(_cache={}):
     return _cache['huella']
 
 
-def peticion(direccion, ruta, datos, espera=10):
+def peticion(direccion, ruta, datos, espera=10, pem=None):
     try:
-        with abrir(direccion, ruta, datos, espera) as r:
+        with abrir(direccion, ruta, datos, espera, pem) as r:
             return json.load(r)
     except urllib.error.HTTPError as e:
         try:

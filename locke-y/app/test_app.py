@@ -581,6 +581,11 @@ def sin_red(*a, **k):
     raise OSError('sin red')
 online.peticion = sin_red
 ver(not puede(), 'sin conexión con el servidor, nadie')
+import types
+online.peticion = lambda *a, **k: {'usuario': 'Daavidmp', 'admin': True}
+sys.modules['huella_oficial'] = types.SimpleNamespace(HUELLA='0' * 64)       # el .exe trae la huella del anfitrión
+ver(not puede(), 'otro servidor (montado por un jugador, con su propia cuenta Daavidmp) no vale: no tiene ese certificado')
+del sys.modules['huella_oficial']
 online.peticion, comun.red['sesion'], conexion.online_direccion = peticion_antes, sesion_antes, direccion_antes
 
 # ---------- duelos ----------

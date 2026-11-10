@@ -93,6 +93,18 @@ def online_json():
     return f
 
 
+def huella_oficial():
+    """La huella (SHA-256) del certificado del anfitrión, como un módulo de Python que va compilado dentro del .exe
+    (no como un archivo suelto de la carpeta, que cualquiera podría cambiar): el PokéHex solo se fía de ese servidor."""
+    import hashlib
+    import ssl
+    carpeta = TOOLS / 'build' / 'huella'
+    carpeta.mkdir(parents=True, exist_ok=True)
+    huella = hashlib.sha256(ssl.PEM_cert_to_DER_cert(certificado())).hexdigest()
+    (carpeta / 'huella_oficial.py').write_text(f'HUELLA = {huella!r}\n', encoding='utf-8')
+    return carpeta
+
+
 def version_app():
     f = TOOLS / 'build' / 'version_app' / 'version.txt'
     f.parent.mkdir(parents=True, exist_ok=True)
@@ -111,7 +123,8 @@ def pyinstaller():
              (version_app(), 'app')]          # la versión, para comparar con la del servidor al buscar actualizaciones
     args = [str(Path(sys.executable).parent / 'pyinstaller'), '--noconfirm', '--clean', '--onedir', '--noconsole', '--noupx',
             '--name', 'Pokelocke', '--icon', str(RAIZ / 'assets' / 'icono.ico'), '--version-file', str(version_pyinstaller()),
-            '--distpath', str(DIST.parent), '--workpath', str(TOOLS / 'build'), '--specpath', str(TOOLS / 'build')]
+            '--distpath', str(DIST.parent), '--workpath', str(TOOLS / 'build'), '--specpath', str(TOOLS / 'build'),
+            '--paths', str(huella_oficial()), '--hidden-import', 'huella_oficial']
     for origen, destino in datos:
         args += ['--add-data', f'{RAIZ / origen};{destino}']
     subprocess.run(args + [str(RAIZ / 'app' / 'main.py')], check=True, cwd=RAIZ)

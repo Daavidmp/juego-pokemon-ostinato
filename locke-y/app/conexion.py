@@ -278,14 +278,32 @@ def online_servidor(activar):
         comun.red['conectados'] = []
 
 
+def huella(pem):
+    import ssl
+    try:
+        return hashlib.sha256(ssl.PEM_cert_to_DER_cert(pem)).hexdigest()
+    except (ValueError, TypeError, AttributeError):        # sin certificado o roto
+        return None
+
+
 def comprobar_dueno_pokehex():
-    """El PokéHex es solo para DUENO_POKEHEX: con su sesión abierta y confirmada por el servidor (la sesión guardada en
-    el PC se puede tocar a mano; el servidor no se deja engañar). Sin conexión, nadie."""
+    """El PokéHex es solo para DUENO_POKEHEX: con su sesión abierta y confirmada por EL servidor del anfitrión. La
+    sesión guardada en el PC se puede tocar a mano, y cualquiera puede montar su propio servidor y llamarse allí
+    Daavidmp: por eso solo vale un servidor con el certificado cuya huella va compilada dentro del .exe
+    (huella_oficial, la pone empaquetar.py). Sin conexión, nadie. En la copia de desarrollo no hay huella."""
     s, direccion = comun.red['sesion'], online_direccion()
     if not s or not direccion:
         raise RuntimeError(f'El PokéHex solo lo puede abrir {comun.DUENO_POKEHEX}, con su sesión online abierta')
+    pem = certificado_servidor()
     try:
-        r = online.peticion(direccion, '/yo', {'token': s['token']}, espera=8)
+        import huella_oficial
+        oficial = huella_oficial.HUELLA
+    except ImportError:
+        oficial = None
+    if (oficial and huella(pem) != oficial) or (not oficial and comun.VERSION_APP != 'desarrollo'):
+        raise RuntimeError('El PokéHex solo se abre con el servidor del anfitrión')
+    try:
+        r = online.peticion(direccion, '/yo', {'token': s['token']}, espera=8, pem=pem)
     except OSError as e:
         raise RuntimeError(f'Para abrir el PokéHex hace falta conexión con el servidor ({online_motivo(e)})')
     if r.get('error') == 'No existe':

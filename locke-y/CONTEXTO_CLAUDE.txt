@@ -356,6 +356,13 @@ jugador no esté conectado. Niveles: info, aviso, sospecha. Una sospecha no es u
   pregunta al servidor quién es el dueño de la sesión (ruta /yo de online.Servidor) y solo deja a comun.DUENO_POKEHEX; la sesión
   guardada en el PC no vale (se puede tocar a mano). Sin conexión, nadie. Después sigue pidiendo su contraseña. A los demás no se les
   enseña el botón (esDueno en app.html). El PokéHex remoto (abrir el de otro jugador) ya era solo del administrador en el servidor.
+  Y solo vale EL servidor del anfitrión: cualquiera podría montar su propio servidor desde su Pokelocke (o cambiar el
+  certificado de _internal/app/online.json, que es un archivo suelto) y registrarse allí como Daavidmp. Por eso
+  empaquetar.py compila dentro del .exe la huella SHA-256 del certificado del anfitrión (módulo huella_oficial, en
+  tools/build/huella) y conexion.comprobar_dueno_pokehex solo habla con un servidor que tenga ese certificado. En la
+  copia de desarrollo no hay huella y no se mira. Límite: quien desmonte el .exe y lo recompile se lo salta.
+  Dentro del servidor el nombre ya no se repite: Daavidmp reservado (solo desde el anfitrión), sin distinguir mayúsculas,
+  y nadie puede cambiarse el nombre a él.
 - Mochila (10/11/2026): escribir_bolsillo deja los objetos que YA estaban en el bolsillo aunque no estén en la lista de PKHeX (una
   Carta Pregunta de una tienda aleatoria en Objetos hacía fallar dar_escamas: «no va en este bolsillo», y no se abría el juego).
   Dar escamas/caramelos ya no corta la apertura del juego si falla.
