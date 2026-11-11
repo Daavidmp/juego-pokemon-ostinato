@@ -151,51 +151,119 @@ class SinSesion(PermissionError):
 
 # ---------- el cuadro del torneo ----------
 # Cada partido sabe de dónde salen sus dos jugadores («fuentes»): {'j': nombre}, {'gana': id} (el ganador de otro
-# partido) o {'pierde': id} (el perdedor). Con jugadores impares, el que se queda sin rival en la primera ronda espera
-# al ganador de la repesca: los perdedores de la primera ronda juegan entre ellos al mejor de 1 (normas del Mega
-# Pokelocke). Si después quedan unos que no son potencia de dos, se juega una ronda corta (ver _eliminatoria).
+# partido) o {'pierde': id} (el perdedor). Normas del Mega Pokelocke (1.3.3):
+#   - Nadie pasa de ronda sin combatir. Si en una ronda quedan impares, el que se queda sin rival juega al mejor de 3
+#     contra el perdedor de uno de los combates de esa misma ronda («segunda oportunidad», 'segunda': True); quien
+#     gane pasa a la siguiente. Con 10: 5 combates; 2 + 1 de segunda oportunidad; 1 + 1; y la final.
+#   - Los que pierden en semifinales se juegan el 3.er puesto al mejor de 1 ('tercero': True, en la columna de la
+#     final). Si las semifinales son de 3 (una de segunda oportunidad), no hace falta: el 3.º es quien pierde esa.
+#   - Para que se repitan los menos enfrentamientos posibles, se prueban muchas formas de montarlo (ver _cuadro).
 
-def _partido(partidos, fase, ronda, fuentes, mejor_de=3, plaza=False):
+def _partido(partidos, fase, ronda, fuentes, mejor_de=3, **marca):
     pid = f'{fase[0]}{ronda}-{sum(1 for q in partidos if q["fase"] == fase and q["ronda"] == ronda)}'
-    partidos.append({'id': pid, 'fase': fase, 'ronda': ronda, 'mejor_de': mejor_de, 'plaza': plaza,
+    partidos.append({'id': pid, 'fase': fase, 'ronda': ronda, 'mejor_de': mejor_de, 'plaza': False, **marca,
                      'fuentes': list(fuentes), 'ab': [None, None], 'gana': None, 'vivo': False, 'ma': '', 'mb': ''})
     return pid
 
 
-def _eliminatoria(partidos, fuentes, fase, ronda, mejor_de):
-    """Empareja las fuentes ronda a ronda hasta que queda una: la del ganador. Si no son potencia de dos (4, 8, 16…),
-    la primera ronda solo tiene los partidos justos para llegar a la potencia de dos de abajo y los demás esperan;
-    después el cuadro ya va completo. Así nadie pasa dos rondas sin jugar: con 5, juegan dos y los otros tres esperan
-    en semifinales (antes el primero esperaba en cada ronda impar y con 10 jugadores llegaba a la final tras un partido).
-    Cada ganador de esa ronda corta se cruza con uno de los que esperaban."""
-    while len(fuentes) > 1:
-        n = len(fuentes)
-        sobran = n - (1 << (n.bit_length() - 1))            # 0 si ya es potencia de dos
-        juegan = 2 * sobran if sobran else n
-        ganan = [{'gana': _partido(partidos, fase, ronda, fuentes[k:k + 2], mejor_de)} for k in range(0, juegan, 2)]
-        esperan = fuentes[juegan:]
-        fuentes = []
-        for k in range(max(len(ganan), len(esperan))):
-            fuentes += ganan[k:k + 1] + esperan[k:k + 1]
+def _armar(js, azar):
+    """Un cuadro posible: azar elige quién se queda sin rival en cada ronda impar, contra el perdedor de qué combate
+    juega y dónde sigue su ganador."""
+    partidos = []
+    fuentes = [{'j': n} for n in js]
+    ronda = 0
+    semis = []
+    while len(fuentes) > 2:
+        sobra = fuentes.pop(azar.randrange(len(fuentes))) if len(fuentes) % 2 else None
+        semis = [_partido(partidos, 'principal', ronda, fuentes[k:k + 2]) for k in range(0, len(fuentes), 2)]
+        siguen = [{'gana': pid} for pid in semis]
+        if sobra:
+            choque = semis[azar.randrange(len(semis))]
+            otra = _partido(partidos, 'principal', ronda, [sobra, {'pierde': choque}], segunda=True)
+            siguen.insert(azar.randrange(len(siguen) + 1), {'gana': otra})
+            semis = []                       # semifinales de 3: el 3.º es quien pierde la segunda oportunidad
+        fuentes = siguen
         ronda += 1
-    return fuentes[0]
+    final = _partido(partidos, 'principal', ronda, fuentes)
+    if len(semis) == 2:
+        _partido(partidos, 'principal', ronda, [{'pierde': s} for s in semis], mejor_de=1, tercero=True)
+    return partidos, final
+
+
+def _repetidos(partidos, veces, azar):
+    """En qué parte de los torneos (con resultados al azar) se repite algún enfrentamiento."""
+    sitio = {q['id']: k for k, q in enumerate(partidos)}
+    malos = 0
+    for _ in range(veces):
+        ab, gana, vistos = [], [], set()
+        for q in partidos:
+            par = []
+            for f in q['fuentes']:
+                if 'j' in f:
+                    par.append(f['j'])
+                else:
+                    k = sitio[f.get('gana') or f.get('pierde')]
+                    par.append(ab[k][gana[k] if 'gana' in f else 1 - gana[k]])
+            ab.append(par)
+            gana.append(azar.randrange(2))
+            vistos.add(frozenset(par))
+        malos += len(vistos) < len(partidos)
+    return malos / veces
 
 
 def _cuadro(jugadores):
-    """Partidos del torneo con los jugadores al azar."""
+    """Partidos del torneo con los jugadores al azar. Con impares hay muchas formas de montar las segundas
+    oportunidades: se prueban unas cuantas y se queda la que menos veces repite un enfrentamiento (con 10, de un 82 %
+    de torneos con alguno repetido a un 65 %; el resto no se puede evitar: quien gana su segunda oportunidad puede
+    volver a cruzarse con quien le ganó)."""
     js = list(jugadores)
     secrets.SystemRandom().shuffle(js)
-    partidos = []
-    sin_rival = js.pop() if len(js) % 2 else None
-    primera = [_partido(partidos, 'principal', 0, [{'j': js[k]}, {'j': js[k + 1]}]) for k in range(0, len(js), 2)]
-    entran = [{'gana': pid} for pid in primera]
-    if sin_rival:
-        perdedores = [{'pierde': pid} for pid in primera]
-        repesca = _eliminatoria(partidos, perdedores, 'repesca', 0, 1)
-        entran.append({'gana': _partido(partidos, 'principal', 0, [{'j': sin_rival}, repesca], plaza=True)})
-    final = _eliminatoria(partidos, entran, 'principal', 1, 3)
+    partidos, final = _cuadro_vacio(len(js))
+    for k, n in enumerate(js):
+        _poner(partidos, k, n)
     _propagar(partidos)
-    return partidos, final['gana']
+    return partidos, final
+
+
+def _cuadro_vacio(n):
+    """El cuadro de n jugadores sin nombres (1.3.3: los nombres salen de la máquina de bolas, uno a uno). Cada hueco de
+    la primera ronda lleva su número ('hueco': 0, 1…) en el orden en que se ve, de arriba abajo: la bola k va al k."""
+    js = [f'#{i}' for i in range(n)]
+    azar = secrets.SystemRandom()
+    if n & (n - 1) == 0:                                 # 2, 4, 8, 16…: sin impares, un solo cuadro
+        partidos, final = _armar(js, azar)
+    else:
+        veces = max(20, min(200, 2_000_000 // (200 * n)))
+        partidos, final = min((_armar(js, azar) for _ in range(200)), key=lambda c: _repetidos(c[0], veces, azar))
+    # el orden en pantalla: recorriendo desde la final (como ordenCuadro en app.html)
+    por, orden = {p['id']: p for p in partidos}, []
+
+    def visita(pid):
+        if pid in orden:
+            return
+        orden.append(pid)
+        for f in por[pid]['fuentes']:
+            if f and 'gana' in f:
+                visita(f['gana'])
+    visita(final)
+    hueco = 0
+    for pid in sorted((p['id'] for p in partidos if p['ronda'] == 0), key=orden.index):
+        for f in por[pid]['fuentes']:
+            if 'j' in f:
+                f.update(j=None, hueco=hueco)
+                hueco += 1
+    _propagar(partidos)
+    return partidos, final
+
+
+def _poner(partidos, hueco, nombre):
+    """El nombre que ha salido de la máquina, en su hueco."""
+    for p in partidos:
+        for f in p['fuentes']:
+            if f and f.get('hueco') == hueco:
+                f['j'] = nombre
+                return
+    raise ValueError('Ese hueco no existe')
 
 
 def _jugador(partidos, fuente):
@@ -252,6 +320,7 @@ class Servidor:
         f = self._duelos_f()
         self.duelos = json.loads(f.read_text(encoding='utf-8')) if f.exists() else []
         self.lock = threading.Lock()
+        self.lock_torneo = threading.Lock()         # dos organizadores sacando bola a la vez no se pisan
         self.sesiones = {}               # token -> usuario
         self.vistos = {}                 # usuario -> (hora, estado)
         self.tareas = {}                 # usuario -> [tarea]
@@ -660,34 +729,69 @@ class Servidor:
     def torneo(self, token):
         u = self._usuario(token)
         f = self._torneo_f()
-        t = _al_dia(json.loads(f.read_text(encoding='utf-8'))) if f.exists() else None
+        with self.lock_torneo:
+            t = _al_dia(json.loads(f.read_text(encoding='utf-8'))) if f.exists() else None
+        if t and t.get('sorteo'):
+            t = {**t, 'sorteo': {k: v for k, v in t['sorteo'].items() if k != 'bombo'}}     # lo que queda dentro, no se ve
         with self.lock:
             fotos = {k: v['foto'] for k, v in self.usuarios.items() if v.get('foto')}
+            admin = self.usuarios.get(u, {}).get('admin', False)
             return {'torneo': t, 'fotos': fotos, 'usuarios': sorted(self.usuarios), 'yo': u, 'coronas': self.coronas(),
-                    'admin': self.usuarios.get(u, {}).get('admin', False)}
+                    'admin': admin, 'puede': admin or bool(t and u in t.get('gestores', []))}
+
+    # quién puede qué (1.3.3): crear y borrar el torneo, solo el administrador; lo demás (sortear, remover, sacar bola,
+    # vaciar el cuadro y marcar resultados), también los organizadores que eligió al crearlo ('gestores')
+    SOLO_ADMIN = ('crear', 'reiniciar')
 
     def editar_torneo(self, token, que, d):
+        with self.lock_torneo:
+            return self._editar_torneo(token, que, d)
+
+    def _editar_torneo(self, token, que, d):
         u = self._usuario(token)
-        if not self.usuarios.get(u, {}).get('admin'):
-            raise PermissionError('Solo el administrador puede cambiar el torneo')
+        admin = self.usuarios.get(u, {}).get('admin')
         f = self._torneo_f()
         t = _al_dia(json.loads(f.read_text(encoding='utf-8'))) if f.exists() else None
+        if not admin and (que in self.SOLO_ADMIN or not t or u not in t.get('gestores', [])):
+            raise PermissionError('Solo el administrador y los organizadores del torneo pueden cambiarlo'
+                                  if que not in self.SOLO_ADMIN else 'Solo el administrador puede crear o borrar el torneo')
         if que == 'crear':
-            jugadores = [j for j in (d.get('jugadores') or []) if j in self.usuarios]
+            jugadores = list(dict.fromkeys(j for j in (d.get('jugadores') or []) if j in self.usuarios))
             if len(jugadores) < 2:
                 raise ValueError('Hacen falta al menos 2 jugadores')
             if len(jugadores) > 64:
                 raise ValueError('Como mucho 64 jugadores')
-            partidos, final = _cuadro(jugadores)
+            partidos, final = _cuadro_vacio(len(jugadores))
             t = {'nombre': str(d.get('nombre') or 'Gran torneo')[:60], 'tope': d.get('tope'),
-                 'jugadores': jugadores, 'partidos': partidos, 'final': final, 'id': time.strftime('%Y%m%d%H%M%S')}
+                 'jugadores': jugadores, 'partidos': partidos, 'final': final, 'id': time.strftime('%Y%m%d%H%M%S'),
+                 'gestores': list(dict.fromkeys(g for g in (d.get('gestores') or []) if g in self.usuarios)),
+                 'sorteo': self._sorteo_nuevo(jugadores)}
         elif que == 'reiniciar':
             f.unlink(missing_ok=True)
             return {'ok': True}
         elif not t:
             raise ValueError('Aún no hay torneo')
-        elif que == 'randomizar':
-            t['partidos'], t['final'] = _cuadro(t['jugadores'])
+        elif que in ('vaciar', 'randomizar'):            # el cuadro otra vez vacío, para volver a sortear
+            t['partidos'], t['final'] = _cuadro_vacio(len(t['jugadores']))
+            t['sorteo'] = self._sorteo_nuevo(t['jugadores'])
+        elif que in ('sortear', 'cerrar_sorteo', 'remover', 'sacar'):
+            s = t.get('sorteo')
+            if not s:
+                raise ValueError('Este cuadro ya está sorteado')
+            if que == 'sortear':
+                s['abierto'] = True
+            elif que == 'cerrar_sorteo':
+                s['abierto'] = False
+            elif que == 'remover':
+                s['removido'] = s.get('removido', 0) + 1
+            else:
+                if not s['bombo']:
+                    raise ValueError('Ya no quedan bolas')
+                nombre = s['bombo'].pop(secrets.randbelow(len(s['bombo'])))
+                hueco = len(s['sacados'])
+                _poner(t['partidos'], hueco, nombre)
+                s['sacados'].append({'nombre': nombre, 'hueco': hueco, 't': time.time()})
+                _propagar(t['partidos'])
         elif que in ('ganador', 'vivo', 'marcador'):
             p = next((q for q in t['partidos'] if q['id'] == d.get('id')), None)
             if not p:
@@ -713,14 +817,27 @@ class Servidor:
         return {'ok': True}
 
     @staticmethod
+    def _sorteo_nuevo(jugadores):
+        """La máquina de bolas llena: una bola por jugador. 'bombo' (lo que queda dentro) no sale del servidor."""
+        return {'abierto': False, 'removido': 0, 'sacados': [], 'bombo': list(jugadores), 'total': len(jugadores)}
+
+    @staticmethod
     def _podio(t):
-        """Los puestos del torneo una vez decidida la final: 1 el que la gana, 2 el que la pierde y 3 los que pierden las
-        semifinales (no hay partido por el tercer puesto). Sin final decidida, nadie."""
+        """Los puestos del torneo una vez decidida la final: 1 el que la gana, 2 el que la pierde y 3 el que gana el
+        duelo por el tercer puesto (o, con semifinales de 3, el que pierde la segunda oportunidad; en los torneos de
+        antes, sin ese duelo, los dos que pierden las semifinales). Sin final decidida, nadie."""
         partidos = {p['id']: p for p in t['partidos']}
         final = partidos.get(t.get('final'))
         if not final or final.get('gana') is None:
             return {}
         puestos = {final['ab'][final['gana']]: 1, final['ab'][1 - final['gana']]: 2}
+        tercero = next((p for p in partidos.values() if p.get('tercero')), None)
+        segunda = next((p for p in partidos.values() if p.get('segunda') and p['ronda'] == final['ronda'] - 1), None)
+        if tercero or segunda:
+            p = tercero or segunda
+            if p.get('gana') is not None:
+                puestos.setdefault(p['ab'][1 - p['gana'] if segunda and not tercero else p['gana']], 3)
+            return puestos
         for f in final['fuentes']:
             semi = partidos.get((f or {}).get('gana'))
             if semi and semi['fase'] == 'principal' and semi['ronda'] == final['ronda'] - 1 and semi.get('gana') is not None:

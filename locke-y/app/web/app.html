@@ -528,6 +528,11 @@
   .tn-col-cuerpo { flex: 1; display: flex; flex-direction: column; justify-content: space-around; gap: 26px; }
   .tn-ficha { position: relative; background: var(--panel); border: 1px solid var(--linea); border-radius: 16px; }
   .tn-col.final .tn-ficha { border: 3px solid var(--rojo); box-shadow: 0 12px 30px rgba(204,43,11,.18); }
+  /* segunda oportunidad (el que sobra contra un perdedor de la ronda) y el duelo por el 3.er puesto (1.3.3) */
+  .tn-ficha.segunda { border: 2px dashed var(--azul); }
+  .tn-ficha.segunda .tn-sello { background: var(--azul); }
+  .tn-col.final .tn-ficha.tercero { border: 2px solid #B8763A; box-shadow: none; margin-top: 30px; }
+  .tn-ficha.tercero .tn-sello, .tn-ficha.tercero .tn-etiqueta { background: #B8763A; }
   .tn-ficha.vivo { border: 3px solid var(--rojo); }
   .tn-ficha.plaza { border: 2px solid var(--azul); }
   .tn-filas { position: relative; }
@@ -595,6 +600,58 @@
     .tn-lineas path.dibuja { animation: none; stroke-dashoffset: 0; }
     .tn-fila.recien, .tn-fila.llega .tn-ava, .tn-fila.llega b, .tn-fiesta, .tn-fiesta-c, .tn-vivo i { animation: none; }
   }
+  /* organizadores (al crear) y huecos por sortear */
+  .tn-org { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+  .tn-org select { font: 700 15px Nunito, sans-serif; border: 1px solid var(--linea-fuerte); border-radius: 10px; padding: 8px 10px; min-height: 42px; background: var(--panel); }
+  .tn-org-lista { display: flex; gap: 6px; flex-wrap: wrap; min-height: 34px; align-items: center; }
+  .tn-org-chip { display: inline-flex; align-items: center; gap: 6px; padding: 4px 6px 4px 4px; border-radius: 999px; background: var(--azul-claro); font-weight: 800; font-size: 14px; }
+  .tn-org-chip .tn-ava { width: 24px; height: 24px; border-radius: 999px; font-size: 12px; }
+  .tn-org-chip button { border: 0; background: transparent; cursor: pointer; font-size: 16px; line-height: 1; color: var(--azul-texto); padding: 0 4px; }
+  .tn-fila.vacia.por-sortear .tn-hueco { border-style: solid; border-color: #C9D3E3; }
+  .tn-fila.vacia.toca { color: var(--rojo); font-weight: 900; font-style: normal; background: #FFF1EC; }
+  .tn-fila.vacia.toca .tn-hueco { border-color: var(--rojo); animation: tn-late 1s ease-in-out infinite; }
+  #v-torneo.con-sorteo #tn-cuerpo { padding-right: 470px; }
+
+  /* la máquina de bolas: panel a la derecha, el cuadro sigue a la vista */
+  .sorteo { position: fixed; right: 0; top: 76px; bottom: 0; width: 450px; z-index: 30; background: var(--panel); border-left: 1px solid var(--linea); box-shadow: -18px 0 40px rgba(27,32,48,.12); display: flex; flex-direction: column; gap: 12px; padding: 18px 22px 22px; overflow-y: auto; animation: so-entra .35s ease-out; }
+  @keyframes so-entra { from { transform: translateX(40px); opacity: 0; } }
+  .so-cab { display: flex; justify-content: space-between; align-items: center; }
+  .so-cab h2 { margin: 0; font: 24px/1.1 Bungee, Nunito, sans-serif; }
+  .so-cab span { font-weight: 800; font-size: 14px; }
+  .so-siguiente { margin: 0; padding: 10px 14px; border-radius: 12px; background: var(--oro-claro); font-weight: 800; font-size: 16px; text-align: center; }
+  .so-siguiente b { color: var(--rojo); }
+  /* la máquina (imágenes de Firefly, assets/sorteo-*.png): 300×467; el cristal tiene el centro en (150, 159) y 125 de
+     radio, el pomo en (148, 357) y la salida en (151, 399). Encima de las bolas van los brillos del cristal */
+  .so-escena { position: relative; height: 478px; flex: none; }
+  .so-maquina { position: absolute; left: 50%; top: 0; width: 300px; height: 467px; transform: translateX(-50%); transform-origin: 50% 95%; }
+  .so-maquina img, .so-maquina canvas { position: absolute; display: block; }
+  .so-cuerpo, .so-brillo { left: 0; top: 0; width: 300px; height: 467px; }
+  .so-brillo { pointer-events: none; }
+  .so-bolas { left: 25px; top: 34px; width: 250px; height: 250px; }
+  .so-manivela { left: 125px; top: 334px; width: 46px; height: 46px; transition: transform .9s cubic-bezier(.5, 0, .3, 1); }
+  .so-maquina.agita { animation: so-agita .16s ease-in-out 10 alternate; }
+  @keyframes so-agita { from { transform: translateX(-50%) rotate(-2.4deg); } to { transform: translateX(-50%) rotate(2.4deg) translateY(-3px); } }
+  /* la bola que sale: la misma imagen en dos mitades (cristal con el papel arriba, color abajo), con su color */
+  .so-bola { position: absolute; left: calc(50% - 30px); top: 369px; width: 60px; height: 60px; z-index: 3; filter: var(--f, none) drop-shadow(0 6px 8px rgba(27,32,48,.3)); }
+  .so-bola i { position: absolute; left: 0; width: 60px; height: 30px; background: url(/assets/sorteo-bola.png) no-repeat; background-size: 60px 60px; transition: transform .5s cubic-bezier(.3, 1.4, .5, 1), opacity .5s; }
+  .so-bola .arriba { top: 0; background-position: 0 0; }
+  .so-bola .abajo { top: 30px; background-position: 0 -30px; }
+  .so-bola.abierta .arriba { transform: translate(-26px, -34px) rotate(-38deg); opacity: 0; }
+  .so-bola.abierta .abajo { transform: translate(24px, 30px) rotate(30deg); opacity: 0; }
+  /* el papel: rodillo, hoja que se despliega y rodillo */
+  .so-papel { position: absolute; left: 50%; top: 168px; z-index: 4; width: 380px; transform: translate(-50%, -50%); display: flex; flex-direction: column; align-items: stretch; filter: drop-shadow(0 16px 22px rgba(27,32,48,.28)); }
+  .so-papel .rodillo { width: 100%; height: auto; display: block; position: relative; z-index: 1; }
+  .so-papel .hoja { margin: -6px 0; height: 160px; overflow: hidden; background: url(/assets/sorteo-papel-hoja.png) center / 100% 100% no-repeat; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; animation: so-despliega .6s cubic-bezier(.2, 1, .3, 1); }
+  .so-papel small { display: block; font-weight: 900; font-size: 13px; letter-spacing: .08em; text-transform: uppercase; color: #8A6A2A; }
+  .so-papel b { display: block; font: 700 46px/1.1 Caveat, cursive; color: #1B2030; white-space: nowrap; }
+  .so-papel.vuela { transition: transform .6s ease-in, opacity .6s ease-in; transform: translate(-260%, -40%) scale(.3); opacity: 0; }
+  @keyframes so-despliega { from { height: 0; } }
+  .so-botones { display: grid; grid-template-columns: 1fr 1.3fr; gap: 10px; }
+  .so-lista { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; counter-reset: so; }
+  .so-lista li { display: flex; align-items: center; gap: 10px; padding: 6px 10px; border-radius: 10px; background: var(--fondo, #F4F6FA); font-weight: 800; }
+  .so-lista li .so-mini { width: 18px; height: 18px; border-radius: 50%; border: 2px solid #1B2030; background: linear-gradient(#F7F1E1 50%, var(--c) 50%); flex: none; }
+  .so-lista li span { color: var(--suave, #5B6478); font-size: 13px; margin-left: auto; }
+  @media (prefers-reduced-motion: reduce) { .so-maquina.agita, .so-papel .hoja, .sorteo { animation: none; } .so-bola i, .so-manivela, .so-papel.vuela { transition: none; } }
   .tn-crear { display: flex; flex-direction: column; gap: 12px; }
   .tn-crear .lista { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 8px; }
   .tn-crear label.j { display: flex; align-items: center; gap: 8px; padding: 6px 10px; border: 1px solid var(--linea); border-radius: 12px; font-weight: 700; }
@@ -700,7 +757,7 @@
     <section class="tb-hud tb-carta tb-objetivo" id="tb-objetivo" aria-label="Siguiente objetivo"></section>
     <section class="tb-hud tb-carta tb-marcador" id="tb-marcador" aria-label="Vidas y medallas"></section>
     <div class="tb-hud tb-abajo"><div class="tb-equipo" id="tb-equipo" aria-label="Tu equipo"></div><div class="tb-carta tb-jugar" id="tb-jugar"></div></div>
-    <span class="tb-hud tb-credito">Creado por David Martínez Palacios · Versión 1.3.2</span>
+    <span class="tb-hud tb-credito">Creado por David Martínez Palacios · Versión 1.3.3</span>
   </div>
 
   <footer>
@@ -925,6 +982,31 @@
     <div id="tn-acciones" style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;"></div>
   </header>
   <main class="contenido" id="tn-cuerpo"></main>
+  <!-- la máquina de bolas del sorteo (1.3.3): se queda fuera de tn-cuerpo para que repintar el cuadro no corte sus
+       animaciones. La dibuja el código (SVG + canvas para las bolas); si existen assets/sorteo-*.png, se usan esos -->
+  <aside class="sorteo oculto" id="sorteo" aria-label="Sorteo del cuadro">
+    <div class="so-cab">
+      <div><h2>Sorteo</h2><span id="so-cuenta" class="suave"></span></div>
+      <button class="btn btn-icono oculto" type="button" id="so-cerrar" aria-label="Cerrar la máquina"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
+    </div>
+    <p class="so-siguiente" id="so-siguiente" aria-live="polite"></p>
+    <div class="so-escena" id="so-escena">
+      <div class="so-maquina" id="so-maquina">
+        <img class="so-cuerpo" src="/assets/sorteo-maquina.png" alt="">
+        <canvas id="so-bolas" class="so-bolas" width="480" height="480" aria-hidden="true"></canvas>
+        <img class="so-brillo" src="/assets/sorteo-brillo.png" alt="">
+        <img class="so-manivela" id="so-manivela" src="/assets/sorteo-pomo.png" alt="">
+      </div>
+      <div class="so-bola oculto" id="so-bola" aria-hidden="true"><i class="arriba"></i><i class="abajo"></i></div>
+      <div class="so-papel oculto" id="so-papel" role="status"><img class="rodillo" src="/assets/sorteo-papel-arriba.png" alt="">
+        <div class="hoja"><small id="so-papel-pos"></small><b id="so-papel-nombre"></b></div><img class="rodillo" src="/assets/sorteo-papel-abajo.png" alt=""></div>
+    </div>
+    <div class="so-botones oculto" id="so-botones">
+      <button class="btn btn-neutro grande" type="button" id="so-remover">Remover</button>
+      <button class="btn btn-rojo grande" type="button" id="so-sacar">Sacar bola</button>
+    </div>
+    <ol class="so-lista" id="so-lista" aria-label="Bolas que han salido"></ol>
+  </aside>
 </section>
 <input type="file" id="foto-archivo" accept="image/*" class="oculto">
 
@@ -1366,8 +1448,8 @@ function puntoEn(curva, f) {
 // y sitios se encienden al pisarlos (ZONAS); el resto se da por hecho cuando se hace una casilla de después
 // f (opcional): en qué punto del tramo va, cuando el reparto normal cae encima de otra casilla
 // SUELTAS: se puede entrar antes de tiempo (la Ruta 7 hasta el Snorlax, la 10 y la 12 desde su ciudad), así que pisarlas
-// no da por hecho lo de antes
-const SUELTAS = new Set(['ruta7', 'ruta10', 'ruta12']);
+// no da por hecho lo de antes. La 13 se pisa desde Témpera antes del gimnasio de Amaro (MINIONNES, zona 272)
+const SUELTAS = new Set(['ruta7', 'ruta10', 'ruta12', 'ruta13']);
 const M = (id, n, det, ico, f) => ({id, n, obj: n, det, ico, f, chica: true, suelto: SUELTAS.has(id), ok: pisada(id)});
 const MISIONES = {
   novarte: [M('ruta2', 'Ruta 2', 'Tus primeros Pokémon salvajes'), M('bosque', 'Bosque de Novarte', 'Atraviésalo con tus amigos', 'bosque'), M('ruta3', 'Ruta 3')],
@@ -1486,12 +1568,14 @@ $('tb-zoom').onclick = (ev) => {
 };
 addEventListener('resize', () => mover(camara.z, camara.x, camara.y));
 
-// qué casillas están hechas (si tienes una medalla, lo de antes también) y cuál es la actual (-1: todo hecho)
+// qué casillas están hechas (si tienes una medalla, lo de antes también) y cuál es la actual (-1: todo hecho).
+// Una medalla solo está hecha si la tienes de verdad (se lee de la partida): pisar un sitio de después no la da por
+// hecha. A MINIONNES, con 3 medallas, asomarse a la Ruta 13 desde Témpera le ponía la 4.ª (1.3.3)
 function progreso(j) {
   const t = j.preparado && j.tablero ? j.tablero : {guardada: false, medallas: Array(8).fill(false), equipo: []};
   const hecho = CASILLAS.map((h) => !!h.ok(t, j));
   for (let i = hecho.length - 1, despues = false; i >= 0; i--) {
-    hecho[i] = hecho[i] || despues;
+    hecho[i] = hecho[i] || (despues && !CASILLAS[i].med);
     despues = despues || (hecho[i] && !CASILLAS[i].suelto);
   }
   return {t, hecho, actual: hecho.indexOf(false)};
@@ -1868,7 +1952,8 @@ function pintarOnline(o) {
 
 // ---------- torneo ----------
 // Lo guarda el servidor: todos lo ven y solo el administrador lo cambia. Se vuelve a pedir cada 4 s mientras está abierto
-const torneo = {abierto: false, datos: null, error: null, creando: false, reloj: null, hora: 0, pintado: '', visto: null};
+const torneo = {abierto: false, datos: null, error: null, creando: false, reloj: null, hora: 0, pintado: '', visto: null,
+  marcados: new Set(), gestores: [], nombre: '', tope: 39};      // marcados, gestores, nombre y tope: el formulario de crear
 
 async function pedirTorneo(que, datos) {
   const r = await fetch('/api/online/' + que, {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(datos || {})});
@@ -1876,7 +1961,7 @@ async function pedirTorneo(que, datos) {
 }
 async function cargarTorneo() {
   const r = await pedirTorneo('torneo');
-  if (r.error) { torneo.error = r.error; } else { torneo.datos = r; torneo.error = null; torneo.hora = Date.now(); }
+  if (r.error) { torneo.error = r.error; } else { torneo.datos = r; torneo.error = null; torneo.hora = Date.now(); sincronizarSorteo(r.torneo); }
   pintarTorneo();
 }
 async function editarTorneo(que, datos) {
@@ -1888,10 +1973,17 @@ function abrirTorneo() {
   torneo.abierto = true; torneo.pintado = '';
   cargarTorneo();
   clearInterval(torneo.reloj);
-  torneo.reloj = setInterval(() => { if (!torneo.creando && document.activeElement?.tagName !== 'INPUT') cargarTorneo(); }, 4000);
+  // cada 4 s; con la máquina de bolas abierta, cada segundo (para ver las bolas a la vez que quien las saca)
+  torneo.reloj = setInterval(() => {
+    const so = torneo.datos && torneo.datos.torneo && torneo.datos.torneo.sorteo;
+    if (torneo.creando || document.activeElement?.tagName === 'INPUT' || torneo.pidiendo) return;
+    if (Date.now() - torneo.hora < (so && so.abierto ? 900 : 3900)) return;
+    torneo.pidiendo = true;
+    cargarTorneo().finally(() => { torneo.pidiendo = false; });
+  }, 500);
   actualizar();
 }
-function cerrarTorneo() { torneo.abierto = false; torneo.creando = false; clearInterval(torneo.reloj); actualizar(); }
+function cerrarTorneo() { torneo.abierto = false; torneo.creando = false; clearInterval(torneo.reloj); $('sorteo').classList.add('oculto'); $('v-torneo').classList.remove('con-sorteo'); actualizar(); }
 
 const COLORES = ['#2A75BB', '#CC2B0B', '#1F9D55', '#8E44AD', '#D9822B', '#16A085', '#C0392B', '#2C3E50'];
 function avatar(n) {
@@ -1901,16 +1993,23 @@ function avatar(n) {
   return conCorona(n, `<span class="tn-ava" style="background:${c}" aria-hidden="true">${esc(n[0].toUpperCase())}</span>`, coronas);
 }
 // con impares, la primera ronda se llama así aunque sean cuartos: la repesca habla de «la primera ronda»
-// una ronda corta (con 10: un partido mientras los demás esperan) no se llama cuartos ni semifinales: ronda 2…
+// el nombre de cada ronda sale de cuántos juegan en ella (2 por combate, y 1 más si hay segunda oportunidad: el que
+// sobraba). Cuartos con 8 y octavos con 16; con otros números, «Primera ronda» o «Ronda N»
 function nombreRonda(r, ultima, conRepesca, partidos) {
-  const d = ultima - r, completa = partidos === 1 << d;
-  return d === 0 ? 'Final' : r === 0 && conRepesca ? 'Primera ronda' : !completa ? (r === 0 ? 'Primera ronda' : `Ronda ${r + 1}`)
-    : d === 1 ? 'Semifinales' : d === 2 ? 'Cuartos de final' : d === 3 ? 'Octavos de final' : r === 0 ? 'Primera ronda' : `Ronda ${r + 1}`;
+  const d = ultima - r, normales = partidos.filter((p) => !p.segunda && !p.tercero).length;
+  const juegan = 2 * normales + partidos.filter((p) => p.segunda).length;
+  return d === 0 ? 'Final' : d === 1 ? 'Semifinales' : r === 0 && conRepesca ? 'Primera ronda'
+    : juegan === 8 ? 'Cuartos de final' : juegan === 16 ? 'Octavos de final' : r === 0 ? 'Primera ronda' : `Ronda ${r + 1}`;
 }
 // lo que se enseña en un hueco que aún no tiene jugador
 function hueco(t, p, k) {
   const f = p.fuentes[k];
   if (!f) return 'Pase directo';
+  if (f.hueco !== undefined) return f.hueco === sorteo.revelados && t.sorteo && t.sorteo.abierto ? `Posición ${f.hueco + 1} · sale ahora` : `Posición ${f.hueco + 1}`;
+  if (f.pierde && (p.segunda || p.tercero)) {
+    const q = t.partidos.find((x) => x.id === f.pierde);
+    return q && q.ab[0] && q.ab[1] ? `Quien pierda ${q.ab[0]} – ${q.ab[1]}` : p.tercero ? 'Perdedor de semifinales' : 'Perdedor del combate de esta ronda';
+  }
   if (f.pierde) return 'Perdedor de la 1.ª ronda';
   const q = t.partidos.find((x) => x.id === f.gana);
   return q && q.fase === 'repesca' && p.fase === 'principal' ? 'Ganador de la repesca' : 'Por decidir';
@@ -1924,15 +2023,19 @@ function ficha(t, p, admin, yo) {
   const completo = p.ab[0] && p.ab[1];
   const fila = (k) => {
     const n = p.ab[k];
-    if (!n) return `<div class="tn-fila vacia" data-fila="${p.id}-${k}"><span class="tn-hueco"></span><span>${hueco(t, p, k)}</span></div>`;
+    const h = p.fuentes[k] && p.fuentes[k].hueco;
+    const sortea = h !== undefined ? ` por-sortear${h === sorteo.revelados && t.sorteo && t.sorteo.abierto ? ' toca' : ''}` : '';
+    if (!n) return `<div class="tn-fila vacia${sortea}" data-fila="${p.id}-${k}" ${h !== undefined ? `data-hueco="${h}"` : ''}><span class="tn-hueco"></span><span>${hueco(t, p, k)}</span></div>`;
     const clase = ['tn-fila', p.gana === k ? 'gana' : p.gana === 1 - k ? 'pierde' : '', n === yo ? 'yo' : ''].join(' ');
     const dentro = `${avatar(n)}<b>${esc(n)}</b><span class="tn-mar">${esc(k ? p.mb : p.ma)}</span>`;
     return admin && completo
       ? `<button type="button" class="${clase}" data-fila="${p.id}-${k}" data-tn="ganador" data-id="${p.id}" data-lado="${k}" title="${p.gana === k ? 'Quitar la victoria a' : 'Dar la victoria a'} ${esc(n)}">${dentro}</button>`
       : `<div class="${clase}" data-fila="${p.id}-${k}">${dentro}</div>`;
   };
-  return `<div class="tn-ficha ${p.fase} ${p.plaza ? 'plaza' : ''} ${p.vivo ? 'vivo' : ''}" data-partido="${p.id}">
+  return `<div class="tn-ficha ${p.fase} ${p.plaza ? 'plaza' : ''} ${p.segunda ? 'segunda' : ''} ${p.tercero ? 'tercero' : ''} ${p.vivo ? 'vivo' : ''}" data-partido="${p.id}">
     ${p.vivo ? '<span class="tn-vivo"><i></i>En juego</span>' : ''}
+    ${p.segunda ? '<span class="tn-etiqueta">Segunda oportunidad · al mejor de 3</span>' : ''}
+    ${p.tercero ? '<span class="tn-etiqueta">3.er puesto · al mejor de 1</span>' : ''}
     ${p.plaza ? '<span class="tn-etiqueta">Sin rival en la 1.ª ronda</span>' : ''}
     ${subeA(t, p) ? `<span class="tn-nota">Quien gana sube a jugar contra ${esc(subeA(t, p))}</span>` : ''}
     <div class="tn-filas">${fila(0)}${fila(1)}<span class="tn-sello" aria-hidden="true">VS</span></div>
@@ -1943,13 +2046,27 @@ function ficha(t, p, admin, yo) {
       <button type="button" data-tn="vivo" data-id="${p.id}">${p.vivo ? 'Quitar «en juego»' : 'En juego'}</button></div>` : ''}
   </div>`;
 }
+// el orden de cada columna sale de recorrer el cuadro desde la final: así las líneas de un ganador a su partido
+// siguiente nunca se cruzan, aunque haya segundas oportunidades. Lo que no cuelga de la final (el 3.er puesto) va al final
+function ordenCuadro(t) {
+  const orden = new Map(), por = new Map(t.partidos.map((p) => [p.id, p]));
+  const visita = (id) => {
+    const p = por.get(id);
+    if (!p || orden.has(id)) return;
+    orden.set(id, orden.size);
+    p.fuentes.forEach((f) => f && f.gana && visita(f.gana));
+  };
+  visita(t.final);
+  return (p) => (orden.has(p.id) ? orden.get(p.id) : 1e6 + t.partidos.indexOf(p));
+}
 function columnas(t, fase, admin, yo, nombre) {
-  const ps = t.partidos.filter((p) => p.fase === fase);
+  const sitio = ordenCuadro(t);
+  const ps = t.partidos.filter((p) => p.fase === fase).sort((a, b) => sitio(a) - sitio(b));
   const ultima = Math.max(...ps.map((p) => p.ronda));
   let html = '';
   for (let r = 0; r <= ultima; r++) {
     const enRonda = ps.filter((p) => p.ronda === r);
-    html += `<div class="tn-col ${fase === 'principal' && r === ultima ? 'final' : ''}"><div class="tn-col-t">${nombre(r, ultima, enRonda.length)}</div>
+    html += `<div class="tn-col ${fase === 'principal' && r === ultima ? 'final' : ''}"><div class="tn-col-t">${nombre(r, ultima, enRonda)}</div>
       <div class="tn-col-cuerpo">${enRonda.map((p) => ficha(t, p, admin, yo)).join('')}</div></div>`;
   }
   return html;
@@ -1962,34 +2079,44 @@ const TROFEO = '<svg viewBox="0 0 64 64" aria-hidden="true"><path d="M18 6h28v14
 
 function pintarTorneo() {
   if (!torneo.abierto) return;
-  const d = torneo.datos, t = d && d.torneo, admin = d && d.admin;
+  const d = torneo.datos, t0 = d && d.torneo, admin = d && d.admin, puede = !!(d && (d.puede || d.admin));
+  const t = vistaTorneo(t0);
+  const s = t0 && t0.sorteo, quedan = s ? s.total - s.sacados.length : 0;
   $('tn-titulo').textContent = t ? `🏆 ${t.nombre}` : '🏆 Torneo';
   $('tn-tope').classList.toggle('oculto', !(t && t.tope));
   if (t && t.tope) $('tn-tope').textContent = `Nivel tope ${t.tope}`;
-  $('tn-acciones').innerHTML = !d ? '' : admin
-    ? `<span class="chip random">Modo edición · admin</span>
-       ${t ? '<button class="btn btn-neutro" type="button" data-tn="randomizar">Randomizar emparejamientos</button><button class="btn btn-neutro" type="button" data-tn="reiniciar">Reiniciar</button>' : ''}
-       <button class="btn btn-rojo" type="button" data-tn="crear">+ Crear torneo</button>`
-    : `<span class="chip" style="background:var(--verde-claro);color:#166B3C">● Se actualiza solo</span><span class="chip nuevo">Solo lectura</span>`;
+  const organizan = t && t.gestores && t.gestores.length ? `<span class="chip" title="Pueden sortear y marcar resultados">Organizan: ${t.gestores.map(esc).join(', ')}</span>` : '';
+  $('tn-acciones').innerHTML = !d ? '' : `${organizan}
+    ${admin ? '<span class="chip random">Modo edición · admin</span>' : puede ? '<span class="chip random">Organizador</span>'
+      : '<span class="chip" style="background:var(--verde-claro);color:#166B3C">● Se actualiza solo</span><span class="chip nuevo">Solo lectura</span>'}
+    ${t && puede && s && quedan > 0 && !s.abierto ? '<button class="btn btn-rojo" type="button" data-tn="sortear">🎱 Sortear</button>' : ''}
+    ${t && puede ? '<button class="btn btn-neutro" type="button" data-tn="vaciar">Vaciar cuadro</button>' : ''}
+    ${t && admin ? '<button class="btn btn-neutro" type="button" data-tn="reiniciar">Reiniciar</button>' : ''}
+    ${admin ? '<button class="btn btn-rojo" type="button" data-tn="crear">+ Crear torneo</button>' : ''}`;
   let html = '';
   if (torneo.error) html += `<p class="error">${esc(torneo.error)}</p>`;
   if (torneo.creando && d) {
+    const libres = d.usuarios.filter((n) => !torneo.gestores.includes(n));
     html += `<section class="tarjeta tn-crear"><h2>Crear torneo</h2>
-      <p class="suave">Elige quién juega (las cuentas del servidor). Los emparejamientos salen al azar. Si sois impares, uno se queda sin rival en la primera ronda y juega contra el ganador de la repesca.</p>
-      <div class="lista">${d.usuarios.map((n) => `<label class="j"><input type="checkbox" name="tn-j" value="${esc(n)}" ${!t || t.jugadores.includes(n) ? 'checked' : ''}>${avatar(n)} ${esc(n)}</label>`).join('')}</div>
-      <div class="rejilla" style="max-width:640px"><label class="campo">Nombre<input id="tn-nombre" value="${esc(t ? t.nombre : 'Gran torneo · Mitad del Mega Pokelocke')}" style="font:600 15px Nunito,sans-serif;border:1px solid var(--linea-fuerte);border-radius:10px;padding:8px 10px;min-height:42px"></label>
-        <label class="campo">Nivel tope<input id="tn-nivel" type="number" min="1" max="100" value="${t && t.tope ? t.tope : 39}"></label></div>
-      <div style="display:flex;gap:10px"><button class="btn btn-neutro" type="button" data-tn="cancelar">Cancelar</button><button class="btn btn-rojo" type="button" data-tn="confirmar">Crear y randomizar</button></div></section>`;
+      <p class="suave">Elige quién juega (las cuentas del servidor). El cuadro sale vacío: los nombres salen uno a uno de la máquina de bolas con «Sortear». Nadie pasa de ronda sin combatir: si en una ronda sobra uno, juega al mejor de 3 contra el perdedor de un combate de esa ronda. Los que pierden en semifinales se juegan el 3.er puesto al mejor de 1.</p>
+      <div class="lista">${d.usuarios.map((n) => `<label class="j"><input type="checkbox" name="tn-j" value="${esc(n)}" ${torneo.marcados.has(n) ? 'checked' : ''}>${avatar(n)} ${esc(n)}</label>`).join('')}</div>
+      <div class="rejilla" style="max-width:640px"><label class="campo">Nombre<input id="tn-nombre" value="${esc(torneo.nombre)}" style="font:600 15px Nunito,sans-serif;border:1px solid var(--linea-fuerte);border-radius:10px;padding:8px 10px;min-height:42px"></label>
+        <label class="campo">Nivel tope<input id="tn-nivel" type="number" min="1" max="100" value="${esc(torneo.tope)}"></label></div>
+      <div class="campo" style="display:grid;gap:6px"><b>Organizadores</b><span class="suave" style="font-size:14px;margin-top:-4px">Pueden sortear, remover, sacar bolas y marcar resultados. Crear y borrar el torneo es solo tuyo.</span>
+        <div class="tn-org"><select id="tn-org-sel" aria-label="Usuario que organiza"><option value="">Elige un usuario…</option>${libres.map((n) => `<option value="${esc(n)}">${esc(n)}</option>`).join('')}</select>
+          <button class="btn btn-neutro" type="button" data-tn="org-anadir">Añadir</button></div>
+        <div class="tn-org-lista">${torneo.gestores.length ? torneo.gestores.map((n) => `<span class="tn-org-chip">${avatar(n)}${esc(n)}<button type="button" data-tn="org-quitar" data-n="${esc(n)}" aria-label="Quitar a ${esc(n)}">×</button></span>`).join('') : '<span class="suave" style="font-size:14px">Nadie más: solo tú.</span>'}</div></div>
+      <div style="display:flex;gap:10px"><button class="btn btn-neutro" type="button" data-tn="cancelar">Cancelar</button><button class="btn btn-rojo" type="button" data-tn="confirmar">Crear torneo</button></div></section>`;
   }
   if (d && !t && !torneo.creando) {
-    html += `<div class="vacio"><h1>Aún no hay torneo</h1><p class="suave" style="font-size:17px">${admin ? 'Créalo con «+ Crear torneo»: eliges a los jugadores y los emparejamientos salen al azar.' : 'Cuando el administrador lo cree, aparecerá aquí.'}</p></div>`;
+    html += `<div class="vacio"><h1>Aún no hay torneo</h1><p class="suave" style="font-size:17px">${admin ? 'Créalo con «+ Crear torneo»: eliges a los jugadores y a los organizadores, y el cuadro se rellena con la máquina de bolas.' : 'Cuando el administrador lo cree, aparecerá aquí.'}</p></div>`;
   }
   if (t) {
     const camp = campeon(t);
     const plaza = t.partidos.find((p) => p.plaza);
     const sinRival = plaza && plaza.fuentes[0].j;
     html += `<div class="tn-scroll"><div class="tn-lienzo"><svg class="tn-lineas" aria-hidden="true"></svg>
-      <div class="tn-cuadro">${columnas(t, 'principal', admin, d.yo, (r, u, n) => nombreRonda(r, u, !!plaza, n))}
+      <div class="tn-cuadro">${columnas(t, 'principal', puede, d.yo, (r, u, n) => nombreRonda(r, u, !!plaza, n))}
         <div class="tn-col campeon"><div class="tn-col-t">Campeón</div><div class="tn-col-cuerpo">${camp
           ? `<div class="tn-copa">${avatar(camp)}<strong>${esc(camp)}</strong><span class="tn-copa-t">Campeón del torneo</span></div>`
           : `<div class="tn-copa pendiente">${TROFEO}<strong>Por decidir</strong></div>`}</div></div></div>
@@ -1997,16 +2124,214 @@ function pintarTorneo() {
         <div class="tn-repesca-t"><h3>Repesca</h3>
           <p>Los que pierden en la primera ronda, a una sola partida. Quien gana sube a jugar contra ${esc(sinRival || 'el jugador sin rival')}.</p></div>
         ${t.partidos.some((p) => p.fase === 'repesca')
-          ? `<div class="tn-cuadro">${columnas(t, 'repesca', admin, d.yo, (r, u) => (r === u ? (u ? 'Final de la repesca' : 'Repesca') : `Ronda ${r + 1}`))}</div>`
+          ? `<div class="tn-cuadro">${columnas(t, 'repesca', puede, d.yo, (r, u) => (r === u ? (u ? 'Final de la repesca' : 'Repesca') : `Ronda ${r + 1}`))}</div>`
           : '<p style="margin:0;max-width:340px">Solo hay un perdedor en la primera ronda: pasa directo a jugar contra él.</p>'}</section>` : ''}
     </div></div>`;
   }
   if (!d && !torneo.error) html = '<p class="suave">Cargando el torneo…</p>';
+  pintarSorteo(t0, puede);
   if (html === torneo.pintado) return;
   $('tn-cuerpo').innerHTML = html;
   torneo.pintado = html;
   if (t) animarCambios(t);
 }
+
+// ---------- la máquina de bolas del sorteo (1.3.3) ----------
+// El servidor decide qué bola sale (t.sorteo.sacados, en orden); aquí solo se enseña. Cada Pokelocke con el torneo
+// abierto lo anima a la vez: cuando llega una bola nueva, la máquina gira la manivela, la bola cae, se abre y sale el
+// papel con el nombre; hasta que el papel no se ha visto, el cuadro no enseña ese nombre (sorteo.revelados).
+const sorteo = {id: null, revelados: 0, removido: 0, cola: [], animando: false, ocupado: false, bolas: [], reloj: null, agitar: 0, giro: 0};
+const quieto = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
+// la bola de Firefly es roja: los demás colores salen girándole el tono (c: el color para los puntos de la lista)
+const COLORES_BOLA = [
+  {c: '#C92E22', f: 'none'}, {c: '#2A75BB', f: 'hue-rotate(205deg) saturate(.9)'}, {c: '#1F9D55', f: 'hue-rotate(135deg) brightness(1.05)'},
+  {c: '#E0B000', f: 'hue-rotate(45deg) brightness(1.45) saturate(1.1)'}, {c: '#7E4AB8', f: 'hue-rotate(268deg)'},
+  {c: '#17A2B8', f: 'hue-rotate(180deg) brightness(1.15)'}, {c: '#D63384', f: 'hue-rotate(322deg) brightness(1.1)'},
+  {c: '#7CB518', f: 'hue-rotate(85deg) brightness(1.3)'}];
+const colorBola = (n) => COLORES_BOLA[[...n].reduce((s, c) => s + c.charCodeAt(0), 0) % COLORES_BOLA.length];
+// la bola en cada color, pintada una vez (luego el canvas solo la copia girada)
+const BOLAS_PINTADAS = [];
+{
+  const img = new Image();
+  img.onload = () => COLORES_BOLA.forEach((col, k) => {
+    const c = document.createElement('canvas');
+    c.width = c.height = 128;
+    const g = c.getContext('2d');
+    g.filter = col.f;
+    g.drawImage(img, 0, 0, 128, 128);
+    BOLAS_PINTADAS[k] = c;
+  });
+  img.src = '/assets/sorteo-bola.png';
+}
+
+// el torneo como se ve: los nombres que aún no han salido del todo (papel en pantalla) no se enseñan en el cuadro
+function vistaTorneo(t) {
+  if (!t || !t.sorteo) return t;
+  const v = {...t, partidos: t.partidos.map((p) => ({...p, ab: [...p.ab]}))};
+  for (const p of v.partidos) p.fuentes.forEach((f, k) => { if (f && f.hueco !== undefined && f.hueco >= sorteo.revelados) p.ab[k] = null; });
+  return v;
+}
+
+// lo que ha cambiado desde la última vez: bolas nuevas a la cola, removidas a la máquina
+function sincronizarSorteo(t) {
+  const s = t && t.sorteo;
+  if (!s) { sorteo.id = null; return; }
+  const sacadas = s.sacados.length;
+  if (sorteo.id !== t.id || sacadas < sorteo.revelados) {           // otro torneo, o cuadro vaciado: sin animar lo de antes
+    Object.assign(sorteo, {id: t.id, revelados: sacadas, removido: s.removido, cola: [], bolas: []});
+    return;
+  }
+  if (s.removido > sorteo.removido) { sorteo.removido = s.removido; agitar(); }
+  const vistas = sorteo.revelados + sorteo.cola.length + (sorteo.animando ? 1 : 0);
+  for (const b of s.sacados.slice(vistas)) sorteo.cola.push(b);
+  siguienteBola();
+}
+
+function pintarSorteo(t, puede) {
+  const s = t && t.sorteo;
+  const visible = !!(s && (s.abierto || sorteo.animando || sorteo.cola.length));
+  $('sorteo').classList.toggle('oculto', !visible);
+  $('v-torneo').classList.toggle('con-sorteo', visible);
+  if (!visible) { cancelAnimationFrame(sorteo.reloj); sorteo.reloj = null; return; }
+  const quedan = s.total - s.sacados.length;
+  $('so-cuenta').textContent = `${sorteo.revelados} de ${s.total} bolas`;
+  $('so-siguiente').innerHTML = sorteo.revelados >= s.total ? '¡Cuadro completo! Ya se pueden jugar los combates.'
+    : `Bola para la <b>posición ${sorteo.revelados + 1}</b> del cuadro`;
+  $('so-botones').classList.toggle('oculto', !puede || quedan === 0);
+  $('so-cerrar').classList.toggle('oculto', !puede);
+  $('so-sacar').disabled = $('so-remover').disabled = sorteo.animando || sorteo.cola.length > 0 || sorteo.ocupado;
+  const lista = s.sacados.slice(0, sorteo.revelados).map((b) => `<li><i class="so-mini" style="--c:${colorBola(b.nombre).c}"></i>${esc(b.nombre)}<span>Posición ${b.hueco + 1}</span></li>`).join('');
+  if ($('so-lista').dataset.html !== lista) { $('so-lista').innerHTML = lista; $('so-lista').dataset.html = lista; }
+  // las bolas que se ven dentro: las que quedan más las que aún no han empezado a caer
+  const dentro = quedan + sorteo.cola.length;
+  if (sorteo.bolas.length < dentro) {                 // las nuevas, ya posadas en el fondo (sin verlas caer al abrir)
+    while (sorteo.bolas.length < dentro) sorteo.bolas.push(bolaNueva());
+    for (let k = 0; k < 160; k++) pasoBolas(false);
+  }
+  while (sorteo.bolas.length > dentro) sorteo.bolas.pop();
+  if (!sorteo.reloj) sorteo.reloj = requestAnimationFrame(moverBolas);
+}
+
+// ---- las bolas dentro del cristal: física sencilla (gravedad, choques entre ellas y con la esfera) ----
+const CRISTAL = {x: 240, y: 240, r: 226};                         // en px del canvas (480×480)
+function radioBola() { const n = Math.max(1, sorteo.bolas.length); return Math.max(22, Math.min(46, 190 / Math.sqrt(n))); }
+function bolaNueva() {
+  const a = Math.random() * Math.PI * 2, d = Math.random() * 120;
+  const x = CRISTAL.x + Math.cos(a) * d, y = CRISTAL.y + Math.sin(a) * d * .5 + 60;
+  return {x, y, px: x, py: y, giro: Math.random() * 6, c: Math.floor(Math.random() * COLORES_BOLA.length)};
+}
+function moverBolas() {
+  pasoBolas(performance.now() < sorteo.agitar);
+  const cv = $('so-bolas'), g = cv.getContext('2d'), r = radioBola(), bs = sorteo.bolas;
+  g.clearRect(0, 0, cv.width, cv.height);
+  for (const b of [...bs].sort((p, q) => p.y - q.y)) dibujarBola(g, b.x, b.y, r, b.c, b.giro);
+  sorteo.reloj = $('sorteo').classList.contains('oculto') ? null : requestAnimationFrame(moverBolas);
+}
+function pasoBolas(fuerza) {
+  const r = radioBola(), bs = sorteo.bolas;
+  for (const b of bs) {
+    let vx = (b.x - b.px) * .985, vy = (b.y - b.py) * .985 + .55;
+    if (fuerza && Math.random() < .25) { vx += (Math.random() - .5) * 14; vy -= Math.random() * 16; }
+    b.px = b.x; b.py = b.y; b.x += vx; b.y += vy; b.giro += vx * .04;
+  }
+  for (let it = 0; it < 4; it++) {
+    for (let i = 0; i < bs.length; i++) {
+      for (let j = i + 1; j < bs.length; j++) {
+        const a = bs[i], b = bs[j], dx = b.x - a.x, dy = b.y - a.y, d = Math.hypot(dx, dy) || .01;
+        if (d < 2 * r) { const m = (2 * r - d) / 2 / d; a.x -= dx * m; a.y -= dy * m; b.x += dx * m; b.y += dy * m; }
+      }
+      const b = bs[i], dx = b.x - CRISTAL.x, dy = b.y - CRISTAL.y, d = Math.hypot(dx, dy), lim = CRISTAL.r - r;
+      if (d > lim) { b.x = CRISTAL.x + dx / d * lim; b.y = CRISTAL.y + dy / d * lim; }
+    }
+  }
+}
+// una bola: la imagen de Firefly en su color, girada; si aún no ha cargado, dibujada
+function dibujarBola(g, x, y, r, k, giro) {
+  if (BOLAS_PINTADAS[k]) {
+    g.save(); g.translate(x, y); g.rotate(giro * .35);
+    g.drawImage(BOLAS_PINTADAS[k], -r, -r, 2 * r, 2 * r);
+    g.restore();
+    return;
+  }
+  const c = COLORES_BOLA[k].c;
+  g.save();
+  g.translate(x, y);
+  g.rotate(giro);
+  g.beginPath(); g.arc(0, 0, r, Math.PI, 0); g.closePath(); g.fillStyle = 'rgba(247,241,225,.92)'; g.fill();
+  g.fillStyle = '#E9DFC4'; g.fillRect(-r * .45, -r * .55, r * .9, r * .38);
+  g.beginPath(); g.arc(0, 0, r, 0, Math.PI); g.closePath(); g.fillStyle = c; g.fill();
+  g.lineWidth = Math.max(2.5, r * .12); g.strokeStyle = '#1B2030';
+  g.beginPath(); g.arc(0, 0, r - g.lineWidth / 2, 0, Math.PI * 2); g.stroke();
+  g.beginPath(); g.moveTo(-r, 0); g.lineTo(r, 0); g.lineWidth = Math.max(1.5, r * .07); g.stroke();
+  g.restore();
+  g.beginPath(); g.arc(x - r * .38, y - r * .4, r * .18, 0, Math.PI * 2); g.fillStyle = 'rgba(255,255,255,.75)'; g.fill();
+}
+
+function agitar() {
+  if (quieto()) return;
+  const m = $('so-maquina');
+  m.classList.remove('agita');
+  void m.offsetWidth;
+  m.classList.add('agita');
+  sorteo.agitar = performance.now() + 1700;
+}
+
+// ---- una bola sale: manivela, caída, se abre, papel, y el nombre pasa al cuadro ----
+const espera = (ms) => new Promise((ok) => setTimeout(ok, quieto() ? 0 : ms));
+async function siguienteBola() {
+  if (sorteo.animando || !sorteo.cola.length) return;
+  sorteo.animando = true;
+  const b = sorteo.cola.shift();
+  pintarTorneo();
+  const bola = $('so-bola'), papel = $('so-papel');
+  try {
+    sorteo.giro += 360;
+    $('so-manivela').style.transform = `rotate(${sorteo.giro}deg)`;
+    await espera(700);
+    if (sorteo.bolas.length) {                       // la de más abajo es la que cae por el cuello
+      let k = 0;
+      sorteo.bolas.forEach((x, i) => { if (x.y > sorteo.bolas[k].y) k = i; });
+      sorteo.bolas.splice(k, 1);
+    }
+    bola.style.setProperty('--f', colorBola(b.nombre).f);
+    bola.classList.remove('oculto');
+    bola.classList.remove('abierta');
+    if (!quieto()) {
+      const caida = bola.animate([
+        {transform: 'translate(0, -40px) scale(.6)', opacity: 0},
+        {transform: 'translate(0, 0) scale(.8)', opacity: 1, offset: .25},
+        {transform: 'translate(40px, 8px) scale(.8) rotate(160deg)', offset: .45},
+        {transform: 'translate(0, -230px) scale(1.7) rotate(360deg)'},
+      ], {duration: 1500, easing: 'cubic-bezier(.4, 0, .2, 1)', fill: 'forwards'});
+      await caida.finished;
+    }
+    bola.classList.add('abierta');
+    await espera(260);
+    $('so-papel-pos').textContent = `Posición ${b.hueco + 1}`;
+    $('so-papel-nombre').textContent = b.nombre;
+    $('so-papel-nombre').style.fontSize = `${Math.min(46, Math.floor(600 / Math.max(8, b.nombre.length)))}px`;   // 16 letras caben
+    papel.classList.remove('vuela');
+    papel.classList.remove('oculto');
+    await espera(2200);
+    papel.classList.add('vuela');
+    await espera(550);
+  } finally {
+    papel.classList.add('oculto');
+    papel.classList.remove('vuela');
+    bola.getAnimations().forEach((a) => a.cancel());
+    bola.classList.add('oculto');
+    sorteo.revelados = Math.max(sorteo.revelados, b.hueco + 1);
+    sorteo.animando = false;
+    pintarTorneo();
+    const fila = document.querySelector(`.tn-fila[data-fila] b`) && [...document.querySelectorAll('.tn-fila')].find((x) => x.textContent.includes(b.nombre));
+    if (fila) fila.scrollIntoView({block: 'nearest', inline: 'nearest', behavior: quieto() ? 'auto' : 'smooth'});
+    if (sorteo.cola.length) setTimeout(siguienteBola, 400);
+  }
+}
+
+$('so-remover').onclick = async () => { sorteo.ocupado = true; pintarTorneo(); try { await editarTorneo('remover'); } finally { sorteo.ocupado = false; pintarTorneo(); } };
+$('so-sacar').onclick = async () => { sorteo.ocupado = true; pintarTorneo(); try { await editarTorneo('sacar'); } finally { sorteo.ocupado = false; pintarTorneo(); } };
+$('so-cerrar').onclick = () => editarTorneo('cerrar_sorteo');
 
 // compara con lo que se vio la última vez: la fila que acaba de ganar se ilumina, su línea se dibuja y el nombre
 // aparece en el partido siguiente. La primera vez que se abre no se anima nada
@@ -2105,19 +2430,35 @@ document.addEventListener('click', (ev) => {
   const b = ev.target.closest('[data-tn]');
   if (!b || !torneo.abierto || b.tagName === 'INPUT') return;
   const que = b.dataset.tn, id = b.dataset.id;
-  if (que === 'crear') { torneo.creando = true; return pintarTorneo(); }
+  if (que === 'crear') {
+    // el formulario guarda lo que llevas (marcar jugadores no se pierde al añadir un organizador)
+    const t = torneo.datos && torneo.datos.torneo;
+    Object.assign(torneo, {creando: true, marcados: new Set(t ? t.jugadores : torneo.datos.usuarios), gestores: t && t.gestores ? [...t.gestores] : [],
+      nombre: t ? t.nombre : 'Gran torneo · Mitad del Mega Pokelocke', tope: t && t.tope ? t.tope : 39});
+    return pintarTorneo();
+  }
   if (que === 'cancelar') { torneo.creando = false; return pintarTorneo(); }
+  if (que === 'org-anadir' || que === 'org-quitar') {
+    torneo.nombre = $('tn-nombre').value; torneo.tope = $('tn-nivel').value;
+    const n = que === 'org-anadir' ? $('tn-org-sel').value : b.dataset.n;
+    if (!n) return;
+    torneo.gestores = que === 'org-anadir' ? [...torneo.gestores, n] : torneo.gestores.filter((x) => x !== n);
+    return pintarTorneo();
+  }
   if (que === 'confirmar') {
-    const jugadores = [...document.querySelectorAll('input[name="tn-j"]:checked')].map((x) => x.value);
+    const jugadores = [...torneo.marcados];
     if (jugadores.length < 2) return alert('Elige al menos 2 jugadores');
     torneo.creando = false;
-    return editarTorneo('crear', {jugadores, nombre: $('tn-nombre').value, tope: Number($('tn-nivel').value) || null});
+    return editarTorneo('crear', {jugadores, gestores: torneo.gestores, nombre: $('tn-nombre').value, tope: Number($('tn-nivel').value) || null});
   }
-  if (que === 'randomizar' && !confirm('¿Randomizar los emparejamientos? Se borran los resultados de este torneo.')) return;
+  if (que === 'vaciar' && !confirm('¿Vaciar el cuadro? Se quitan todos los nombres y los resultados, y se vuelve a sortear con la máquina.')) return;
   if (que === 'reiniciar' && !confirm('¿Reiniciar el torneo? Se borra el cuadro entero.')) return;
   if (que === 'ganador') return editarTorneo('ganador', {id, lado: Number(b.dataset.lado)});
   if (que === 'vivo') return editarTorneo('vivo', {id});
-  if (que === 'randomizar' || que === 'reiniciar') return editarTorneo(que);
+  if (['vaciar', 'reiniciar', 'sortear'].includes(que)) return editarTorneo(que);
+});
+document.addEventListener('change', (ev) => {
+  if (torneo.creando && ev.target.name === 'tn-j') ev.target.checked ? torneo.marcados.add(ev.target.value) : torneo.marcados.delete(ev.target.value);
 });
 document.addEventListener('change', (ev) => {
   const x = ev.target;

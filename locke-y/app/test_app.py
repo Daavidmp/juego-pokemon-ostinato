@@ -284,8 +284,22 @@ except ValueError:
 tk = o.entrar('Daavidmp', 'clave1', '1.1.1.1')['token']
 o.editar_torneo(tk, 'crear', {'jugadores': ['Daavidmp', 'Amigo'], 'nombre': 'Gran torneo'})
 tn = o.torneo(tk)['torneo']
+ver(all(p['ab'] == [None, None] for p in tn['partidos']) and 'bombo' not in tn['sorteo'],
+    'el cuadro sale vacío, y lo que queda en la máquina no se ve (1.3.3)')
+try:
+    o.editar_torneo(tk, 'ganador', {'id': tn['final'], 'lado': 0})
+    ver(False, 'sin sortear no se puede dar la victoria')
+except ValueError:
+    ver(True, 'sin sortear no se puede dar la victoria')
+o.editar_torneo(tk, 'sortear', {})
+o.editar_torneo(tk, 'remover', {})
+for _ in range(2):
+    o.editar_torneo(tk, 'sacar', {})
+tn = o.torneo(tk)['torneo']
+ver(tn['sorteo']['removido'] == 1 and [b['hueco'] for b in tn['sorteo']['sacados']] == [0, 1], 'las bolas salen una a una, a los huecos 1 y 2')
 final = tn['final']
 uno, otro = next(q for q in tn['partidos'] if q['id'] == final)['ab']     # el cuadro se sortea
+ver({uno, otro} == {'Daavidmp', 'Amigo'}, 'con las dos bolas fuera, la final tiene a los dos')
 o.editar_torneo(tk, 'ganador', {'id': final, 'lado': 1})
 ver(o.coronas() == {otro: [{'nombre': 'Gran torneo', 'puesto': 1}], uno: [{'nombre': 'Gran torneo', 'puesto': 2}]},
     'el que gana la final se lleva la corona de oro y el otro la de plata')
@@ -295,12 +309,50 @@ ver(o.coronas() == {}, 'si se deshace el resultado, la corona se quita')
 o.editar_torneo(tk, 'ganador', {'id': final, 'lado': 0})
 o.editar_torneo(tk, 'reiniciar', {})
 ver(o.coronas()[uno] == [{'nombre': 'Gran torneo', 'puesto': 1}], 'y se queda aunque se borre el torneo')
-# el cuadro con 10: 5 partidos, una ronda corta de 1 (los otros 3 ganadores esperan), semifinales y final.
-# Antes el ganador del primer partido esperaba en cada ronda y llegaba a la final tras jugar uno solo
+# los organizadores (1.3.3): pueden sortear y marcar, no crear ni borrar; sin serlo, nada
+tk_amigo = o.entrar('Amigo', 'clave2', '2.2.2.2')['token']
+o.editar_torneo(tk, 'crear', {'jugadores': ['Daavidmp', 'Amigo'], 'gestores': ['Amigo'], 'nombre': 'Con organizador'})
+ver(o.torneo(tk_amigo)['puede'], 'el organizador puede tocar el torneo')
+o.editar_torneo(tk_amigo, 'sortear', {})
+o.editar_torneo(tk_amigo, 'sacar', {})
+ver(len(o.torneo(tk)['torneo']['sorteo']['sacados']) == 1, 'el organizador saca bolas')
+for que in ('crear', 'reiniciar'):
+    try:
+        o.editar_torneo(tk_amigo, que, {'jugadores': ['Daavidmp', 'Amigo']})
+        ver(False, f'el organizador no puede {que}')
+    except PermissionError:
+        ver(True, f'el organizador no puede {que}')
+o.editar_torneo(tk, 'crear', {'jugadores': ['Daavidmp', 'Amigo'], 'nombre': 'Sin organizador'})
+try:
+    o.editar_torneo(tk_amigo, 'sacar', {})
+    ver(False, 'sin ser organizador no se saca bola')
+except PermissionError:
+    ver(not o.torneo(tk_amigo)['puede'], 'sin ser organizador no se saca bola')
+o.editar_torneo(tk, 'reiniciar', {})
+# el cuadro (1.3.3): nadie pasa de ronda sin combatir; si sobra uno, segunda oportunidad al mejor de 3 contra un
+# perdedor de esa ronda; con semifinales de 4, duelo por el 3.er puesto al mejor de 1. Con 10: 5; 2+1; 1+1; final
+import random as _azar
 ps10, fin10 = online._cuadro([f'J{i}' for i in range(10)])
-ver([sum(1 for q in ps10 if q['ronda'] == r) for r in range(4)] == [5, 1, 2, 1], 'el cuadro de 10 tiene 5, 1, 2 y 1 partidos')
-ver(all(f.get('gana', '')[:2] != 'p0' for f in next(q for q in ps10 if q['id'] == fin10)['fuentes']),
-    'a la final solo llegan ganadores de semifinales, nadie se la salta')
+forma = [(sum(1 for q in ps10 if q['ronda'] == r and not q.get('segunda')), sum(1 for q in ps10 if q['ronda'] == r and q.get('segunda')))
+         for r in range(4)]
+ver(forma == [(5, 0), (2, 1), (1, 1), (1, 0)], f'el cuadro de 10: 5; 2 y una segunda oportunidad; 1 y otra; la final ({forma})')
+ver(all(next(q for q in ps10 if q['id'] == f['gana'])['ronda'] == p['ronda'] - 1 for p in ps10 for f in p['fuentes'] if 'gana' in f),
+    'cada ganador juega en la ronda siguiente: nadie se salta una')
+ver(all(p['mejor_de'] == 3 for p in ps10) and not any(p.get('tercero') for p in ps10), 'todo al mejor de 3; con semifinales de 3 no hay duelo por el 3.º')
+ps8, fin8 = online._cuadro([f'J{i}' for i in range(8)])
+tercero = [p for p in ps8 if p.get('tercero')]
+ver(len(tercero) == 1 and tercero[0]['mejor_de'] == 1 and all('pierde' in f for f in tercero[0]['fuentes']),
+    'con 8: los que pierden en semifinales se juegan el 3.er puesto al mejor de 1')
+for n in range(2, 13):
+    ps, fin = online._cuadro([f'J{i}' for i in range(n)])
+    for q in ps:
+        online._propagar(ps)
+        if all(q['ab']) and q['gana'] is None:
+            q['gana'] = _azar.randint(0, 1)
+    online._propagar(ps)
+    podio = online.Servidor._podio({'final': fin, 'partidos': ps})
+    ver(all(all(q['ab']) for q in ps) and sorted(podio.values()) == ([1, 2, 3] if n >= 3 else [1, 2]),
+        f'con {n}: todos los partidos tienen sus dos jugadores y hay oro, plata y bronce')
 # con 4: bronce para los dos que pierden las semifinales
 podio = online.Servidor._podio({'final': 'p1-0', 'partidos': [
     {'id': 'p0-0', 'fase': 'principal', 'ronda': 0, 'ab': ['A', 'B'], 'gana': 0, 'fuentes': []},

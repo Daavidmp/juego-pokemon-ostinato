@@ -463,3 +463,41 @@ Hechas con Gemini Nano Banana 2 editando SIEMPRE la misma base (no generando de 
   dos rondas sin jugar). Impares: la repesca de las normas igual. Probado de 2 a 16 con resultados al azar.
   app.html: nombreRonda recibe cuantos partidos tiene la columna; una ronda corta se llama «Ronda N», no «Cuartos».
   Un torneo ya creado mantiene su cuadro hasta «Randomizar emparejamientos» (que borra sus resultados).
+
+- 1.3.3 (2026-11-11) · TABLERO Y TORNEO.
+  Tablero (web/app.html, progreso): una medalla solo cuenta si se tiene de verdad (pisar un sitio de despues ya no la
+  da por hecha) y la Ruta 13 es SUELTA (se pisa desde Temper antes de Amaro). A MINIONNES, con 3 medallas, asomarse
+  a la zona 272 le ponia la 4.a y la Central de Kalos; ahora sale en el combate contra el rival de Temper.
+  Torneo (David): nadie pasa de ronda sin combatir; si en una ronda sobra uno, juega AL MEJOR DE 3 contra el perdedor
+  de un combate de esa ronda (partido 'segunda': True, fuentes [el que sobra, {'pierde': id}]); los que pierden las
+  semifinales se juegan el 3.er puesto AL MEJOR DE 1 ('tercero': True, columna de la final; si las semifinales son de
+  3, no hay duelo: el 3.o es quien pierde la segunda oportunidad). Con 10: 5; 2+1; 1+1; final.
+  online._cuadro prueba 200 formas (quien sobra, contra que perdedor, donde sigue) y se queda la que menos repite
+  enfrentamientos con resultados al azar (_repetidos). No se puede bajar de ~65-75 % con 10: quien gana su segunda
+  oportunidad puede volver a cruzarse con quien le gano. Menos de 2 s por sorteo con 63.
+  _podio: 3.o = ganador del duelo, o perdedor de la segunda oportunidad de semifinales; torneos viejos, como antes.
+  app.html: ordenCuadro (orden de cada columna recorriendo desde la final: las lineas no se cruzan), nombreRonda por
+  cuantos juegan (8 cuartos, 16 octavos; si no «Primera ronda»/«Ronda N»), etiquetas azul (segunda) y bronce
+  (tercero), y el hueco dice «Quien pierda A – B». Normas: clausula septima 4, 5 y 6, y el PDF.
+  EL SORTEO CON MÁQUINA DE BOLAS (también 1.3.3, David: «que el bracket no se monte con un botón: que vaya
+  montándose poco a poco»):
+  - Crear (solo el admin): jugadores + ORGANIZADORES ('gestores', un desplegable con las cuentas). Admin y
+    organizadores pueden sortear, remover, sacar bola, vaciar el cuadro y marcar resultados; crear y reiniciar, solo
+    el admin (Servidor.SOLO_ADMIN). torneo() devuelve 'puede'.
+  - El cuadro sale VACÍO (_cuadro_vacio: la misma búsqueda de la forma, con huecos numerados {'j': None, 'hueco': k}
+    en el orden en que se ven, de arriba abajo). t['sorteo'] = {abierto, removido, sacados [{nombre, hueco, t}],
+    bombo, total}; 'bombo' (lo que queda dentro) NUNCA sale del servidor. 'sacar' elige al azar del bombo y lo pone
+    en el hueco siguiente (_poner). lock_torneo: dos organizadores a la vez no se pisan. Torneos de antes: sin sorteo.
+  - app.html: panel #sorteo (fuera de tn-cuerpo para que repintar no corte las animaciones). Máquina en SVG + canvas
+    con las bolas (física sencilla; Remover las agita). Al llegar una bola nueva (cada Pokelocke con el torneo
+    abierto mira cada segundo si la máquina está abierta): manivela, cae, se abre, papel con el nombre y luego pasa
+    al cuadro; hasta entonces el cuadro no enseña el nombre (vistaTorneo + sorteo.revelados). El hueco siguiente
+    sale en rojo «Posición N · sale ahora». Con «reducir movimiento», sin animaciones.
+  - Firefly: Descargas\taller\pokelocke_sorteo (prompts.txt, maquetas y la referencia de estilo, el tablero). Cuando
+    David deje sorteo-maquina.png, sorteo-bola.png y sorteo-papel.png: quitar fondo, recortar, a assets/ y cambiar el
+    SVG de la máquina por la imagen (las bolas siguen en el canvas, encima del cristal).
+  - Firefly HECHO: las 3 imágenes de David (Descargas\taller\pokelocke_sorteo\sorteo-*.png) cortadas en
+    assets/sorteo-maquina (300×467 en pantalla: cristal centro 150,159 radio 125; pomo 148,357; salida 151,399),
+    sorteo-brillo (los reflejos del cristal, ENCIMA de las bolas), sorteo-pomo (gira al sacar), sorteo-bola (roja: los
+    8 colores con hue-rotate, COLORES_BOLA; en el canvas se pinta cada color una vez) y sorteo-papel-arriba/-hoja/-abajo
+    (la hoja se despliega entre los rodillos). No hacen falta frames: todo se anima moviendo esas piezas.
