@@ -52,7 +52,7 @@ class Datos:
 
     def __init__(self, tools, registro=None):
         self.tools = Path(tools)
-        self.base, self.habilidad, self.tipos = {}, {}, {}
+        self.base, self.habilidad, self.tipos, self.movs = {}, {}, {}, {}
         en = [l.strip().lower() for l in (DATOS / 'Abilities_en.txt').read_text(encoding='utf-8-sig').splitlines()]
         if registro and Path(registro).exists():
             for l in Path(registro).read_text(encoding='utf-8', errors='ignore').splitlines():
@@ -64,6 +64,28 @@ class Datos:
                     resto = l.split('|')[9:12]                                       # sus 3 habilidades (randomizadas)
                     if len(resto) == 3 and int(m[1]) not in self.habilidad:
                         self.habilidad[int(m[1])] = [en.index(h.strip().lower()) if h.strip().lower() in en else 0 for h in resto]
+            # lo que viene después en el registro: los movimientos por nivel randomizados (los huevos y los Pokémon nuevos
+            # salen con estos, no con los del juego original, que casi siempre son de su tipo) y el parche de la 1.2.4
+            # que cambia Superguarda por otra habilidad
+            movs_en = [x.strip().lower() for x in (DATOS / 'Moves_en.txt').read_text(encoding='utf-8').splitlines()]
+            seccion = actual = None
+            for l in Path(registro).read_text(encoding='utf-8', errors='ignore').splitlines():
+                if l.startswith('--'):
+                    seccion = l
+                    continue
+                if seccion == '--Pokemon Movesets--':
+                    m = re.match(r'(\d{3,}) ', l)
+                    if m:
+                        actual = int(m[1]) if int(m[1]) <= MAX_ESPECIE else None
+                        if actual:
+                            self.movs.setdefault(actual, [])
+                        continue
+                    m = re.match(r'Level\s*(\d+)\s*:\s*(.+)$', l)
+                    if m and actual and m[2].strip().lower() in movs_en:
+                        self.movs[actual].append((int(m[1]), movs_en.index(m[2].strip().lower())))
+                m = re.match(r'Superguarda -> (.+) \(entrada (\d+), habilidad (\d)\)', l)
+                if m and int(m[2]) in self.habilidad and m[1].strip().lower() in en:
+                    self.habilidad[int(m[2])][int(m[3]) - 1] = en.index(m[1].strip().lower())
         self._cache_base = self.tools / 'pkx_base.json'
         if not self.base and self._cache_base.exists():
             self.base = {int(k): tuple(v) for k, v in json.loads(self._cache_base.read_text()).items()}
@@ -108,9 +130,9 @@ class Datos:
         return todo[str(especie)]
 
     def movimientos(self, especie, nivel):
-        """Los 4 últimos que aprende por nivel hasta ese nivel (como un Pokémon salvaje)."""
+        """Los 4 últimos que aprende por nivel hasta ese nivel (como un Pokémon salvaje), con los de la randomización."""
         vistos = []
-        for n, m in self._especie(especie)['movs']:
+        for n, m in self.movs.get(especie) or self._especie(especie)['movs']:      # los de la randomización, si hay
             if n <= nivel and m <= MAX_MOVIMIENTO and m not in vistos:
                 vistos.append(m)
         return (vistos[-4:] + [0, 0, 0, 0])[:4]
@@ -189,7 +211,7 @@ def detalle(claro):
         'movimientos': [u16(0x5A + 2 * k) for k in range(4)],
         'pp': list(claro[0x62:0x66]), 'pp_up': list(claro[0x66:0x6A]),
         'ivs': [(iv32 >> (5 * k)) & 31 for k in range(6)],
-        'amistad': claro[0xA2], 'ball': claro[0xDC],
+        'amistad': claro[0xA2 if claro[0x93] else 0xCA], 'ball': claro[0xDC],
         'shiny': (tid ^ sid ^ (pid >> 16) ^ (pid & 0xFFFF)) < 16,
         'estado': u32(0xE8),
         'stats': [u16(0xF2)] + [u16(0xF4 + 2 * k) for k in range(5)],
@@ -243,8 +265,10 @@ def aplicar(claro, c, datos):
                 d[0x66 + k] = 0                           # PP Up de ese hueco
             base = juego.PP_BASE[m] if m < len(juego.PP_BASE) else 0
             d[0x62 + k] = base + base * d[0x66 + k] // 5 if m else 0
-    if 'amistad' in c:
-        d[0xA2] = max(0, min(255, int(c['amistad'])))
+    if 'amistad' in c and not (struct.unpack_from('<I', d, 0x74)[0] >> 30) & 1:     # en un huevo 0xCA son sus pasos
+        # dos amistades: la del entrenador original (0xCA) y la del último que lo tuvo (0xA2); el juego usa la de
+        # quien lo tiene ahora (0x93: 0 el original, 1 el otro). Se ponen las dos: la de 0xA2 sola no hacía evolucionar
+        d[0xCA] = d[0xA2] = max(0, min(255, int(c['amistad'])))
     if 'ball' in c:
         d[0xDC] = int(c['ball']) & 0xFF
     if 'shiny' in c:
@@ -279,6 +303,27 @@ def aplicar(claro, c, datos):
     put16(0xF0, ps)
     put16(0x06, sum(struct.unpack_from('<112H', d, 0x08)) & 0xFFFF)
     return bytes(d)
+
+
+# ---------- las MT de cada partida ----------
+# Qué ataque enseña cada MT está en el code.bin (la randomización puede cambiarlo): como lo lee el randomizador
+# (Gen6RomHandler.getTMMoves, X/Y): tras la marca, las MT 1-92 seguidas y las 93-100 a 97 palabras de la marca + 8
+MARCA_MT = bytes.fromhex('D400AE02AF02B002')
+OBJETOS_MT = list(range(328, 420)) + [618, 619, 620] + list(range(690, 695))      # MT01-92, MT93-95, MT96-100
+
+
+def movimientos_mt(code_bin):
+    """{objeto de la MT: ataque que enseña} del code.bin de un mod; {} si no se encuentra."""
+    try:
+        c = Path(code_bin).read_bytes()
+    except OSError:
+        return {}
+    i = c.find(MARCA_MT)
+    if i < 0:
+        return {}
+    o = i + len(MARCA_MT)
+    movs = [struct.unpack_from('<H', c, o + 2 * k)[0] for k in range(92)] +            [struct.unpack_from('<H', c, o + 97 * 2 + 2 * k)[0] for k in range(8)]
+    return {obj: m for obj, m in zip(OBJETOS_MT, movs) if 0 < m <= MAX_MOVIMIENTO}
 
 
 # ---------- la mochila ----------

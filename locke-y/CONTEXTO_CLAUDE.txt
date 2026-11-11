@@ -366,6 +366,8 @@ jugador no esté conectado. Niveles: info, aviso, sospecha. Una sospecha no es u
 - Mochila (10/11/2026): escribir_bolsillo deja los objetos que YA estaban en el bolsillo aunque no estén en la lista de PKHeX (una
   Carta Pregunta de una tienda aleatoria en Objetos hacía fallar dar_escamas: «no va en este bolsillo», y no se abría el juego).
   Dar escamas/caramelos ya no corta la apertura del juego si falla.
+- La 1.2.7 lleva también todo lo de la 1.2.2 a la 1.2.6 (tiendas, tablero, amistad, cuelgues de Citra, MT y Superguarda,
+  huevos, MT fijas y al azar por room, PokéHex con el ataque de cada MT): se juntó con el main del 10/11/2026.
 - «Versión 1.2.7» es solo el texto del pie (app.html); las actualizaciones siguen comparando el número por fecha de empaquetar.py.
 
 
@@ -384,3 +386,36 @@ Hechas con Gemini Nano Banana 2 editando SIEMPRE la misma base (no generando de 
 - La cara de la base ya NO coincide con las capas cara_*.png: los gestos se sacan con prompts.
 - Fondo blanco: para recortar, rellenar el blanco conectado a los bordes (como montar_previa.py),
   no croma por color (la camisa es blanca).
+- 1.2.2 (2026-11-07) · TIENDAS DEL SEGUNDO DEPENDIENTE: el UPR solo randomiza las 11 tiendas "especiales" y se salta las 4 de MT
+  (TMShops 18, 19, 22, 23 de gen6_offsets.ini: el de la derecha de los Centros de Luminalia), que salían iguales en todas las
+  partidas. app/TiendasAzar.java (compilado en pokelocke-upr.jar) carga la ROM, le pone el code.bin del mod y: randomiza las
+  especiales si siguen como en la ROM (partidas de antes de la 1.2.0) y pone 5 MT al azar en cada tienda de MT (sin repetir
+  entre las cuatro). Toca solo esos bytes de la tabla (offset del UPR, 2 bytes por objeto). emulador.tiendas_al_azar: al
+  randomizar (preparar) y, en las partidas que ya había, una vez al abrir el juego (j['tiendas_parche'], TIENDAS_VERSION=3);
+  renueva j['firma_mod'] solo si cuadraba antes (vigia). ROM "SuperY" modificada: el UPR no encuentra la tabla -> "SIN TIENDAS".
+  Tablero: ZONAS (app.html) rellena con las zonas de la ROM (wildMapNames del UPR, id = zona de juego.zona) para llegadas y
+  rutas; cuentan desde la Ruta 1 (258); Rutas 7, 10 y 12 sueltas. Amistad del editor: 0xCA (entrenador original) y 0xA2
+  (el último que lo tuvo; el juego usa la de 0x93); se escriben las dos, nunca en huevos.
+- 1.2.3 (2026-11-08) · CUELGUES DE CITRA (0xc0000374 en ntdll, 5 el 2026-11-07): cada escritura por RPC hace que Citra 1920
+  llame a InvalidateCacheRange desde el hilo del RPC con el juego corriendo, y con protocolo 1 (32 bytes) esconder/devolver
+  las Balls eran 67 escrituras. RPC.escribir lee antes y manda solo los bytes que cambian; esconder_balls rellena los huecos
+  con los últimos objetos (las Balls quedan al final: 1-2 escrituras). Ver Windows > Registro de aplicaciones (Id 1000).
+- 1.2.4 (2026-11-08) · MT AL AZAR Y SIN SUPERGUARDA: la app no pasaba tmsHmsCompatibilityMod (se quedaba la compatibilidad del juego, casi
+  siempre por tipo) y el UPR deja Superguarda por defecto. Partidas nuevas (modo mega): tmsHmsCompatibilityMod=
+  COMPLETELY_RANDOM, tmsFollowEvolutions, fullHMCompat, allowWonderGuard=false. Las que ya había: app/PersonalAzar.java
+  (en pokelocke-upr.jar) sobre romfs/a/2/1/8 del mod (entradas de 0x40: habilidades en 0x18-0x1A, MT/MO en 0x28-0x37; la
+  última entrada del GARC es la tabla con todas, se rehace): MT sorteadas por el UPR solo si eran las del juego; Superguarda
+  (25) -> otra al azar (tampoco a Shedinja, que el UPR se la deja). emulador.personal_al_azar, una vez al abrir
+  (j['personal_parche'], PERSONAL_VERSION=1) y al randomizar. Los Pokémon ya capturados guardan su habilidad (0x14 del PK6).
+  Huevos y Pokémon nuevos de la app (pokehex.Datos): movimientos por nivel de la sección --Pokemon Movesets-- del registro
+  (nombres en inglés -> datos_pkx/Moves_en.txt, sacado del UPR) en vez de PokéAPI, y las líneas «Superguarda -> X» del parche.
+- 1.2.5 (2026-11-08) · MT IGUALES EN LAS DOS FASES: MegaFases.mtSuaves (MT de 70 o más -> otras de menos de 70) va antes de guardar la completa,
+  no en faseFacil: las MT no cambian al abrir la completa (2.ª medalla). Partidas en fase 1: emulador.mt_fijas (una vez,
+  j['mt_fijas']) con app/MTFijas.java copia las MT del code.bin fácil al completo (100 bytes) y romfs/a/0/7/4 (descripciones).
+  Las que ya estaban en fase 2 no tienen arreglo: la fase fácil se borra al cambiar (abrir_fase_completa).
+- 1.2.6 (2026-11-08) · El ataque de cada MT al azar por partida (antes, las del juego en todas las rooms): tmsMod=RANDOM,
+  keepFieldMoveTMs (MT70 Destello y MT94 Golpe Roca se quedan), blockBrokenTMMoves; después mtSuaves. Las rooms que ya había:
+  emulador.mt_azar (una vez, después de mt_fijas; j['mt_azar']) con app/MTAzar.java: sortea las MT que NO están en la mochila
+  de la partida guardada (las de la mochila no cambian, petición del usuario), de menos de 70, en mod y mod_completo.
+  Si no lee la partida, no toca nada. setTMMoves también cambia el color del icono de cada MT (paleta por tipo).
+  PokéHex: el bolsillo de MT enseña «MT26 · Ataque» (pokehex.movimientos_mt lee el code.bin del mod).

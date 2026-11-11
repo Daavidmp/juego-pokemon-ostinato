@@ -81,6 +81,72 @@ p = juego.pokemon(abierto)
 ver(p and not p['huevo'] and p['mote'] == 'Pikachu' and p['especie'] == 25, 'el huevo abierto en memoria es un Pokémon válido, sin marca de huevo')
 ver(struct.unpack_from('<I', abierto, 0x74)[0] == 12345 and abierto[0xCA] == 70 and struct.unpack_from('<H', abierto, 0xDA)[0] == 8, 'conserva sus IV y coge amistad y sitio')
 ver(juego.descifrar(*juego.cifrar(abierto)[:1], juego.cifrar(abierto)[1][:22])[:232] == abierto[:232], 'se cifra bien para escribirlo en el equipo')
+class _Datos:                                           # lo mínimo que pide aplicar(): experiencia y stats base
+    tabla_exp = staticmethod(lambda e: [n ** 3 for n in range(101)])
+    stats_base = staticmethod(lambda e: [50] * 6)
+mio = bytearray(abierto)                                # capturado por ti: el juego usa la amistad de 0xCA
+mio[0x93], mio[0xA2] = 0, 0
+r = pokehex.aplicar(bytes(mio), {'amistad': 255}, _Datos)
+ver(r[0xCA] == 255 and r[0xA2] == 255 and pokehex.detalle(r)['amistad'] == 255, 'la amistad se pone en la que usa el juego (la del entrenador original)')
+ajeno = bytearray(mio)                                  # intercambiado: usa la de 0xA2
+ajeno[0x93], ajeno[0xCA], ajeno[0xA2] = 1, 10, 99
+struct.pack_into('<H', ajeno, 6, sum(struct.unpack_from('<112H', ajeno, 8)) & 0xFFFF)
+ver(pokehex.detalle(bytes(ajeno))['amistad'] == 99, 'en uno intercambiado se lee la de su entrenador actual')
+r = pokehex.aplicar(bytes(pk), {'amistad': 255}, _Datos)
+ver(r[0xCA] == 120, 'en un huevo no se toca: 0xCA son los pasos que le faltan')
+# ---------- escribir poco en la memoria del juego (cada escritura arriesga un cuelgue de Citra) ----------
+class _Memoria(juego.RPC):
+    def __init__(self):
+        self.protocolo, self.equipo, self.m, self.trozos = 1, 0x8CE1CE8, bytearray(0x100000), 0
+    def _d(self, x): return x - (0x8CE1CE8 + juego.MOCHILA_DESDE_EQUIPO) + 0x1000
+    def leer(self, x, n): return bytes(self.m[self._d(x):self._d(x) + n])
+    def _escribir_trozo(self, v, x, t):
+        assert len(t) <= 24
+        self.m[self._d(x):self._d(x) + len(t)] = t
+        self.trozos += 1
+mem = _Memoria()
+objetos = [(4, 10), (17, 3), (3, 5), (25, 1), (2, 7)] + [(100 + k, 1) for k in range(40)]
+mem.m[0x1000:0x1000 + 4 * len(objetos)] = b''.join(struct.pack('<HH', *o) for o in objetos)
+fuera = juego.esconder_balls(mem)
+quedan = [x for x in juego._bolsillo(mem) if x[0]]
+ver(sorted(map(tuple, fuera)) == [(2, 7), (3, 5), (4, 10)] and not any(x[0] in juego.BALLS for x in quedan) and len(quedan) == 42, 'esconder las Balls no pierde ningún objeto')
+ver(mem.trozos <= 6, f'y escribe poco ({mem.trozos} escrituras; antes, el bolsillo entero: 67)')
+juego.devolver_balls(mem, fuera)
+todo = [x for x in juego._bolsillo(mem) if x[0]]
+ver(sorted(todo) == sorted(objetos), 'al devolverlas está todo como antes')
+mem.trozos = 0
+juego.devolver_balls(mem, juego.esconder_balls(mem))
+ver(mem.trozos <= 4 and sorted(x for x in juego._bolsillo(mem) if x[0]) == sorted(objetos), f'la segunda vez, con las Balls al final, casi nada ({mem.trozos} escrituras)')
+mem.trozos = 0
+mem.escribir(0x8CE1CE8 + juego.MOCHILA_DESDE_EQUIPO, mem.leer(0x8CE1CE8 + juego.MOCHILA_DESDE_EQUIPO, 1600))
+ver(mem.trozos == 0, 'escribir lo mismo que ya hay no manda nada')
+import tempfile
+reg = Path(tempfile.mkdtemp()) / 'r.log'
+reg.write_text("""--Pokemon Base Stats & Types--
+292|Shedinja        |BUG/GHOST        |   1|  90|  45|  30|  30|  40|Wonder Guard  |--            |Wonder Guard  |
+--Pokemon Movesets--
+292 Shedinja ->  (no evolution)
+Level 1 : Heart Stamp
+Level 1 : Shift Gear
+Level 9 : Pound
+--Shops--
+--Pokelocke 1.2.4: MT al azar y sin Superguarda--
+Superguarda -> Levitate (entrada 292, habilidad 1)
+Superguarda -> Damp (entrada 292, habilidad 3)
+""", encoding='utf-8')
+dr = pokehex.Datos(Path(tempfile.mkdtemp()), reg)
+ver(dr.movimientos(292, 1)[:3] == [pokehex.NOMBRES['movimientos'].index('Arrumaco'), pokehex.NOMBRES['movimientos'].index('Cambio de Marcha'), 0], 'los huevos salen con los movimientos de la randomización, no los del juego original')
+ver(25 not in dr.habilidades(292), 'y sin Superguarda si el parche la ha cambiado')
+cb = bytearray(0x2000)
+cb[0x100:0x108] = pokehex.MARCA_MT
+for k, m in enumerate(range(1, 93)):
+    struct.pack_into('<H', cb, 0x108 + 2 * k, m)
+for k in range(8):
+    struct.pack_into('<H', cb, 0x108 + 97 * 2 + 2 * k, 500 + k)
+(reg.parent / 'code.bin').write_bytes(bytes(cb))
+mts = pokehex.movimientos_mt(reg.parent / 'code.bin')
+ver(len(mts) == 100 and mts[328] == 1 and mts[419] == 92 and mts[618] == 500 and mts[694] == 507, 'el PokéHex sabe qué ataque enseña cada MT de la partida (MT01-100)')
+ver(pokehex.movimientos_mt(reg.parent / 'no_existe.bin') == {}, 'y sin code.bin no falla')
 part = pokehex.Partida.__new__(pokehex.Partida)
 part.d = bytearray(pokehex.TAM_PARTIDA)
 struct.pack_into('<II', part.d, pokehex.TAM_PARTIDA - 0x200 + 0x14, 0x300, 0)
@@ -636,6 +702,91 @@ ver(locke.vidas(jd2) == 24, 'el que pierde, una vida menos')
 comun.biblio['juegos'], emulador.jugando = juegos_antes, jugando_antes
 o.cambiar_nombre(ta, 'Amiga', 'clave2', '2.2.2.2')
 ver(o.duelos[0]['ganador'] == 'Amiga' and 'Amiga' in o.duelos[0]['fin'], 'al cambiar de nombre, sus duelos siguen con él')
+
+# ---------- tiendas del segundo dependiente ----------
+print('Tiendas al azar')
+tmp_t = Path(tempfile.mkdtemp())
+datos_antes, correr_antes = comun.DATOS, emulador.correr
+fuera = (emulador.upr_jar, emulador.java, emulador.rom_jugable, emulador.clase_pokelocke, comun.guardar)
+comun.DATOS = tmp_t
+emulador.upr_jar, emulador.java = (lambda: tmp_t / 'upr.jar'), (lambda: 'java')
+emulador.rom_jugable, emulador.clase_pokelocke = (lambda j: 'rom.3ds'), (lambda jar, n: [n])
+comun.guardar = lambda: None
+llamadas = []
+def correr_falso(args, cwd):
+    llamadas.append(args)
+    for c in args:
+        if str(c).endswith('code.bin'):
+            Path(c).write_bytes(b'nuevo')
+    return 'tiendas en la ROM: 11\nHecho 2\n'
+emulador.correr = correr_falso
+for v in ('mod', 'mod_completo'):
+    (tmp_t / 'juegos' / 'tt' / v / '0004000000055E00').mkdir(parents=True)
+    (tmp_t / 'juegos' / 'tt' / v / '0004000000055E00' / 'code.bin').write_bytes(b'viejo')
+jt = {'id': 'tt', 'reglas': 'mega', 'random': {'avanzado': False, 'opciones': {}}}
+jt['firma_mod'] = emulador.firma_mod(jt)
+emulador.tiendas_al_azar(jt)
+ver(len(llamadas) == 1 and 'TiendasAzar' in llamadas[0] and sum(str(c).endswith('code.bin') for c in llamadas[0]) == 2,
+    'una partida Mega pasa sus dos code.bin (fase fácil y completa) por TiendasAzar')
+ver(jt['tiendas_parche']['estado'] == 'hecho' and jt['tiendas_parche']['version'] == emulador.TIENDAS_VERSION, 'queda apuntado')
+ver(jt['firma_mod'] == emulador.firma_mod(jt), 'la huella de los archivos se renueva: no salta el aviso de archivos tocados')
+emulador.tiendas_al_azar(jt)
+ver(len(llamadas) == 1, 'solo una vez por partida')
+jt2 = {'id': 'tt', 'reglas': None, 'random': {'avanzado': False, 'opciones': {}}}
+emulador.tiendas_al_azar(jt2)
+ver(len(llamadas) == 1 and 'tiendas_parche' not in jt2, 'sin las normas Mega no se tocan las tiendas')
+jt3 = {'id': 'tt', 'reglas': 'mega', 'random': {'avanzado': False}, 'firma_mod': 'otra'}
+emulador.tiendas_al_azar(jt3)
+ver(jt3['firma_mod'] == 'otra', 'si los archivos ya estaban tocados, la huella no se arregla sola')
+llamadas.clear()
+jp = {'id': 'tt', 'reglas': 'mega', 'random': {'avanzado': False, 'opciones': {}}}
+jp['firma_mod'] = emulador.firma_mod(jp)
+emulador.personal_al_azar(jp)
+ver(len(llamadas) == 1 and 'PersonalAzar' in llamadas[0] and sum(Path(str(c)).parts[-5:] == ('romfs', 'a', '2', '1', '8') for c in llamadas[0]) == 2,
+    'MT al azar y sin Superguarda: pasa los datos de los Pokémon de las dos fases por PersonalAzar')
+ver(jp['personal_parche']['version'] == emulador.PERSONAL_VERSION and jp['firma_mod'] == emulador.firma_mod(jp), 'queda apuntado y con la huella al día')
+emulador.personal_al_azar(jp)
+ver(len(llamadas) == 1, 'solo una vez por partida (llega a todas al actualizar, la primera vez que abren el juego)')
+emulador.personal_al_azar({'id': 'tt', 'reglas': None, 'random': {}})
+ver(len(llamadas) == 1, 'sin las normas Mega no se toca')
+llamadas.clear()
+for v in ('mod', 'mod_completo'):
+    (tmp_t / 'juegos' / 'tt' / v / '0004000000055E00' / 'romfs' / 'a' / '0' / '7').mkdir(parents=True, exist_ok=True)
+(tmp_t / 'juegos' / 'tt' / 'mod' / '0004000000055E00' / 'romfs' / 'a' / '0' / '7' / '4').write_bytes(b'texto facil')
+emulador.correr = lambda args, cwd: (llamadas.append(args), 'Hecho')[1]
+jm = {'id': 'tt', 'reglas': 'mega', 'fase': 2, 'random': {'avanzado': False}}
+emulador.mt_fijas(jm)
+ver(not llamadas, 'MT fijas: en la fase completa ya no se toca (la fácil ya no está)')
+jm['fase'] = 1
+emulador.mt_fijas(jm)
+ver(len(llamadas) == 1 and 'MTFijas' in llamadas[0] and str(llamadas[0][-2]).find('mod_completo') < 0 < str(llamadas[0][-1]).find('mod_completo'),
+    'en la fase 1 copia las MT de la fácil a la completa')
+ver((tmp_t / 'juegos' / 'tt' / 'mod_completo' / '0004000000055E00' / 'romfs' / 'a' / '0' / '7' / '4').read_bytes() == b'texto facil', 'y el texto con sus descripciones')
+emulador.mt_fijas(jm)
+ver(len(llamadas) == 1, 'solo una vez')
+llamadas.clear()
+import guardado as _g
+_pp, _P = _g.pokehex_partida, pokehex.Partida
+class _PartidaMT:
+    def __init__(self, ruta): pass
+    def mochila(self): return {'mt': [{'objeto': 328, 'cantidad': 1}, {'objeto': 690, 'cantidad': 1}, {'objeto': 420, 'cantidad': 1}]}
+_g.pokehex_partida = lambda j: 'main'
+pokehex.Partida = _PartidaMT
+ja = {'id': 'tt', 'reglas': 'mega', 'random': {'avanzado': False}}
+emulador.mt_azar(ja)
+ver(len(llamadas) == 1 and 'MTAzar' in llamadas[0] and llamadas[0][llamadas[0].index('MTAzar') + 2] == '1,96'
+    and sum(str(c).endswith('code.bin') for c in llamadas[0]) == 2,
+    'MT al azar en las rooms que ya hay: pasa las MT de la mochila (MT01 y MT96) para no cambiarlas, y las dos fases')
+emulador.mt_azar(ja)
+ver(len(llamadas) == 1 and ja['mt_azar']['guardadas'] == [1, 96], 'solo una vez, y apunta cuáles se guardaron')
+def _rota(ruta): raise ValueError('partida rota')
+pokehex.Partida = _rota
+jb = {'id': 'tt', 'reglas': 'mega', 'random': {'avanzado': False}}
+emulador.mt_azar(jb)
+ver(len(llamadas) == 1 and 'mt_azar' not in jb, 'si no puede leer la mochila no toca las MT (y lo intenta otra vez)')
+_g.pokehex_partida, pokehex.Partida = _pp, _P
+comun.DATOS, emulador.correr = datos_antes, correr_antes
+emulador.upr_jar, emulador.java, emulador.rom_jugable, emulador.clase_pokelocke, comun.guardar = fuera
 
 # ---------- versiones ----------
 print('Versiones')

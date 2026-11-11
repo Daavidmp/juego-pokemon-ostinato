@@ -48,7 +48,8 @@ import java.util.Set;
  *      preevolución y uno que no evoluciona (o un legendario) se cambia por uno al azar que sí pueda
  *    - los Pokémon de los entrenadores solo usan movimientos de 70 de potencia o menos (o de estado), sin los
  *      de daño variable o fijo, que el UPR apunta con potencia 1
- *    - las MT de 70 de potencia o más se cambian por otras de menos de 70
+ *    (las MT de 70 de potencia o más se cambian por otras de menos de 70 antes de guardar las dos: son las mismas
+ *    en las dos fases)
  */
 public class MegaFases {
     static final int MAX_POTENCIA_RIVAL = 70;     // rivales: iguales o menores de 70
@@ -77,6 +78,7 @@ public class MegaFases {
             regalosAleatorios(rh, azar, registro);
             combatesImportantes(rh, azar);
             asMegaTrasCuartaMedalla(rh, azar);
+            mtSuaves(rh, azar);
             if (!rh.saveRomDirectory(completa)) {
                 throw new IllegalStateException("No se ha podido guardar la versión completa");
             }
@@ -338,7 +340,15 @@ public class MegaFases {
             }
         }
 
-        // MT
+        int salvajesFinales = 0;
+        for (EncounterSet zona : zonas) for (Encounter e : zona.encounters) if (!debil(e.pokemon)) salvajesFinales++;
+        System.out.println("salvajes que ya no pueden evolucionar: " + salvajesFinales);
+    }
+
+    /** Las MT de 70 de potencia o más se cambian por otras de menos de 70. Se hace antes de guardar las dos fases: las
+     *  MT son las mismas toda la partida y no cambian al abrir la randomización completa (2.ª medalla). */
+    static void mtSuaves(RomHandler rh, Random azar) {
+        List<Move> movs = rh.getMoves();
         List<Integer> mts = new ArrayList<>(rh.getTMMoves());
         Set<Integer> usados = new HashSet<>(mts);
         usados.addAll(rh.getHMMoves());
@@ -356,10 +366,7 @@ public class MegaFases {
         rh.setTMMoves(mts);
         int fuertes = 0;
         for (int m : mts) if (movs.get(m).power > MAX_POTENCIA_MT) fuertes++;
-        int salvajesFinales = 0;
-        for (EncounterSet zona : zonas) for (Encounter e : zona.encounters) if (!debil(e.pokemon)) salvajesFinales++;
-        System.out.println("MT de 70 o más que quedan: " + fuertes + " de " + mts.size()
-                + " · salvajes que ya no pueden evolucionar: " + salvajesFinales);
+        System.out.println("MT de 70 o más que quedan: " + fuertes + " de " + mts.size());
     }
 
     /** Los 4 últimos que aprende por nivel hasta su nivel, sin los de más de maxPotencia (si hay tope, tampoco

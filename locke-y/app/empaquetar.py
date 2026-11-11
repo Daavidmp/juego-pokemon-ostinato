@@ -173,7 +173,10 @@ def clases_y_java():
     clases = TOOLS / 'build' / 'clases'
     shutil.rmtree(clases, ignore_errors=True)
     subprocess.run([str(bin_ / 'javac'), '-encoding', 'UTF-8', '-nowarn', '-cp', str(upr), '-d', str(clases),
-                    str(RAIZ / 'app' / 'LockeSettings.java'), str(RAIZ / 'app' / 'MegaFases.java')], check=True)
+                    str(RAIZ / 'app' / 'LockeSettings.java'), str(RAIZ / 'app' / 'MegaFases.java'),
+                    str(RAIZ / 'app' / 'TiendasAzar.java'), str(RAIZ / 'app' / 'PersonalAzar.java'),
+                    str(RAIZ / 'app' / 'MTFijas.java'),
+                    str(RAIZ / 'app' / 'MTAzar.java')], check=True)
     jar = DIST / upr.parent.relative_to(RAIZ) / 'pokelocke-upr.jar'
     jar.parent.mkdir(parents=True, exist_ok=True)
     subprocess.run([str(bin_ / 'jar'), 'cf', str(jar), '-C', str(clases), '.'], check=True)

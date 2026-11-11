@@ -1202,10 +1202,11 @@ const MODOS = {
   mega: {
     resumen: ['Salvajes aleatorios en cada encuentro, de cualquier tipo', 'Iniciales aleatorios con dos evoluciones',
       'Legendarios y Pokémon de regalo totalmente aleatorios', 'Entrenadores con equipos aleatorios y un 15 % más de nivel',
-      'Movimientos, habilidades y objetos del suelo aleatorios', 'La tienda del segundo dependiente de los Centros vende objetos aleatorios',
+      'Movimientos, habilidades y objetos del suelo aleatorios', 'El ataque de cada MT, al azar en cada partida', 'Cualquier Pokémon puede aprender cualquier MT, al azar (las MO, todos)', 'Sin la habilidad Superguarda', 'La tienda del segundo dependiente de los Centros vende objetos aleatorios',
       'Lo que te dan en los intercambios del juego, aleatorio',
       'Estadísticas base y tipos sin cambios', 'Las evoluciones por intercambio pasan a ser al nivel 40', 'Facilidad de captura normal'],
-    normas: ['Dificultad que sube: hasta la 2.ª medalla, entrenadores y salvajes solo con Pokémon que aún pueden evolucionar, rivales con ataques de 70 o menos y MT de menos de 70',
+    normas: ['Dificultad que sube: hasta la 2.ª medalla, entrenadores y salvajes solo con Pokémon que aún pueden evolucionar, rivales con ataques de 70 o menos',
+      'MT de menos de 70 de potencia, las mismas toda la partida (no cambian al abrir la randomización completa)',
       'Al ganar la 2.ª medalla se abre la randomización completa (guarda y reinicia el juego)',
       'La 4.ª medalla cierra la primera parte: toca el gran torneo','25 vidas','Las muertes no cuentan hasta acabar el primer combate contra un entrenador (Shauna)',
       'El vial solo se puede usar fuera de combate', 'Una captura por ruta; los shiny no cuentan',
@@ -1219,7 +1220,13 @@ const MODOS = {
       randomizeHeldItemsForBossTrainerPokemon: 'true', randomizeHeldItemsForImportantTrainerPokemon: 'true', randomizeHeldItemsForRegularTrainerPokemon: 'true',
       // tiendas especiales (el segundo dependiente): al azar, sin objetos inútiles, sin los de la tienda normal ni los que
       // rompen el juego, y con precios acordes. La tienda normal y las de MT no las toca el randomizador
-      shopItemsMod: 'RANDOM', banBadRandomShopItems: 'true', banRegularShopItems: 'true', banOPShopItems: 'true', balanceShopPrices: 'true'},
+      shopItemsMod: 'RANDOM', banBadRandomShopItems: 'true', banRegularShopItems: 'true', banOPShopItems: 'true', balanceShopPrices: 'true',
+      // qué MT aprende cada uno: totalmente al azar (antes, las del juego: casi siempre las de su tipo), siguiendo las
+      // evoluciones y con todas las MO para no quedarse atascado. Superguarda prohibida (1.2.4)
+      tmsHmsCompatibilityMod: 'COMPLETELY_RANDOM', tmsFollowEvolutions: 'true', fullHMCompat: 'true', allowWonderGuard: 'false',
+      // el ataque de cada MT, al azar en cada partida (antes eran las del juego en todas las rooms); las de uso fuera de
+      // combate se quedan. Luego MegaFases cambia las de 70 o más por otras más flojas (1.2.6)
+      tmsMod: 'RANDOM', keepFieldMoveTMs: 'true', blockBrokenTMMoves: 'true'},
   },
   original: {resumen: ['Se juega la versión original, sin cambios']},
   personalizado: {resumen: ['Elige cada opción aquí debajo']},
@@ -1267,10 +1274,25 @@ function menuJuego(j) {
 // ponytail: el Alto Mando y la Campeona aún no se leen de la partida (se quedan por hacer hasta el torneo)
 const medalla = (n, k) => ({id: 'medalla' + (k + 1), n, med: k + 1, ok: (t) => t.medallas[k]});
 // llegar a un sitio: se sabe por las zonas por las que pasas jugando (j.zonas). ZONAS dice qué zona del juego es cada
-// sitio. ponytail: está vacía hasta calibrarla con la Actividad («Zona nueva: N»); mientras, se encienden con la casilla
-// siguiente que sí se lee de la partida
+// sitio: sacadas de la ROM de Pokémon Y (el nombre de cada zona de la tabla de encuentros, 2026-11-07) y comprobadas
+// con el recorrido de los jugadores (8 Acuarela, 258 Ruta 1, 259 Ruta 2, 286 Bosque, 260 Ruta 3, 53 Novarte…)
 const ZONAS = {};
-const llegada = (id, n, det, ico = 'ciudad') => ({id, n, obj: `Llega a ${n}`, det, ico, ok: (t, j) => (j.zonas || []).some((z) => ZONAS[z] === id)});
+const zonas = (id, ...tramos) => tramos.forEach(([a, b = a]) => { for (let z = a; z <= b; z++) ZONAS[z] = id; });
+zonas('novarte', [53, 62]); zonas('ruta2', [259]); zonas('bosque', [286]); zonas('ruta3', [260]); zonas('ruta4', [261]);
+zonas('luminalia', [63, 76], [83, 93], [104, 156], [359]); zonas('labo', [94, 103]);
+zonas('vanitas', [12, 13], [17, 20]); zonas('ruta5', [262]); zonas('ruta6', [263]);
+zonas('ruta7', [264, 265], [352, 353]); zonas('gruta', [334]); zonas('ruta8', [266]); zonas('petroglifo', [45, 52]);
+zonas('ruta9', [267]); zonas('relieve', [157, 171]); zonas('ruta10', [268]); zonas('cromlech', [21, 28]);
+zonas('ruta11', [269]); zonas('reflejos', [305, 308]); zonas('yantra', [172, 186]); zonas('ruta12', [270, 271]);
+zonas('tempera', [187, 199]); zonas('ruta13', [272]); zonas('ruta14', [273, 274]); zonas('romantis', [200, 210]);
+zonas('ruta15', [275]); zonas('hotel', [349]); zonas('ruta16', [276, 277]); zonas('fresco', [29, 37]);
+zonas('helada', [313, 317]); zonas('ruta17', [278]); zonas('fluxus', [211, 221], [356]); zonas('fractal', [222, 232]);
+zonas('ruta18', [279, 280]); zonas('mosaico', [38, 44]); zonas('ruta19', [281]); zonas('ruta21', [283, 284]);
+zonas('victoria', [320], [322, 328]);
+// las zonas que cuentan: desde la Ruta 1 (258). Lo de antes puede ser de otra partida abierta antes en el mismo hueco
+const zonasVistas = (j) => { const z = j.zonas || []; return z.slice(Math.max(0, z.indexOf(258))); };
+const pisada = (id) => (t, j) => zonasVistas(j).some((z) => ZONAS[z] === id);
+const llegada = (id, n, det, ico = 'ciudad') => ({id, n, obj: `Llega a ${n}`, det, ico, ok: pisada(id)});
 const HITOS = [
   {id: 'boceto', n: 'Pueblo Boceto', obj: 'Empieza tu aventura', det: 'Guarda la partida en el juego y el tablero avanza', ico: 'casa', ok: (t) => t.guardada},
   {id: 'inicial', n: 'Pueblo Acuarela', obj: 'Elige a tu inicial', ico: 'ball', ok: (t) => t.equipo.length >= 1},
@@ -1337,10 +1359,13 @@ function puntoEn(curva, f) {
   return {p: [curva[k][0] + (curva[k + 1][0] - curva[k][0]) * g, curva[k][1] + (curva[k + 1][1] - curva[k][1]) * g], k: k + 1};
 }
 
-// las misiones de la historia que van ANTES de cada casilla grande: casillas pequeñas en el camino. Ninguna se lee de
-// la partida: se dan por hechas cuando se hace una casilla de después (simulan el avance entre una y otra)
+// las misiones de la historia que van ANTES de cada casilla grande: casillas pequeñas en el camino. Las rutas, cuevas
+// y sitios se encienden al pisarlos (ZONAS); el resto se da por hecho cuando se hace una casilla de después
 // f (opcional): en qué punto del tramo va, cuando el reparto normal cae encima de otra casilla
-const M = (id, n, det, ico, f) => ({id, n, obj: n, det, ico, f, chica: true, ok: () => false});
+// SUELTAS: se puede entrar antes de tiempo (la Ruta 7 hasta el Snorlax, la 10 y la 12 desde su ciudad), así que pisarlas
+// no da por hecho lo de antes
+const SUELTAS = new Set(['ruta7', 'ruta10', 'ruta12']);
+const M = (id, n, det, ico, f) => ({id, n, obj: n, det, ico, f, chica: true, suelto: SUELTAS.has(id), ok: pisada(id)});
 const MISIONES = {
   novarte: [M('ruta2', 'Ruta 2', 'Tus primeros Pokémon salvajes'), M('bosque', 'Bosque de Novarte', 'Atraviésalo con tus amigos', 'bosque'), M('ruta3', 'Ruta 3')],
   medalla1: [M('rival1', 'Combate contra tu rival', 'Antes del gimnasio de Violeta', 'vs')],
@@ -3006,7 +3031,7 @@ function cerrarHex() { hex.remoto = null; hex.abierto = false; hex.sel = null; h
 async function leerHex() {
   try {
     const j = await hexApi('leer');
-    hex.equipo = j.equipo; hex.mochila = j.mochila; hex.cajas = j.cajas;
+    hex.equipo = j.equipo; hex.mochila = j.mochila; hex.cajas = j.cajas; hex.mt = j.mt || {};
     if (hex.remoto && !hex.juego && j.juegos && j.juegos[0]) hex.juego = j.juegos[0].id;
     pintarHex();
   } catch (e) { alert(e.message); cerrarHex(); }
@@ -3163,7 +3188,9 @@ function pintarMochila() {
   if (!hex.mochila) { caja.innerHTML = '<p class="suave">No encuentro la mochila en la memoria del juego.</p>'; return; }
   if (!hex.borrador || hex.borrador.bolsillo !== hex.bolsillo)
     hex.borrador = {bolsillo: hex.bolsillo, objetos: hex.mochila[hex.bolsillo].map((o) => ({...o}))};
-  const validos = new Set(hex.admitidos[hex.bolsillo]), N = hex.nombres.objetos;
+  // las MT con su ataque de esta partida: «MT26 · Terremoto»
+  const N = hex.nombres.objetos.map((n, o) => hex.mt && hex.mt[o] ? `${n} · ${hex.mt[o]}` : n);
+  const validos = new Set(hex.admitidos[hex.bolsillo]);
   const max = hex.bolsillo === 'mt' || hex.bolsillo === 'clave' ? 1 : 999;
   caja.innerHTML = `
     <div class="hex-lista">${hex.borrador.objetos.map((o, k) => `

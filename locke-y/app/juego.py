@@ -64,20 +64,34 @@ class RPC:
         return out
 
     def escribir(self, direccion, datos):
-        """Escribe en la memoria del juego (petición 2 del RPC), en trozos que quepan en un paquete."""
+        """Escribe en la memoria del juego (petición 2 del RPC), pero solo los trozos que cambian: antes se lee lo que
+        hay. Cada escritura hace que Citra limpie su traductor de código (InvalidateCacheRange) desde el hilo del RPC
+        mientras el juego corre, y muchas seguidas acaban corrompiendo su memoria: se cuelga con 0xc0000374 (medido
+        el 2026-11-07: cinco cuelgues, todos tras ráfagas de 67 escrituras al esconder o devolver las Balls)."""
+        antes = self.leer(direccion, len(datos))
         version, maximo = PROTOCOLOS[self.protocolo]
-        while datos:
-            trozo = datos[:maximo - 8]
-            rid = random.getrandbits(32)
-            self.s.sendto(struct.pack('<IIII', version, rid, 2, 8 + len(trozo)) +
-                          struct.pack('<II', direccion, len(trozo)) + trozo, ('127.0.0.1', PUERTO))
-            while True:
-                r = self.s.recv(32 * 1024 + 16)
-                _, i, tipo, _ = struct.unpack('<IIII', r[:16])
-                if i == rid and tipo == 2:
-                    break
-            direccion += len(trozo)
-            datos = datos[len(trozo):]
+        paso, n, i = maximo - 8, len(datos), 0
+        while i < n:
+            if datos[i] == antes[i]:
+                i += 1
+                continue
+            fin = k = i + 1                       # el trozo sigue mientras quepa y no haya 4 bytes iguales seguidos
+            while k < n and k - i < paso and k - fin < 4:
+                if datos[k] != antes[k]:
+                    fin = k + 1
+                k += 1
+            self._escribir_trozo(version, direccion + i, datos[i:fin])
+            i = fin
+
+    def _escribir_trozo(self, version, direccion, trozo):
+        rid = random.getrandbits(32)
+        self.s.sendto(struct.pack('<IIII', version, rid, 2, 8 + len(trozo)) +
+                      struct.pack('<II', direccion, len(trozo)) + trozo, ('127.0.0.1', PUERTO))
+        while True:
+            r = self.s.recv(32 * 1024 + 16)
+            _, i, tipo, _ = struct.unpack('<IIII', r[:16])
+            if i == rid and tipo == 2:
+                return
 
 
 def bloque_orden(ec):
@@ -250,7 +264,11 @@ def esconder_balls(rpc):
     h = _bolsillo(rpc)
     fuera = [list(x) for x in h if x[0] in BALLS]
     if fuera:
-        _poner_bolsillo(rpc, [x for x in h if x[0] not in BALLS])
+        # los huecos de las Balls se llenan con los últimos objetos, sin correr todo el bolsillo: así se escribe poco
+        # (ver RPC.escribir). Al devolverlas van al final, y desde entonces esconderlas es vaciar los últimos huecos
+        quedan = sum(1 for x in h if x[0] and x[0] not in BALLS)
+        cola = [x for x in h[quedan:] if x[0] and x[0] not in BALLS]
+        _poner_bolsillo(rpc, [x if x[0] not in BALLS else (cola.pop(0) if cola else (0, 0)) for x in h[:quedan]] + cola)
     return fuera
 
 

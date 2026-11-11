@@ -500,6 +500,172 @@ def poner_mod(j):
     marca.write_text(firma, encoding='utf-8')
 
 
+TIENDAS_VERSION = 3       # 2: también las de MT (con objetos) · 3: las de MT venden MT al azar
+
+
+def tiendas_al_azar(j, mensaje='Poniendo tiendas aleatorias en tu partida… (solo esta vez)', reglas=None):
+    """Las tiendas del segundo dependiente de los Centros, aleatorias (normas Mega). El randomizador solo cambia las
+    tiendas «especiales» y se salta las de MT (las de Luminalia), que salían iguales en todas las partidas; y las
+    partidas randomizadas antes de la 1.2.0 no tienen ni las especiales. Las tiendas de Pokémon Y están en el code.bin
+    del mod: TiendasAzar.java las cambia ahí, con las mismas reglas que las partidas nuevas y sin volver a randomizar
+    nada más. Se hace al randomizar y, en las partidas que ya había, una vez al abrir el juego; si falla se juega igual
+    y se vuelve a intentar la próxima vez."""
+    r = j.get('random') or {}
+    if (reglas or j.get('reglas')) != 'mega' or r.get('avanzado') \
+            or (j.get('tiendas_parche') or {}).get('version') == TIENDAS_VERSION:
+        return
+    carpeta = comun.DATOS / 'juegos' / j['id']
+    codigos = [c for v in ('mod', locke.MOD_COMPLETO) for c in (carpeta / v).glob('*/code.bin')]
+    if not codigos:
+        return
+    registro = carpeta / 'tiendas_parche.log'
+    # la huella de los archivos (vigia) cambia con el parche: se renueva, pero solo si cuadraba antes (si no, que
+    # siga saltando el aviso de archivos tocados)
+    huella_buena = j.get('firma_mod') == firma_mod(j)
+    comun.tarea(mensaje)
+    try:
+        jar, jv = upr_jar(), java()
+        salida = correr([jv, '-Xmx2048M', *clase_pokelocke(jar, 'TiendasAzar'), rom_jugable(j),
+                         *map(str, codigos), str(registro)], jar.parent)
+    except Exception:
+        traceback.print_exc()
+        return
+    estado = 'hecho' if 'Hecho' in salida else 'sin tiendas' if 'SIN TIENDAS' in salida else 'ya estaban'
+    print(time.strftime('%H:%M:%S'), 'tiendas al azar:', estado, flush=True)
+    if estado == 'hecho' and registro.exists():
+        with open(carpeta / 'randomizacion.log', 'a', encoding='utf-8') as f:
+            f.write('\n' + registro.read_text(encoding='utf-8'))
+    with comun.lock:
+        j['tiendas_parche'] = {'estado': estado, 'version': TIENDAS_VERSION, 'fecha': time.strftime('%Y-%m-%d %H:%M')}
+        if estado == 'hecho' and huella_buena:
+            j['firma_mod'] = firma_mod(j)
+        comun.guardar()
+
+
+PERSONAL_VERSION = 1      # 1: MT al azar (si eran las del juego original) y sin Superguarda (1.2.4)
+
+
+def personal_al_azar(j, mensaje='Poniendo MT al azar y quitando Superguarda en tu partida… (solo esta vez)', reglas=None):
+    """Los datos de cada Pokémon del mod (romfs/a/2/1/8), normas Mega: hasta la 1.2.4 la app no pedía al randomizador
+    que cambiara qué MT aprende cada uno (se quedaban las del juego, casi siempre las de su tipo) y dejaba salir
+    Superguarda. PersonalAzar.java sortea las MT con el randomizador (totalmente al azar, con todas las MO) y cambia
+    Superguarda por otra habilidad, sin tocar nada más. Como tiendas_al_azar: al randomizar y, en las partidas que ya
+    había, una vez al abrir el juego; si falla se juega igual y se vuelve a intentar la próxima vez."""
+    r = j.get('random') or {}
+    if (reglas or j.get('reglas')) != 'mega' or r.get('avanzado')             or (j.get('personal_parche') or {}).get('version') == PERSONAL_VERSION:
+        return
+    carpeta = comun.DATOS / 'juegos' / j['id']
+    personales = [t / 'romfs' / 'a' / '2' / '1' / '8' for v in ('mod', locke.MOD_COMPLETO) for t in (carpeta / v).glob('*')
+                  if (t / 'code.bin').exists()]
+    if not personales:
+        return
+    registro = carpeta / 'personal_parche.log'
+    huella_buena = j.get('firma_mod') == firma_mod(j)
+    comun.tarea(mensaje)
+    try:
+        jar, jv = upr_jar(), java()
+        salida = correr([jv, '-Xmx2048M', *clase_pokelocke(jar, 'PersonalAzar'), rom_jugable(j),
+                         *map(str, personales), str(registro)], jar.parent)
+    except Exception:
+        traceback.print_exc()
+        return
+    estado = 'hecho' if 'Hecho' in salida else 'ya estaban'
+    print(time.strftime('%H:%M:%S'), 'MT y habilidades:', estado, flush=True)
+    if estado == 'hecho' and registro.exists():
+        with open(carpeta / 'randomizacion.log', 'a', encoding='utf-8') as f:
+            f.write('\n' + registro.read_text(encoding='utf-8'))
+    with comun.lock:
+        j['personal_parche'] = {'estado': estado, 'version': PERSONAL_VERSION, 'fecha': time.strftime('%Y-%m-%d %H:%M')}
+        if estado == 'hecho':
+            import guardado                     # los datos de los huevos se vuelven a leer del registro nuevo
+            guardado.hex_vivo['datos'].pop(j['id'], None)
+            if huella_buena:
+                j['firma_mod'] = firma_mod(j)
+        comun.guardar()
+
+
+def mt_fijas(j):
+    """Las MT de la fase fácil, también en la completa (normas Mega, 1.2.4). Hasta la 1.2.4 la fase fácil cambiaba las
+    MT de 70 o más por otras más flojas solo en su mod, y al abrir la randomización completa (2.ª medalla) las MT
+    enseñaban otros ataques. MTFijas.java copia los ataques de cada MT al code.bin de la completa, y aquí se copia el
+    texto con sus descripciones (romfs/a/0/7/4). Solo con la partida aún en la fase 1: la fase fácil se borra al pasar
+    a la completa y ya no se sabe qué MT tenía. Una vez por partida; si falla se juega igual."""
+    r = j.get('random') or {}
+    carpeta = comun.DATOS / 'juegos' / j['id']
+    if j.get('reglas') != 'mega' or r.get('avanzado') or j.get('fase') != 1 or j.get('mt_fijas')             or not (carpeta / locke.MOD_COMPLETO).exists():
+        return
+    pares = [(t, carpeta / locke.MOD_COMPLETO / t.name) for t in (carpeta / 'mod').glob('*')
+             if (t / 'code.bin').exists() and (carpeta / locke.MOD_COMPLETO / t.name / 'code.bin').exists()]
+    if not pares:
+        return
+    huella_buena = j.get('firma_mod') == firma_mod(j)
+    comun.tarea('Dejando las MT iguales para toda la partida… (solo esta vez)')
+    estado = 'ya estaban'
+    try:
+        jar, jv = upr_jar(), java()
+        for facil, completa in pares:
+            salida = correr([jv, '-Xmx2048M', *clase_pokelocke(jar, 'MTFijas'), rom_jugable(j),
+                             str(facil / 'code.bin'), str(completa / 'code.bin')], jar.parent)
+            if 'Hecho' in salida:
+                estado = 'hecho'
+                texto = facil / 'romfs' / 'a' / '0' / '7' / '4'
+                if texto.exists():
+                    (completa / 'romfs' / 'a' / '0' / '7').mkdir(parents=True, exist_ok=True)
+                    shutil.copy2(texto, completa / 'romfs' / 'a' / '0' / '7' / '4')
+    except Exception:
+        traceback.print_exc()
+        return
+    print(time.strftime('%H:%M:%S'), 'MT fijas:', estado, flush=True)
+    with comun.lock:
+        j['mt_fijas'] = {'estado': estado, 'fecha': time.strftime('%Y-%m-%d %H:%M')}
+        if estado == 'hecho' and huella_buena:
+            j['firma_mod'] = firma_mod(j)
+        comun.guardar()
+
+
+def mt_azar(j):
+    """El ataque de cada MT, al azar en cada partida (normas Mega, 1.2.6): hasta la 1.2.6 cada MT enseñaba el mismo
+    ataque en todas las rooms (las partidas nuevas ya salen al azar del randomizador). Las MT que el jugador ya tiene
+    en la mochila no cambian, ni las de uso fuera de combate; las demás, MTAzar.java (de menos de 70 de potencia, las
+    mismas en las dos fases). Va después de mt_fijas. Una vez por partida, con la partida guardada a mano: si no se
+    puede leer qué MT hay en la mochila no se toca nada y se vuelve a intentar la próxima vez."""
+    r = j.get('random') or {}
+    if j.get('reglas') != 'mega' or not j.get('random') or r.get('avanzado') or j.get('mt_azar'):
+        return
+    carpeta = comun.DATOS / 'juegos' / j['id']
+    codigos = [c for v in ('mod', locke.MOD_COMPLETO) for c in (carpeta / v).glob('*/code.bin')]
+    if not codigos:
+        return
+    try:
+        import guardado, pokehex
+        bolsa = pokehex.Partida(guardado.pokehex_partida(j)).mochila()['mt']
+        guardar = sorted({pokehex.OBJETOS_MT.index(x['objeto']) + 1 for x in bolsa if x['objeto'] in pokehex.OBJETOS_MT})
+    except Exception:
+        traceback.print_exc()
+        return
+    registro = carpeta / 'mt_azar.log'
+    huella_buena = j.get('firma_mod') == firma_mod(j)
+    comun.tarea('Sorteando el ataque de cada MT (las de tu mochila no cambian)… (solo esta vez)')
+    try:
+        jar, jv = upr_jar(), java()
+        salida = correr([jv, '-Xmx2048M', *clase_pokelocke(jar, 'MTAzar'), rom_jugable(j), ','.join(map(str, guardar)),
+                         *map(str, codigos), str(registro)], jar.parent)
+    except Exception:
+        traceback.print_exc()
+        return
+    estado = 'hecho' if 'Hecho' in salida else 'fallo'
+    print(time.strftime('%H:%M:%S'), 'MT al azar:', estado, flush=True)
+    if estado == 'hecho' and registro.exists():
+        with open(carpeta / 'randomizacion.log', 'a', encoding='utf-8') as f:
+            f.write('\n' + registro.read_text(encoding='utf-8'))
+    with comun.lock:
+        if estado == 'hecho':
+            j['mt_azar'] = {'estado': estado, 'guardadas': guardar, 'fecha': time.strftime('%Y-%m-%d %H:%M')}
+            if huella_buena:
+                j['firma_mod'] = firma_mod(j)
+        comun.guardar()
+
+
 def lanzar(j):
     """Pone el mod del juego (o ninguno), abre Azahar a pantalla completa y la capa del layout encima."""
     print(time.strftime('%H:%M:%S'), 'abrir el juego', j['id'], flush=True)
@@ -507,6 +673,10 @@ def lanzar(j):
     if not Path(j['ruta']).exists():
         raise RuntimeError(f'No encuentro la ROM: {j["ruta"]}')
     exe = configurar_azahar()
+    tiendas_al_azar(j)
+    personal_al_azar(j)
+    mt_fijas(j)                               # antes de abrir la fase completa
+    mt_azar(j)
     with comun.lock:
         vigia.abrir(j)
         for dar in (locke.dar_caramelos, locke.dar_escamas):
@@ -540,6 +710,12 @@ def preparar(j, opciones, vidas_ini, randomizar_juego, avanzado, reglas=None):
     herramientas()
     if randomizar_juego:
         randomizar(j, opciones, avanzado, reglas)
+        j.pop('tiendas_parche', None)
+        tiendas_al_azar(j, 'Poniendo tiendas aleatorias…', reglas)
+        j.pop('personal_parche', None)
+        personal_al_azar(j, 'Revisando las MT y las habilidades…', reglas)
+        j['mt_fijas'] = {'estado': 'de serie', 'fecha': time.strftime('%Y-%m-%d %H:%M')}   # MegaFases ya las deja iguales
+        j['mt_azar'] = {'estado': 'de serie', 'fecha': time.strftime('%Y-%m-%d %H:%M')}    # el randomizador ya las sortea
     else:
         j['random'] = None
     with comun.lock:

@@ -218,7 +218,10 @@ def pokehex_accion(que, d):
 
     try:
         if que == 'leer':
-            return {'equipo': partida.equipo(), 'mochila': partida.mochila(), 'cajas': partida.cajas(datos)}
+            # el ataque de cada MT en esta partida, para enseñarlas como «MT26 · Terremoto»
+            code = next((comun.DATOS / 'juegos' / j['id'] / 'mod').glob('*/code.bin'), None) if j.get('random') else None
+            mt = {o: pokehex.NOMBRES['movimientos'][m] for o, m in pokehex.movimientos_mt(code).items()} if code else {}
+            return {'equipo': partida.equipo(), 'mochila': partida.mochila(), 'cajas': partida.cajas(datos), 'mt': mt}
         if que == 'pokemon':
             sitio = lugar(d.get('lugar') or {'tipo': 'equipo', 'hueco': d['hueco']})
             claro = partida.en(sitio, datos)
