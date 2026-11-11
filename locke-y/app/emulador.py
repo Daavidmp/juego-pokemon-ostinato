@@ -666,6 +666,45 @@ def mt_azar(j):
         comun.guardar()
 
 
+# Partidas a las que se les deshace el sorteo de MT de la 1.2.6/1.2.7 (lo pidio David, 2026-11-11): id -> "mt:antes:despues"
+# sacado de su mt_azar.log (los numeros de ataque, de datos_pkx/Moves_en.txt). e911dd18d8 = la partida de Cesbay.
+MT_VOLVER = {
+    'e911dd18d8': '3:209:78 4:347:385 5:46:600 6:92:478 7:258:232 8:339:27 11:241:575 12:269:345 13:129:81 14:71:380 16:113:132 17:182:333 18:240:109 20:219:17 21:218:476 22:426:601 23:479:494 24:42:567 25:228:565 27:216:483 28:75:133 29:225:208 30:99:266 32:104:180 33:115:480 34:154:509 35:301:487 36:311:33 37:201:116 39:317:191 41:259:96 42:318:60 43:488:587 44:156:419 45:213:45 46:168:203 47:490:160 48:496:335 49:497:6 50:40:155 51:466:199 52:196:310 53:122:391 54:206:365 55:30:595 56:374:568 58:507:582 59:510:35 60:511:292 61:261:254 62:512:102 63:373:577 64:537:578 67:61:234 68:239:388 71:325:183 72:331:176 73:86:167 75:14:285 76:522:159 77:244:271 79:524:607 80:98:298 81:341:549 82:525:185 83:611:571 85:250:321 86:447:526 87:207:287 89:52:544 91:450:319 92:433:169 93:351:114 95:555:458 97:16:584 98:612:357 99:279:147 100:590:112',
+}
+
+
+def mt_volver(j):
+    """Devuelve las MT de una partida de MT_VOLVER al ataque que tenian antes del sorteo (MTVolver.java): solo las que
+    siguen con el ataque del sorteo. Una vez por partida, despues de mt_azar; si falla se juega igual y se reintenta."""
+    cambios = MT_VOLVER.get(j['id'])
+    if not cambios or j.get('mt_vuelta') or not (j.get('mt_azar') or {}).get('estado') == 'hecho':
+        return
+    carpeta = comun.DATOS / 'juegos' / j['id']
+    codigos = [c for v in ('mod', locke.MOD_COMPLETO) for c in (carpeta / v).glob('*/code.bin')]
+    if not codigos:
+        return
+    huella_buena = j.get('firma_mod') == firma_mod(j)
+    comun.tarea('Devolviendo tus MT a como estaban… (solo esta vez)')
+    try:
+        jar, jv = upr_jar(), java()
+        salida = correr([jv, '-Xmx2048M', *clase_pokelocke(jar, 'MTVolver'), rom_jugable(j), cambios,
+                         *map(str, codigos)], jar.parent)
+    except Exception:
+        traceback.print_exc()
+        return
+    estado = 'hecho' if 'Hecho' in salida else 'ya estaban' if 'YA' in salida else 'fallo'
+    print(time.strftime('%H:%M:%S'), 'MT devueltas:', estado, salida.strip()[-40:], flush=True)
+    if estado == 'fallo':
+        return
+    with open(carpeta / 'randomizacion.log', 'a', encoding='utf-8') as f:
+        f.write('\n--Pokelocke: se deshace el sorteo de MT de la 1.2.7 (las MT vuelven a como estaban)--\n')
+    with comun.lock:
+        j['mt_vuelta'] = {'estado': estado, 'fecha': time.strftime('%Y-%m-%d %H:%M')}
+        if estado == 'hecho' and huella_buena:
+            j['firma_mod'] = firma_mod(j)
+        comun.guardar()
+
+
 def lanzar(j):
     """Pone el mod del juego (o ninguno), abre Azahar a pantalla completa y la capa del layout encima."""
     print(time.strftime('%H:%M:%S'), 'abrir el juego', j['id'], flush=True)
@@ -677,6 +716,7 @@ def lanzar(j):
     personal_al_azar(j)
     mt_fijas(j)                               # antes de abrir la fase completa
     mt_azar(j)
+    mt_volver(j)
     with comun.lock:
         vigia.abrir(j)
         for dar in (locke.dar_caramelos, locke.dar_escamas):

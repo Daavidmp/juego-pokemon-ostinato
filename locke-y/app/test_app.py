@@ -785,6 +785,19 @@ jb = {'id': 'tt', 'reglas': 'mega', 'random': {'avanzado': False}}
 emulador.mt_azar(jb)
 ver(len(llamadas) == 1 and 'mt_azar' not in jb, 'si no puede leer la mochila no toca las MT (y lo intenta otra vez)')
 _g.pokehex_partida, pokehex.Partida = _pp, _P
+llamadas.clear()
+emulador.correr = lambda args, cwd: (llamadas.append(args), 'Hecho 2')[1]
+emulador.MT_VOLVER['tt'] = '3:209:78 4:347:385'
+jv = {'id': 'tt', 'reglas': 'mega', 'random': {'avanzado': False}, 'mt_azar': {'estado': 'hecho'}}
+emulador.mt_volver(jv)
+ver(len(llamadas) == 1 and 'MTVolver' in llamadas[0] and '3:209:78 4:347:385' in llamadas[0]
+    and sum(str(c).endswith('code.bin') for c in llamadas[0]) == 2, 'MT devueltas: la partida de la lista pasa sus cambios y sus code.bin')
+emulador.mt_volver(jv)
+ver(len(llamadas) == 1 and jv['mt_vuelta']['estado'] == 'hecho', 'y solo una vez')
+emulador.mt_volver({'id': 'otra', 'reglas': 'mega', 'random': {}, 'mt_azar': {'estado': 'hecho'}})
+emulador.mt_volver({'id': 'tt', 'reglas': 'mega', 'random': {}})
+ver(len(llamadas) == 1, 'a las demas partidas no les toca, ni a la de la lista si aun no se sortearon sus MT')
+del emulador.MT_VOLVER['tt']
 comun.DATOS, emulador.correr = datos_antes, correr_antes
 emulador.upr_jar, emulador.java, emulador.rom_jugable, emulador.clase_pokelocke, comun.guardar = fuera
 

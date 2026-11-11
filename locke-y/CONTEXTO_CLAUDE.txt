@@ -419,3 +419,7 @@ Hechas con Gemini Nano Banana 2 editando SIEMPRE la misma base (no generando de 
   de la partida guardada (las de la mochila no cambian, petición del usuario), de menos de 70, en mod y mod_completo.
   Si no lee la partida, no toca nada. setTMMoves también cambia el color del icono de cada MT (paleta por tipo).
   PokéHex: el bolsillo de MT enseña «MT26 · Ataque» (pokehex.movimientos_mt lee el code.bin del mod).
+- 1.2.8 (2026-11-11) · Se deshace el sorteo de MT de la 1.2.7 SOLO en la partida de Cesbay (e911dd18d8), a peticion de
+  David: emulador.MT_VOLVER (id -> "mt:antes:despues" sacado de su mt_azar.log) + app/MTVolver.java, una vez
+  (j['mt_vuelta']), despues de mt_azar; solo toca las MT que siguen con el ataque del sorteo. La compatibilidad (quien
+  aprende cada MT, parche del 8/11) no se toca. Para otra partida: anadir su id y sus pares a MT_VOLVER.
