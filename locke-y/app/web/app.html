@@ -629,8 +629,8 @@
   .so-brillo { pointer-events: none; }
   .so-bolas { left: 25px; top: 34px; width: 250px; height: 250px; }
   .so-manivela { left: 125px; top: 334px; width: 46px; height: 46px; transition: transform .9s cubic-bezier(.5, 0, .3, 1); }
-  .so-maquina.agita { animation: so-agita .16s ease-in-out 10 alternate; }
-  @keyframes so-agita { from { transform: translateX(-50%) rotate(-2.4deg); } to { transform: translateX(-50%) rotate(2.4deg) translateY(-3px); } }
+  .so-maquina.agita { animation: so-agita 2.2s ease-in-out; }      /* un temblor que empieza y acaba suave, como el soplido */
+  @keyframes so-agita { 10%, 30%, 50%, 70% { transform: translateX(-50%) rotate(-1deg); } 20%, 40%, 60% { transform: translateX(-50%) rotate(1deg) translateY(-2px); } 80% { transform: translateX(-50%) rotate(-.4deg); } }
   /* la bola que sale: la misma imagen en dos mitades (cristal con el papel arriba, color abajo), con su color */
   .so-bola { position: absolute; left: calc(50% - 30px); top: 369px; width: 60px; height: 60px; z-index: 3; filter: var(--f, none) drop-shadow(0 6px 8px rgba(27,32,48,.3)); }
   .so-bola i { position: absolute; left: 0; width: 60px; height: 30px; background: url(/assets/sorteo-bola.png) no-repeat; background-size: 60px 60px; transition: transform .5s cubic-bezier(.3, 1.4, .5, 1), opacity .5s; }
@@ -757,7 +757,7 @@
     <section class="tb-hud tb-carta tb-objetivo" id="tb-objetivo" aria-label="Siguiente objetivo"></section>
     <section class="tb-hud tb-carta tb-marcador" id="tb-marcador" aria-label="Vidas y medallas"></section>
     <div class="tb-hud tb-abajo"><div class="tb-equipo" id="tb-equipo" aria-label="Tu equipo"></div><div class="tb-carta tb-jugar" id="tb-jugar"></div></div>
-    <span class="tb-hud tb-credito">Creado por David Martínez Palacios · Versión 1.3.3</span>
+    <span class="tb-hud tb-credito">Creado por David Martínez Palacios · Versión 1.3.4</span>
   </div>
 
   <footer>
@@ -2206,7 +2206,7 @@ function pintarSorteo(t, puede) {
   const dentro = quedan + sorteo.cola.length;
   if (sorteo.bolas.length < dentro) {                 // las nuevas, ya posadas en el fondo (sin verlas caer al abrir)
     while (sorteo.bolas.length < dentro) sorteo.bolas.push(bolaNueva());
-    for (let k = 0; k < 160; k++) pasoBolas(false);
+    for (let k = 0; k < 400; k++) pasoBolas(0);
   }
   while (sorteo.bolas.length > dentro) sorteo.bolas.pop();
   if (!sorteo.reloj) sorteo.reloj = requestAnimationFrame(moverBolas);
@@ -2214,36 +2214,60 @@ function pintarSorteo(t, puede) {
 
 // ---- las bolas dentro del cristal: física sencilla (gravedad, choques entre ellas y con la esfera) ----
 const CRISTAL = {x: 240, y: 240, r: 226};                         // en px del canvas (480×480)
+const REMOVER_MS = 2200;
 function radioBola() { const n = Math.max(1, sorteo.bolas.length); return Math.max(22, Math.min(46, 190 / Math.sqrt(n))); }
 function bolaNueva() {
-  const a = Math.random() * Math.PI * 2, d = Math.random() * 120;
-  const x = CRISTAL.x + Math.cos(a) * d, y = CRISTAL.y + Math.sin(a) * d * .5 + 60;
-  return {x, y, px: x, py: y, giro: Math.random() * 6, c: Math.floor(Math.random() * COLORES_BOLA.length)};
+  const x = CRISTAL.x + (Math.random() - .5) * 200, y = CRISTAL.y + 60 + Math.random() * 100;
+  return {x, y, vx: 0, vy: 0, giro: Math.random() * 6, c: Math.floor(Math.random() * COLORES_BOLA.length)};
 }
 function moverBolas() {
-  pasoBolas(performance.now() < sorteo.agitar);
+  // el soplido de Remover: sube y baja suave (seno), no a golpes
+  const t = (performance.now() - sorteo.agitar) / REMOVER_MS;
+  const fuerza = t >= 0 && t < 1 ? Math.sin(Math.PI * t) : 0;
+  for (let k = 0; k < 3; k++) pasoBolas(fuerza, 1 / 3);
   const cv = $('so-bolas'), g = cv.getContext('2d'), r = radioBola(), bs = sorteo.bolas;
   g.clearRect(0, 0, cv.width, cv.height);
   for (const b of [...bs].sort((p, q) => p.y - q.y)) dibujarBola(g, b.x, b.y, r, b.c, b.giro);
   sorteo.reloj = $('sorteo').classList.contains('oculto') ? null : requestAnimationFrame(moverBolas);
 }
-function pasoBolas(fuerza) {
-  const r = radioBola(), bs = sorteo.bolas;
+// un paso de la física, con velocidades: gravedad, el soplido (chorro de aire desde abajo que además las hace girar
+// en remolino), choques que pierden energía entre bolas y contra el cristal, y cada bola rueda según cómo se mueve
+function pasoBolas(fuerza, dt = 1) {
+  const r = radioBola(), bs = sorteo.bolas, lim = CRISTAL.r - r;
   for (const b of bs) {
-    let vx = (b.x - b.px) * .985, vy = (b.y - b.py) * .985 + .55;
-    if (fuerza && Math.random() < .25) { vx += (Math.random() - .5) * 14; vy -= Math.random() * 16; }
-    b.px = b.x; b.py = b.y; b.x += vx; b.y += vy; b.giro += vx * .04;
+    b.vy += .5 * dt;
+    if (fuerza) {
+      const dx = b.x - CRISTAL.x, dy = b.y - CRISTAL.y, d = Math.hypot(dx, dy) || 1;
+      if (dy > -40) b.vy -= (1.15 + (dy + 40) / 260) * fuerza * dt;               // el chorro empuja más abajo
+      b.vx += (-dy / d * .55 + (Math.random() - .5) * .5) * fuerza * dt;          // remolino + un poco de azar
+      b.vy += (dx / d * .55) * fuerza * dt;
+    }
+    b.vx *= Math.pow(.992, dt); b.vy *= Math.pow(.992, dt);
+    const v = Math.hypot(b.vx, b.vy);
+    if (v > 15) { b.vx *= 15 / v; b.vy *= 15 / v; }
+    b.x += b.vx * dt; b.y += b.vy * dt;
   }
-  for (let it = 0; it < 4; it++) {
+  for (let it = 0; it < 3; it++) {
     for (let i = 0; i < bs.length; i++) {
       for (let j = i + 1; j < bs.length; j++) {
         const a = bs[i], b = bs[j], dx = b.x - a.x, dy = b.y - a.y, d = Math.hypot(dx, dy) || .01;
-        if (d < 2 * r) { const m = (2 * r - d) / 2 / d; a.x -= dx * m; a.y -= dy * m; b.x += dx * m; b.y += dy * m; }
+        if (d >= 2 * r) continue;
+        const nx = dx / d, ny = dy / d, solape = (2 * r - d) / 2;
+        a.x -= nx * solape; a.y -= ny * solape; b.x += nx * solape; b.y += ny * solape;
+        const vn = (b.vx - a.vx) * nx + (b.vy - a.vy) * ny;                       // se acercan: rebotan perdiendo algo
+        if (vn < 0) { const j2 = -(1 + .55) * vn / 2; a.vx -= j2 * nx; a.vy -= j2 * ny; b.vx += j2 * nx; b.vy += j2 * ny; }
       }
-      const b = bs[i], dx = b.x - CRISTAL.x, dy = b.y - CRISTAL.y, d = Math.hypot(dx, dy), lim = CRISTAL.r - r;
-      if (d > lim) { b.x = CRISTAL.x + dx / d * lim; b.y = CRISTAL.y + dy / d * lim; }
+    }
+    for (const b of bs) {
+      const dx = b.x - CRISTAL.x, dy = b.y - CRISTAL.y, d = Math.hypot(dx, dy);
+      if (d <= lim) continue;
+      const nx = dx / d, ny = dy / d;
+      b.x = CRISTAL.x + nx * lim; b.y = CRISTAL.y + ny * lim;
+      const vn = b.vx * nx + b.vy * ny;
+      if (vn > 0) { b.vx -= (1 + .45) * vn * nx; b.vy -= (1 + .45) * vn * ny; b.vx *= .97; b.vy *= .97; }
     }
   }
+  for (const b of bs) b.giro += b.vx / r * dt;                                     // rueda: gira lo que avanza
 }
 // una bola: la imagen de Firefly en su color, girada; si aún no ha cargado, dibujada
 function dibujarBola(g, x, y, r, k, giro) {
@@ -2273,7 +2297,7 @@ function agitar() {
   m.classList.remove('agita');
   void m.offsetWidth;
   m.classList.add('agita');
-  sorteo.agitar = performance.now() + 1700;
+  sorteo.agitar = performance.now();
 }
 
 // ---- una bola sale: manivela, caída, se abre, papel, y el nombre pasa al cuadro ----

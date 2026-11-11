@@ -501,3 +501,9 @@ Hechas con Gemini Nano Banana 2 editando SIEMPRE la misma base (no generando de 
     sorteo-brillo (los reflejos del cristal, ENCIMA de las bolas), sorteo-pomo (gira al sacar), sorteo-bola (roja: los
     8 colores con hue-rotate, COLORES_BOLA; en el canvas se pinta cada color una vez) y sorteo-papel-arriba/-hoja/-abajo
     (la hoja se despliega entre los rodillos). No hacen falta frames: todo se anima moviendo esas piezas.
+
+- 1.3.4 (2026-11-11) · LAS BOLAS AL REMOVER (David: «se remueven raro»). Antes: empujones al azar en cada fotograma y
+  choques que ganaban energía. Ahora pasoBolas con velocidades: gravedad, soplido de 2,2 s que sube y baja en seno
+  (chorro desde abajo + remolino), choques con restitución (0,55 entre bolas, 0,45 contra el cristal) y cada bola rueda
+  lo que avanza. La máquina tiembla suave 2,2 s. La mitad de cristal de sorteo-bola.png, más opaca (225): en pequeño
+  parecían cuencos. Probado con una tira de fotogramas: ninguna sale del cristal y se posan en ~0,5 s.
