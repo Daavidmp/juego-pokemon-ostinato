@@ -700,7 +700,7 @@
     <section class="tb-hud tb-carta tb-objetivo" id="tb-objetivo" aria-label="Siguiente objetivo"></section>
     <section class="tb-hud tb-carta tb-marcador" id="tb-marcador" aria-label="Vidas y medallas"></section>
     <div class="tb-hud tb-abajo"><div class="tb-equipo" id="tb-equipo" aria-label="Tu equipo"></div><div class="tb-carta tb-jugar" id="tb-jugar"></div></div>
-    <span class="tb-hud tb-credito">Creado por David Martínez Palacios · Versión 1.2.8</span>
+    <span class="tb-hud tb-credito">Creado por David Martínez Palacios · Versión 1.3.1</span>
   </div>
 
   <footer>
@@ -1206,9 +1206,12 @@ const MODOS = {
       'Lo que te dan en los intercambios del juego, aleatorio',
       'Estadísticas base y tipos sin cambios', 'Las evoluciones por intercambio pasan a ser al nivel 40', 'Facilidad de captura normal'],
     normas: ['Dificultad que sube: hasta la 2.ª medalla, entrenadores y salvajes solo con Pokémon que aún pueden evolucionar, rivales con ataques de 70 o menos',
-      'MT de menos de 70 de potencia, las mismas toda la partida (no cambian al abrir la randomización completa)',
+      'Cada MT enseña un ataque al azar, sin límite de potencia (las MO no cambian); las MT que ya tienes en la mochila no cambian nunca',
       'Al ganar la 2.ª medalla se abre la randomización completa (guarda y reinicia el juego)',
       'La 4.ª medalla cierra la primera parte: toca el gran torneo','25 vidas','Las muertes no cuentan hasta acabar el primer combate contra un entrenador (Shauna)',
+      'Raids: cada Pokémon que se debilite en una raid cuenta como muerte',
+      'Cerrar el juego sin guardar cuando se te debilita un Pokémon está terminantemente prohibido: la partida se anula',
+      'Si el juego se cuelga después de un combate y lo repites, las muertes del combate repetido no cuentan (corrígelo con F8)',
       'El vial solo se puede usar fuera de combate', 'Una captura por ruta; los shiny no cuentan',
       'Combate en modo Fijo: se pone solo al empezar (luego puedes cambiarlo)', '10000 Caramelos Raros: se rellenan solos hasta 999 cada vez que abres el juego',
       'Caja de 30 huevos aleatorios con 2 shiny: coges uno cada 2 medallas y, si sale shiny, otro más'],
@@ -1225,7 +1228,7 @@ const MODOS = {
       // evoluciones y con todas las MO para no quedarse atascado. Superguarda prohibida (1.2.4)
       tmsHmsCompatibilityMod: 'COMPLETELY_RANDOM', tmsFollowEvolutions: 'true', fullHMCompat: 'true', allowWonderGuard: 'false',
       // el ataque de cada MT, al azar en cada partida (antes eran las del juego en todas las rooms); las de uso fuera de
-      // combate se quedan. Luego MegaFases cambia las de 70 o más por otras más flojas (1.2.6)
+      // combate se quedan. Sin limite de potencia (1.3.0: MegaFases ya no las rebaja)
       tmsMod: 'RANDOM', keepFieldMoveTMs: 'true', blockBrokenTMMoves: 'true'},
   },
   original: {resumen: ['Se juega la versión original, sin cambios']},

@@ -12,6 +12,7 @@ import com.dabomstew.pkrandom.pokemon.EncounterSet;
 import com.dabomstew.pkrandom.pokemon.Move;
 import com.dabomstew.pkrandom.pokemon.MoveLearnt;
 import com.dabomstew.pkrandom.pokemon.Pokemon;
+import com.dabomstew.pkrandom.pokemon.StaticEncounter;
 import com.dabomstew.pkrandom.pokemon.Trainer;
 import com.dabomstew.pkrandom.pokemon.TrainerPokemon;
 import com.dabomstew.pkrandom.romhandlers.Abstract3DSRomHandler;
@@ -70,6 +71,7 @@ public class MegaFases {
             throw new IllegalStateException("No se ha podido abrir la ROM: " + rom);
         }
         ResourceBundle textos = ResourceBundle.getBundle("com/dabomstew/pkrandom/newgui/Bundle");
+        int torre = indiceTorreMaestra(rh);                     // antes de randomizar: aun es el Lucario
         try (PrintStream log = new PrintStream(registro, "UTF-8")) {
             new Randomizer(s, rh, textos, true).randomize(completa, log);
         }
@@ -78,7 +80,8 @@ public class MegaFases {
             regalosAleatorios(rh, azar, registro);
             combatesImportantes(rh, azar);
             asMegaTrasCuartaMedalla(rh, azar);
-            mtSuaves(rh, azar);
+            megaTorreMaestra(rh, azar, torre, registro);
+            // mtSuaves(rh, azar);   // 1.3.0: las MT ya no se rebajan (David: al azar sin limite, el UPR las sortea con tmsMod)
             if (!rh.saveRomDirectory(completa)) {
                 throw new IllegalStateException("No se ha podido guardar la versión completa");
             }
@@ -91,6 +94,41 @@ public class MegaFases {
             ((com.dabomstew.pkrandom.romhandlers.Abstract3DSRomHandler) rh).closeInnerRom();
         }
         System.out.println("Hecho");
+    }
+
+    // ---------- la mega de la Torre Maestra ----------
+    static final int LUCARIO = 448;
+
+    /** En que posicion de la lista de regalos y encuentros fijos esta el Lucario que da Corelia en la Torre Maestra. */
+    static int indiceTorreMaestra(RomHandler rh) {
+        List<StaticEncounter> fijos = rh.getStaticPokemon();
+        for (int i = 0; i < fijos.size(); i++) if (fijos.get(i).pkmn != null && fijos.get(i).pkmn.number == LUCARIO) return i;
+        return -1;
+    }
+
+    /** El regalo de la Torre Maestra (tras la 3.a medalla): un Pokemon al azar NO legendario que pueda megaevolucionar,
+     *  con su megapiedra equipada (en el juego original, Lucario con la Lucarionita). El UPR cambiaba solo la especie y
+     *  dejaba la Lucarionita (salio Latios con Lucarionita). 1.3.1, lo pidio David. */
+    static void megaTorreMaestra(RomHandler rh, Random azar, int indice, String registro) throws Exception {
+        if (indice < 0) { System.out.println("Torre Maestra: no se encuentra el regalo"); return; }
+        List<MegaEvolution> megas = new ArrayList<>();
+        for (Pokemon p : rh.getPokemon())
+            if (p != null && p.number <= MAX_ESPECIE && !p.isLegendary() && p.megaEvolutionsFrom != null)
+                for (MegaEvolution m : p.megaEvolutionsFrom) if (m.argument > 0) megas.add(m);
+        if (megas.isEmpty()) { System.out.println("Torre Maestra: no hay megas"); return; }
+        MegaEvolution m = megas.get(azar.nextInt(megas.size()));
+        List<StaticEncounter> fijos = rh.getStaticPokemon();
+        StaticEncounter regalo = fijos.get(indice);
+        regalo.pkmn = m.from;
+        regalo.forme = 0;
+        regalo.heldItem = m.argument;
+        rh.setStaticPokemon(fijos);
+        StaticEncounter leido = rh.getStaticPokemon().get(indice);
+        String[] objetos = rh.getItemNames();
+        String linea = "Torre Maestra: " + leido.pkmn.name + " con " + objetos[leido.heldItem] + " equipada";
+        System.out.println(linea);
+        Files.write(Paths.get(registro), ("\n--Pokelocke: la mega de la Torre Maestra--\n" + linea + "\n").getBytes(StandardCharsets.UTF_8),
+                StandardOpenOption.APPEND);
     }
 
     /** Las evoluciones por intercambio, con o sin objeto, pasan a ser por nivel: nadie tiene con quién cambiar en

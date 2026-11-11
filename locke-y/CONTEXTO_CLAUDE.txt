@@ -117,7 +117,7 @@ Si cambia una norma, hay que tocar: normas/normas.html, video/GUION.md, las lám
 3. CONTRATO DE NORMAS  (normas/)
 --------------------------------
 - Normas-Mega-Pokelocke-Y.pdf, 7 páginas. Misma portada que la guía. Estilo contrato: membrete,
-  lugar y fecha para rellenar, REUNIDOS / EXPONEN / CLÁUSULAS (14), firmas del Entrenador y de la
+  lugar y fecha para rellenar, REUNIDOS / EXPONEN / CLÁUSULAS (15; la 14.ª, Las raids, desde la 1.3.0), firmas del Entrenador y de la
   Organización con sello de lacre, y 3 anexos (randomización, calendario, teclas).
 - La tabla de premios lleva dibujos: img/capsula-habilidad.png y img/menta.png (Serebii) y un huevo SVG.
 - David pidió quitar los huecos y firmar él solo, y luego dijo «estaba bien como estaba antes»:
@@ -423,3 +423,34 @@ Hechas con Gemini Nano Banana 2 editando SIEMPRE la misma base (no generando de 
   David: emulador.MT_VOLVER (id -> "mt:antes:despues" sacado de su mt_azar.log) + app/MTVolver.java, una vez
   (j['mt_vuelta']), despues de mt_azar; solo toca las MT que siguen con el ataque del sorteo. La compatibilidad (quien
   aprende cada MT, parche del 8/11) no se toca. Para otra partida: anadir su id y sus pares a MT_VOLVER.
+- 1.2.9 (2026-11-11) · Lo de la 1.2.8 devolvio a Cesbay sus MT de antes, que eran las del juego original (antes de la
+  1.2.7 las MT nunca fueron al azar por room; solo cambiaban las de 70 o mas en la fase 1). David decide: quitarle con el
+  PokeHex a distancia las MT compradas en la tienda y repetir el sorteo. emulador.MT_SORTEAR_OTRA_VEZ (id -> version):
+  mt_azar se repite una vez con la mochila que haya en ese momento (j['mt_azar_otra']). MT_VOLVER queda vacio (historial
+  en el comentario); su condicion de version arreglada (sin mt_vuelta = 0).
+  Cambiado en la misma 1.2.9: MT_SORTEAR_OTRA_VEZ se quito. «MT de menos de 70» es SOLO de la fase facil (David: Cesbay
+  ya va por la 3.a medalla y todas sus MT eran de 65 o menos). emulador.mt_fuertes: en la fase 2, una vez por partida
+  (j['mt_fuertes']), las MT que NO estan en la mochila se sortean sin limite (MTAzar max=999; las rotas del UPR fuera).
+  Se hace al abrir la fase completa (despues de abrir_fase_completa en lanzar) o en la 1.a apertura con la 1.2.9 si ya
+  estaba en ella (todas las rooms en fase 2). _sortear_mt es lo comun de mt_azar (max 69) y mt_fuertes.
+  ORDEN para Cesbay: primero quitarle las MT compradas (PokeHex a distancia, con la 1.2.8), DESPUES instalar la 1.2.9.
+- 1.3.0 (2026-11-11) · Normas nuevas (app.html MODOS.mega.normas y normas/normas.html -> PDF): raids (cada Pokémon
+  debilitado en una raid cuenta como muerte; cláusula decimocuarta, Aceptación pasa a decimoquinta), cerrar sin guardar
+  tras una muerte = trampa más grave, se anula la partida (cláusula segunda, 5), y si el juego se cuelga tras un combate
+  y se repite, las muertes de la repetición no cuentan, se corrige con F8 (segunda, 6). La de las MT, al día (cuarta, 2).
+  El PDF se generó con Edge desde una copia en una ruta sin acentos (Edge no abre file:/// con la «é» de Pokémon) y con
+  ../assets/logo.png al lado.
+  En la misma 1.3.0 (David: «a partir de ahora las MT salen random sin limitaciones», p. ej. la MT25 deja de ser Trueno;
+  las de la mochila no cambian; las MO nunca): MegaFases ya NO llama a mtSuaves (el UPR sortea con tmsMod RANDOM, sin
+  limite); mt_fuertes vale en cualquier fase (no solo la 2), una vez, en la 1.a apertura con la 1.3.0; preparar marca
+  mt_fuertes «de serie». Revisado con una copia de la partida de David: MO iguales, las 17 de la mochila iguales, 38 MT de
+  70 o mas, solo quedan Excavar, Dulce Aroma y Destello (uso fuera de combate). Normas (app y contrato) al dia.
+
+- 1.3.1 (2026-11-11) · LA MEGA DE LA TORRE MAESTRA (tras la 3.a medalla; en el juego original Lucario con la Lucarionita
+  equipada): en cada partida, un Pokemon al azar NO legendario que pueda megaevolucionar, con SU megapiedra equipada.
+  Antes el UPR cambiaba solo la especie y dejaba la Lucarionita (a David le salio Latios con Lucarionita).
+  Nuevas: MegaFases.megaTorreMaestra (el indice del regalo se busca ANTES de randomizar: el Lucario, numero 448;
+  StaticEncounter.heldItem = MegaEvolution.argument; se comprueba releyendo). Las que ya habia: app/MegaTorre.java sobre
+  romfs/DllField.cro del mod (writeFile/readFile del UPR por reflexion; solo cambian especie y objeto, 2 bytes en la de
+  David: Medicham con Medichamita), emulador.mega_torre una vez (j['mega_torre']); preparar la marca «de serie».
+  Quien ya recogio el regalo se queda el suyo (esta en su partida).

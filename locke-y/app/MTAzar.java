@@ -19,7 +19,8 @@ import java.util.Set;
 
 /**
  * El ataque de cada MT, al azar en una partida que ya existe (normas Mega, 1.2.6):
- *   java -cp PokeRandoZX.jar MTAzar rom guardar code.bin [otro code.bin ...] registro.txt
+ *   java -cp PokeRandoZX.jar MTAzar rom [max=N] guardar code.bin [otro code.bin ...] registro.txt
+ *   (max: potencia maxima de los ataques; por defecto 69, la norma de la fase facil; max=999 en la fase completa)
  * Hasta la 1.2.6 cada MT enseñaba el mismo ataque en todas las rooms. Aquí se sortea uno nuevo para cada MT, salvo:
  *   - las que el jugador ya tiene en la mochila (guardar: números de MT separados por comas, 1-100): no cambian
  *   - las de uso fuera de combate (Destello, Golpe Roca…)
@@ -31,9 +32,11 @@ public class MTAzar {
 
     public static void main(String[] args) throws Exception {
         String rom = args[0];
+        int a = 1, maxPotencia = MAX_POTENCIA_MT;
+        if (args[a].startsWith("max=")) maxPotencia = Integer.parseInt(args[a++].substring(4));   // max=999: sin limite
         Set<Integer> guardar = new HashSet<>();
-        for (String x : args[1].split(",")) if (!x.isBlank()) guardar.add(Integer.parseInt(x.trim()));
-        List<String> codigos = List.of(args).subList(2, args.length - 1);
+        for (String x : args[a].split(",")) if (!x.isBlank()) guardar.add(Integer.parseInt(x.trim()));
+        List<String> codigos = List.of(args).subList(a + 1, args.length - 1);
         String registro = args[args.length - 1];
         Random azar = new Random();
         RomHandler rh = new Gen6RomHandler.Factory().create(azar);
@@ -55,7 +58,7 @@ public class MTAzar {
             for (Move m : movs) {
                 if (m == null || m.number > 621 || m.number == 165 || usados.contains(m.number)) continue;   // 165: Forcejeo
                 if (m.number < GlobalConstants.bannedRandomMoves.length && GlobalConstants.bannedRandomMoves[m.number]) continue;
-                if (m.power > MAX_POTENCIA_MT || m.power == 1) continue;     // 1: daño variable o fijo
+                if (m.power > maxPotencia || m.power == 1) continue;     // 1: daño variable o fijo
                 posibles.add(m.number);
             }
             List<String> log = new ArrayList<>();
@@ -79,7 +82,7 @@ public class MTAzar {
                 hechos++;
             }
             try (PrintStream out = new PrintStream(registro, StandardCharsets.UTF_8)) {
-                out.println("--Pokelocke 1.2.6: el ataque de cada MT, al azar (sin tocar las de la mochila: " + guardar.size() + ")--");
+                out.println("--Pokelocke: el ataque de cada MT, al azar" + (maxPotencia < 999 ? " (menos de " + (maxPotencia + 1) + " de potencia)" : " (sin limite de potencia)") + " (sin tocar las de la mochila: " + guardar.size() + ")--");
                 for (String l : log) out.println(l);
             }
             System.out.println("Hecho " + hechos);

@@ -623,68 +623,129 @@ def mt_fijas(j):
         comun.guardar()
 
 
-def mt_azar(j):
-    """El ataque de cada MT, al azar en cada partida (normas Mega, 1.2.6): hasta la 1.2.6 cada MT enseñaba el mismo
-    ataque en todas las rooms (las partidas nuevas ya salen al azar del randomizador). Las MT que el jugador ya tiene
-    en la mochila no cambian, ni las de uso fuera de combate; las demás, MTAzar.java (de menos de 70 de potencia, las
-    mismas en las dos fases). Va después de mt_fijas. Una vez por partida, con la partida guardada a mano: si no se
-    puede leer qué MT hay en la mochila no se toca nada y se vuelve a intentar la próxima vez."""
-    r = j.get('random') or {}
-    if j.get('reglas') != 'mega' or not j.get('random') or r.get('avanzado') or j.get('mt_azar'):
-        return
+def _sortear_mt(j, maximo, mensaje):
+    """Lee las MT de la mochila de la partida guardada y sortea el ataque de todas las demas con MTAzar.java (de menos
+    de maximo + 1 de potencia), en mod y mod_completo. Devuelve las MT respetadas, o None si no se ha podido (no se
+    toca nada y se vuelve a intentar la proxima vez)."""
     carpeta = comun.DATOS / 'juegos' / j['id']
     codigos = [c for v in ('mod', locke.MOD_COMPLETO) for c in (carpeta / v).glob('*/code.bin')]
     if not codigos:
-        return
+        return None
     try:
         import guardado, pokehex
         bolsa = pokehex.Partida(guardado.pokehex_partida(j)).mochila()['mt']
         guardar = sorted({pokehex.OBJETOS_MT.index(x['objeto']) + 1 for x in bolsa if x['objeto'] in pokehex.OBJETOS_MT})
     except Exception:
         traceback.print_exc()
-        return
+        return None
     registro = carpeta / 'mt_azar.log'
     huella_buena = j.get('firma_mod') == firma_mod(j)
-    comun.tarea('Sorteando el ataque de cada MT (las de tu mochila no cambian)… (solo esta vez)')
+    comun.tarea(mensaje)
     try:
         jar, jv = upr_jar(), java()
-        salida = correr([jv, '-Xmx2048M', *clase_pokelocke(jar, 'MTAzar'), rom_jugable(j), ','.join(map(str, guardar)),
-                         *map(str, codigos), str(registro)], jar.parent)
+        salida = correr([jv, '-Xmx2048M', *clase_pokelocke(jar, 'MTAzar'), rom_jugable(j), f'max={maximo}',
+                         ','.join(map(str, guardar)), *map(str, codigos), str(registro)], jar.parent)
+    except Exception:
+        traceback.print_exc()
+        return None
+    hecho = 'Hecho' in salida
+    print(time.strftime('%H:%M:%S'), f'MT al azar (max {maximo}):', 'hecho' if hecho else 'fallo', flush=True)
+    if not hecho:
+        return None
+    if registro.exists():
+        with open(carpeta / 'randomizacion.log', 'a', encoding='utf-8') as f:
+            f.write('\n' + registro.read_text(encoding='utf-8'))
+    if huella_buena:
+        with comun.lock:
+            j['firma_mod'] = firma_mod(j)
+    return guardar
+
+
+def mt_azar(j):
+    """El ataque de cada MT, al azar en cada partida (normas Mega, 1.2.6): hasta la 1.2.6 cada MT ensenaba el mismo
+    ataque en todas las rooms (las partidas nuevas ya salen al azar del randomizador). Las MT que el jugador ya tiene
+    en la mochila no cambian, ni las de uso fuera de combate; las demas, de menos de 70 de potencia (la norma de la fase
+    facil). Va despues de mt_fijas. Una vez por partida."""
+    r = j.get('random') or {}
+    if j.get('reglas') != 'mega' or not j.get('random') or r.get('avanzado') or j.get('mt_azar'):
+        return
+    guardar = _sortear_mt(j, 69, 'Sorteando el ataque de cada MT (las de tu mochila no cambian)… (solo esta vez)')
+    if guardar is not None:
+        with comun.lock:
+            j['mt_azar'] = {'estado': 'hecho', 'guardadas': guardar, 'fecha': time.strftime('%Y-%m-%d %H:%M')}
+            comun.guardar()
+
+
+def mt_fuertes(j):
+    """Las MT que no estan en la mochila se sortean otra vez SIN limite de potencia, en cualquier fase (David,
+    2026-11-11: «a partir de ahora las MT salen random sin limitaciones»; la MT25 deja de ser Trueno). Las de la
+    mochila no cambian, ni las MO (MTAzar solo toca las MT) ni las de uso fuera de combate. Una vez por partida, en la
+    primera apertura con la 1.3.0; las partidas nuevas ya salen asi del randomizador (preparar lo marca)."""
+    r = j.get('random') or {}
+    if j.get('reglas') != 'mega' or not j.get('random') or r.get('avanzado') or j.get('mt_fuertes'):
+        return
+    guardar = _sortear_mt(j, 999, 'Sorteando MT nuevas (las de tu mochila no cambian)… (solo esta vez)')
+    if guardar is not None:
+        with comun.lock:
+            j['mt_fuertes'] = {'estado': 'hecho', 'guardadas': guardar, 'fecha': time.strftime('%Y-%m-%d %H:%M')}
+            comun.guardar()
+
+
+def mega_torre(j):
+    """La mega de la Torre Maestra (normas Mega, 1.3.1): el regalo de Corelia tras la 3.a medalla pasa a ser un Pokemon
+    al azar NO legendario que pueda megaevolucionar, con su megapiedra equipada (MegaTorre.java, sobre el DllField.cro
+    del mod). Distinto en cada partida, el mismo en sus dos fases. Las partidas nuevas ya salen asi de MegaFases
+    (preparar lo marca). Una vez por partida; si falla se juega igual y se reintenta. Quien ya lo recogio se queda el
+    suyo (esta en su partida)."""
+    r = j.get('random') or {}
+    if j.get('reglas') != 'mega' or not j.get('random') or r.get('avanzado') or j.get('mega_torre'):
+        return
+    carpeta = comun.DATOS / 'juegos' / j['id']
+    campos = [c for v in ('mod', locke.MOD_COMPLETO) for c in (carpeta / v).glob('*/romfs/DllField.cro')]
+    if not campos:
+        return
+    huella_buena = j.get('firma_mod') == firma_mod(j)
+    comun.tarea('Preparando la mega de la Torre Maestra… (solo esta vez)')
+    try:
+        jar, jv = upr_jar(), java()
+        salida = correr([jv, '-Xmx2048M', *clase_pokelocke(jar, 'MegaTorre'), rom_jugable(j), *map(str, campos)], jar.parent)
     except Exception:
         traceback.print_exc()
         return
-    estado = 'hecho' if 'Hecho' in salida else 'fallo'
-    print(time.strftime('%H:%M:%S'), 'MT al azar:', estado, flush=True)
-    if estado == 'hecho' and registro.exists():
+    linea = next((l for l in salida.splitlines() if l.startswith(('Hecho', 'YA', 'SIN REGALO'))), '')
+    print(time.strftime('%H:%M:%S'), 'mega de la Torre Maestra:', linea, flush=True)
+    if not linea:
+        return
+    if linea.startswith('Hecho'):
         with open(carpeta / 'randomizacion.log', 'a', encoding='utf-8') as f:
-            f.write('\n' + registro.read_text(encoding='utf-8'))
+            f.write('\n--Pokelocke: la mega de la Torre Maestra--\nTorre Maestra: ' + linea[6:] + ' equipada\n')
     with comun.lock:
-        if estado == 'hecho':
-            j['mt_azar'] = {'estado': estado, 'guardadas': guardar, 'fecha': time.strftime('%Y-%m-%d %H:%M')}
-            if huella_buena:
-                j['firma_mod'] = firma_mod(j)
+        j['mega_torre'] = {'estado': linea.split()[0].lower(), 'regalo': linea[6:] if linea.startswith('Hecho') else '',
+                           'fecha': time.strftime('%Y-%m-%d %H:%M')}
+        if linea.startswith('Hecho') and huella_buena:
+            j['firma_mod'] = firma_mod(j)
         comun.guardar()
 
 
-# Partidas a las que se les deshace el sorteo de MT de la 1.2.6/1.2.7 (lo pidio David, 2026-11-11): id -> "mt:antes:despues"
-# sacado de su mt_azar.log (los numeros de ataque, de datos_pkx/Moves_en.txt). e911dd18d8 = la partida de Cesbay.
-MT_VOLVER = {
-    'e911dd18d8': '3:209:78 4:347:385 5:46:600 6:92:478 7:258:232 8:339:27 11:241:575 12:269:345 13:129:81 14:71:380 16:113:132 17:182:333 18:240:109 20:219:17 21:218:476 22:426:601 23:479:494 24:42:567 25:228:565 27:216:483 28:75:133 29:225:208 30:99:266 32:104:180 33:115:480 34:154:509 35:301:487 36:311:33 37:201:116 39:317:191 41:259:96 42:318:60 43:488:587 44:156:419 45:213:45 46:168:203 47:490:160 48:496:335 49:497:6 50:40:155 51:466:199 52:196:310 53:122:391 54:206:365 55:30:595 56:374:568 58:507:582 59:510:35 60:511:292 61:261:254 62:512:102 63:373:577 64:537:578 67:61:234 68:239:388 71:325:183 72:331:176 73:86:167 75:14:285 76:522:159 77:244:271 79:524:607 80:98:298 81:341:549 82:525:185 83:611:571 85:250:321 86:447:526 87:207:287 89:52:544 91:450:319 92:433:169 93:351:114 95:555:458 97:16:584 98:612:357 99:279:147 100:590:112',
-}
-
+# Cambios de MT a mano en partidas concretas (MTVolver.java): id -> (version, "mt:de:a mt:de:a ..."). Cada MT pasa del
+# ataque «de» al ataque «a», solo si sigue con «de». La version se apunta en j['mt_vuelta']: subirla vuelve a aplicar.
+# Historial: e911dd18d8 (Cesbay), version 1 (1.2.8, 2026-11-11): se deshizo su sorteo de la 1.2.7 con los pares de su
+# mt_azar.log -> volvieron las MT del juego original y las flojas de la fase 1. Ya aplicado; luego, mt_fuertes (1.2.9).
+MT_VOLVER = {}
 
 def mt_volver(j):
-    """Devuelve las MT de una partida de MT_VOLVER al ataque que tenian antes del sorteo (MTVolver.java): solo las que
-    siguen con el ataque del sorteo. Una vez por partida, despues de mt_azar; si falla se juega igual y se reintenta."""
-    cambios = MT_VOLVER.get(j['id'])
-    if not cambios or j.get('mt_vuelta') or not (j.get('mt_azar') or {}).get('estado') == 'hecho':
+    """Aplica los cambios de MT a mano de MT_VOLVER a su partida (MTVolver.java): una vez por version, despues de
+    mt_azar; solo las MT que siguen con el ataque de partida. Si falla se juega igual y se reintenta."""
+    version, cambios = MT_VOLVER.get(j['id'], (None, None))
+    hecha = j.get('mt_vuelta')                  # la de la 1.2.8 se apunto sin version: era la 1
+    if not cambios or (hecha.get('version', 1) if hecha else 0) >= version             or not (j.get('mt_azar') or {}).get('estado') == 'hecho':
         return
     carpeta = comun.DATOS / 'juegos' / j['id']
     codigos = [c for v in ('mod', locke.MOD_COMPLETO) for c in (carpeta / v).glob('*/code.bin')]
     if not codigos:
         return
     huella_buena = j.get('firma_mod') == firma_mod(j)
-    comun.tarea('Devolviendo tus MT a como estaban… (solo esta vez)')
+    comun.tarea('Poniendo tus MT al dia… (solo esta vez)')
     try:
         jar, jv = upr_jar(), java()
         salida = correr([jv, '-Xmx2048M', *clase_pokelocke(jar, 'MTVolver'), rom_jugable(j), cambios,
@@ -693,13 +754,13 @@ def mt_volver(j):
         traceback.print_exc()
         return
     estado = 'hecho' if 'Hecho' in salida else 'ya estaban' if 'YA' in salida else 'fallo'
-    print(time.strftime('%H:%M:%S'), 'MT devueltas:', estado, salida.strip()[-40:], flush=True)
+    print(time.strftime('%H:%M:%S'), 'MT a mano:', estado, salida.strip()[-40:], flush=True)
     if estado == 'fallo':
         return
     with open(carpeta / 'randomizacion.log', 'a', encoding='utf-8') as f:
-        f.write('\n--Pokelocke: se deshace el sorteo de MT de la 1.2.7 (las MT vuelven a como estaban)--\n')
+        f.write(f'\n--Pokelocke: cambios de MT a mano, version {version} ({estado})--\n')
     with comun.lock:
-        j['mt_vuelta'] = {'estado': estado, 'fecha': time.strftime('%Y-%m-%d %H:%M')}
+        j['mt_vuelta'] = {'estado': estado, 'version': version, 'fecha': time.strftime('%Y-%m-%d %H:%M')}
         if estado == 'hecho' and huella_buena:
             j['firma_mod'] = firma_mod(j)
         comun.guardar()
@@ -717,6 +778,7 @@ def lanzar(j):
     mt_fijas(j)                               # antes de abrir la fase completa
     mt_azar(j)
     mt_volver(j)
+    mega_torre(j)
     with comun.lock:
         vigia.abrir(j)
         for dar in (locke.dar_caramelos, locke.dar_escamas):
@@ -726,6 +788,7 @@ def lanzar(j):
                 traceback.print_exc()
         completa = j.get('fase') == 1 and locke.medallas_partida(j) >= locke.MEDALLAS_PARA_COMPLETA and locke.abrir_fase_completa(j)
         j['firma_mod'] = firma_mod(j)
+    mt_fuertes(j)                             # despues de abrir la fase completa: antes de poner el mod
     poner_mod(j)
     guardado.fijo_por_defecto(j)
     try:
@@ -756,6 +819,8 @@ def preparar(j, opciones, vidas_ini, randomizar_juego, avanzado, reglas=None):
         personal_al_azar(j, 'Revisando las MT y las habilidades…', reglas)
         j['mt_fijas'] = {'estado': 'de serie', 'fecha': time.strftime('%Y-%m-%d %H:%M')}   # MegaFases ya las deja iguales
         j['mt_azar'] = {'estado': 'de serie', 'fecha': time.strftime('%Y-%m-%d %H:%M')}    # el randomizador ya las sortea
+        j['mt_fuertes'] = {'estado': 'de serie', 'fecha': time.strftime('%Y-%m-%d %H:%M')}  # sin limite de potencia
+        j['mega_torre'] = {'estado': 'de serie', 'fecha': time.strftime('%Y-%m-%d %H:%M')}   # MegaFases ya la pone
     else:
         j['random'] = None
     with comun.lock:

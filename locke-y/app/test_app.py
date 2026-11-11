@@ -774,7 +774,7 @@ _g.pokehex_partida = lambda j: 'main'
 pokehex.Partida = _PartidaMT
 ja = {'id': 'tt', 'reglas': 'mega', 'random': {'avanzado': False}}
 emulador.mt_azar(ja)
-ver(len(llamadas) == 1 and 'MTAzar' in llamadas[0] and llamadas[0][llamadas[0].index('MTAzar') + 2] == '1,96'
+ver(len(llamadas) == 1 and 'MTAzar' in llamadas[0] and llamadas[0][llamadas[0].index('MTAzar') + 2] == 'max=69' and llamadas[0][llamadas[0].index('MTAzar') + 3] == '1,96'
     and sum(str(c).endswith('code.bin') for c in llamadas[0]) == 2,
     'MT al azar en las rooms que ya hay: pasa las MT de la mochila (MT01 y MT96) para no cambiarlas, y las dos fases')
 emulador.mt_azar(ja)
@@ -787,7 +787,7 @@ ver(len(llamadas) == 1 and 'mt_azar' not in jb, 'si no puede leer la mochila no 
 _g.pokehex_partida, pokehex.Partida = _pp, _P
 llamadas.clear()
 emulador.correr = lambda args, cwd: (llamadas.append(args), 'Hecho 2')[1]
-emulador.MT_VOLVER['tt'] = '3:209:78 4:347:385'
+emulador.MT_VOLVER['tt'] = (1, '3:209:78 4:347:385')
 jv = {'id': 'tt', 'reglas': 'mega', 'random': {'avanzado': False}, 'mt_azar': {'estado': 'hecho'}}
 emulador.mt_volver(jv)
 ver(len(llamadas) == 1 and 'MTVolver' in llamadas[0] and '3:209:78 4:347:385' in llamadas[0]
@@ -797,7 +797,38 @@ ver(len(llamadas) == 1 and jv['mt_vuelta']['estado'] == 'hecho', 'y solo una vez
 emulador.mt_volver({'id': 'otra', 'reglas': 'mega', 'random': {}, 'mt_azar': {'estado': 'hecho'}})
 emulador.mt_volver({'id': 'tt', 'reglas': 'mega', 'random': {}})
 ver(len(llamadas) == 1, 'a las demas partidas no les toca, ni a la de la lista si aun no se sortearon sus MT')
+emulador.MT_VOLVER['tt'] = (2, '3:78:209 4:385:347')
+emulador.mt_volver(jv)
+ver(len(llamadas) == 2 and '3:78:209 4:385:347' in llamadas[1] and jv['mt_vuelta']['version'] == 2, 'una version nueva de los cambios se aplica otra vez (y solo una)')
+emulador.mt_volver(jv)
+ver(len(llamadas) == 2, 'y no se repite')
+ver(not set(emulador.MT_VOLVER) - {'tt'}, 'no quedan cambios de MT a mano pendientes')
 del emulador.MT_VOLVER['tt']
+# fase completa: las MT que no estan en la mochila se sortean otra vez sin limite de potencia (mt_fuertes)
+llamadas.clear()
+pokehex.Partida, _g.pokehex_partida = _PartidaMT, (lambda j: 'main')
+emulador.correr = lambda args, cwd: (llamadas.append(args), 'Hecho 2')[1]
+jr = {'id': 'tt', 'reglas': 'mega', 'random': {'avanzado': False}, 'fase': 1, 'mt_azar': {'estado': 'hecho', 'guardadas': [1]}}
+emulador.mt_azar(jr)
+ver(not llamadas, 'una partida ya sorteada no repite el sorteo de menos de 70')
+emulador.mt_fuertes(jr)
+ver(len(llamadas) == 1 and 'max=999' in llamadas[0] and jr['mt_fuertes']['guardadas'] == [1, 96],
+    'en cualquier fase: las MT que no estan en la mochila se sortean sin limite de potencia (las de la mochila se respetan)')
+emulador.mt_fuertes(jr)
+ver(len(llamadas) == 1, 'y solo una vez')
+# la mega de la Torre Maestra en las partidas que ya existen
+llamadas.clear()
+for v in ('mod', 'mod_completo'):
+    (tmp_t / 'juegos' / 'tt' / v / '0004000000055E00' / 'romfs' / 'DllField.cro').write_bytes(b'cro')
+emulador.correr = lambda args, cwd: (llamadas.append(args), 'Hecho Medicham con Medichamite')[1]
+jg = {'id': 'tt', 'reglas': 'mega', 'random': {'avanzado': False}}
+emulador.mega_torre(jg)
+ver(len(llamadas) == 1 and 'MegaTorre' in llamadas[0] and sum(str(c).endswith('DllField.cro') for c in llamadas[0]) == 2
+    and jg['mega_torre']['regalo'] == 'Medicham con Medichamite', 'mega de la Torre Maestra: pasa el DllField.cro de las dos fases y apunta el regalo')
+emulador.mega_torre(jg)
+emulador.mega_torre({'id': 'tt', 'reglas': None, 'random': {}})
+ver(len(llamadas) == 1, 'una sola vez, y solo en las partidas Mega')
+_g.pokehex_partida, pokehex.Partida = _pp, _P
 comun.DATOS, emulador.correr = datos_antes, correr_antes
 emulador.upr_jar, emulador.java, emulador.rom_jugable, emulador.clase_pokelocke, comun.guardar = fuera
 
