@@ -454,3 +454,12 @@ Hechas con Gemini Nano Banana 2 editando SIEMPRE la misma base (no generando de 
   romfs/DllField.cro del mod (writeFile/readFile del UPR por reflexion; solo cambian especie y objeto, 2 bytes en la de
   David: Medicham con Medichamita), emulador.mega_torre una vez (j['mega_torre']); preparar la marca «de serie».
   Quien ya recogio el regalo se queda el suyo (esta en su partida).
+
+- 1.3.2 (2026-11-11) · EL CUADRO DEL TORNEO (David: «el bracket se calcula mal, hazlo mejor para 10 personas»).
+  Antes online._eliminatoria, con una ronda impar, daba el pase directo al primero y lo volvia a poner primero: con 10, el
+  ganador del 1.er partido esperaba en cada ronda y llegaba a la final tras jugar UNO (los demas, tres o cuatro).
+  Ahora, si no son potencia de dos, la ronda solo tiene los partidos justos para bajar a la potencia de dos de abajo y
+  los demas esperan, cruzados con esos ganadores; despues el cuadro va completo. Con 10: 5, 1, 2 y 1 partidos (nadie pasa
+  dos rondas sin jugar). Impares: la repesca de las normas igual. Probado de 2 a 16 con resultados al azar.
+  app.html: nombreRonda recibe cuantos partidos tiene la columna; una ronda corta se llama «Ronda N», no «Cuartos».
+  Un torneo ya creado mantiene su cuadro hasta «Randomizar emparejamientos» (que borra sus resultados).

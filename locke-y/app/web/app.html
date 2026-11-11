@@ -700,7 +700,7 @@
     <section class="tb-hud tb-carta tb-objetivo" id="tb-objetivo" aria-label="Siguiente objetivo"></section>
     <section class="tb-hud tb-carta tb-marcador" id="tb-marcador" aria-label="Vidas y medallas"></section>
     <div class="tb-hud tb-abajo"><div class="tb-equipo" id="tb-equipo" aria-label="Tu equipo"></div><div class="tb-carta tb-jugar" id="tb-jugar"></div></div>
-    <span class="tb-hud tb-credito">Creado por David Martínez Palacios · Versión 1.3.1</span>
+    <span class="tb-hud tb-credito">Creado por David Martínez Palacios · Versión 1.3.2</span>
   </div>
 
   <footer>
@@ -1901,10 +1901,11 @@ function avatar(n) {
   return conCorona(n, `<span class="tn-ava" style="background:${c}" aria-hidden="true">${esc(n[0].toUpperCase())}</span>`, coronas);
 }
 // con impares, la primera ronda se llama así aunque sean cuartos: la repesca habla de «la primera ronda»
-function nombreRonda(r, ultima, conRepesca) {
-  const d = ultima - r;
-  return d === 0 ? 'Final' : d === 1 ? 'Semifinales' : r === 0 && conRepesca ? 'Primera ronda'
-    : d === 2 ? 'Cuartos de final' : d === 3 ? 'Octavos de final' : r === 0 ? 'Primera ronda' : `Ronda ${r + 1}`;
+// una ronda corta (con 10: un partido mientras los demás esperan) no se llama cuartos ni semifinales: ronda 2…
+function nombreRonda(r, ultima, conRepesca, partidos) {
+  const d = ultima - r, completa = partidos === 1 << d;
+  return d === 0 ? 'Final' : r === 0 && conRepesca ? 'Primera ronda' : !completa ? (r === 0 ? 'Primera ronda' : `Ronda ${r + 1}`)
+    : d === 1 ? 'Semifinales' : d === 2 ? 'Cuartos de final' : d === 3 ? 'Octavos de final' : r === 0 ? 'Primera ronda' : `Ronda ${r + 1}`;
 }
 // lo que se enseña en un hueco que aún no tiene jugador
 function hueco(t, p, k) {
@@ -1947,8 +1948,9 @@ function columnas(t, fase, admin, yo, nombre) {
   const ultima = Math.max(...ps.map((p) => p.ronda));
   let html = '';
   for (let r = 0; r <= ultima; r++) {
-    html += `<div class="tn-col ${fase === 'principal' && r === ultima ? 'final' : ''}"><div class="tn-col-t">${nombre(r, ultima)}</div>
-      <div class="tn-col-cuerpo">${ps.filter((p) => p.ronda === r).map((p) => ficha(t, p, admin, yo)).join('')}</div></div>`;
+    const enRonda = ps.filter((p) => p.ronda === r);
+    html += `<div class="tn-col ${fase === 'principal' && r === ultima ? 'final' : ''}"><div class="tn-col-t">${nombre(r, ultima, enRonda.length)}</div>
+      <div class="tn-col-cuerpo">${enRonda.map((p) => ficha(t, p, admin, yo)).join('')}</div></div>`;
   }
   return html;
 }
@@ -1987,7 +1989,7 @@ function pintarTorneo() {
     const plaza = t.partidos.find((p) => p.plaza);
     const sinRival = plaza && plaza.fuentes[0].j;
     html += `<div class="tn-scroll"><div class="tn-lienzo"><svg class="tn-lineas" aria-hidden="true"></svg>
-      <div class="tn-cuadro">${columnas(t, 'principal', admin, d.yo, (r, u) => nombreRonda(r, u, !!plaza))}
+      <div class="tn-cuadro">${columnas(t, 'principal', admin, d.yo, (r, u, n) => nombreRonda(r, u, !!plaza, n))}
         <div class="tn-col campeon"><div class="tn-col-t">Campeón</div><div class="tn-col-cuerpo">${camp
           ? `<div class="tn-copa">${avatar(camp)}<strong>${esc(camp)}</strong><span class="tn-copa-t">Campeón del torneo</span></div>`
           : `<div class="tn-copa pendiente">${TROFEO}<strong>Por decidir</strong></div>`}</div></div></div>

@@ -295,6 +295,12 @@ ver(o.coronas() == {}, 'si se deshace el resultado, la corona se quita')
 o.editar_torneo(tk, 'ganador', {'id': final, 'lado': 0})
 o.editar_torneo(tk, 'reiniciar', {})
 ver(o.coronas()[uno] == [{'nombre': 'Gran torneo', 'puesto': 1}], 'y se queda aunque se borre el torneo')
+# el cuadro con 10: 5 partidos, una ronda corta de 1 (los otros 3 ganadores esperan), semifinales y final.
+# Antes el ganador del primer partido esperaba en cada ronda y llegaba a la final tras jugar uno solo
+ps10, fin10 = online._cuadro([f'J{i}' for i in range(10)])
+ver([sum(1 for q in ps10 if q['ronda'] == r) for r in range(4)] == [5, 1, 2, 1], 'el cuadro de 10 tiene 5, 1, 2 y 1 partidos')
+ver(all(f.get('gana', '')[:2] != 'p0' for f in next(q for q in ps10 if q['id'] == fin10)['fuentes']),
+    'a la final solo llegan ganadores de semifinales, nadie se la salta')
 # con 4: bronce para los dos que pierden las semifinales
 podio = online.Servidor._podio({'final': 'p1-0', 'partidos': [
     {'id': 'p0-0', 'fase': 'principal', 'ronda': 0, 'ab': ['A', 'B'], 'gana': 0, 'fuentes': []},

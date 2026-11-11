@@ -153,7 +153,7 @@ class SinSesion(PermissionError):
 # Cada partido sabe de dónde salen sus dos jugadores («fuentes»): {'j': nombre}, {'gana': id} (el ganador de otro
 # partido) o {'pierde': id} (el perdedor). Con jugadores impares, el que se queda sin rival en la primera ronda espera
 # al ganador de la repesca: los perdedores de la primera ronda juegan entre ellos al mejor de 1 (normas del Mega
-# Pokelocke). Si una ronda posterior sale impar, el primero pasa directo a la siguiente (sin partido vacío).
+# Pokelocke). Si después quedan unos que no son potencia de dos, se juega una ronda corta (ver _eliminatoria).
 
 def _partido(partidos, fase, ronda, fuentes, mejor_de=3, plaza=False):
     pid = f'{fase[0]}{ronda}-{sum(1 for q in partidos if q["fase"] == fase and q["ronda"] == ronda)}'
@@ -163,11 +163,20 @@ def _partido(partidos, fase, ronda, fuentes, mejor_de=3, plaza=False):
 
 
 def _eliminatoria(partidos, fuentes, fase, ronda, mejor_de):
-    """Empareja las fuentes ronda a ronda hasta que queda una: la del ganador."""
+    """Empareja las fuentes ronda a ronda hasta que queda una: la del ganador. Si no son potencia de dos (4, 8, 16…),
+    la primera ronda solo tiene los partidos justos para llegar a la potencia de dos de abajo y los demás esperan;
+    después el cuadro ya va completo. Así nadie pasa dos rondas sin jugar: con 5, juegan dos y los otros tres esperan
+    en semifinales (antes el primero esperaba en cada ronda impar y con 10 jugadores llegaba a la final tras un partido).
+    Cada ganador de esa ronda corta se cruza con uno de los que esperaban."""
     while len(fuentes) > 1:
-        directo = [fuentes.pop(0)] if len(fuentes) % 2 else []
-        fuentes = directo + [{'gana': _partido(partidos, fase, ronda, fuentes[k:k + 2], mejor_de)}
-                             for k in range(0, len(fuentes), 2)]
+        n = len(fuentes)
+        sobran = n - (1 << (n.bit_length() - 1))            # 0 si ya es potencia de dos
+        juegan = 2 * sobran if sobran else n
+        ganan = [{'gana': _partido(partidos, fase, ronda, fuentes[k:k + 2], mejor_de)} for k in range(0, juegan, 2)]
+        esperan = fuentes[juegan:]
+        fuentes = []
+        for k in range(max(len(ganan), len(esperan))):
+            fuentes += ganan[k:k + 1] + esperan[k:k + 1]
         ronda += 1
     return fuentes[0]
 
