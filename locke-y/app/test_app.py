@@ -895,5 +895,72 @@ print('Versiones')
 ver(conexion.version_tupla('2026.10.30.1203') > conexion.version_tupla('2026.10.30.0959'), 'una versión más nueva se reconoce')
 ver(conexion.version_tupla('desarrollo') is None, 'la copia de desarrollo no se compara')
 
+# ---------- torneo por grupos (2.1.0) ----------
+print('\nTorneo por grupos')
+og = online.Servidor(tmp / 'grupos', admin='Daavidmp')
+og.registrar('Daavidmp', 'clave1', '1.1.1.1', anfitrion=og.clave_anfitrion)
+tg = og.entrar('Daavidmp', 'clave1', '1.1.1.1')['token']
+doce = ['Daavidmp'] + [f'Jugador{k}' for k in range(1, 12)]
+for k, n in enumerate(doce[1:]):
+    og.registrar(n, 'clave1', f'7.7.7.{k}')
+
+
+def tor():
+    return json.loads((og.carpeta / 'torneo.json').read_text(encoding='utf-8'))
+
+
+def gana(pid, lado, ma='', mb=''):
+    if ma != '':
+        og.editar_torneo(tg, 'marcador', {'id': pid, 'ma': ma, 'mb': mb})
+    og.editar_torneo(tg, 'ganador', {'id': pid, 'lado': lado})
+
+
+try:
+    og.editar_torneo(tg, 'crear', {'jugadores': doce[:11], 'formato': 'grupos'})
+    ver(False, 'grupos: con 11 no se crea')
+except ValueError:
+    ver(True, 'grupos: con 11 no se crea')
+og.editar_torneo(tg, 'crear', {'jugadores': doce, 'formato': 'grupos'})
+for _ in range(12):
+    og.editar_torneo(tg, 'sacar', {})
+ver(all(f['j'] for p in tor()['partidos'] for f in p['fuentes'] if 'hueco' in f) and tor()['final'] is None,
+    'grupos: el sorteo llena los 4 grupos (el 3.º de cada grupo está en dos combates)')
+for L in 'AB':                                   # 2-1-0
+    gana(f'g{L}1', 0, '2', '0'); gana(f'g{L}2', 1, '0', '2'); gana(f'g{L}3', 1, '1', '2')
+ver(tor()['clasif']['A']['orden'] is not None, 'grupos: con 2-1-0 el orden sale solo')
+gana('gC1', 0); gana('gC2', 1); gana('gC3', 0)    # 1-1-1 sin marcador
+ver(tor()['clasif']['C']['falta_marcador'], 'grupos: con 1-1-1 hace falta el marcador')
+og.editar_torneo(tg, 'marcador', {'id': 'gC1', 'ma': '2', 'mb': '0'})
+og.editar_torneo(tg, 'marcador', {'id': 'gC2', 'ma': '1', 'mb': '2'})
+og.editar_torneo(tg, 'marcador', {'id': 'gC3', 'ma': '2', 'mb': '1'})
+dc = [p for p in tor()['partidos'] if p['fase'] == 'desempate']
+ver(len(dc) == 1 and dc[0]['mejor_de'] == 1, 'grupos: 1-1-1 con dos empatados en combates: un desempate al mejor de 1')
+gana('dC1', 0)
+gana('gD1', 0, '2', '1'); gana('gD2', 1, '1', '2'); gana('gD3', 0, '2', '1')   # 1-1-1 y los tres con 3 combates
+dd = [p for p in tor()['partidos'] if p['fase'] == 'desempate' and p['grupo'] == 'D']
+ver(len(dd) == 3 and tor()['final'] is None, 'grupos: empate a tres: tres desempates al mejor de 1 y aún sin cuadro')
+gana('dD1', 0); gana('dD2', 0); gana('dD3', 1)
+tt = tor()
+ver(tt['final'] == 'f' and all(tt['clasif'][L]['orden'] for L in 'ABCD'), 'grupos: con los cuatro grupos acabados sale el cuadro')
+de = {n: L for L in 'ABCD' for n in tt['clasif'][L]['orden']}
+pos = {n: k for L in 'ABCD' for k, n in enumerate(tt['clasif'][L]['orden'])}
+pr = {p['id']: p for p in tt['partidos'] if p['fase'] == 'principal'}
+ver(all(de[pr[q]['ab'][0]] != de[pr[q]['ab'][1]] and pos[pr[q]['ab'][0]] == pos[pr[q]['ab'][1]] < 2 for q in ('c1', 'c2', 'c3', 'c4')),
+    'grupos: cuartos 1.º contra 1.º y 2.º contra 2.º, de grupos distintos')
+semis_ok = True
+for bits in range(16):
+    gan = {q: pr[q]['ab'][(bits >> k) & 1] for k, q in enumerate(('c1', 'c2', 'c3', 'c4'))}
+    semis_ok &= de[gan['c1']] != de[gan['c2']] and de[gan['c3']] != de[gan['c4']]
+ver(semis_ok, 'grupos: en semifinales nunca se cruzan dos del mismo grupo')
+for q in ('c1', 'c2', 'c3', 'c4', 's1', 's2'):
+    gana(q, 0, '2', '0')
+gana('t3', 1, '1', '2'); gana('f', 0, '2', '1')
+tt = tor()
+ver(next(p for p in tt['partidos'] if p.get('tercero'))['mejor_de'] == 3, 'grupos: el 3.er puesto es al mejor de 3')
+ver(sorted(og._podio(tt).values()) == [1, 2, 3], 'grupos: podio de oro, plata y bronce')
+gana('gA3', 1); gana('gA3', 0, '2', '1')             # cambia quién pasa en el grupo A: el cuadro se rehace
+ver(tor()['firma_cuadro'] != tt['firma_cuadro'] and all(p['gana'] is None for p in tor()['partidos'] if p['fase'] == 'principal'),
+    'grupos: si cambia quién pasa, el cuadro final se rehace')
+
 print('\nTodo bien.' if not fallos else f'\n{len(fallos)} fallos.')
 raise SystemExit(1 if fallos else 0)

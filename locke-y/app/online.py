@@ -257,13 +257,15 @@ def _cuadro_vacio(n):
 
 
 def _poner(partidos, hueco, nombre):
-    """El nombre que ha salido de la máquina, en su hueco."""
+    """El nombre que ha salido de la máquina, en su hueco (en grupos, el 3.º de cada grupo está en dos combates)."""
+    puesto = False
     for p in partidos:
         for f in p['fuentes']:
             if f and f.get('hueco') == hueco:
                 f['j'] = nombre
-                return
-    raise ValueError('Ese hueco no existe')
+                puesto = True
+    if not puesto:
+        raise ValueError('Ese hueco no existe')
 
 
 def _jugador(partidos, fuente):
@@ -284,6 +286,135 @@ def _propagar(partidos):
         nuevos = [_jugador(partidos, f) for f in p['fuentes']]
         if nuevos != p['ab']:
             p.update(ab=nuevos, gana=None, vivo=False, ma='', mb='')
+
+
+# ---------- formato de grupos (2.1.0, para 12 jugadores) ----------
+# 4 grupos de 3 (A-D), todos contra todos al mejor de 3: 1 contra 2, 3 contra quien pierde y 3 contra quien gana.
+# Con 2 victorias se pasa 1.º, con 1 se pasa 2.º y con 0 se queda fuera. Con 1-1-1 ordena quién ha ganado más
+# combates en sus Bo3 (el marcador); si aún hay empate, desempate al mejor de 1 ('desempate'). Pasan 8 a cuartos:
+# los 1.º entre ellos y los 2.º entre ellos (sorteado, siempre de grupos distintos), montado para que en semifinales
+# tampoco se crucen dos del mismo grupo. Semifinales, 3.er puesto (al mejor de 3) y final.
+LETRAS = 'ABCD'
+
+
+def _nuevo(pid, fase, ronda, fuentes, mejor_de=3, **marca):
+    return {'id': pid, 'fase': fase, 'ronda': ronda, 'mejor_de': mejor_de, 'plaza': False, **marca,
+            'fuentes': list(fuentes), 'ab': [None, None], 'gana': None, 'vivo': False, 'ma': '', 'mb': ''}
+
+
+def _grupos_vacios():
+    """Los 12 combates de grupo sin nombres: la bola k va al grupo k // 3, puesto k % 3."""
+    partidos = []
+    for g, L in enumerate(LETRAS):
+        b = 3 * g
+        uno = _nuevo(f'g{L}1', 'grupo', 0, [{'j': None, 'hueco': b}, {'j': None, 'hueco': b + 1}], grupo=L)
+        partidos += [uno, _nuevo(f'g{L}2', 'grupo', 1, [{'j': None, 'hueco': b + 2}, {'pierde': uno['id']}], grupo=L),
+                     _nuevo(f'g{L}3', 'grupo', 2, [{'j': None, 'hueco': b + 2}, {'gana': uno['id']}], grupo=L)]
+    _propagar(partidos)
+    return partidos
+
+
+def _num(x):
+    try:
+        return int(str(x).strip())
+    except ValueError:
+        return None
+
+
+def _desempate_necesario(orden, c):
+    """Con 1-1-1, qué empate queda después de contar los combates ganados (c): 'tres' (los tres igual: tres Bo1),
+    'arriba' (empatan los dos primeros), 'abajo' (empatan los dos últimos) o None. orden va de más a menos."""
+    x, y, z = orden
+    if c[x] == c[y] == c[z]:
+        return 'tres'
+    if c[x] == c[y]:
+        return 'arriba'
+    if c[y] == c[z]:
+        return 'abajo'
+    return None
+
+
+def _grupos_al_dia(t):
+    """Después de cada cambio: la clasificación de cada grupo, sus desempates y el cuadro final (que se monta o se
+    rehace solo cuando cambia quién pasa y en qué puesto)."""
+    ps = t['partidos']
+    grupo = [p for p in ps if p['fase'] == 'grupo']
+    desempates = [p for p in ps if p['fase'] == 'desempate']
+    nuevos_desempates, clasif = [], {}
+    azar = secrets.SystemRandom()
+    for L in LETRAS:
+        suyos = [p for p in grupo if p['grupo'] == L]
+        info = {'orden': None, 'falta_marcador': False}
+        clasif[L] = info
+        if any(p['gana'] is None for p in suyos):
+            continue
+        js = list(dict.fromkeys(n for p in suyos for n in p['ab']))
+        v, c = {j: 0 for j in js}, {j: 0 for j in js}
+        for p in suyos:
+            v[p['ab'][p['gana']]] += 1
+            for k, m in enumerate((p['ma'], p['mb'])):
+                c[p['ab'][k]] += _num(m) or 0
+        if sorted(v.values()) == [0, 1, 2]:
+            info['orden'] = sorted(js, key=lambda j: -v[j])
+            continue
+        if any(_num(p['ma']) is None or _num(p['mb']) is None for p in suyos):
+            info['falta_marcador'] = True                 # sin el marcador de los tres no se sabe quién va delante
+            continue
+        orden = sorted(js, key=lambda j: -c[j])
+        caso = _desempate_necesario(orden, c)
+        if not caso:
+            info['orden'] = orden
+            continue
+        viejos = [p for p in desempates if p['grupo'] == L]
+        x, y, z = orden
+        if caso == 'tres':
+            mismos = (len(viejos) == 3 and viejos[0].get('caso') == 'tres'
+                      and {viejos[0]['fuentes'][0]['j'], viejos[0]['fuentes'][1]['j'], viejos[1]['fuentes'][0]['j']} == {x, y, z})
+            if not mismos:                                # quién empieza y quién espera, por sorteo
+                a, b, libre = azar.sample([x, y, z], 3)
+                d1 = _nuevo(f'd{L}1', 'desempate', 0, [{'j': a}, {'j': b}], mejor_de=1, grupo=L, caso='tres')
+                d2 = _nuevo(f'd{L}2', 'desempate', 1, [{'j': libre}, {'pierde': d1['id']}], mejor_de=1, grupo=L, caso='tres')
+                d3 = _nuevo(f'd{L}3', 'desempate', 2, [{'gana': d1['id']}, {'gana': d2['id']}], mejor_de=1, grupo=L, caso='tres')
+                viejos = [d1, d2, d3]
+            nuevos_desempates += viejos
+            d1, d2, d3 = viejos
+            if d3['gana'] is not None and d2['gana'] is not None:
+                info['orden'] = [d3['ab'][d3['gana']], d3['ab'][1 - d3['gana']], d2['ab'][1 - d2['gana']]]
+        else:
+            par = [x, y] if caso == 'arriba' else [y, z]
+            if not (len(viejos) == 1 and viejos[0].get('caso') == caso and {viejos[0]['fuentes'][k]['j'] for k in (0, 1)} == set(par)):
+                viejos = [_nuevo(f'd{L}1', 'desempate', 0, [{'j': par[0]}, {'j': par[1]}], mejor_de=1, grupo=L, caso=caso)]
+            nuevos_desempates += viejos
+            d = viejos[0]
+            if d['gana'] is not None:
+                g, p_ = d['ab'][d['gana']], d['ab'][1 - d['gana']]
+                info['orden'] = [g, p_, z] if caso == 'arriba' else [x, g, p_]
+    # el cuadro final: solo cuando los cuatro grupos tienen su orden
+    principal = [p for p in ps if p['fase'] == 'principal']
+    firma = None
+    if all(clasif[L]['orden'] for L in LETRAS):
+        firma = [[clasif[L]['orden'][0], clasif[L]['orden'][1]] for L in LETRAS]
+    if firma != t.get('firma_cuadro'):
+        principal = []
+        t['firma_cuadro'], t['final'] = firma, None
+        if firma:
+            primero = {L: firma[k][0] for k, L in enumerate(LETRAS)}
+            segundo = {L: firma[k][1] for k, L in enumerate(LETRAS)}
+            p, q, r, s = azar.sample(LETRAS, 4)
+            # semifinal 1: (1.º p – 1.º q) contra (2.º r – 2.º s); semifinal 2: (1.º r – 1.º s) contra (2.º p – 2.º q).
+            # Así en semifinales nunca se juntan dos del mismo grupo
+            cuartos = [_nuevo('c1', 'principal', 0, [{'j': primero[p]}, {'j': primero[q]}]),
+                       _nuevo('c2', 'principal', 0, [{'j': segundo[r]}, {'j': segundo[s]}]),
+                       _nuevo('c3', 'principal', 0, [{'j': primero[r]}, {'j': primero[s]}]),
+                       _nuevo('c4', 'principal', 0, [{'j': segundo[p]}, {'j': segundo[q]}])]
+            semis = [_nuevo('s1', 'principal', 1, [{'gana': 'c1'}, {'gana': 'c2'}]),
+                     _nuevo('s2', 'principal', 1, [{'gana': 'c3'}, {'gana': 'c4'}])]
+            principal = cuartos + semis + [_nuevo('f', 'principal', 2, [{'gana': 's1'}, {'gana': 's2'}]),
+                                           _nuevo('t3', 'principal', 2, [{'pierde': 's1'}, {'pierde': 's2'}], tercero=True)]
+            t['final'] = 'f'
+    t['partidos'] = grupo + nuevos_desempates + principal
+    t['clasif'] = clasif
+    _propagar(t['partidos'])
 
 
 def _al_dia(t):
@@ -761,8 +892,11 @@ class Servidor:
                 raise ValueError('Hacen falta al menos 2 jugadores')
             if len(jugadores) > 64:
                 raise ValueError('Como mucho 64 jugadores')
-            partidos, final = _cuadro_vacio(len(jugadores))
-            t = {'nombre': str(d.get('nombre') or 'Gran torneo')[:60], 'tope': d.get('tope'),
+            formato = 'grupos' if d.get('formato') == 'grupos' else 'eliminatoria'
+            if formato == 'grupos' and len(jugadores) != 3 * len(LETRAS):
+                raise ValueError(f'El formato de grupos es para {3 * len(LETRAS)} jugadores (has elegido {len(jugadores)})')
+            partidos, final = (_grupos_vacios(), None) if formato == 'grupos' else _cuadro_vacio(len(jugadores))
+            t = {'nombre': str(d.get('nombre') or 'Gran torneo')[:60], 'tope': d.get('tope'), 'formato': formato,
                  'jugadores': jugadores, 'partidos': partidos, 'final': final, 'id': time.strftime('%Y%m%d%H%M%S'),
                  'gestores': list(dict.fromkeys(g for g in (d.get('gestores') or []) if g in self.usuarios)),
                  'sorteo': self._sorteo_nuevo(jugadores)}
@@ -772,7 +906,10 @@ class Servidor:
         elif not t:
             raise ValueError('Aún no hay torneo')
         elif que in ('vaciar', 'randomizar'):            # el cuadro otra vez vacío, para volver a sortear
-            t['partidos'], t['final'] = _cuadro_vacio(len(t['jugadores']))
+            if t.get('formato') == 'grupos':
+                t['partidos'], t['final'], t['firma_cuadro'] = _grupos_vacios(), None, None
+            else:
+                t['partidos'], t['final'] = _cuadro_vacio(len(t['jugadores']))
             t['sorteo'] = self._sorteo_nuevo(t['jugadores'])
         elif que in ('sortear', 'cerrar_sorteo', 'remover', 'sacar'):
             s = t.get('sorteo')
@@ -809,6 +946,8 @@ class Servidor:
                 _propagar(t['partidos'])
         else:
             raise ValueError('Acción desconocida')
+        if t.get('formato') == 'grupos':
+            _grupos_al_dia(t)
         t.setdefault('id', time.strftime('%Y%m%d%H%M%S'))       # los torneos de antes no lo tenían
         self._coronar(t)
         tmp = f.with_suffix('.tmp')

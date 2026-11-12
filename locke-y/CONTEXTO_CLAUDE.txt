@@ -525,3 +525,18 @@ Hechas con Gemini Nano Banana 2 editando SIEMPRE la misma base (no generando de 
   (cuenta recordada o sesión de Daavidmp) y al entrar como Daavidmp, solo si este PC tiene datos/servidor/cert.pem y clave.pem.
 - 2.0.2: el botón JUGAR pasa a ser el diseño K2·E del lienzo (esquinas cortadas, borde con los colores de la
   Megaevolución que fluye, cristal azul noche, brillo morado que respira, subtítulo «MEGA POKELOCKE Y»). Clases .jugar*.
+
+== 2.1.0 (2026-11-12): torneo por grupos + tutorial de Arce del torneo ==
+- Formato 'grupos' (t['formato']), solo con 12 jugadores. online._grupos_vacios: 4 grupos de 3 (A-D), la bola k va al
+  grupo k//3 (etiqueta «Grupo B · 2»). Combates por grupo: gX1 = 1 contra 2, gX2 = 3 contra quien pierde gX1, gX3 = 3
+  contra quien gana gX1 (todos al mejor de 3). _poner rellena TODAS las fuentes de ese hueco (el 3.º está en dos).
+- online._grupos_al_dia(t) tras cada cambio: t['clasif'][L] = {orden, falta_marcador}. 2-1-0: orden directo. 1-1-1:
+  hace falta el marcador de los tres; ordena por combates ganados (siempre valen 2 o 3, así que SIEMPRE queda algún
+  empate): 'arriba'/'abajo' = un Bo1 (dX1) entre los dos empatados; 'tres' = dX1 (dos al azar), dX2 (el libre contra
+  quien pierde dX1, quien pierde queda 3.º), dX3 (los dos ganadores, por el 1.º). Fase 'desempate', mejor_de 1.
+- Con los 4 órdenes: cuadro c1-c4 (1.º p–1.º q, 2.º r–2.º s, 1.º r–1.º s, 2.º p–2.º q, con p,q,r,s al azar), s1, s2,
+  f (final) y t3 (3.er puesto, tercero=True, AL MEJOR DE 3). Así en cuartos y semis nunca dos del mismo grupo; en la
+  final y el 3.º sí puede pasar. t['firma_cuadro'] = quién pasa y en qué puesto: si cambia, el cuadro se rehace.
+- app.html: pintarGrupos (tabla Victorias/Combates/Pasa, combates y desempates), «Fase final» con columnas(); crear con
+  radio de formato; botón «?» en la cabecera; TUTORIALES.torneo (Arce, 11 pasos) la 1.ª vez que se abre un torneo de grupos.
+- Normas, cláusula séptima, con el formato de grupos y el 3.º al mejor de 3; PDF rehecho (8 páginas).

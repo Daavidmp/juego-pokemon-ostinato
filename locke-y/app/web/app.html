@@ -700,6 +700,40 @@
   .so-lista li .so-mini { width: 18px; height: 18px; border-radius: 50%; border: 2px solid #1B2030; background: linear-gradient(#F7F1E1 50%, var(--c) 50%); flex: none; }
   .so-lista li span { color: var(--suave, #5B6478); font-size: 13px; margin-left: auto; }
   @media (prefers-reduced-motion: reduce) { .so-maquina.agita, .so-papel .hoja, .sorteo { animation: none; } .so-bola i, .so-manivela, .so-papel.vuela { transition: none; } }
+  /* formato de grupos (2.1.0): una tarjeta por grupo con su tabla, sus combates y sus desempates; debajo, la fase final */
+  .tn-grupos { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; margin-bottom: 34px; max-width: 1180px; }
+  @media (max-width: 760px) { .tn-grupos { grid-template-columns: minmax(0, 1fr); } }
+  .tn-grupo { background: var(--panel); border: 1px solid var(--linea); border-radius: 18px; padding: 16px 16px 20px; display: flex; flex-direction: column; gap: 14px; }
+  .tn-grupo h3 { margin: 0; font: 22px/1 Bungee, Nunito, sans-serif; display: flex; align-items: baseline; gap: 10px; }
+  .tn-grupo h3 small { font: 800 13px Nunito, sans-serif; color: var(--suave); }
+  .tn-tabla { width: 100%; border-collapse: collapse; font-size: 15px; }
+  .tn-tabla th { font-size: 12px; color: var(--suave); font-weight: 900; padding: 0 6px 6px; text-align: center; }
+  .tn-tabla th:first-child { text-align: left; }
+  .tn-tabla td { padding: 6px; border-top: 1px solid var(--linea); text-align: center; font-weight: 800; }
+  .tn-tabla td:first-child { text-align: left; }
+  .tn-tabla .quien { display: flex; align-items: center; gap: 8px; min-width: 0; }
+  .tn-tabla .quien b { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .tn-tabla .tn-ava { width: 30px; height: 30px; border-radius: 9px; font-size: 14px; flex: none; }
+  .tn-tabla tr.yo b { color: var(--azul-texto); }
+  .tn-tabla tr.vacia td { color: #8C94A8; font-style: italic; font-weight: 700; }
+  .tn-pasa, .tn-fuera { display: inline-block; font-size: 12px; font-weight: 900; padding: 3px 9px; border-radius: 999px; white-space: nowrap; }
+  .tn-pasa.uno { background: var(--oro-claro); color: #7A5A00; }
+  .tn-pasa.dos { background: var(--azul-claro); color: var(--azul-texto); }
+  .tn-fuera { background: #EEF0F5; color: #5B6478; }
+  .tn-g-combates, .tn-desempate { display: flex; flex-direction: column; gap: 20px; padding-top: 10px; }
+  .tn-g-combates .tn-fila, .tn-desempate .tn-fila { min-height: 48px; padding: 6px 12px; }
+  .tn-desempate { padding: 14px 12px 12px; border-radius: 14px; background: var(--oro-claro); gap: 22px; }
+  .tn-desempate h4 { margin: 0 0 -6px; font-size: 14px; font-weight: 900; color: #7A5A00; }
+  .tn-ficha.grupo .tn-etiqueta { background: var(--suave); }
+  .tn-ficha.desempate { border: 2px solid #E0B000; }
+  .tn-ficha.desempate .tn-sello, .tn-ficha.desempate .tn-etiqueta { background: #B88A00; }
+  .tn-aviso { margin: 0; padding: 8px 12px; border-radius: 10px; background: var(--rojo-claro); color: var(--rojo-texto); font-weight: 800; font-size: 14px; }
+  .tn-fase-t { margin: 0 0 6px; font: 22px/1.1 Bungee, Nunito, sans-serif; }
+  .tn-espera { padding: 20px 22px; border: 2px dashed var(--linea-fuerte); border-radius: 18px; color: var(--suave); font-weight: 700; max-width: 680px; }
+  .tn-formato { display: flex; gap: 10px; flex-wrap: wrap; }
+  .tn-formato label { display: flex; align-items: center; gap: 8px; padding: 10px 14px; border: 2px solid var(--linea); border-radius: 12px; font-weight: 800; cursor: pointer; min-height: 44px; }
+  .tn-formato label:has(input:checked) { border-color: var(--rojo); background: var(--rojo-claro); }
+  .tn-formato input { accent-color: var(--rojo); width: 18px; height: 18px; margin: 0; }
   .tn-crear { display: flex; flex-direction: column; gap: 12px; }
   .tn-crear .lista { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 8px; }
   .tn-crear label.j { display: flex; align-items: center; gap: 8px; padding: 6px 10px; border: 1px solid var(--linea); border-radius: 12px; font-weight: 700; }
@@ -750,7 +784,7 @@
     </div>
     <div class="portada-izq">
       <button class="redondo-video" type="button" data-sonido aria-label="Silenciar la música"></button>
-      <span>Versión 2.0.2</span>
+      <span>Versión 2.1.0</span>
     </div>
     <div class="portada-jugar">
       <span id="p-progreso"></span>
@@ -830,7 +864,7 @@
     <section class="tb-hud tb-carta tb-objetivo" id="tb-objetivo" aria-label="Siguiente objetivo"></section>
     <section class="tb-hud tb-carta tb-marcador" id="tb-marcador" aria-label="Vidas y medallas"></section>
     <div class="tb-hud tb-abajo"><div class="tb-equipo" id="tb-equipo" aria-label="Tu equipo"></div><div class="tb-carta tb-jugar" id="tb-jugar"></div></div>
-    <span class="tb-hud tb-credito">Creado por David Martínez Palacios · Versión 2.0.2</span>
+    <span class="tb-hud tb-credito">Creado por David Martínez Palacios · Versión 2.1.0</span>
   </div>
 
   <footer>
@@ -2043,6 +2077,8 @@ async function cargarTorneo() {
   const r = await pedirTorneo('torneo');
   if (r.error) { torneo.error = r.error; } else { torneo.datos = r; torneo.error = null; torneo.hora = Date.now(); sincronizarSorteo(r.torneo); }
   pintarTorneo();
+  // la primera vez que se entra en un torneo de grupos, Arce lo explica (luego, con el «?» de la cabecera)
+  if (torneo.abierto && r.torneo && r.torneo.formato === 'grupos' && !torneo.creando) requestAnimationFrame(() => empezarTutorial('torneo'));
 }
 async function editarTorneo(que, datos) {
   const r = await pedirTorneo('torneo_editar', {que, ...(datos || {})});
@@ -2081,11 +2117,16 @@ function nombreRonda(r, ultima, conRepesca, partidos) {
   return d === 0 ? 'Final' : d === 1 ? 'Semifinales' : r === 0 && conRepesca ? 'Primera ronda'
     : juegan === 8 ? 'Cuartos de final' : juegan === 16 ? 'Octavos de final' : r === 0 ? 'Primera ronda' : `Ronda ${r + 1}`;
 }
+// a qué hueco va cada bola: en grupos, «Grupo B · 2» (la bola k va al grupo k / 3); si no, la posición del cuadro
+const etiquetaHueco = (t, h) => (t && t.formato === 'grupos' ? `Grupo ${'ABCD'[Math.floor(h / 3)]} · ${h % 3 + 1}` : `Posición ${h + 1}`);
 // lo que se enseña en un hueco que aún no tiene jugador
 function hueco(t, p, k) {
   const f = p.fuentes[k];
   if (!f) return 'Pase directo';
-  if (f.hueco !== undefined) return f.hueco === sorteo.revelados && t.sorteo && t.sorteo.abierto ? `Posición ${f.hueco + 1} · sale ahora` : `Posición ${f.hueco + 1}`;
+  if (f.hueco !== undefined) return etiquetaHueco(t, f.hueco) + (f.hueco === sorteo.revelados && t.sorteo && t.sorteo.abierto ? ' · sale ahora' : '');
+  if ((f.pierde || f.gana) && (p.fase === 'grupo' || p.fase === 'desempate')) {
+    return `Quien ${f.pierde ? 'pierda' : 'gane'} el ${p.fase === 'grupo' ? 'combate' : 'desempate'} ${(f.pierde || f.gana).slice(-1)}`;
+  }
   if (f.pierde && (p.segunda || p.tercero)) {
     const q = t.partidos.find((x) => x.id === f.pierde);
     return q && q.ab[0] && q.ab[1] ? `Quien pierda ${q.ab[0]} – ${q.ab[1]}` : p.tercero ? 'Perdedor de semifinales' : 'Perdedor del combate de esta ronda';
@@ -2115,7 +2156,9 @@ function ficha(t, p, admin, yo) {
   return `<div class="tn-ficha ${p.fase} ${p.plaza ? 'plaza' : ''} ${p.segunda ? 'segunda' : ''} ${p.tercero ? 'tercero' : ''} ${p.vivo ? 'vivo' : ''}" data-partido="${p.id}">
     ${p.vivo ? '<span class="tn-vivo"><i></i>En juego</span>' : ''}
     ${p.segunda ? '<span class="tn-etiqueta">Segunda oportunidad · al mejor de 3</span>' : ''}
-    ${p.tercero ? '<span class="tn-etiqueta">3.er puesto · al mejor de 1</span>' : ''}
+    ${p.tercero ? `<span class="tn-etiqueta">3.er puesto · al mejor de ${p.mejor_de}</span>` : ''}
+    ${p.fase === 'grupo' ? `<span class="tn-etiqueta">Combate ${p.ronda + 1} · al mejor de 3</span>` : ''}
+    ${p.fase === 'desempate' ? `<span class="tn-etiqueta">Desempate ${p.ronda + 1} · al mejor de 1</span>` : ''}
     ${p.plaza ? '<span class="tn-etiqueta">Sin rival en la 1.ª ronda</span>' : ''}
     ${subeA(t, p) ? `<span class="tn-nota">Quien gana sube a jugar contra ${esc(subeA(t, p))}</span>` : ''}
     <div class="tn-filas">${fila(0)}${fila(1)}<span class="tn-sello" aria-hidden="true">VS</span></div>
@@ -2157,6 +2200,34 @@ function campeon(t) {
 }
 const TROFEO = '<svg viewBox="0 0 64 64" aria-hidden="true"><path d="M18 6h28v14a14 14 0 0 1-28 0Z" fill="#FFCB05" stroke="#7A5A00" stroke-width="2.5"/><path d="M18 10H8v4a10 10 0 0 0 10 10M46 10h10v4a10 10 0 0 1-10 10" fill="none" stroke="#7A5A00" stroke-width="2.5"/><path d="M28 34h8v10h-8z" fill="#E5B800" stroke="#7A5A00" stroke-width="2.5"/><path d="M18 44h28v8H18zM14 52h36v6H14z" fill="#9B6B2C" stroke="#5A3A10" stroke-width="2.5"/></svg>';
 
+// los cuatro grupos: tabla (Bo3 ganados, combates ganados y si pasa), sus tres combates y, si hace falta, el desempate
+function pintarGrupos(t, puede, yo) {
+  const cl = t.clasif || {};
+  return `<section class="tn-grupos">${[...'ABCD'].map((L) => {
+    const ps = t.partidos.filter((p) => p.fase === 'grupo' && p.grupo === L);
+    const des = t.partidos.filter((p) => p.fase === 'desempate' && p.grupo === L);
+    const sitios = [[ps[0], 0], [ps[0], 1], [ps[1], 0]];             // los tres del grupo (el 3.º está en el 2.º combate)
+    const js = sitios.map(([p, k]) => p.ab[k]);
+    const v = {}, c = {};
+    js.forEach((j) => { if (j) { v[j] = 0; c[j] = 0; } });
+    for (const p of ps) {
+      if (p.gana !== null && p.ab[p.gana] in v) v[p.ab[p.gana]]++;
+      p.ab.forEach((j, k) => { const m = parseInt(k ? p.mb : p.ma, 10); if (j in c && !isNaN(m)) c[j] += m; });
+    }
+    const info = cl[L] || {}, orden = info.orden && info.orden.every((j) => j in v) ? info.orden : null;
+    const estado = (j) => (!orden ? '' : orden[0] === j ? '<span class="tn-pasa uno">Pasa 1.º</span>'
+      : orden[1] === j ? '<span class="tn-pasa dos">Pasa 2.º</span>' : '<span class="tn-fuera">Fuera</span>');
+    const filas = (orden || js).map((j, k) => (j
+      ? `<tr class="${j === yo ? 'yo' : ''}"><td><span class="quien">${avatar(j)}<b>${esc(j)}</b></span></td><td>${v[j]}</td><td>${c[j]}</td><td>${estado(j)}</td></tr>`
+      : `<tr class="vacia"><td>${esc(hueco(t, sitios[k][0], sitios[k][1]))}</td><td>–</td><td>–</td><td></td></tr>`)).join('');
+    return `<article class="tn-grupo"><h3>Grupo ${L}<small>todos contra todos</small></h3>
+      <table class="tn-tabla"><thead><tr><th>Jugador</th><th title="Combates al mejor de 3 ganados">Victorias</th><th title="Combates ganados dentro de sus Bo3">Combates</th><th></th></tr></thead><tbody>${filas}</tbody></table>
+      ${info.falta_marcador ? '<p class="tn-aviso">Empate 1-1-1: apunta el marcador de los tres combates para ver quién va delante.</p>' : ''}
+      ${des.length ? `<div class="tn-desempate"><h4>${des.length === 3 ? 'Empate a tres: desempates al mejor de 1' : 'Empate en combates: desempate al mejor de 1'}</h4>${des.map((p) => ficha(t, p, puede, yo)).join('')}</div>` : ''}
+      <div class="tn-g-combates">${ps.map((p) => ficha(t, p, puede, yo)).join('')}</div></article>`;
+  }).join('')}</section>`;
+}
+
 function pintarTorneo() {
   if (!torneo.abierto) return;
   const d = torneo.datos, t0 = d && d.torneo, admin = d && d.admin, puede = !!(d && (d.puede || d.admin));
@@ -2169,6 +2240,7 @@ function pintarTorneo() {
   $('tn-acciones').innerHTML = !d ? '' : `${organizan}
     ${admin ? '<span class="chip random">Modo edición · admin</span>' : puede ? '<span class="chip random">Organizador</span>'
       : '<span class="chip" style="background:var(--verde-claro);color:#166B3C">● Se actualiza solo</span><span class="chip nuevo">Solo lectura</span>'}
+    ${t && t.formato === 'grupos' ? '<button class="btn btn-icono" type="button" data-tn="ayuda" aria-label="Cómo funciona el torneo" title="Cómo funciona el torneo"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M9.1 9a3 3 0 0 1 5.8 1c0 2-3 2.5-3 4.5M12 17.5h.01"/></svg></button>' : ''}
     ${t && puede && s && quedan > 0 && !s.abierto ? '<button class="btn btn-rojo" type="button" data-tn="sortear">🎱 Sortear</button>' : ''}
     ${t && puede ? '<button class="btn btn-neutro" type="button" data-tn="vaciar">Vaciar cuadro</button>' : ''}
     ${t && admin ? '<button class="btn btn-neutro" type="button" data-tn="reiniciar">Reiniciar</button>' : ''}
@@ -2178,7 +2250,12 @@ function pintarTorneo() {
   if (torneo.creando && d) {
     const libres = d.usuarios.filter((n) => !torneo.gestores.includes(n));
     html += `<section class="tarjeta tn-crear"><h2>Crear torneo</h2>
-      <p class="suave">Elige quién juega (las cuentas del servidor). El cuadro sale vacío: los nombres salen uno a uno de la máquina de bolas con «Sortear». Nadie pasa de ronda sin combatir: si en una ronda sobra uno, juega al mejor de 3 contra el perdedor de un combate de esa ronda. Los que pierden en semifinales se juegan el 3.er puesto al mejor de 1.</p>
+      <div class="tn-formato" role="radiogroup" aria-label="Formato del torneo">
+        <label><input type="radio" name="tn-formato" value="grupos" ${torneo.formato === 'grupos' ? 'checked' : ''}> Grupos (12 jugadores)</label>
+        <label><input type="radio" name="tn-formato" value="eliminatoria" ${torneo.formato !== 'grupos' ? 'checked' : ''}> Eliminatoria</label></div>
+      <p class="suave">${torneo.formato === 'grupos'
+        ? `Elige a 12 jugadores (llevas ${torneo.marcados.size}). La máquina de bolas los reparte en 4 grupos de 3, todos contra todos al mejor de 3. Pasan los dos primeros de cada grupo: en cuartos, 1.º contra 1.º y 2.º contra 2.º, de grupos distintos. Con 1-1-1 va delante quien más combates ha ganado, y si aún hay empate, combate al mejor de 1. Semifinales, 3.er puesto y final al mejor de 3.`
+        : 'Elige quién juega (las cuentas del servidor). El cuadro sale vacío: los nombres salen uno a uno de la máquina de bolas con «Sortear». Nadie pasa de ronda sin combatir: si en una ronda sobra uno, juega al mejor de 3 contra el perdedor de un combate de esa ronda. Los que pierden en semifinales se juegan el 3.er puesto al mejor de 1.'}</p>
       <div class="lista">${d.usuarios.map((n) => `<label class="j"><input type="checkbox" name="tn-j" value="${esc(n)}" ${torneo.marcados.has(n) ? 'checked' : ''}>${avatar(n)} ${esc(n)}</label>`).join('')}</div>
       <div class="rejilla" style="max-width:640px"><label class="campo">Nombre<input id="tn-nombre" value="${esc(torneo.nombre)}" style="font:600 15px Nunito,sans-serif;border:1px solid var(--linea-fuerte);border-radius:10px;padding:8px 10px;min-height:42px"></label>
         <label class="campo">Nivel tope<input id="tn-nivel" type="number" min="1" max="100" value="${esc(torneo.tope)}"></label></div>
@@ -2191,7 +2268,17 @@ function pintarTorneo() {
   if (d && !t && !torneo.creando) {
     html += `<div class="vacio"><h1>Aún no hay torneo</h1><p class="suave" style="font-size:17px">${admin ? 'Créalo con «+ Crear torneo»: eliges a los jugadores y a los organizadores, y el cuadro se rellena con la máquina de bolas.' : 'Cuando el administrador lo cree, aparecerá aquí.'}</p></div>`;
   }
-  if (t) {
+  if (t && t.formato === 'grupos') {
+    const camp = campeon(t);
+    html += pintarGrupos(t, puede, d.yo);
+    html += `<section class="tn-fase"><h2 class="tn-fase-t">Fase final</h2>${t.final
+      ? `<div class="tn-scroll"><div class="tn-lienzo"><svg class="tn-lineas" aria-hidden="true"></svg>
+        <div class="tn-cuadro">${columnas(t, 'principal', puede, d.yo, (r, u, n) => nombreRonda(r, u, false, n))}
+          <div class="tn-col campeon"><div class="tn-col-t">Campeón</div><div class="tn-col-cuerpo">${camp
+            ? `<div class="tn-copa">${avatar(camp)}<strong>${esc(camp)}</strong><span class="tn-copa-t">Campeón del torneo</span></div>`
+            : `<div class="tn-copa pendiente">${TROFEO}<strong>Por decidir</strong></div>`}</div></div></div></div></div>`
+      : `<div class="tn-espera">Pasan 8: los dos primeros de cada grupo. Cuando acaben los grupos se sortean solos los cuartos de final: los 1.º contra 1.º y los 2.º contra 2.º, siempre de grupos distintos. Después, semifinales, 3.er puesto y final, todo al mejor de 3.</div>`}</section>`;
+  } else if (t) {
     const camp = campeon(t);
     const plaza = t.partidos.find((p) => p.plaza);
     const sinRival = plaza && plaza.fuentes[0].j;
@@ -2275,12 +2362,13 @@ function pintarSorteo(t, puede) {
   if (!visible) { cancelAnimationFrame(sorteo.reloj); sorteo.reloj = null; return; }
   const quedan = s.total - s.sacados.length;
   $('so-cuenta').textContent = `${sorteo.revelados} de ${s.total} bolas`;
-  $('so-siguiente').innerHTML = sorteo.revelados >= s.total ? '¡Cuadro completo! Ya se pueden jugar los combates.'
-    : `Bola para la <b>posición ${sorteo.revelados + 1}</b> del cuadro`;
+  const grupos = t.formato === 'grupos';
+  $('so-siguiente').innerHTML = sorteo.revelados >= s.total ? `¡${grupos ? 'Grupos completos' : 'Cuadro completo'}! Ya se pueden jugar los combates.`
+    : grupos ? `Bola para el <b>${etiquetaHueco(t, sorteo.revelados)}</b>` : `Bola para la <b>posición ${sorteo.revelados + 1}</b> del cuadro`;
   $('so-botones').classList.toggle('oculto', !puede || quedan === 0);
   $('so-cerrar').classList.toggle('oculto', !puede);
   $('so-sacar').disabled = $('so-remover').disabled = sorteo.animando || sorteo.cola.length > 0 || sorteo.ocupado;
-  const lista = s.sacados.slice(0, sorteo.revelados).map((b) => `<li><i class="so-mini" style="--c:${colorBola(b.nombre).c}"></i>${esc(b.nombre)}<span>Posición ${b.hueco + 1}</span></li>`).join('');
+  const lista = s.sacados.slice(0, sorteo.revelados).map((b) => `<li><i class="so-mini" style="--c:${colorBola(b.nombre).c}"></i>${esc(b.nombre)}<span>${etiquetaHueco(t, b.hueco)}</span></li>`).join('');
   if ($('so-lista').dataset.html !== lista) { $('so-lista').innerHTML = lista; $('so-lista').dataset.html = lista; }
   // las bolas que se ven dentro: las que quedan más las que aún no han empezado a caer
   const dentro = quedan + sorteo.cola.length;
@@ -2411,7 +2499,7 @@ async function siguienteBola() {
     }
     bola.classList.add('abierta');
     await espera(260);
-    $('so-papel-pos').textContent = `Posición ${b.hueco + 1}`;
+    $('so-papel-pos').textContent = etiquetaHueco(torneo.datos && torneo.datos.torneo, b.hueco);
     $('so-papel-nombre').textContent = b.nombre;
     $('so-papel-nombre').style.fontSize = `${Math.min(46, Math.floor(600 / Math.max(8, b.nombre.length)))}px`;   // 16 letras caben
     papel.classList.remove('vuela');
@@ -2538,6 +2626,7 @@ document.addEventListener('click', (ev) => {
     // el formulario guarda lo que llevas (marcar jugadores no se pierde al añadir un organizador)
     const t = torneo.datos && torneo.datos.torneo;
     Object.assign(torneo, {creando: true, marcados: new Set(t ? t.jugadores : torneo.datos.usuarios), gestores: t && t.gestores ? [...t.gestores] : [],
+      formato: t && t.formato ? t.formato : 'grupos',
       nombre: t ? t.nombre : 'Gran torneo · Mitad del Mega Pokelocke', tope: t && t.tope ? t.tope : 39});
     return pintarTorneo();
   }
@@ -2552,9 +2641,11 @@ document.addEventListener('click', (ev) => {
   if (que === 'confirmar') {
     const jugadores = [...torneo.marcados];
     if (jugadores.length < 2) return alert('Elige al menos 2 jugadores');
+    if (torneo.formato === 'grupos' && jugadores.length !== 12) return alert(`El formato de grupos es para 12 jugadores (has elegido ${jugadores.length})`);
     torneo.creando = false;
-    return editarTorneo('crear', {jugadores, gestores: torneo.gestores, nombre: $('tn-nombre').value, tope: Number($('tn-nivel').value) || null});
+    return editarTorneo('crear', {jugadores, gestores: torneo.gestores, formato: torneo.formato, nombre: $('tn-nombre').value, tope: Number($('tn-nivel').value) || null});
   }
+  if (que === 'ayuda') return empezarTutorial('torneo', true);
   if (que === 'vaciar' && !confirm('¿Vaciar el cuadro? Se quitan todos los nombres y los resultados, y se vuelve a sortear con la máquina.')) return;
   if (que === 'reiniciar' && !confirm('¿Reiniciar el torneo? Se borra el cuadro entero.')) return;
   if (que === 'ganador') return editarTorneo('ganador', {id, lado: Number(b.dataset.lado)});
@@ -2562,7 +2653,14 @@ document.addEventListener('click', (ev) => {
   if (['vaciar', 'reiniciar', 'sortear'].includes(que)) return editarTorneo(que);
 });
 document.addEventListener('change', (ev) => {
-  if (torneo.creando && ev.target.name === 'tn-j') ev.target.checked ? torneo.marcados.add(ev.target.value) : torneo.marcados.delete(ev.target.value);
+  if (torneo.creando && ev.target.name === 'tn-j') {
+    ev.target.checked ? torneo.marcados.add(ev.target.value) : torneo.marcados.delete(ev.target.value);
+    if (torneo.formato === 'grupos') { torneo.nombre = $('tn-nombre').value; torneo.tope = $('tn-nivel').value; pintarTorneo(); }   // «llevas N»
+  }
+  if (torneo.creando && ev.target.name === 'tn-formato') {
+    torneo.formato = ev.target.value; torneo.nombre = $('tn-nombre').value; torneo.tope = $('tn-nivel').value;
+    pintarTorneo();
+  }
 });
 document.addEventListener('change', (ev) => {
   const x = ev.target;
@@ -2715,6 +2813,20 @@ const TUTORIALES = {
     {foco: '#rt-mision', texto: 'A veces salen misiones. Las fáciles dan una Escama Corazón y no castigan.'},
     {foco: '#rt-mision', texto: 'Las difíciles dan un huevo, pero si fallas pierdes una vida.'},
     {foco: '#rt-historial', texto: 'Aquí ves cómo te fue en el reto de cada medalla. ¡Mucha suerte!'},
+  ],
+  // 2.1.0: al entrar por primera vez en un torneo de grupos (y con el botón «?» de su cabecera)
+  torneo: [
+    {texto: '¡Hola! Soy la profesora Arce. Te explico en un momento cómo va este torneo.'},
+    {foco: '.tn-grupos', texto: 'Primero hay cuatro grupos de tres: A, B, C y D. Todos contra todos.'},
+    {foco: '.tn-grupo .tn-g-combates', texto: 'En tu grupo juegas dos combates, los dos al mejor de 3.'},
+    {foco: '.tn-grupo .tn-tabla', texto: 'Con dos victorias pasas como 1.º; con una, como 2.º. Sin ninguna, fuera.'},
+    {foco: '.tn-grupo .tn-tabla', texto: 'Si quedáis 1-1-1, va delante quien más combates haya ganado en sus Bo3.'},
+    {foco: '.tn-grupo .tn-tabla', texto: 'Y si aun así hay empate, se decide con un combate al mejor de 1.'},
+    {foco: '.tn-fase', texto: 'Pasan ocho. En cuartos, los 1.º juegan entre ellos y los 2.º también.'},
+    {foco: '.tn-fase', texto: 'En cuartos y semifinales nunca te tocará nadie de tu propio grupo.'},
+    {foco: '.tn-fase', texto: 'Quien pierda en semifinales se juega el 3.er puesto, también al mejor de 3.'},
+    {foco: '#tn-acciones', texto: 'Los grupos salen de la máquina de bolas: cada bola, un hueco de un grupo.'},
+    {texto: 'Oro, plata y bronce se llevan su corona. ¡Mucha suerte, entrenador!'},
   ],
 };
 let tuto = null;
