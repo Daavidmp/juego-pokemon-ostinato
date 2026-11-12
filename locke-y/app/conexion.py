@@ -68,10 +68,79 @@ def online_estado():
     s = comun.red['sesion']
     return {'sesion': s and {'usuario': s['usuario'], 'admin': s['admin']}, 'conectados': comun.red['conectados'],
             'mi_foto': s and comun.red.get('fotos', {}).get(s['usuario'], {}).get('v'),
+            'recordada': recordada_usuario(),
             'error': comun.red['error'], 'servidor': bool(comun.red['servidor']), 'upnp': comun.red['upnp'], 'ip': comun.red['ip'],
             'sala': bool(comun.red['servidor']) and comun.red['servidor'].sala_viva(),
             'direccion': online_config().get('direccion'), 'version': comun.VERSION_APP, 'actualizacion': comun.red.get('actualizacion'),
             'tablero': comun.red.get('tablero', []), 'coronas': comun.red.get('coronas', {}), 'duelos': comun.red.get('duelos', [])}
+
+
+# ---------- recordar la cuenta: con «Guardar sesión» (marcado por defecto) Pokelocke vuelve a entrar solo, también
+# cuando el anfitrión reinicia el servidor y el token deja de valer. La contraseña va cifrada con DPAPI de Windows:
+# solo la puede descifrar este usuario de Windows en este PC.
+def _dpapi(datos, cifrar):
+    import ctypes
+    from ctypes import wintypes
+
+    class BLOB(ctypes.Structure):
+        _fields_ = [('cbData', wintypes.DWORD), ('pbData', ctypes.POINTER(ctypes.c_char))]
+    buf = ctypes.create_string_buffer(datos, len(datos))
+    entrada, salida = BLOB(len(datos), ctypes.cast(buf, ctypes.POINTER(ctypes.c_char))), BLOB()
+    crypt = ctypes.windll.crypt32
+    f = crypt.CryptProtectData if cifrar else crypt.CryptUnprotectData
+    if not f(ctypes.byref(entrada), None, None, None, None, 0x1, ctypes.byref(salida)):    # 0x1: sin diálogos
+        raise OSError('DPAPI')
+    try:
+        return ctypes.string_at(salida.pbData, salida.cbData)
+    finally:
+        ctypes.windll.kernel32.LocalFree(salida.pbData)
+
+
+def recordar_guardar(usuario, clave):
+    try:
+        cifrada = base64.b64encode(_dpapi(clave.encode('utf-8'), True)).decode()
+        comun.F_RECORDAR.write_text(json.dumps({'usuario': usuario, 'clave': cifrada}), encoding='utf-8')
+    except (OSError, AttributeError):          # sin DPAPI (no es Windows): no se recuerda
+        recordar_borrar()
+
+
+def recordada_usuario():
+    """El nombre de la cuenta guardada (sin descifrar nada), o None."""
+    try:
+        return json.loads(comun.F_RECORDAR.read_text(encoding='utf-8'))['usuario']
+    except (OSError, ValueError, KeyError, TypeError):
+        return None
+
+
+def recordar_borrar():
+    comun.F_RECORDAR.unlink(missing_ok=True)
+
+
+def recordar_leer():
+    try:
+        r = json.loads(comun.F_RECORDAR.read_text(encoding='utf-8'))
+        return r['usuario'], _dpapi(base64.b64decode(r['clave']), False).decode('utf-8')
+    except (OSError, ValueError, KeyError, TypeError, AttributeError):
+        return None
+
+
+def volver_a_entrar(direccion):
+    """Con la cuenta recordada, una sesión nueva. True si ha entrado. Si el servidor dice que la contraseña ya no
+    vale (la han cambiado en otro PC), se olvida."""
+    cuenta = recordar_leer()
+    if not cuenta or not direccion:
+        return False
+    try:
+        r = online.peticion(direccion, '/entrar', {'usuario': cuenta[0], 'clave': cuenta[1]}, espera=8)
+    except OSError:
+        return False
+    if 'error' in r:
+        if 'incorrectos' in r['error']:
+            recordar_borrar()
+        return False
+    comun.red['sesion'], comun.red['error'] = {k: r[k] for k in ('token', 'usuario', 'admin', 'sala')}, None
+    online_guardar_sesion()
+    return True
 
 
 def online_guardar_sesion():
@@ -103,6 +172,8 @@ def online_latidos():
         pass
     while True:
         s, direccion = comun.red['sesion'], online_direccion()
+        if not s and direccion and comun.F_RECORDAR.exists() and volver_a_entrar(direccion):
+            s = comun.red['sesion']
         if s and direccion:
             with comun.lock:
                 j = comun.buscar(comun.vivo['activo']) if comun.vivo['activo'] and emulador.jugando() else None
@@ -113,9 +184,10 @@ def online_latidos():
             eventos, total = vigia.para_mandar(comun.red.get('eventos_hasta', float('inf')))
             try:
                 r = online.peticion(direccion, '/latido', {'token': s['token'], 'estado': estado, 'eventos': eventos, 'total': total}, espera=8)
-                if r.get('sesion') is False:
+                if r.get('sesion') is False:              # el servidor se ha reiniciado: con la cuenta recordada, otra vez dentro
                     comun.red['sesion'], comun.red['conectados'] = None, []
                     online_guardar_sesion()
+                    volver_a_entrar(direccion)
                 elif 'error' in r:
                     comun.red['error'] = r['error']
                 else:
@@ -336,8 +408,13 @@ def online_accion(que, d):
             raise RuntimeError(r['error'])
         comun.red['sesion'], comun.red['error'] = {k: r[k] for k in ('token', 'usuario', 'admin', 'sala')}, None
         online_guardar_sesion()
+        if d.get('recordar', True):
+            recordar_guardar(r['usuario'], str(d.get('clave') or ''))
+        else:
+            recordar_borrar()
         return online_estado()
-    if que == 'salir':
+    if que == 'salir':                       # cerrar sesión: también se olvida la cuenta
+        recordar_borrar()
         if comun.red['sesion'] and direccion:
             try:
                 online.peticion(direccion, '/salir', {'token': comun.red['sesion']['token']}, espera=4)
@@ -384,6 +461,11 @@ def online_accion(que, d):
             raise RuntimeError('El servidor todavía no tiene esta opción: el anfitrión tiene que actualizar Pokelocke')
         if 'error' in r:
             raise RuntimeError(r['error'])
+        cuenta = recordar_leer()                 # la cuenta recordada sigue a los cambios
+        if cuenta and que == 'cuenta_clave':
+            recordar_guardar(cuenta[0], str(d.get('nueva') or ''))
+        if cuenta and que == 'cuenta_nombre':
+            recordar_guardar(r['usuario'], cuenta[1])
         if que == 'cuenta_nombre':
             viejo = comun.red['sesion']['usuario']
             comun.red['sesion']['usuario'] = r['usuario']

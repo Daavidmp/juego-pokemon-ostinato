@@ -507,3 +507,16 @@ Hechas con Gemini Nano Banana 2 editando SIEMPRE la misma base (no generando de 
   (chorro desde abajo + remolino), choques con restitución (0,55 entre bolas, 0,45 contra el cristal) y cada bola rueda
   lo que avanza. La máquina tiembla suave 2,2 s. La mitad de cristal de sorteo-bola.png, más opaca (225): en pequeño
   parecían cuencos. Probado con una tira de fotogramas: ninguna sale del cristal y se posan en ~0,5 s.
+
+== 2.0.0 (2026-11-12): login y portada con vídeo ==
+- assets/portada.mp4: el clip de Mega Lucario vs. Mega Mawile a 1280x720, SIN audio (h264_qsv 1150k, ~20 MB). Corre en
+  bucle detrás de #v-login y #v-portada (#fondo-video, se pausa en las demás vistas). web.py sirve /assets/*.mp4|mp3 con Range.
+- Música del login/portada: assets/login.mp3 (#musica-portada), «Horizon's Promise», 2:44, generada por el usuario. Si no existe, suena musica.mp3 como siempre. Mismo
+  volumen/silencio que la música normal (botones [data-sonido]).
+- Login (diseño A): columna blanca a la izquierda, vídeo a la derecha; «Guardar sesión y entrar directo» marcado por defecto.
+- Portada (diseño 1): logo, usuario + estado, Cerrar sesión, botón de silencio, JUGAR abajo a la derecha (-> biblioteca).
+  Sale cada vez que se abre Pokelocke con sesión o cuenta guardada (variable enPortada).
+- Cuenta guardada: datos/recordar.json {usuario, clave cifrada con DPAPI (CryptProtectData, solo este usuario de Windows)}.
+  conexion.volver_a_entrar() vuelve a entrar al arrancar y cuando el servidor dice sesion:false (reinicio del anfitrión).
+  Cerrar sesión la borra; «Usuario o contraseña incorrectos» también. Cambiar clave/nombre la actualiza.
+- Maquetas: lienzo de diseño https://claude.ai/artifact/Vt78u1uUu8tjxRsvyzCsW3 (A/B/C login, 1/2 portada).

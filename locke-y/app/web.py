@@ -291,6 +291,8 @@ class Servidor(BaseHTTPRequestHandler):
             except (OSError, ValueError, KeyError):
                 return self.enviar({'error': 'sin animación'}, codigo=404)
         if m := re.fullmatch(r'/assets/([\w.-]+)', ruta):
+            if m[1].endswith(('.mp4', '.mp3')):         # el vídeo y la música de la portada: a trozos, para el bucle
+                return self.por_trozos(comun.ASSETS / m[1])
             return self.archivo(comun.ASSETS / m[1])
         if m := re.fullmatch(r'/fuentes/([\w.-]+)', ruta):
             f = comun.WEB / 'fuentes' / m[1]

@@ -420,9 +420,37 @@
   .hex-columna .hex-mini { aspect-ratio: auto; height: 64px; }
   @media (max-width: 700px) { .hex-caja { grid-template-columns: 1fr; } .hex-rejilla { grid-template-columns: repeat(5, minmax(0, 1fr)); } }
   /* online */
-  .login { flex-grow: 1; display: flex; align-items: center; justify-content: center; padding: 32px 16px; }
-  .login form { width: min(420px, 100%); display: flex; flex-direction: column; gap: 14px; }
-  .login input { font: 700 17px Nunito, sans-serif; border: 1px solid var(--linea-fuerte); border-radius: 12px; padding: 10px 14px; min-height: 50px; width: 100%; }
+  /* 2.0.0: el login y la portada, encima del vídeo de assets/portada.mp4 (sin sonido; la música es assets/login.mp3) */
+  #fondo-video { position: fixed; inset: 0; z-index: 0; background: #0D1220; }
+  #fondo-video video { width: 100%; height: 100%; object-fit: cover; display: block; }
+  #v-login.activa, #v-portada.activa { position: relative; z-index: 1; min-height: 100vh; }
+  .login { flex-grow: 1; display: flex; }
+  .login form { width: 380px; max-width: 100%; box-sizing: border-box; min-height: 100vh; background: var(--panel); padding: 40px 40px 28px; display: flex; flex-direction: column; gap: 14px; box-shadow: 8px 0 40px rgba(0,0,0,.35); }
+  .login .campo { font-weight: 800; color: var(--suave); }
+  .login input:not([type="checkbox"]) { font: 700 17px Nunito, sans-serif; color: var(--tinta); border: 2px solid var(--linea-fuerte); border-radius: 12px; padding: 10px 14px; min-height: 50px; width: 100%; box-sizing: border-box; }
+  .login input:not([type="checkbox"]):focus { border-color: var(--azul); outline: none; }
+  .recordar { display: flex; align-items: center; gap: 10px; font-weight: 700; min-height: 44px; cursor: pointer; }
+  .recordar input { width: 20px; height: 20px; accent-color: var(--rojo); margin: 0; flex: none; }
+  .redondo-video { width: 48px; height: 48px; border-radius: 50%; border: 1px solid rgba(255,255,255,.25); background: rgba(13,18,32,.55); color: #fff; display: flex; align-items: center; justify-content: center; cursor: pointer; backdrop-filter: blur(12px); }
+  .login .redondo-video { position: fixed; right: 24px; bottom: 24px; z-index: 2; }
+  .portada { position: relative; flex-grow: 1; min-height: 100vh; color: #fff; background: linear-gradient(180deg, rgba(8,11,22,.55) 0%, rgba(8,11,22,0) 22%, rgba(8,11,22,0) 62%, rgba(8,11,22,.7) 100%); }
+  .portada-logo { position: absolute; left: 40px; top: 28px; height: 72px; filter: drop-shadow(0 4px 12px rgba(0,0,0,.5)); }
+  .portada-arriba { position: absolute; right: 32px; top: 28px; display: flex; align-items: center; gap: 10px; }
+  .cristal-oscuro { background: rgba(13,18,32,.55); backdrop-filter: blur(14px); border: 1px solid rgba(255,255,255,.22); }
+  .portada-yo { display: flex; align-items: center; gap: 10px; padding: 6px 16px 6px 6px; border-radius: 999px; min-height: 48px; box-sizing: border-box; }
+  .portada-yo .avatar { width: 36px; height: 36px; }
+  .portada-yo b { display: block; font-size: 15px; line-height: 1.15; }
+  .portada-yo small { display: block; font-size: 12px; font-weight: 700; line-height: 1.15; }
+  .portada-yo small.si { color: #8EE3B2; } .portada-yo small.no { color: #FFD27A; }
+  .portada-btn { font: 800 14px Nunito, sans-serif; color: #fff; border-radius: 999px; padding: 0 18px; min-height: 48px; cursor: pointer; display: flex; align-items: center; gap: 8px; }
+  .portada-btn.nueva { background: var(--oro); color: var(--tinta); border-color: var(--oro); }
+  .portada-izq { position: absolute; left: 40px; bottom: 32px; display: flex; align-items: center; gap: 12px; font-size: 13px; font-weight: 700; color: rgba(255,255,255,.85); }
+  .portada-jugar { position: absolute; right: 40px; bottom: 36px; display: flex; flex-direction: column; align-items: flex-end; gap: 10px; }
+  .portada-jugar span { font-size: 14px; font-weight: 800; text-shadow: 0 1px 6px rgba(0,0,0,.7); }
+  .portada-jugar button { font: 900 34px Nunito, sans-serif; letter-spacing: .06em; color: #fff; background: var(--rojo); border: 0; border-radius: 20px; padding: 0 64px; min-height: 84px; cursor: pointer; box-shadow: 0 6px 0 #8C1D07, 0 18px 40px rgba(0,0,0,.45); transition: transform .12s, box-shadow .12s; }
+  .portada-jugar button:hover { transform: translateY(-2px); }
+  .portada-jugar button:active { transform: translateY(4px); box-shadow: 0 2px 0 #8C1D07, 0 10px 24px rgba(0,0,0,.45); }
+  @media (max-width: 700px) { .portada-arriba { left: 16px; right: 16px; top: 110px; flex-wrap: wrap; } .portada-jugar { right: 16px; } .portada-logo { left: 16px; } .portada-izq { left: 16px; bottom: 140px; } }
   .enlace { background: none; border: 0; padding: 0; color: var(--azul-texto); font-weight: 800; font-size: 14px; text-decoration: underline; }
   .usuario-chip { display: inline-flex; align-items: center; gap: 8px; min-height: 40px; padding: 0 14px; border-radius: 999px; background: var(--fondo); border: 1px solid var(--linea); font-weight: 800; font-size: 14px; }
   .ava-corona { position: relative; display: inline-flex; flex: none; }
@@ -666,23 +694,48 @@
 <body>
 
 <!-- ============ ENTRAR ============ -->
+<div id="fondo-video" class="oculto"><video id="v-fondo" src="/assets/portada.mp4" muted loop playsinline preload="auto" aria-hidden="true"></video></div>
+<audio id="musica-portada" src="/assets/login.mp3" loop preload="auto"></audio>
+
 <section class="vista" id="v-login">
   <div class="login">
-    <form id="f-login" class="tarjeta" style="padding: 28px 28px 24px;">
-      <img src="/assets/logo.png" alt="Mega Pokelocke Y" style="height: 64px; align-self: center;">
-      <h1 id="l-titulo" style="text-align: center;">Entrar</h1>
+    <form id="f-login">
+      <img src="/assets/logo.png" alt="Mega Pokelocke Y" style="height: 72px; align-self: flex-start;">
+      <h1 id="l-titulo" style="margin: 12px 0 4px; font-size: 30px; font-weight: 900;">Entrar</h1>
       <label class="campo">Usuario<input id="l-usuario" autocomplete="username" maxlength="16" required></label>
       <label class="campo">Contraseña<input id="l-clave" type="password" autocomplete="current-password" required></label>
+      <label class="recordar"><input type="checkbox" id="l-recordar" checked> Guardar sesión y entrar directo</label>
       <div class="error oculto" id="l-error"></div>
       <button class="btn btn-rojo grande" type="submit" id="l-boton">Entrar</button>
-      <p class="suave" style="text-align: center;"><span id="l-cambia-texto">¿No tienes cuenta?</span> <button class="enlace" type="button" id="l-cambia">Crear una</button></p>
-      <hr style="border: 0; border-top: 1px solid var(--linea); width: 100%; margin: 4px 0;">
-      <div style="display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap;">
+      <p class="suave" style="text-align: center; margin: 0;"><span id="l-cambia-texto">¿No tienes cuenta?</span> <button class="enlace" type="button" id="l-cambia">Crear una</button></p>
+      <div style="flex-grow: 1;"></div>
+      <div style="border-top: 1px solid var(--linea); padding-top: 14px; display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap;">
         <label class="interruptor"><input type="checkbox" id="l-servidor"> Este PC es el servidor</label>
         <button class="enlace" type="button" id="l-sin">Jugar sin conexión</button>
       </div>
-      <p class="suave" id="l-direccion" style="font-size: 13px;"></p>
+      <p class="suave" id="l-direccion" style="font-size: 13px; margin: 0;"></p>
     </form>
+    <button class="redondo-video" type="button" data-sonido aria-label="Silenciar la música"></button>
+  </div>
+</section>
+
+<!-- ============ PORTADA (con la sesión guardada) ============ -->
+<section class="vista" id="v-portada">
+  <div class="portada">
+    <img class="portada-logo" src="/assets/logo.png" alt="Mega Pokelocke Y">
+    <div class="portada-arriba">
+      <button class="portada-btn nueva cristal-oscuro oculto" type="button" id="p-actualizar">Nueva versión</button>
+      <div class="portada-yo cristal-oscuro"><span id="p-avatar" style="display: flex;"></span><span><b id="p-usuario"></b><small id="p-estado"></small></span></div>
+      <button class="portada-btn cristal-oscuro" type="button" id="p-salir"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="m16 17 5-5-5-5"/><path d="M21 12H9"/></svg>Cerrar sesión</button>
+    </div>
+    <div class="portada-izq">
+      <button class="redondo-video" type="button" data-sonido aria-label="Silenciar la música"></button>
+      <span>Versión 2.0.0</span>
+    </div>
+    <div class="portada-jugar">
+      <span id="p-progreso"></span>
+      <button type="button" id="p-jugar">JUGAR</button>
+    </div>
   </div>
 </section>
 
@@ -757,7 +810,7 @@
     <section class="tb-hud tb-carta tb-objetivo" id="tb-objetivo" aria-label="Siguiente objetivo"></section>
     <section class="tb-hud tb-carta tb-marcador" id="tb-marcador" aria-label="Vidas y medallas"></section>
     <div class="tb-hud tb-abajo"><div class="tb-equipo" id="tb-equipo" aria-label="Tu equipo"></div><div class="tb-carta tb-jugar" id="tb-jugar"></div></div>
-    <span class="tb-hud tb-credito">Creado por David Martínez Palacios · Versión 1.3.4</span>
+    <span class="tb-hud tb-credito">Creado por David Martínez Palacios · Versión 2.0.0</span>
   </div>
 
   <footer>
@@ -1329,8 +1382,15 @@ async function api(ruta, datos) {
   return j;
 }
 
+let vistaActual = null;
 function vista(nombre) {
   document.querySelectorAll('.vista').forEach((v) => v.classList.toggle('activa', v.id === 'v-' + nombre));
+  if (nombre === vistaActual) return;
+  vistaActual = nombre;
+  const conVideo = nombre === 'login' || nombre === 'portada';     // el vídeo solo corre detrás del login y la portada
+  $('fondo-video').classList.toggle('oculto', !conVideo);
+  if (conVideo) $('v-fondo').play().catch(() => {}); else $('v-fondo').pause();
+  if (typeof sonar === 'function') sonar(ultimo && ultimo.jugando);
 }
 
 // ---------- biblioteca ----------
@@ -2999,13 +3059,32 @@ function pintarLogin(o) {
 $('f-login').onsubmit = async (ev) => {
   ev.preventDefault();
   const r = await fetch('/api/online/' + (registrando ? 'registro' : 'entrar'), {method: 'POST', headers: {'Content-Type': 'application/json'},
-    body: JSON.stringify({usuario: $('l-usuario').value.trim(), clave: $('l-clave').value})});
+    body: JSON.stringify({usuario: $('l-usuario').value.trim(), clave: $('l-clave').value, recordar: $('l-recordar').checked})});
   const j = await r.json();
   $('l-error').classList.toggle('oculto', !j.error);
   if (j.error) { $('l-error').textContent = j.error; return; }
   $('l-clave').value = '';
+  enPortada = true;                                  // dentro: se cierra el login y queda la portada con Jugar
   actualizar();
 };
+
+// ---------- portada: el vídeo, tu usuario, Cerrar sesión y JUGAR (a la biblioteca) ----------
+let enPortada = true;
+function pintarPortada(e) {
+  const o = e.online, s = o.sesion, yo = s ? s.usuario : o.recordada;
+  const foto = (s && o.mi_foto) || '', clave = yo + '|' + foto + '|' + mejorPuesto(yo, o.coronas || {});
+  if ($('p-avatar').dataset.mia !== clave) { $('p-avatar').dataset.mia = clave; $('p-avatar').innerHTML = fotoJugador(yo, foto); }
+  $('p-usuario').textContent = yo;
+  const bien = s && !o.error;
+  $('p-estado').textContent = !s ? 'Conectando…' : o.error ? 'Sin servidor' : '● Conectado';
+  $('p-estado').className = bien ? 'si' : 'no';
+  const p = (o.tablero || []).find((x) => x.usuario === yo);
+  $('p-progreso').textContent = p ? `${p.medallas}/8 medallas` : '';
+  $('p-actualizar').classList.toggle('oculto', !(o.actualizacion && o.actualizacion.nueva));
+}
+$('p-jugar').onclick = () => { enPortada = false; actualizar(); };
+$('p-salir').onclick = async () => { $('p-salir').disabled = true; await api('/api/online/salir'); $('p-salir').disabled = false; };
+$('p-actualizar').onclick = () => $('b-actualizar').click();
 $('l-cambia').onclick = () => { registrando = !registrando; $('l-error').classList.add('oculto'); if (ultimo) pintarLogin(ultimo.online); };
 $('l-sin').onclick = () => { sinConexion = true; try { localStorage.setItem('pokelocke-sin-conexion', '1'); } catch (err) { /* nada */ } actualizar(); };
 $('l-servidor').onchange = $('o-servidor').onchange = async (ev) => {
@@ -3188,10 +3267,17 @@ function pintar(e) {
   pintarNotas(e.online);
   pintarVersion(e.online);
   if (document.activeElement !== $('op-ligero')) $('op-ligero').checked = !!e.ligero;
-  if (!e.online.sesion && !sinConexion && !(e.jugando && e.activo)) {
+  // sin sesión: el login, salvo que la cuenta esté guardada (entonces Pokelocke vuelve a entrar solo y se ve la portada)
+  if (!e.online.sesion && !e.online.recordada && !sinConexion && !(e.jugando && e.activo)) {
     if (hex.abierto && !hex.remoto) { /* el PokéHex propio sigue abierto */ } else {
+      enPortada = true;
       vista('login'); pintarLogin(e.online); return;
     }
+  }
+  if (enPortada && (e.online.sesion || e.online.recordada) && !(e.jugando && e.activo) && !hex.abierto && !preparando && !torneo.abierto) {
+    if (t && (!t.fin || (t.error && t.mensaje !== errorVisto))) pintarModal(t);     // p. ej. la descarga de la nueva versión
+    else cerrarModal();
+    vista('portada'); pintarPortada(e); return;
   }
   if (e.jugando && e.activo) {
     preparando = null;
@@ -3225,19 +3311,31 @@ const SONIDO = {si: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none"
   no: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9h4l5-4v14l-5-4H4z" fill="currentColor"/><path d="M17 9l5 6M22 9l-5 6"/></svg>'};
 let sonido = {volumen: 40, mudo: false};
 try { sonido = {...sonido, ...JSON.parse(localStorage.getItem('pokelocke-sonido') || '{}')}; } catch (err) { /* sin almacenamiento */ }
+// en el login y la portada suena assets/login.mp3 (si no está, la música de siempre); mismo volumen y mismo silencio
+const musicaPortada = $('musica-portada');
+let hayMusicaPortada = true;
+musicaPortada.addEventListener('error', () => { hayMusicaPortada = false; sonar(ultimo && ultimo.jugando); }, {once: true});
 function ponerSonido() {
-  musica.volume = sonido.volumen / 100;
-  musica.muted = sonido.mudo || sonido.volumen === 0;
+  for (const m of [musica, musicaPortada]) {
+    m.volume = sonido.volumen / 100;
+    m.muted = sonido.mudo || sonido.volumen === 0;
+  }
   $('s-volumen').value = sonido.volumen;
-  $('s-boton').innerHTML = musica.muted ? SONIDO.no : SONIDO.si;
-  $('s-boton').setAttribute('aria-pressed', SI(musica.muted));
-  $('s-boton').setAttribute('aria-label', musica.muted ? 'Activar la música' : 'Silenciar la música');
+  for (const b of [$('s-boton'), ...document.querySelectorAll('[data-sonido]')]) {
+    b.innerHTML = musica.muted ? SONIDO.no : SONIDO.si;
+    b.setAttribute('aria-pressed', SI(musica.muted));
+    b.setAttribute('aria-label', musica.muted ? 'Activar la música' : 'Silenciar la música');
+  }
   try { localStorage.setItem('pokelocke-sonido', JSON.stringify(sonido)); } catch (err) { /* nada */ }
 }
 function sonar(jugando) {
-  if (jugando || !$('op-video').paused) musica.pause();    // ni con el juego abierto ni encima de la voz del vídeo de normas
-  else if (musica.paused) musica.play().catch(() => {});   // sin permiso del navegador: suena al primer clic
+  const portada = hayMusicaPortada && (vistaActual === 'login' || vistaActual === 'portada');
+  const suena = portada ? musicaPortada : musica, calla = portada ? musica : musicaPortada;
+  calla.pause();
+  if (jugando || !$('op-video').paused) suena.pause();    // ni con el juego abierto ni encima de la voz del vídeo de normas
+  else if (suena.paused) suena.play().catch(() => {});   // sin permiso del navegador: suena al primer clic
 }
+document.querySelectorAll('[data-sonido]').forEach((b) => { b.onclick = () => $('s-boton').onclick(); });
 $('op-video').onplay = $('op-video').onpause = () => sonar(ultimo && ultimo.jugando);
 musica.addEventListener('canplay', () => $('sonido').classList.remove('oculto'), {once: true});
 $('s-boton').onclick = () => { sonido.mudo = !musica.muted; if (!sonido.mudo && !sonido.volumen) sonido.volumen = 40; ponerSonido(); };
