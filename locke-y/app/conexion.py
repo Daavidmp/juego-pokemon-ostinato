@@ -164,12 +164,28 @@ def traer_fotos(direccion, token, conectados):
         pass
 
 
+def es_pc_anfitrion():
+    """Este PC tiene el certificado y la clave del servidor: es el del anfitrión."""
+    carpeta = comun.DATOS / 'servidor'
+    return (carpeta / 'cert.pem').exists() and (carpeta / 'clave.pem').exists()
+
+
+def servidor_si_es_el_dueno(usuario):
+    """Cuando entra el dueño (Daavidmp) en el PC del anfitrión, el servidor se enciende solo."""
+    if (usuario or '').lower() == comun.DUENO_POKEHEX.lower() and es_pc_anfitrion() and not comun.red['servidor']:
+        try:
+            online_servidor(True)
+        except Exception as e:                     # sin servidor se sigue: el interruptor sigue ahí para probar a mano
+            comun.red['error'] = f'No se ha podido encender el servidor ({e})'
+
+
 def online_latidos():
     """Cada pocos segundos: «sigo aquí» al servidor, la lista de conectados y los encargos del PokéHex."""
     try:
         comun.red['sesion'] = json.loads(comun.F_SESION.read_text(encoding='utf-8'))
     except (OSError, ValueError):
         pass
+    servidor_si_es_el_dueno(recordada_usuario() or (comun.red['sesion'] or {}).get('usuario'))
     while True:
         s, direccion = comun.red['sesion'], online_direccion()
         if not s and direccion and comun.F_RECORDAR.exists() and volver_a_entrar(direccion):
@@ -393,6 +409,8 @@ def online_accion(que, d):
         cfg['direccion'] = str(d.get('direccion', '')).strip()
         comun.F_ONLINE.write_text(json.dumps(cfg, indent=1), encoding='utf-8')
         return online_estado()
+    if que == 'entrar':                      # Daavidmp en su PC: primero el servidor, y se entra en él
+        servidor_si_es_el_dueno(d.get('usuario'))
     direccion = online_direccion()
     if que in ('entrar', 'registro'):
         if not direccion:

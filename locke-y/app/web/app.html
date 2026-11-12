@@ -446,10 +446,22 @@
   .portada-btn.nueva { background: var(--oro); color: var(--tinta); border-color: var(--oro); }
   .portada-izq { position: absolute; left: 40px; bottom: 32px; display: flex; align-items: center; gap: 12px; font-size: 13px; font-weight: 700; color: rgba(255,255,255,.85); }
   .portada-jugar { position: absolute; right: 40px; bottom: 36px; display: flex; flex-direction: column; align-items: flex-end; gap: 10px; }
-  .portada-jugar span { font-size: 14px; font-weight: 800; text-shadow: 0 1px 6px rgba(0,0,0,.7); }
-  .portada-jugar button { font: 900 34px Nunito, sans-serif; letter-spacing: .06em; color: #fff; background: var(--rojo); border: 0; border-radius: 20px; padding: 0 64px; min-height: 84px; cursor: pointer; box-shadow: 0 6px 0 #8C1D07, 0 18px 40px rgba(0,0,0,.45); transition: transform .12s, box-shadow .12s; }
-  .portada-jugar button:hover { transform: translateY(-2px); }
-  .portada-jugar button:active { transform: translateY(4px); box-shadow: 0 2px 0 #8C1D07, 0 10px 24px rgba(0,0,0,.45); }
+  .portada-jugar #p-progreso { font-size: 13px; font-weight: 800; padding: 4px 12px; border-radius: 999px; background: rgba(13,18,32,.55); backdrop-filter: blur(10px); border: 1px solid rgba(255,203,5,.45); color: #FFE27A; }
+  .portada-jugar #p-progreso:empty { display: none; }
+  /* JUGAR: rojo con relieve, borde dorado, una Poké Ball que gira al pasar el ratón, un brillo que lo cruza y un halo que late */
+  .jugar { position: relative; overflow: hidden; display: flex; align-items: center; gap: 18px; font: 900 38px/1 Nunito, sans-serif; letter-spacing: .08em; color: #fff;
+    background: linear-gradient(180deg, #F0522A 0%, #CC2B0B 52%, #A41F06 100%); border: 3px solid #FFCB05; border-radius: 22px; padding: 0 46px 0 26px; min-height: 92px; cursor: pointer;
+    text-shadow: 0 2px 0 rgba(90,14,0,.55); box-shadow: inset 0 2px 0 rgba(255,255,255,.35), inset 0 -4px 0 rgba(0,0,0,.18), 0 7px 0 #7A1805, 0 18px 40px rgba(0,0,0,.5);
+    transition: transform .14s, box-shadow .14s, filter .14s; animation: jugar-halo 2.4s ease-in-out infinite; }
+  .jugar::after { content: ""; position: absolute; top: -20%; bottom: -20%; left: -40%; width: 30%; background: linear-gradient(90deg, rgba(255,255,255,0), rgba(255,255,255,.45), rgba(255,255,255,0)); transform: skewX(-20deg); animation: jugar-brillo 3.6s ease-in-out infinite; pointer-events: none; }
+  .jugar svg { width: 50px; height: 50px; flex: none; filter: drop-shadow(0 2px 0 rgba(90,14,0,.5)); transition: transform .5s cubic-bezier(.3,1.6,.5,1); }
+  .jugar:hover { transform: translateY(-3px); filter: brightness(1.08); box-shadow: inset 0 2px 0 rgba(255,255,255,.35), inset 0 -4px 0 rgba(0,0,0,.18), 0 10px 0 #7A1805, 0 24px 48px rgba(0,0,0,.5); }
+  .jugar:hover svg { transform: rotate(360deg); }
+  .jugar:active { transform: translateY(5px); box-shadow: inset 0 2px 0 rgba(255,255,255,.25), inset 0 -2px 0 rgba(0,0,0,.18), 0 2px 0 #7A1805, 0 10px 24px rgba(0,0,0,.45); }
+  .jugar:focus-visible { outline: 3px solid #fff; outline-offset: 4px; }
+  @keyframes jugar-brillo { 0%, 55% { left: -40%; } 100% { left: 130%; } }
+  @keyframes jugar-halo { 0%, 100% { outline: 0 solid rgba(255,203,5,0); } 50% { outline: 8px solid rgba(255,203,5,.18); } }
+  @media (prefers-reduced-motion: reduce) { .jugar, .jugar::after { animation: none; } .jugar svg { transition: none; } }
   @media (max-width: 700px) { .portada-arriba { left: 16px; right: 16px; top: 110px; flex-wrap: wrap; } .portada-jugar { right: 16px; } .portada-logo { left: 16px; } .portada-izq { left: 16px; bottom: 140px; } }
   .enlace { background: none; border: 0; padding: 0; color: var(--azul-texto); font-weight: 800; font-size: 14px; text-decoration: underline; }
   .usuario-chip { display: inline-flex; align-items: center; gap: 8px; min-height: 40px; padding: 0 14px; border-radius: 999px; background: var(--fondo); border: 1px solid var(--linea); font-weight: 800; font-size: 14px; }
@@ -730,11 +742,11 @@
     </div>
     <div class="portada-izq">
       <button class="redondo-video" type="button" data-sonido aria-label="Silenciar la música"></button>
-      <span>Versión 2.0.0</span>
+      <span>Versión 2.0.1</span>
     </div>
     <div class="portada-jugar">
       <span id="p-progreso"></span>
-      <button type="button" id="p-jugar">JUGAR</button>
+      <button class="jugar" type="button" id="p-jugar"><svg viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="21" fill="#fff" stroke="#1B2030" stroke-width="3"/><path d="M3 24a21 21 0 0 1 42 0z" fill="#E8401C" stroke="#1B2030" stroke-width="3" stroke-linejoin="round"/><path d="M5 24h38" stroke="#1B2030" stroke-width="3.5"/><circle cx="24" cy="24" r="7" fill="#fff" stroke="#1B2030" stroke-width="3.5"/><circle cx="24" cy="24" r="3" fill="#fff" stroke="#9AA2B8" stroke-width="1.5"/><path d="M11 15a14 14 0 0 1 7-6" stroke="#fff" stroke-width="3" stroke-linecap="round" fill="none" opacity=".7"/></svg>JUGAR</button>
     </div>
   </div>
 </section>
@@ -810,7 +822,7 @@
     <section class="tb-hud tb-carta tb-objetivo" id="tb-objetivo" aria-label="Siguiente objetivo"></section>
     <section class="tb-hud tb-carta tb-marcador" id="tb-marcador" aria-label="Vidas y medallas"></section>
     <div class="tb-hud tb-abajo"><div class="tb-equipo" id="tb-equipo" aria-label="Tu equipo"></div><div class="tb-carta tb-jugar" id="tb-jugar"></div></div>
-    <span class="tb-hud tb-credito">Creado por David Martínez Palacios · Versión 2.0.0</span>
+    <span class="tb-hud tb-credito">Creado por David Martínez Palacios · Versión 2.0.1</span>
   </div>
 
   <footer>
