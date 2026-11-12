@@ -523,3 +523,5 @@ Hechas con Gemini Nano Banana 2 editando SIEMPRE la misma base (no generando de 
 - 2.0.1: JUGAR rediseñado (.jugar: degradado rojo, borde dorado, Poké Ball que gira al pasar, brillo y halo;
   sin animación con reduced-motion). Servidor automático: conexion.servidor_si_es_el_dueno() lo enciende al arrancar
   (cuenta recordada o sesión de Daavidmp) y al entrar como Daavidmp, solo si este PC tiene datos/servidor/cert.pem y clave.pem.
+- 2.0.2: el botón JUGAR pasa a ser el diseño K2·E del lienzo (esquinas cortadas, borde con los colores de la
+  Megaevolución que fluye, cristal azul noche, brillo morado que respira, subtítulo «MEGA POKELOCKE Y»). Clases .jugar*.
