@@ -727,8 +727,9 @@ def mega_torre(j):
         comun.guardar()
 
 
-# Cambios de MT a mano en partidas concretas (MTVolver.java): id -> (version, "mt:de:a mt:de:a ..."). Cada MT pasa del
-# ataque «de» al ataque «a», solo si sigue con «de». La version se apunta en j['mt_vuelta']: subirla vuelve a aplicar.
+# Cambios de MT a mano en partidas concretas (MTVolver.java): id -> (version, "mt:nuevo:actual ..."). Cada MT pasa al
+# ataque «nuevo» solo si sigue con «actual» (números de ataque de datos_pkx/Moves.txt: línea - 1). La version se apunta
+# en j['mt_vuelta']: subirla vuelve a aplicar.
 # Historial: e911dd18d8 (Cesbay), version 1 (1.2.8, 2026-11-11): se deshizo su sorteo de la 1.2.7 con los pares de su
 # mt_azar.log -> volvieron las MT del juego original y las flojas de la fase 1. Ya aplicado; luego, mt_fuertes (1.2.9).
 MT_VOLVER = {}

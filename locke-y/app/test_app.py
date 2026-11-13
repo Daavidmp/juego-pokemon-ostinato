@@ -496,6 +496,17 @@ ver(any(x['tipo'] == 'retroceso' for x in vigia._leer()), 'si baja el contador d
 comun.vivo['sin_guardar'] = [(time.time() + 100, 'muerte de Pikachu')]
 vigia.apuntar_sin_guardar('captura en la zona 3')
 ver(len(comun.vivo['sin_guardar']) == 2, 'lo que pasa sin guardar se recuerda para cuando cierre')
+comun.vivo['niveles'] = {}
+bicho = {'id': 'AB', 'nivel': 180, 'ps': 20, 'psmax': 40}
+ver(all(vigia.nivel_seguro(bicho) is None for _ in range(3)), 'un nivel imposible (180) no se cree nunca')
+ver(vigia.nivel_seguro(dict(bicho, nivel=20, ps=50)) is None, 'con más PS que el máximo, la lectura es basura')
+ver(vigia.nivel_seguro(dict(bicho, nivel=53)) is None, 'un nivel leído una sola vez no basta')
+ver(vigia.nivel_seguro(dict(bicho, nivel=20)) is None and vigia.nivel_seguro(dict(bicho, nivel=20)) == 20,
+    'el nivel leído igual dos veces seguidas sí vale')
+vigia.evento('abrir', 'Abre el juego')
+ver(vigia.sesion_cortada(), 'abrir sin cerrar después: la sesión se cortó')
+vigia.evento('cerrar', 'Cierra el juego')
+ver(not vigia.sesion_cortada(), 'abrir y cerrar: la sesión acabó bien')
 # ---------- el servidor online va cifrado y solo vale con el certificado del anfitrión ----------
 print('Conexión cifrada')
 import os

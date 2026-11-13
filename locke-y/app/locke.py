@@ -736,7 +736,7 @@ def normas_mega():
                         avisadas = j.setdefault('rutas_avisadas', [])     # el aviso, solo la primera vez en cada ruta
                         if j['balls_escondidas'] and zona not in avisadas:
                             avisadas.append(zona)
-                            comun.avisar('Ya has capturado en esta ruta · Poké Balls bloqueadas', 3)
+                            comun.avisar('Ya has capturado en esta ruta · Poké Balls bloqueadas', 1.5)
                         comun.guardar()
                 elif not combate and j.get('balls_escondidas') and time.time() - fuera_desde >= 3:
                     juego.devolver_balls(rpc, j['balls_escondidas'])

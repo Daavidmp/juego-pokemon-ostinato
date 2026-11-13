@@ -540,6 +540,10 @@ Hechas con Gemini Nano Banana 2 editando SIEMPRE la misma base (no generando de 
 - app.html: pintarGrupos (tabla Victorias/Combates/Pasa, combates y desempates), «Fase final» con columnas(); crear con
   radio de formato; botón «?» en la cabecera; TUTORIALES.torneo (Arce, 11 pasos) la 1.ª vez que se abre un torneo de grupos.
 - Normas, cláusula séptima, con el formato de grupos y el 3.º al mejor de 3; PDF rehecho (8 páginas).
+- 2026-11-12: MT04 de la partida de David (cee0620430) cambiada A MANO (sin versión): Bomba Huevo (121) -> Red Viscosa
+  (564) con MTVolver.java directamente sobre su mod/code.bin, con Pokelocke cerrado, y j['firma_mod'] renovada en
+  biblioteca.json (si no, vigia avisa «archivos de la randomización tocados»). OJO MT_VOLVER/MTVolver: el formato es
+  "mt:NUEVO:ACTUAL" (pone el primero si la MT sigue con el segundo); el comentario de antes lo decía al revés.
 
 == 2.2.0 (2026-11-13): modo pizarra del torneo y eliminados a la vista ==
 - Al crear: interruptor «Modo pizarra» (#tn-pizarra, role=switch) -> t['pizarra'] en el servidor (online, al 'crear').
@@ -555,3 +559,11 @@ Hechas con Gemini Nano Banana 2 editando SIEMPRE la misma base (no generando de 
   no es la final: fondo rojo claro, tachado, avatar gris y etiqueta «Eliminado». En la tabla de grupo, el 3.º (tr.fuera).
 - La eliminatoria (sin grupos) sigue con su cuadro de siempre; la pizarra solo le cambia el aspecto.
 - Se comprobó renderizando app.html en Chrome sin ventana con un torneo de prueba (fetch simulado), sin abrir el juego.
+
+== 2.2.1 (2026-11-13): vigía sin falsos avisos y aviso de captura más corto ==
+- locke.py: «Ya has capturado en esta ruta · Poké Balls bloqueadas» dura 1,5 s (antes 3).
+- vigia.nivel_seguro: el nivel va en el trozo de stats, que se lee aparte y sin suma de control; si el juego reescribe
+  al Pokémon entre las dos lecturas sale basura (se vio nivel 180 en Damian_Lux). Solo cuenta un nivel 1-100, con
+  ps <= psmax y leído igual LECTURAS_NIVEL (2) rondas seguidas; si no, no hay aviso de tope.
+- vigia.sesion_cortada: si el último abrir/cerrar del registro es un abrir (Pokelocke cerrado o colgado, o PC apagado con
+  el juego abierto), no se apuntó la huella al cerrar; «la partida ha cambiado» sale entonces como aviso, no sospecha.

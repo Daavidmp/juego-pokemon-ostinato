@@ -20,6 +20,8 @@ NIVELES = ('info', 'aviso', 'sospecha')
 LEGENDARIOS = frozenset([144, 145, 146, 150, 151, 243, 244, 245, 249, 250, 251, *range(377, 387), *range(480, 495),
                          *range(638, 650), *range(716, 722)])
 LECTURAS_RETROCESO = 3                           # un contador tiene que bajar en 3 lecturas seguidas para ser de verdad
+LECTURAS_NIVEL = 2                               # el nivel se lee aparte del resto (sin suma de control): si el juego
+                                                 # reescribe al Pokémon entre las dos lecturas sale basura (nivel 180)
 
 
 def archivo():
@@ -99,6 +101,15 @@ def trucos_citra():
     return [f.name for f in (u / 'cheats').rglob('*') if f.is_file() and f.stat().st_size > 0]
 
 
+def sesion_cortada():
+    """La última vez se abrió el juego y Pokelocke no llegó a ver cómo se cerraba (se cerró o se colgó Pokelocke,
+    o se apagó el PC con el juego abierto): no se apuntó cómo quedó la partida."""
+    for e in reversed(_leer()):
+        if e.get('tipo') in ('abrir', 'cerrar'):
+            return e['tipo'] == 'abrir'
+    return False
+
+
 def abrir(j):
     """Al darle a Jugar: lo que ha cambiado desde que se cerró el juego la última vez."""
     import emulador
@@ -106,8 +117,12 @@ def abrir(j):
     vidas = locke.vidas(j)
     anterior = j.get('huella_partida')
     if anterior and huella_partida(j) not in (None, anterior):
-        evento('partida', 'La partida ha cambiado con el juego cerrado: editada con otro programa (PKHeX), o jugada abriendo '
-                          'Citra sin Pokelocke', 'sospecha')
+        if sesion_cortada():
+            evento('partida', 'La partida ha cambiado, pero la sesión anterior se cortó sin que Pokelocke viera cerrarse el '
+                              'juego (Pokelocke cerrado o colgado, o el PC apagado): seguramente es lo que jugó entonces', 'aviso')
+        else:
+            evento('partida', 'La partida ha cambiado con el juego cerrado: editada con otro programa (PKHeX), o jugada abriendo '
+                              'Citra sin Pokelocke', 'sospecha')
     firma = j.get('firma_mod')
     if firma and j.get('random') and firma != emulador.firma_mod(j):
         evento('rom', 'Los archivos de la randomización no son los que se prepararon', 'sospecha')
@@ -119,7 +134,8 @@ def abrir(j):
         evento('trucos', f'Hay códigos de trucos en Citra: {", ".join(trucos[:5])}', 'sospecha')
     if not comun.red['sesion'] or comun.red.get('error'):
         evento('conexion', 'Juega sin conexión con el servidor', 'aviso')
-    comun.vivo.update(sin_guardar=[], estados_al_abrir=estados_guardados(), contadores={}, retroceso={}, tope_avisado=set(), legendario_avisado=set())
+    comun.vivo.update(sin_guardar=[], estados_al_abrir=estados_guardados(), contadores={}, retroceso={}, tope_avisado=set(), legendario_avisado=set(),
+                      niveles={})
     evento('abrir', f'Abre el juego · {vidas} vidas · {sum(j.get("medallas", []))} medallas · versión {comun.VERSION_APP}', vidas=vidas)
 
 
@@ -180,6 +196,18 @@ def contador(nombre, valor):
         contadores[nombre], baja[nombre] = valor, 0
 
 
+def nivel_seguro(p):
+    """El nivel de p si se puede creer: posible, con los PS en orden y leído igual en LECTURAS_NIVEL rondas seguidas."""
+    vistos = comun.vivo.setdefault('niveles', {})
+    if not 1 <= p['nivel'] <= 100 or not 0 < p['psmax'] or p['ps'] > p['psmax']:
+        vistos.pop(p['id'], None)
+        return None
+    nivel, veces = vistos.get(p['id'], (None, 0))
+    veces = veces + 1 if nivel == p['nivel'] else 1
+    vistos[p['id']] = (p['nivel'], veces)
+    return p['nivel'] if veces >= LECTURAS_NIVEL else None
+
+
 def ronda(j, equipo, rpc):
     """Cada lectura del juego: que no haya vuelto atrás, nivel tope y legendarios."""
     import juego
@@ -193,9 +221,10 @@ def ronda(j, equipo, rpc):
     for p in equipo:
         if not p or p.get('huevo'):
             continue
-        if topes and medallas < len(topes) and p['nivel'] > topes[medallas] and (medallas, p['id']) not in comun.vivo['tope_avisado']:
+        nivel = nivel_seguro(p)
+        if topes and nivel and medallas < len(topes) and nivel > topes[medallas] and (medallas, p['id']) not in comun.vivo['tope_avisado']:
             comun.vivo['tope_avisado'].add((medallas, p['id']))
-            evento('nivel', f'{p.get("mote")} está al nivel {p["nivel"]}, por encima del tope ({topes[medallas]}) con {medallas} medallas', 'sospecha')
+            evento('nivel', f'{p.get("mote")} está al nivel {nivel}, por encima del tope ({topes[medallas]}) con {medallas} medallas', 'sospecha')
         if p['especie'] in LEGENDARIOS and p['id'] not in comun.vivo['legendario_avisado']:
             comun.vivo['legendario_avisado'].add(p['id'])
             evento('legendario', f'Lleva un legendario o singular en el equipo: {p.get("mote")} (n.º {p["especie"]})', 'sospecha')
