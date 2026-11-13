@@ -540,3 +540,18 @@ Hechas con Gemini Nano Banana 2 editando SIEMPRE la misma base (no generando de 
 - app.html: pintarGrupos (tabla Victorias/Combates/Pasa, combates y desempates), «Fase final» con columnas(); crear con
   radio de formato; botón «?» en la cabecera; TUTORIALES.torneo (Arce, 11 pasos) la 1.ª vez que se abre un torneo de grupos.
 - Normas, cláusula séptima, con el formato de grupos y el 3.º al mejor de 3; PDF rehecho (8 páginas).
+
+== 2.2.0 (2026-11-13): modo pizarra del torneo y eliminados a la vista ==
+- Al crear: interruptor «Modo pizarra» (#tn-pizarra, role=switch) -> t['pizarra'] en el servidor (online, al 'crear').
+- Torneo de grupos SIN pizarra = «pirámide» (idea 2 del lienzo de Claude Design https://claude.ai/artifact/7aTANJimimyvoicUdGYCW2):
+  piramide(): copa arriba, final (+3.er puesto al lado), semis y cuartos en .tn-piso (rejilla de 4), y los grupos de base
+  debajo de «Suben 8». .tn-lienzo.vertical: dibujarLineas traza del borde de arriba de la ficha al de abajo de la siguiente
+  y una línea de la final a la copa.
+- CON pizarra = idea 16: espejo() (Cuartos | Semi 1 | Final con copa y 3.º | Semi 2 | Cuartos) con los grupos arriba;
+  #v-torneo.pizarra pinta #tn-cuerpo como pizarra verde con marco de madera, letra Caveat (ya en fuentes.css), tiza
+  amarilla para lo ganado y roja para lo eliminado. dibujarLineas sirve para el espejo: si el origen está a la derecha
+  del destino, la línea sale por la izquierda.
+- Eliminados: ficha() marca .fuera a quien pierde un combate que no le baja a otro (repesca, segunda oportunidad, 3.º) y
+  no es la final: fondo rojo claro, tachado, avatar gris y etiqueta «Eliminado». En la tabla de grupo, el 3.º (tr.fuera).
+- La eliminatoria (sin grupos) sigue con su cuadro de siempre; la pizarra solo le cambia el aspecto.
+- Se comprobó renderizando app.html en Chrome sin ventana con un torneo de prueba (fetch simulado), sin abrir el juego.

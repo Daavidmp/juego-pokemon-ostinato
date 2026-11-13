@@ -738,6 +738,78 @@
   .tn-crear .lista { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 8px; }
   .tn-crear label.j { display: flex; align-items: center; gap: 8px; padding: 6px 10px; border: 1px solid var(--linea); border-radius: 12px; font-weight: 700; }
   .tn-crear label.j .tn-ava { width: 30px; height: 30px; border-radius: 8px; font-size: 14px; }
+  /* 2.2.0: eliminados bien a la vista (fondo rojo, tachados y su etiqueta) */
+  .tn-fila.fuera { background: #FFF1EC; }
+  .tn-fila.fuera b { color: #9C2309; text-decoration: line-through 2px; }
+  .tn-fila.fuera .tn-ava, .tn-tabla tr.fuera .tn-ava { filter: grayscale(1); opacity: .5; }
+  .tn-elim { flex: none; height: 20px; padding: 0 8px; border-radius: 999px; background: var(--rojo); color: #fff; font-size: 11px; font-weight: 900; display: flex; align-items: center; }
+  .tn-tabla tr.fuera td { background: #FFF1EC; }
+  .tn-tabla tr.fuera b { color: #9C2309; text-decoration: line-through 2px; }
+  .tn-fuera { background: var(--rojo); color: #fff; }
+  .tn-ficha.es-final { border: 3px solid var(--rojo); box-shadow: 0 12px 30px rgba(204,43,11,.18); }
+  /* 2.2.0, sin pizarra: la pirámide. La copa arriba, luego final, semis y cuartos; los grupos, de base */
+  .tn-lienzo.vertical { gap: 56px; padding-top: 14px; }
+  .tn-piso { display: grid; grid-template-columns: repeat(4, 270px); column-gap: 28px; justify-content: center; align-items: end; }
+  .tn-sitio { display: flex; justify-content: center; }
+  .tn-sitio > * { width: 270px; box-sizing: border-box; }
+  .tn-piso .tn-copa.pendiente { min-height: 150px; }
+  .tn-suben { margin: 30px 0 26px; padding-top: 16px; border-top: 3px dashed var(--linea-fuerte); text-align: center; font-weight: 900; color: var(--suave); }
+  .tn-cuadro.espejo { gap: 48px; }
+  .tn-cuadro.espejo .tn-col { width: 250px; }
+  #v-torneo.pizarra .tn-ficha .tn-elim { display: none; }     /* en la tiza ya se ve tachado en rojo y no tapa el nombre */
+  /* el interruptor del modo pizarra (al crear el torneo) */
+  .tn-interruptor { position: relative; display: flex; align-items: center; gap: 12px; cursor: pointer; max-width: 680px; }
+  .tn-interruptor input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+  .tn-pista { position: relative; width: 52px; height: 30px; border-radius: 999px; background: #C9D0DD; flex: none; transition: background .2s; }
+  .tn-pista::after { content: ''; position: absolute; left: 3px; top: 3px; width: 24px; height: 24px; border-radius: 50%; background: #fff; box-shadow: 0 2px 4px rgba(0,0,0,.2); transition: transform .2s; }
+  .tn-interruptor input:checked + .tn-pista { background: #24382E; }
+  .tn-interruptor input:checked + .tn-pista::after { transform: translateX(22px); }
+  .tn-interruptor input:focus-visible + .tn-pista { outline: 3px solid var(--azul); outline-offset: 2px; }
+  .tn-interruptor b { display: block; }
+  .tn-interruptor small { display: block; color: var(--suave); font-weight: 700; font-size: 14px; }
+  /* 2.2.0, modo pizarra: el cuadro en espejo escrito con tiza en la pizarra del vestuario */
+  #v-torneo.pizarra #tn-cuerpo { background: #24382E; border: 16px solid #7A4E2A; border-radius: 14px; box-shadow: inset 0 0 90px rgba(0,0,0,.45); color: #fff; margin: 0 16px 24px; }
+  #v-torneo.pizarra .tn-fase-t, #v-torneo.pizarra .tn-grupo h3, #v-torneo.pizarra .tn-col-t { font: 700 36px/1 Caveat, cursive; color: #fff; }
+  #v-torneo.pizarra .tn-col.final .tn-col-t { color: #F7E27C; }
+  #v-torneo.pizarra .tn-grupo h3 small { font: 700 22px Caveat, cursive; color: rgba(255,255,255,.65); }
+  #v-torneo.pizarra .tn-grupo, #v-torneo.pizarra .tn-ficha { background: transparent; border: 2px solid rgba(255,255,255,.75); box-shadow: none; }
+  #v-torneo.pizarra .tn-ficha.es-final { border: 3px solid #F7E27C; }
+  #v-torneo.pizarra .tn-ficha.tercero { border-color: #E4B98F; }
+  #v-torneo.pizarra .tn-ficha.vivo { border: 3px solid #FF9C8C; }
+  #v-torneo.pizarra .tn-ficha.desempate { border-color: #F7E27C; }
+  #v-torneo.pizarra .tn-tabla { font: 700 24px Caveat, cursive; }
+  #v-torneo.pizarra .tn-tabla th { font: 700 20px Caveat, cursive; color: rgba(255,255,255,.65); }
+  #v-torneo.pizarra .tn-tabla td { border-top: 1px dashed rgba(255,255,255,.3); }
+  #v-torneo.pizarra .tn-tabla tr.yo b { color: #8EC5FF; }
+  #v-torneo.pizarra .tn-tabla tr.fuera td, #v-torneo.pizarra .tn-fila.fuera { background: rgba(255,107,87,.13); }
+  #v-torneo.pizarra .tn-tabla tr.fuera b, #v-torneo.pizarra .tn-fila.fuera b { color: #FF9C8C; text-decoration-color: #FF6B57; }
+  #v-torneo.pizarra .tn-fila { color: #fff; }
+  #v-torneo.pizarra .tn-fila b { font: 700 28px/1 Caveat, cursive; }
+  #v-torneo.pizarra .tn-fila + .tn-fila { border-top: 1px dashed rgba(255,255,255,.35); }
+  #v-torneo.pizarra .tn-fila.gana { background: transparent; }
+  #v-torneo.pizarra .tn-fila.gana b { color: #F7E27C; }
+  #v-torneo.pizarra .tn-fila.pierde { color: rgba(255,255,255,.55); }
+  #v-torneo.pizarra .tn-fila.vacia { color: rgba(255,255,255,.55); font: 700 22px Caveat, cursive; }
+  #v-torneo.pizarra .tn-mar { background: transparent; border: 2px solid rgba(255,255,255,.5); font: 700 24px Caveat, cursive; color: #fff; }
+  #v-torneo.pizarra .tn-fila.gana .tn-mar { border-color: #F7E27C; color: #F7E27C; background: transparent; }
+  #v-torneo.pizarra .tn-hueco { border-color: rgba(255,255,255,.4); }
+  #v-torneo.pizarra button.tn-fila:hover { background: rgba(255,255,255,.08); }
+  #v-torneo.pizarra .tn-etiqueta, #v-torneo.pizarra .tn-vivo, #v-torneo.pizarra .tn-ficha.grupo .tn-etiqueta { background: #24382E; border: 2px solid rgba(255,255,255,.75); color: #fff; font: 700 18px Caveat, cursive; }
+  #v-torneo.pizarra .tn-vivo { border-color: #FF9C8C; color: #FF9C8C; }
+  #v-torneo.pizarra .tn-vivo i { background: #FF9C8C; }
+  #v-torneo.pizarra .tn-sello { background: #24382E; border: 2px solid #fff; box-shadow: none; font: 700 16px Caveat, cursive; }
+  #v-torneo.pizarra .tn-elim, #v-torneo.pizarra .tn-fuera { background: transparent; border: 2px solid #FF6B57; color: #FF9C8C; font: 700 18px Caveat, cursive; }
+  #v-torneo.pizarra .tn-pasa { background: transparent; border: 2px solid #8FE3B0; color: #8FE3B0; font: 700 18px Caveat, cursive; }
+  #v-torneo.pizarra .tn-lineas path { stroke: rgba(255,255,255,.45); stroke-dasharray: 9 7; stroke-linecap: butt; }
+  #v-torneo.pizarra .tn-lineas path.hecho { stroke: #F7E27C; }
+  #v-torneo.pizarra .tn-copa, #v-torneo.pizarra .tn-copa.pendiente { background: transparent; border: 2px dashed #F7E27C; box-shadow: none; }
+  #v-torneo.pizarra .tn-copa strong, #v-torneo.pizarra .tn-copa .tn-copa-t { font: 700 30px Caveat, cursive; color: #F7E27C; }
+  #v-torneo.pizarra .tn-desempate { background: rgba(247,226,124,.1); }
+  #v-torneo.pizarra .tn-desempate h4, #v-torneo.pizarra .tn-aviso { background: transparent; color: #F7E27C; }
+  #v-torneo.pizarra .tn-espera { color: rgba(255,255,255,.8); border-color: rgba(255,255,255,.4); }
+  #v-torneo.pizarra .tn-admin { border-top-color: rgba(255,255,255,.3); }
+  #v-torneo.pizarra .tn-admin button { background: transparent; color: #fff; border-color: rgba(255,255,255,.5); }
+  #v-torneo.pizarra .vacio, #v-torneo.pizarra .error { color: #fff; }
   .aviso-hex { padding: 12px 16px; border-radius: 12px; background: var(--oro-claro); color: #6B4E00; font-weight: 700; font-size: 14px; }
 
   @media (max-width: 700px) {
@@ -784,7 +856,7 @@
     </div>
     <div class="portada-izq">
       <button class="redondo-video" type="button" data-sonido aria-label="Silenciar la música"></button>
-      <span>Versión 2.1.0</span>
+      <span>Versión 2.2.0</span>
     </div>
     <div class="portada-jugar">
       <span id="p-progreso"></span>
@@ -864,7 +936,7 @@
     <section class="tb-hud tb-carta tb-objetivo" id="tb-objetivo" aria-label="Siguiente objetivo"></section>
     <section class="tb-hud tb-carta tb-marcador" id="tb-marcador" aria-label="Vidas y medallas"></section>
     <div class="tb-hud tb-abajo"><div class="tb-equipo" id="tb-equipo" aria-label="Tu equipo"></div><div class="tb-carta tb-jugar" id="tb-jugar"></div></div>
-    <span class="tb-hud tb-credito">Creado por David Martínez Palacios · Versión 2.1.0</span>
+    <span class="tb-hud tb-credito">Creado por David Martínez Palacios · Versión 2.2.0</span>
   </div>
 
   <footer>
@@ -2142,18 +2214,22 @@ function subeA(t, p) {
 }
 function ficha(t, p, admin, yo) {
   const completo = p.ab[0] && p.ab[1];
+  // quien pierde aquí queda fuera, salvo que baje a otro combate (repesca, segunda oportunidad, 3.er puesto) o sea la final
+  const eliminaA = (p.fase === 'principal' || p.fase === 'repesca') && p.id !== t.final
+    && !t.partidos.some((x) => x.fuentes.some((f) => f && f.pierde === p.id));
   const fila = (k) => {
     const n = p.ab[k];
     const h = p.fuentes[k] && p.fuentes[k].hueco;
     const sortea = h !== undefined ? ` por-sortear${h === sorteo.revelados && t.sorteo && t.sorteo.abierto ? ' toca' : ''}` : '';
     if (!n) return `<div class="tn-fila vacia${sortea}" data-fila="${p.id}-${k}" ${h !== undefined ? `data-hueco="${h}"` : ''}><span class="tn-hueco"></span><span>${hueco(t, p, k)}</span></div>`;
-    const clase = ['tn-fila', p.gana === k ? 'gana' : p.gana === 1 - k ? 'pierde' : '', n === yo ? 'yo' : ''].join(' ');
-    const dentro = `${avatar(n)}<b>${esc(n)}</b><span class="tn-mar">${esc(k ? p.mb : p.ma)}</span>`;
+    const fuera = eliminaA && p.gana === 1 - k;
+    const clase = ['tn-fila', p.gana === k ? 'gana' : p.gana === 1 - k ? 'pierde' : '', fuera ? 'fuera' : '', n === yo ? 'yo' : ''].join(' ');
+    const dentro = `${avatar(n)}<b>${esc(n)}</b>${fuera ? '<span class="tn-elim">Eliminado</span>' : ''}<span class="tn-mar">${esc(k ? p.mb : p.ma)}</span>`;
     return admin && completo
       ? `<button type="button" class="${clase}" data-fila="${p.id}-${k}" data-tn="ganador" data-id="${p.id}" data-lado="${k}" title="${p.gana === k ? 'Quitar la victoria a' : 'Dar la victoria a'} ${esc(n)}">${dentro}</button>`
       : `<div class="${clase}" data-fila="${p.id}-${k}">${dentro}</div>`;
   };
-  return `<div class="tn-ficha ${p.fase} ${p.plaza ? 'plaza' : ''} ${p.segunda ? 'segunda' : ''} ${p.tercero ? 'tercero' : ''} ${p.vivo ? 'vivo' : ''}" data-partido="${p.id}">
+  return `<div class="tn-ficha ${p.fase} ${p.id === t.final ? 'es-final' : ''} ${p.plaza ? 'plaza' : ''} ${p.segunda ? 'segunda' : ''} ${p.tercero ? 'tercero' : ''} ${p.vivo ? 'vivo' : ''}" data-partido="${p.id}">
     ${p.vivo ? '<span class="tn-vivo"><i></i>En juego</span>' : ''}
     ${p.segunda ? '<span class="tn-etiqueta">Segunda oportunidad · al mejor de 3</span>' : ''}
     ${p.tercero ? `<span class="tn-etiqueta">3.er puesto · al mejor de ${p.mejor_de}</span>` : ''}
@@ -2198,6 +2274,29 @@ function campeon(t) {
   const f = t.partidos.find((p) => p.id === t.final);
   return f && f.gana !== null ? f.ab[f.gana] : null;
 }
+// la fase final del torneo de grupos por partes: cuartos (en el orden del cuadro), semis, final y 3.er puesto
+function fasesFinal(t) {
+  const sitio = ordenCuadro(t), ps = t.partidos.filter((p) => p.fase === 'principal').sort((a, b) => sitio(a) - sitio(b));
+  return {cu: ps.filter((p) => p.ronda === 0), se: ps.filter((p) => p.ronda === 1 && !p.tercero), fi: ps.find((p) => p.id === t.final), te: ps.find((p) => p.tercero)};
+}
+// sin pizarra (2.2.0): de abajo arriba, cuartos, semis, final y la copa en lo alto
+function piramide(t, admin, yo, copa) {
+  const {cu, se, fi, te} = fasesFinal(t), f = (p) => (p ? ficha(t, p, admin, yo) : '');
+  const sitio = (col, html) => `<div class="tn-sitio" style="grid-column:${col}">${html}</div>`;
+  return `<div class="tn-scroll"><div class="tn-lienzo vertical"><svg class="tn-lineas" aria-hidden="true"></svg>
+    <div class="tn-piso">${sitio('2/4', copa)}</div>
+    <div class="tn-piso">${sitio('2/4', f(fi))}${te ? sitio('4/5', f(te)) : ''}</div>
+    <div class="tn-piso">${sitio('1/3', f(se[0]))}${sitio('3/5', f(se[1]))}</div>
+    <div class="tn-piso">${cu.map((p) => sitio('auto', f(p))).join('')}</div></div></div>`;
+}
+// con pizarra (2.2.0): el cuadro en espejo, las dos mitades se encuentran en la final, en el centro
+function espejo(t, admin, yo, copa) {
+  const {cu, se, fi, te} = fasesFinal(t), f = (p) => (p ? ficha(t, p, admin, yo) : '');
+  const col = (titulo, cosas, clase = '') => `<div class="tn-col ${clase}"><div class="tn-col-t">${titulo}</div><div class="tn-col-cuerpo">${cosas.join('')}</div></div>`;
+  return `<div class="tn-scroll"><div class="tn-lienzo"><svg class="tn-lineas" aria-hidden="true"></svg><div class="tn-cuadro espejo">
+    ${col('Cuartos', [f(cu[0]), f(cu[1])])}${col('Semifinal 1', [f(se[0])])}${col('Final', [copa, f(fi), f(te)], 'final')}
+    ${col('Semifinal 2', [f(se[1])])}${col('Cuartos', [f(cu[2]), f(cu[3])])}</div></div></div>`;
+}
 const TROFEO = '<svg viewBox="0 0 64 64" aria-hidden="true"><path d="M18 6h28v14a14 14 0 0 1-28 0Z" fill="#FFCB05" stroke="#7A5A00" stroke-width="2.5"/><path d="M18 10H8v4a10 10 0 0 0 10 10M46 10h10v4a10 10 0 0 1-10 10" fill="none" stroke="#7A5A00" stroke-width="2.5"/><path d="M28 34h8v10h-8z" fill="#E5B800" stroke="#7A5A00" stroke-width="2.5"/><path d="M18 44h28v8H18zM14 52h36v6H14z" fill="#9B6B2C" stroke="#5A3A10" stroke-width="2.5"/></svg>';
 
 // los cuatro grupos: tabla (Bo3 ganados, combates ganados y si pasa), sus tres combates y, si hace falta, el desempate
@@ -2216,9 +2315,9 @@ function pintarGrupos(t, puede, yo) {
     }
     const info = cl[L] || {}, orden = info.orden && info.orden.every((j) => j in v) ? info.orden : null;
     const estado = (j) => (!orden ? '' : orden[0] === j ? '<span class="tn-pasa uno">Pasa 1.º</span>'
-      : orden[1] === j ? '<span class="tn-pasa dos">Pasa 2.º</span>' : '<span class="tn-fuera">Fuera</span>');
+      : orden[1] === j ? '<span class="tn-pasa dos">Pasa 2.º</span>' : '<span class="tn-fuera">Eliminado</span>');
     const filas = (orden || js).map((j, k) => (j
-      ? `<tr class="${j === yo ? 'yo' : ''}"><td><span class="quien">${avatar(j)}<b>${esc(j)}</b></span></td><td>${v[j]}</td><td>${c[j]}</td><td>${estado(j)}</td></tr>`
+      ? `<tr class="${j === yo ? 'yo' : ''} ${orden && orden[2] === j ? 'fuera' : ''}"><td><span class="quien">${avatar(j)}<b>${esc(j)}</b></span></td><td>${v[j]}</td><td>${c[j]}</td><td>${estado(j)}</td></tr>`
       : `<tr class="vacia"><td>${esc(hueco(t, sitios[k][0], sitios[k][1]))}</td><td>–</td><td>–</td><td></td></tr>`)).join('');
     return `<article class="tn-grupo"><h3>Grupo ${L}<small>todos contra todos</small></h3>
       <table class="tn-tabla"><thead><tr><th>Jugador</th><th title="Combates al mejor de 3 ganados">Victorias</th><th title="Combates ganados dentro de sus Bo3">Combates</th><th></th></tr></thead><tbody>${filas}</tbody></table>
@@ -2234,6 +2333,7 @@ function pintarTorneo() {
   const t = vistaTorneo(t0);
   const s = t0 && t0.sorteo, quedan = s ? s.total - s.sacados.length : 0;
   $('tn-titulo').textContent = t ? `🏆 ${t.nombre}` : '🏆 Torneo';
+  $('v-torneo').classList.toggle('pizarra', !!(t && t.pizarra && !torneo.creando));
   $('tn-tope').classList.toggle('oculto', !(t && t.tope));
   if (t && t.tope) $('tn-tope').textContent = `Nivel tope ${t.tope}`;
   const organizan = t && t.gestores && t.gestores.length ? `<span class="chip" title="Pueden sortear y marcar resultados">Organizan: ${t.gestores.map(esc).join(', ')}</span>` : '';
@@ -2253,6 +2353,8 @@ function pintarTorneo() {
       <div class="tn-formato" role="radiogroup" aria-label="Formato del torneo">
         <label><input type="radio" name="tn-formato" value="grupos" ${torneo.formato === 'grupos' ? 'checked' : ''}> Grupos (12 jugadores)</label>
         <label><input type="radio" name="tn-formato" value="eliminatoria" ${torneo.formato !== 'grupos' ? 'checked' : ''}> Eliminatoria</label></div>
+      <label class="tn-interruptor"><input type="checkbox" role="switch" id="tn-pizarra" ${torneo.pizarra ? 'checked' : ''}><span class="tn-pista" aria-hidden="true"></span>
+        <span><b>Modo pizarra</b><small>Encendido, el cuadro se ve como una pizarra de vestuario escrita con tiza, en espejo. Apagado, en pirámide: los grupos de base y la copa arriba.</small></span></label>
       <p class="suave">${torneo.formato === 'grupos'
         ? `Elige a 12 jugadores (llevas ${torneo.marcados.size}). La máquina de bolas los reparte en 4 grupos de 3, todos contra todos al mejor de 3. Pasan los dos primeros de cada grupo: en cuartos, 1.º contra 1.º y 2.º contra 2.º, de grupos distintos. Con 1-1-1 va delante quien más combates ha ganado, y si aún hay empate, combate al mejor de 1. Semifinales, 3.er puesto y final al mejor de 3.`
         : 'Elige quién juega (las cuentas del servidor). El cuadro sale vacío: los nombres salen uno a uno de la máquina de bolas con «Sortear». Nadie pasa de ronda sin combatir: si en una ronda sobra uno, juega al mejor de 3 contra el perdedor de un combate de esa ronda. Los que pierden en semifinales se juegan el 3.er puesto al mejor de 1.'}</p>
@@ -2270,14 +2372,14 @@ function pintarTorneo() {
   }
   if (t && t.formato === 'grupos') {
     const camp = campeon(t);
-    html += pintarGrupos(t, puede, d.yo);
-    html += `<section class="tn-fase"><h2 class="tn-fase-t">Fase final</h2>${t.final
-      ? `<div class="tn-scroll"><div class="tn-lienzo"><svg class="tn-lineas" aria-hidden="true"></svg>
-        <div class="tn-cuadro">${columnas(t, 'principal', puede, d.yo, (r, u, n) => nombreRonda(r, u, false, n))}
-          <div class="tn-col campeon"><div class="tn-col-t">Campeón</div><div class="tn-col-cuerpo">${camp
-            ? `<div class="tn-copa">${avatar(camp)}<strong>${esc(camp)}</strong><span class="tn-copa-t">Campeón del torneo</span></div>`
-            : `<div class="tn-copa pendiente">${TROFEO}<strong>Por decidir</strong></div>`}</div></div></div></div></div>`
+    const copa = camp ? `<div class="tn-copa">${avatar(camp)}<strong>${esc(camp)}</strong><span class="tn-copa-t">Campeón del torneo</span></div>`
+      : `<div class="tn-copa pendiente">${TROFEO}<strong>Por decidir</strong></div>`;
+    const fase = `<section class="tn-fase"><h2 class="tn-fase-t">Fase final</h2>${t.final
+      ? (t.pizarra ? espejo : piramide)(t, puede, d.yo, copa)
       : `<div class="tn-espera">Pasan 8: los dos primeros de cada grupo. Cuando acaben los grupos se sortean solos los cuartos de final: los 1.º contra 1.º y los 2.º contra 2.º, siempre de grupos distintos. Después, semifinales, 3.er puesto y final, todo al mejor de 3.</div>`}</section>`;
+    // pizarra: los grupos arriba y el cuadro debajo; pirámide: el cuadro arriba y los grupos de base
+    html += t.pizarra ? pintarGrupos(t, puede, d.yo) + fase
+      : fase + '<p class="tn-suben">Suben 8: los dos primeros de cada grupo</p>' + pintarGrupos(t, puede, d.yo);
   } else if (t) {
     const camp = campeon(t);
     const plaza = t.partidos.find((p) => p.plaza);
@@ -2550,7 +2652,7 @@ function animarCambios(t) {
 function dibujarLineas(t, nuevas = new Set()) {
   const lienzo = document.querySelector('.tn-lienzo');
   if (!lienzo) return;
-  const svg = lienzo.querySelector('.tn-lineas'), base = lienzo.getBoundingClientRect();
+  const svg = lienzo.querySelector('.tn-lineas'), base = lienzo.getBoundingClientRect(), vertical = lienzo.classList.contains('vertical');
   svg.setAttribute('width', lienzo.scrollWidth);
   svg.setAttribute('height', lienzo.scrollHeight);
   let trazos = '';
@@ -2568,13 +2670,26 @@ function dibujarLineas(t, nuevas = new Set()) {
         const x = r2.left + r2.width / 2 - base.left;
         camino = `M${x} ${r2.bottom - base.top + 2} V${caja.top - base.top - 2}`;
         clase += ' repesca';
+      } else if (vertical) {
+        // pirámide: del borde de arriba de la ficha al de abajo de la del partido siguiente, por su centro
+        const c = a.closest('.tn-ficha').getBoundingClientRect();
+        const x1 = r1.left + r1.width / 2 - base.left, y1 = r1.top - base.top;
+        const x2 = c.left + c.width / 2 - base.left, y2 = c.bottom - base.top, ym = y2 + (y1 - y2) / 2;
+        camino = `M${x1} ${y1} V${ym} H${x2} V${y2}`;
       } else {
-        const x1 = r1.right - base.left, y1 = r1.top + r1.height / 2 - base.top;
-        const x2 = r2.left - base.left, y2 = r2.top + r2.height / 2 - base.top, xm = x1 + (x2 - x1) / 2;
+        const izq = r1.left > r2.right;              // cuadro en espejo: la mitad derecha avanza hacia la izquierda
+        const x1 = (izq ? r1.left : r1.right) - base.left, y1 = r1.top + r1.height / 2 - base.top;
+        const x2 = (izq ? r2.right : r2.left) - base.left, y2 = r2.top + r2.height / 2 - base.top, xm = x1 + (x2 - x1) / 2;
         camino = `M${x1} ${y1} H${xm} V${y2} H${x2}`;
       }
       trazos += `<path d="${camino}" class="${clase} ${nuevas.has(q.id) ? 'dibuja' : ''}"/>`;
     });
+  }
+  // pirámide: de la final sube una línea a la copa
+  const copa = vertical && lienzo.querySelector('.tn-copa'), fin = lienzo.querySelector(`[data-partido="${t.final}"]`);
+  if (copa && fin) {
+    const a = copa.getBoundingClientRect(), b = fin.getBoundingClientRect(), x = b.left + b.width / 2 - base.left;
+    trazos += `<path d="M${x} ${b.top - base.top} V${a.bottom - base.top}" class="${campeon(t) ? 'hecho' : ''}"/>`;
   }
   svg.innerHTML = trazos;
 }
@@ -2626,7 +2741,7 @@ document.addEventListener('click', (ev) => {
     // el formulario guarda lo que llevas (marcar jugadores no se pierde al añadir un organizador)
     const t = torneo.datos && torneo.datos.torneo;
     Object.assign(torneo, {creando: true, marcados: new Set(t ? t.jugadores : torneo.datos.usuarios), gestores: t && t.gestores ? [...t.gestores] : [],
-      formato: t && t.formato ? t.formato : 'grupos',
+      formato: t && t.formato ? t.formato : 'grupos', pizarra: !!(t && t.pizarra),
       nombre: t ? t.nombre : 'Gran torneo · Mitad del Mega Pokelocke', tope: t && t.tope ? t.tope : 39});
     return pintarTorneo();
   }
@@ -2643,7 +2758,7 @@ document.addEventListener('click', (ev) => {
     if (jugadores.length < 2) return alert('Elige al menos 2 jugadores');
     if (torneo.formato === 'grupos' && jugadores.length !== 12) return alert(`El formato de grupos es para 12 jugadores (has elegido ${jugadores.length})`);
     torneo.creando = false;
-    return editarTorneo('crear', {jugadores, gestores: torneo.gestores, formato: torneo.formato, nombre: $('tn-nombre').value, tope: Number($('tn-nivel').value) || null});
+    return editarTorneo('crear', {jugadores, gestores: torneo.gestores, formato: torneo.formato, pizarra: torneo.pizarra, nombre: $('tn-nombre').value, tope: Number($('tn-nivel').value) || null});
   }
   if (que === 'ayuda') return empezarTutorial('torneo', true);
   if (que === 'vaciar' && !confirm('¿Vaciar el cuadro? Se quitan todos los nombres y los resultados, y se vuelve a sortear con la máquina.')) return;
@@ -2657,6 +2772,7 @@ document.addEventListener('change', (ev) => {
     ev.target.checked ? torneo.marcados.add(ev.target.value) : torneo.marcados.delete(ev.target.value);
     if (torneo.formato === 'grupos') { torneo.nombre = $('tn-nombre').value; torneo.tope = $('tn-nivel').value; pintarTorneo(); }   // «llevas N»
   }
+  if (torneo.creando && ev.target.id === 'tn-pizarra') torneo.pizarra = ev.target.checked;
   if (torneo.creando && ev.target.name === 'tn-formato') {
     torneo.formato = ev.target.value; torneo.nombre = $('tn-nombre').value; torneo.tope = $('tn-nivel').value;
     pintarTorneo();

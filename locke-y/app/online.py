@@ -897,6 +897,7 @@ class Servidor:
                 raise ValueError(f'El formato de grupos es para {3 * len(LETRAS)} jugadores (has elegido {len(jugadores)})')
             partidos, final = (_grupos_vacios(), None) if formato == 'grupos' else _cuadro_vacio(len(jugadores))
             t = {'nombre': str(d.get('nombre') or 'Gran torneo')[:60], 'tope': d.get('tope'), 'formato': formato,
+                 'pizarra': bool(d.get('pizarra')),   # 2.2.0: el cuadro con aspecto de pizarra de vestuario
                  'jugadores': jugadores, 'partidos': partidos, 'final': final, 'id': time.strftime('%Y%m%d%H%M%S'),
                  'gestores': list(dict.fromkeys(g for g in (d.get('gestores') or []) if g in self.usuarios)),
                  'sorteo': self._sorteo_nuevo(jugadores)}

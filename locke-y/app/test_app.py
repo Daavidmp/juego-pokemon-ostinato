@@ -920,7 +920,10 @@ try:
     ver(False, 'grupos: con 11 no se crea')
 except ValueError:
     ver(True, 'grupos: con 11 no se crea')
+og.editar_torneo(tg, 'crear', {'jugadores': doce, 'formato': 'grupos', 'pizarra': True})
+ver(tor()['pizarra'] is True, 'grupos: el modo pizarra se guarda al crear (2.2.0)')
 og.editar_torneo(tg, 'crear', {'jugadores': doce, 'formato': 'grupos'})
+ver(tor()['pizarra'] is False, 'grupos: sin el interruptor, pirámide (2.2.0)')
 for _ in range(12):
     og.editar_torneo(tg, 'sacar', {})
 ver(all(f['j'] for p in tor()['partidos'] for f in p['fuentes'] if 'hueco' in f) and tor()['final'] is None,
