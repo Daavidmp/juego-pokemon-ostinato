@@ -456,6 +456,43 @@ o.fallos.clear()
 o.registros.clear()
 del o.usuarios['Pacote']
 
+# ---------- Aliana en la Central Eléctrica, por debajo del tope de Lem ----------
+print('Aliana bajo el tope')
+
+
+def garc_de_prueba(archivos):
+    fatb = b''.join(struct.pack('<IIII', 1, sum(map(len, archivos[:k])), sum(map(len, archivos[:k + 1])), len(a))
+                    for k, a in enumerate(archivos))
+    fato = b'OTAF' + struct.pack('<IH', 12, len(archivos)) + b'\0\0'
+    cab = b'CRAG' + struct.pack('<I', 0x1C) + b'\0' * 8
+    datos = 0x1C + len(fato) + 12 + len(fatb)
+    cab += struct.pack('<I', datos) + b'\0' * 8
+    return cab + fato + b'BTAF' + struct.pack('<II', 12 + len(fatb), len(archivos)) + fatb + b''.join(archivos)
+
+
+def equipo_de_prueba(*niveles):                       # con objeto: 10 bytes por Pokémon
+    return b''.join(struct.pack('<BBHHHH', 100, 0, n, 25, 0, 0) for n in niveles)
+
+
+trdata = [bytes([2, 0, 0, 1]) + b'\0' * 16] * 176
+trpoke = [equipo_de_prueba(5)] * 176
+trdata[23], trpoke[23] = bytes([2, 0, 0, 3]) + b'\0' * 16, equipo_de_prueba(40, 40, 43)
+trdata[175], trpoke[175] = bytes([2, 0, 0, 3]) + b'\0' * 16, equipo_de_prueba(44, 30, 44)
+ja = {'id': 'aliana', 'reglas': 'mega', 'random': True}
+romfs = comun.DATOS / 'juegos' / 'aliana' / 'mod' / '0004000000055E00' / 'romfs'
+(romfs / 'a/0/3').mkdir(parents=True, exist_ok=True)
+(romfs / 'a/0/4').mkdir(parents=True, exist_ok=True)
+(romfs / emulador.ENTRENADORES).write_bytes(garc_de_prueba(trdata))
+(romfs / emulador.EQUIPOS).write_bytes(garc_de_prueba(trpoke))
+emulador.aliana_bajo_tope(ja)
+nv = lambda i: [n for _, n in emulador.niveles_entrenador((romfs / emulador.ENTRENADORES).read_bytes(),
+                                                          (romfs / emulador.EQUIPOS).read_bytes(), i)]
+ver(nv(175) == [42, 30, 42], 'Aliana: nadie pasa de un nivel menos que el tope de Lem (43, así que 42)')
+ver(nv(23) == [40, 40, 43], 'Lem no se toca')
+huella = (romfs / emulador.EQUIPOS).stat().st_mtime_ns
+emulador.aliana_bajo_tope(ja)
+ver((romfs / emulador.EQUIPOS).stat().st_mtime_ns == huella, 'si ya está bien, no se vuelve a escribir')
+
 # ---------- actividad de los jugadores: lo que llega al servidor no se puede borrar desde el PC ---------
 print('Actividad')
 import vigia

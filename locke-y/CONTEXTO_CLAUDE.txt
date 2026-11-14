@@ -567,3 +567,10 @@ Hechas con Gemini Nano Banana 2 editando SIEMPRE la misma base (no generando de 
   ps <= psmax y leído igual LECTURAS_NIVEL (2) rondas seguidas; si no, no hay aviso de tope.
 - vigia.sesion_cortada: si el último abrir/cerrar del registro es un abrir (Pokelocke cerrado o colgado, o PC apagado con
   el juego abierto), no se apuntó la huella al cerrar; «la partida ha cambiado» sale entonces como aviso, no sospecha.
+
+== 2.2.2 (2026-11-14): Aliana de la Central por debajo del tope ==
+- Con normas Mega, Aliana en la Central Eléctrica (entrenador 175) salía al Nv44 con el tope de Lem en 43.
+  emulador.aliana_bajo_tope, al abrir el juego (tras abrir la fase completa y antes de renovar firma_mod): lee trdata
+  (a/0/3/8) y trpoke (a/0/4/0) del mod de la partida (_garc), y ningún Pokémon de la 175 pasa de (máx. de Lem 23) - 1.
+  Se escribe en el sitio (el nivel es u16 en +2 de cada Pokémon: 8 bytes + 2 si lleva objeto + 8 si lleva ataques),
+  mismo tamaño; si ya está bien no toca nada. Apunta una línea en randomizacion.log. Aliana 344 (Laboratorio) sin tocar.

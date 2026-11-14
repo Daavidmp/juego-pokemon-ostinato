@@ -6,6 +6,7 @@ import json
 import os
 import re
 import shutil
+import struct
 import subprocess
 import sys
 import time
@@ -767,6 +768,71 @@ def mt_volver(j):
         comun.guardar()
 
 
+def _garc(b):
+    """Dónde está cada archivo de un GARC del romfs: [(inicio, largo)] del primer subarchivo de cada uno."""
+    if b[:4] != b'CRAG':
+        raise ValueError('no es un GARC')
+    datos = struct.unpack_from('<I', b, 0x10)[0]
+    o = struct.unpack_from('<I', b, 4)[0]
+    o += struct.unpack_from('<I', b, o + 4)[0]                     # FATO, y detrás FATB
+    if b[o:o + 4] != b'BTAF':
+        raise ValueError('GARC sin FATB')
+    p, sitios = o + 12, []
+    for _ in range(struct.unpack_from('<I', b, o + 8)[0]):
+        bits = struct.unpack_from('<I', b, p)[0]
+        p += 4
+        primero = None
+        for k in range(32):
+            if bits >> k & 1:
+                ini, _fin, largo = struct.unpack_from('<III', b, p)
+                p += 12
+                primero = primero or (datos + ini, largo)
+        sitios.append(primero)
+    return sitios
+
+
+ENTRENADORES, EQUIPOS = 'a/0/3/8', 'a/0/4/0'      # trdata y trpoke de Pokémon X/Y en el romfs
+LEM, ALIANA_CENTRAL = 23, 175                    # índices de entrenador de la ROM
+
+
+def niveles_entrenador(trdata, trpoke, i):
+    """[(posición del nivel en trpoke, nivel)] de cada Pokémon del entrenador i."""
+    sd, sp = _garc(trdata), _garc(trpoke)
+    d = trdata[sd[i][0]:sd[i][0] + sd[i][1]]
+    ancho = 8 + (2 if d[0] & 2 else 0) + (8 if d[0] & 1 else 0)  # con objeto y/o con ataques propios
+    ini = sp[i][0]
+    return [(ini + k * ancho + 2, struct.unpack_from('<H', trpoke, ini + k * ancho + 2)[0]) for k in range(d[3])]
+
+
+def aliana_bajo_tope(j):
+    """Normas Mega: Aliana en la Central Eléctrica va antes que Lem y salía por encima de su nivel tope (el de Lem):
+    ningún Pokémon suyo pasa de un nivel menos que el tope. Se arregla en el mod de la partida, en el sitio (mismo
+    tamaño), cada vez que se abre el juego; si ya está bien no toca nada. Si falla, se juega igual."""
+    if j.get('reglas') != 'mega' or not j.get('random'):
+        return
+    romfs = next((comun.DATOS / 'juegos' / j['id'] / 'mod').glob('*/romfs'), None)
+    if not romfs or not (romfs / ENTRENADORES).exists() or not (romfs / EQUIPOS).exists():
+        return
+    try:
+        trdata, trpoke = (romfs / ENTRENADORES).read_bytes(), bytearray((romfs / EQUIPOS).read_bytes())
+        maximo = max(n for _, n in niveles_entrenador(trdata, trpoke, LEM)) - 1
+        altos = [(sitio, n) for sitio, n in niveles_entrenador(trdata, trpoke, ALIANA_CENTRAL) if n > maximo]
+        if not altos or maximo < 1:
+            return
+        for sitio, _ in altos:
+            struct.pack_into('<H', trpoke, sitio, maximo)
+        nuevo = romfs / (EQUIPOS + '.nuevo')
+        nuevo.write_bytes(trpoke)
+        os.replace(nuevo, romfs / EQUIPOS)
+    except (ValueError, struct.error, IndexError, OSError):
+        traceback.print_exc()
+        return
+    with open(comun.DATOS / 'juegos' / j['id'] / 'randomizacion.log', 'a', encoding='utf-8') as f:
+        f.write(f'\n--Pokelocke: Aliana (Central Eléctrica) {", ".join(f"Lv{n}" for _, n in altos)} -> Lv{maximo}, '
+                f'uno menos que el tope de Lem--\n')
+    print(time.strftime('%H:%M:%S'), 'Aliana bajada a', maximo, flush=True)
+
+
 def lanzar(j):
     """Pone el mod del juego (o ninguno), abre Azahar a pantalla completa y la capa del layout encima."""
     print(time.strftime('%H:%M:%S'), 'abrir el juego', j['id'], flush=True)
@@ -788,6 +854,7 @@ def lanzar(j):
             except (ValueError, OSError):           # si no se pueden dar, se juega igual y se prueba la próxima vez
                 traceback.print_exc()
         completa = j.get('fase') == 1 and locke.medallas_partida(j) >= locke.MEDALLAS_PARA_COMPLETA and locke.abrir_fase_completa(j)
+        aliana_bajo_tope(j)                   # en el mod que se va a jugar (ya con la fase completa si toca)
         j['firma_mod'] = firma_mod(j)
     mt_fuertes(j)                             # despues de abrir la fase completa: antes de poner el mod
     poner_mod(j)
