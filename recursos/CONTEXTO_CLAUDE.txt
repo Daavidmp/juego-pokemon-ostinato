@@ -489,3 +489,17 @@ de abajo arriba en motas de polvo de su color (una copia quieta del dibujo recor
     (PARA 64, SIGUE 112, FRENA_KAIA 192).
   · Mapa 18: la escalera SubirALaCiudad tenia los datos del traslado en el comando de sonido (petaba); arreglado.
   · Plugin 038_DebugChoques: en debug apunta cada choque de Kaia en debug_choques.txt (ignorado en git).
+
+22. INTERIOR DEL GIMNASIO 1: DISCOTECA DE LOS 70 (2026-11-20, recursos/gimnasio_discoteca/)
+- Sala entera generada con Nano Banana Pro (Firefly): club disco con tarima, telon dorado, cabina de DJ, pista de
+  colores, barra a la izquierda, reservados de terciopelo a la derecha, guardarropa y salida abajo (hueco con felpudo,
+  sin puerta). La buena es sala_discoteca.png (2400x1792; casilla = 78,7 px; unas 29x21 casillas por dentro).
+- Pasos comprobados con una cuadricula: todo >= 1 casilla (lo normal 2-4). Ojo: los reservados son CURVOS y la pista
+  son 4x3 baldosas grandes (David se quedo con esta version): al pasarlo a casillas habra que decidir el paso de las
+  curvas a mano.
+- Prompts, lo que funciona con Gemini y lo que no: prompts_gimnasio_discoteca.txt.
+- Luces: luces.py -> luces_discoteca.mp4 (maqueta por codigo, NO el juego): tinte oscuro, focos que giran y barren con
+  haces de color, bola girando con 90 puntos de luz, lamparas calidas en los sofas, pista que late.
+- Pendiente: sacar las piezas al tileset (32 px/casilla con reduccion de calidad, LANCZOS), el mapa con su paso y
+  prioridades, y las luces en un plugin (como 007_Farolas.rb).
+

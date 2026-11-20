@@ -1,0 +1,48 @@
+POKEMON OSTINATO - INTERIOR DEL GIMNASIO 1 (DISCOTECA DE LOS 70), SALA ENTERA CON GEMINI
+=======================================================================================
+2026-11-20. Modelo: Nano Banana Pro (en Adobe Firefly), formato 4:3. Sale a 2400x1792.
+Una casilla = una baldosa de la pista de la v6 = 78,7 px de la imagen. Sala de unas 29x21 casillas por dentro.
+
+FICHEROS (esta carpeta)
+  sala_discoteca.png      la buena: sala_v7_original + guardarropa bajado 105 px (perchero.py, sin los 3 taburetes
+                          de debajo de la barra: pasillo de 1,5 casillas entre barra y guardarropa)
+  sala_v7_original.png    lo que dio Gemini (la v4 con pocos cambios: ver "lo que NO hacer")
+  ref_estilo_disco.png    hoja de estilo: trozos sueltos de una version anterior (barra, reservado, altavoces, telon,
+                          pista, palmeras, pared). Se pasa como referencia para que copie el estilo y NO la distribucion.
+  luces.py                maqueta de las luces -> luces_discoteca.mp4 (10 s, 1200x896, 24 fps). Necesita
+                          imageio-ffmpeg (pip install --target <tmp> imageio-ffmpeg y PYTHONPATH a esa carpeta).
+  perchero.py             baja el guardarropa de sala_v7_original sin redibujar nada (quita filas lisas).
+
+PROMPT DE LA SALA (referencia: ref_estilo_disco.png)
+Top-down interior map of a large 1970s disco club that is a Pokémon Gym, high quality pixel art in EXACTLY the same
+art style, palette and level of detail as the reference image: warm wood, gold sequins, red velvet, purple walls and
+bright disco colours. The reference is only a style sheet of separate pieces: do NOT copy its arrangement, draw a NEW
+room with the layout described below. Straight front-facing top-down view aligned to a square tile grid, floors seen
+from above, walls seen flat from the front. NOT isometric, NOT diagonal, no perspective. We are inside: no roof, no
+sky, no facade. Dark frame around the room and pure black outside.
+[MOOD, STAGE con focos APAGADOS y escalera central "as wide as the doormat", DANCE FLOOR "exactly 10 squares wide and
+6 squares tall", LEFT bar, RIGHT booths, BOTTOM coat check + opening with doormat (no door), WALKING SPACE: "No walkway
+anywhere is narrower than the doormat is wide", todo contra las paredes, nada en las esquinas de arriba.]
+
+LO QUE FUNCIONA CON GEMINI
+- No sabe que es una casilla: las medidas hay que darlas CONTANDO (baldosas de la pista) o comparando con un objeto que
+  dibuja bien (el felpudo de la salida).
+- Las luces que se van a animar, APAGADAS en la imagen ("dark grey lenses, no beams, no glow").
+- Para el paso y las prioridades: "every object has a rectangular footprint that fills whole tiles, no curved or
+  diagonal shapes" (los reservados curvos no encajan en casillas).
+- Para cambios pequenos: EDITAR la imagen ("Edit this image. Keep EVERYTHING else exactly the same...").
+
+LO QUE NO HACER
+- Pasar la sala entera como referencia: la vuelve a editar en vez de hacer una nueva (v3 = v2 al 97 %).
+- Al editar, pasar una SEGUNDA imagen de referencia: devuelve esa casi entera (sala_v7_original = v4 al 97 %).
+- Pedir mover muebles grandes con Gemini (el guardarropa): lo empeora. Se hizo por codigo (perchero.py).
+
+LUCES (luces.py, como 007_Farolas.rb: tinte oscuro + luz encima)
+- Ambiente al 20 % con tinte morado. Brillan solos: neones de la pared, lamparas y la pista (late a 2 golpes/s, cada
+  baldosa a su paso). Lamparas de los sofas: luz calida (radio 175 las de mesa, 130 las de pared).
+- 6 focos de la tarima: se recortan de la imagen y se tapa su sitio con madera de la misma fila (el lado sin otro foco
+  ni cables); giran hasta ~25 grados hacia su charco, haz de color desde la lente, color nuevo cada 2 s.
+- Bola: franja de brillo que la cruza cada 2,5 s y facetas que parpadean (desplazar sus pixeles la deformaba);
+  90 puntos de luz girando por la sala.
+- En el juego: tinte de pantalla + sprites de halo/haz con su color (como las farolas) + capa de oscuridad a la que se
+  restan las luces. Sin probar en el juego: comprobar que va fluido con ~90 puntos.
