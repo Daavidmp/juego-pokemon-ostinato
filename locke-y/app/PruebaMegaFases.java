@@ -179,6 +179,14 @@ public class PruebaMegaFases {
         MegaFases.combatesImportantes(rh, azar);
         System.out.println("\n== 2. Ases con megaevolución después de Amaro ==");
         MegaFases.asMegaTrasCuartaMedalla(rh, azar);
+        System.out.println("\n== 2b. Sin primeras etapas ==");
+        Map<Trainer, Integer> tamanos = new java.util.HashMap<>();
+        for (Trainer t : entrenadores) tamanos.put(t, t.pokemon.size());
+        MegaFases.sinPrimeras(rh, azar);
+        comprobar(entrenadores.stream().flatMap(t -> t.pokemon.stream()).noneMatch(x -> MegaFases.primeraEtapa(x.pokemon)),
+                "fase completa: ningún entrenador saca un Pokémon de primera etapa");
+        comprobar(entrenadores.stream().allMatch(t -> t.pokemon.size() == tamanos.get(t)), "sin primeras etapas: los equipos no cambian de tamaño");
+        comprobar(!MegaFases.primeraEtapa(alakazam) && MegaFases.primeraEtapa(bulba), "primera etapa: Bulbasaur sí, Alakazam no");
 
         System.out.println("\n== Versión completa (después de la 2.ª medalla) ==");
         for (Trainer t : entrenadores) System.out.printf("  %-30s %s%n", t.name, equipo(t));

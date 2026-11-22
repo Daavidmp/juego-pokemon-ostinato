@@ -372,6 +372,21 @@ except PermissionError:
     ver(True, 'solo el administrador ve registros de otros')
 # el recorrido entero: el admin pide el registro, el jugador lo recoge en su latido y contesta
 admin = o.entrar('Daavidmp', 'clave1', '1.1.1.1')['token']
+# permiso temporal del PokéHex (2.2.4)
+ver(not o.yo(amigo)['pokehex'] and not o.latido(amigo, {'jugando': False})['pokehex'], 'sin permiso, nadie más tiene PokéHex')
+try:
+    o.permiso_pokehex(amigo, 'Amigo', 24)
+    ver(False, 'solo el administrador da el PokéHex')
+except PermissionError:
+    ver(True, 'solo el administrador da el PokéHex')
+o.permiso_pokehex(admin, 'Amigo', 24)
+ver(o.yo(amigo)['pokehex'] and o.latido(amigo, {'jugando': False})['pokehex'], 'con permiso, el amigo tiene PokéHex')
+ver(any(c['usuario'] == 'Amigo' and c['pokehex'] for c in o.latido(admin, {})['conectados']), 'el administrador ve quién lo tiene')
+o.usuarios['Amigo']['pokehex_hasta'] = time.time() - 1
+ver(not o.yo(amigo)['pokehex'], 'el permiso caduca solo')
+o.permiso_pokehex(admin, 'Amigo', 24)
+o.permiso_pokehex(admin, 'Amigo', 0)
+ver(not o.yo(amigo)['pokehex'] and 'pokehex_hasta' not in o.usuarios['Amigo'], 'y se puede quitar antes')
 o.latido(amigo, {'jugando': False})
 respuesta = {}
 hilo = threading.Thread(target=lambda: respuesta.update(r=o.pedir_log(admin, 'Amigo')))
@@ -910,6 +925,49 @@ emulador.mt_volver(jv)
 ver(len(llamadas) == 2, 'y no se repite')
 ver(not set(emulador.MT_VOLVER) - {'tt'}, 'no quedan cambios de MT a mano pendientes')
 del emulador.MT_VOLVER['tt']
+# entrenadores sorteados otra vez para un jugador concreto (RivalesFinales), por su usuario online
+llamadas.clear()
+_sesion_rf = comun.red.get('sesion')
+emulador.correr = lambda args, cwd: (llamadas.append(args), 'Hecho 1745 (1515 de 1806 en su ultima etapa)')[1]
+emulador.RIVALES_FINALES['Prueba_RF'] = (1, 0.75)
+jf = {'id': 'tt', 'reglas': 'mega', 'random': {'avanzado': False}, 'fase': 1}
+comun.red['sesion'] = {'token': 'x', 'usuario': 'Otro', 'admin': False}
+emulador.rivales_finales(jf)
+ver(not llamadas and 'rivales_finales' not in jf, 'rivales sorteados otra vez: a otro jugador no le toca')
+comun.red['sesion'] = {'token': 'x', 'usuario': 'Prueba_RF', 'admin': False}
+emulador.rivales_finales(jf)
+ver(len(llamadas) == 1 and 'RivalesFinales' in llamadas[0] and '0.75' in llamadas[0]
+    and Path(str(llamadas[0][-3])).parts[-3:-1] == ('mod_completo', '0004000000055E00') and jf['rivales_finales']['version'] == 1,
+    'al jugador de la lista: en fase 1, sobre el mod de la fase completa (la facil sigue sin evoluciones finales)')
+emulador.rivales_finales(jf)
+ver(len(llamadas) == 1, 'y solo una vez')
+emulador.RIVALES_FINALES['Prueba_RF'] = (2, 0.75)
+jf2 = {'id': 'tt', 'reglas': 'mega', 'random': {'avanzado': False}, 'fase': 2, 'rivales_finales': jf['rivales_finales']}
+emulador.rivales_finales(jf2)
+ver(len(llamadas) == 2 and Path(str(llamadas[1][-3])).parts[-3] == 'mod' and jf2['rivales_finales']['version'] == 2,
+    'una version nueva se aplica otra vez, en fase 2 sobre el mod')
+emulador.rivales_finales({'id': 'tt', 'reglas': 'normal', 'random': {'avanzado': False}})
+ver(len(llamadas) == 2, 'solo en partidas Mega')
+del emulador.RIVALES_FINALES['Prueba_RF']
+comun.red['sesion'] = _sesion_rf
+ver(set(emulador.RIVALES_FINALES) == {'Damian_Lux'}, 'los rivales sorteados otra vez solo son para Damian')
+# entrenadores sin Pokémon de primera etapa, en todas las rooms Mega (2.2.6)
+llamadas.clear()
+js = {'id': 'tt', 'reglas': 'mega', 'random': {'avanzado': False}, 'fase': 1}
+emulador.sin_primeras(js)
+ver(len(llamadas) == 1 and 'RivalesFinales' in llamadas[0] and 'primeras' in llamadas[0]
+    and Path(str(llamadas[0][-3])).parts[-3] == 'mod_completo' and js['sin_primeras']['version'] == emulador.SIN_PRIMERAS_VERSION,
+    'sin primeras etapas: a cualquier room Mega, en fase 1 sobre el mod de la fase completa')
+emulador.sin_primeras(js)
+emulador.sin_primeras({'id': 'tt', 'reglas': 'normal', 'random': {'avanzado': False}})
+emulador.sin_primeras({'id': 'tt', 'reglas': 'mega', 'random': {'avanzado': False},
+                       'sin_primeras': {'estado': 'de serie', 'version': emulador.SIN_PRIMERAS_VERSION}})
+ver(len(llamadas) == 1, 'sin primeras etapas: solo una vez, solo Mega, y no en las partidas que ya salen así')
+emulador.correr = lambda args, cwd: (llamadas.append(args), 'YA')[1]
+jy = {'id': 'tt', 'reglas': 'mega', 'random': {'avanzado': False}, 'fase': 2}
+emulador.sin_primeras(jy)
+ver(len(llamadas) == 2 and Path(str(llamadas[1][-3])).parts[-3] == 'mod' and jy['sin_primeras']['estado'] == 'ya',
+    'sin primeras etapas: en fase 2 sobre el mod, y si no había ninguna se apunta igual')
 # fase completa: las MT que no estan en la mochila se sortean otra vez sin limite de potencia (mt_fuertes)
 llamadas.clear()
 pokehex.Partida, _g.pokehex_partida = _PartidaMT, (lambda j: 'main')

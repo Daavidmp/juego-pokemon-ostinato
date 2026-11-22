@@ -64,6 +64,29 @@ def online_direccion():
     return online_config().get('direccion')
 
 
+_ip_sala = {}
+
+
+def ipv4(nombre):
+    """La sala de Citra («Conectar directamente») solo acepta una IPv4 en números («IP ipv4 is not valid» con el
+    nombre de duckdns): se resuelve aquí. Si no se puede, se devuelve el nombre tal cual. Se guarda 5 minutos."""
+    if not nombre:
+        return nombre
+    hecho = _ip_sala.get(nombre)
+    if hecho and time.time() - hecho[0] < 300:
+        return hecho[1]
+    try:
+        socket.inet_aton(nombre)
+        ip = nombre
+    except OSError:
+        try:
+            ip = socket.gethostbyname(nombre)
+        except OSError:
+            ip = nombre                           # también se guarda: el estado se pide cada segundo
+    _ip_sala[nombre] = (time.time(), ip)
+    return ip
+
+
 def online_estado():
     s = comun.red['sesion']
     return {'sesion': s and {'usuario': s['usuario'], 'admin': s['admin']}, 'conectados': comun.red['conectados'],
@@ -71,7 +94,9 @@ def online_estado():
             'recordada': recordada_usuario(),
             'error': comun.red['error'], 'servidor': bool(comun.red['servidor']), 'upnp': comun.red['upnp'], 'ip': comun.red['ip'],
             'sala': bool(comun.red['servidor']) and comun.red['servidor'].sala_viva(),
-            'direccion': online_config().get('direccion'), 'version': comun.VERSION_APP, 'actualizacion': comun.red.get('actualizacion'),
+            'pokehex': bool(s) and (s['usuario'] == comun.DUENO_POKEHEX or bool(comun.red.get('pokehex'))),
+            'direccion': online_config().get('direccion'), 'sala_ip': ipv4(online_config().get('direccion')),
+            'version': comun.VERSION_APP, 'actualizacion': comun.red.get('actualizacion'),
             'tablero': comun.red.get('tablero', []), 'coronas': comun.red.get('coronas', {}), 'duelos': comun.red.get('duelos', [])}
 
 
@@ -210,6 +235,7 @@ def online_latidos():
                     traer_fotos(direccion, s['token'], r['conectados'] + r.get('tablero', []))
                     comun.red['tablero'], comun.red['coronas'] = r.get('tablero', []), r.get('coronas', {})
                     comun.red['duelos'] = r.get('duelos', [])
+                    comun.red['pokehex'] = bool(r.get('pokehex'))
                     with comun.lock:
                         locke.duelos_tick(comun.red['duelos'], s['usuario'])
                     comun.red['error'], comun.red['conectados'] = None, r['conectados']
@@ -396,8 +422,8 @@ def comprobar_dueno_pokehex():
         raise RuntimeError(f'Para abrir el PokéHex hace falta conexión con el servidor ({online_motivo(e)})')
     if r.get('error') == 'No existe':
         raise RuntimeError('El servidor todavía no comprueba el PokéHex: el anfitrión tiene que actualizar Pokelocke')
-    if r.get('usuario') != comun.DUENO_POKEHEX:
-        raise RuntimeError(f'El PokéHex solo lo puede abrir {comun.DUENO_POKEHEX}')
+    if r.get('usuario') != comun.DUENO_POKEHEX and not r.get('pokehex'):
+        raise RuntimeError(f'El PokéHex solo lo puede abrir {comun.DUENO_POKEHEX} o quien tenga su permiso')
 
 
 def online_accion(que, d):
@@ -456,6 +482,17 @@ def online_accion(que, d):
             raise RuntimeError(r['error'])
         if 'duelos' in r:
             comun.red['duelos'] = r['duelos']
+        return r
+    if que == 'permiso_pokehex':             # dar o quitar el PokéHex a otro jugador (solo el administrador)
+        if not comun.red['sesion']:
+            raise RuntimeError('Entra con tu usuario')
+        try:
+            r = online.peticion(direccion, '/pokehex/permiso', {'token': comun.red['sesion']['token'], 'usuario': d.get('usuario'),
+                                                                'horas': d.get('horas', 0)}, espera=8)
+        except OSError as e:
+            raise RuntimeError(f'No se puede conectar con el servidor ({online_motivo(e)})')
+        if 'error' in r:
+            raise RuntimeError(r['error'])
         return r
     if que == 'log':                         # el registro de errores de un jugador conectado (solo el administrador)
         if not comun.red['sesion']:

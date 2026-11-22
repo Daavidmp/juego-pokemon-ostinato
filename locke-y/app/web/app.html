@@ -856,7 +856,7 @@
     </div>
     <div class="portada-izq">
       <button class="redondo-video" type="button" data-sonido aria-label="Silenciar la música"></button>
-      <span>Versión 2.2.3</span>
+      <span>Versión 2.2.6</span>
     </div>
     <div class="portada-jugar">
       <span id="p-progreso"></span>
@@ -936,7 +936,7 @@
     <section class="tb-hud tb-carta tb-objetivo" id="tb-objetivo" aria-label="Siguiente objetivo"></section>
     <section class="tb-hud tb-carta tb-marcador" id="tb-marcador" aria-label="Vidas y medallas"></section>
     <div class="tb-hud tb-abajo"><div class="tb-equipo" id="tb-equipo" aria-label="Tu equipo"></div><div class="tb-carta tb-jugar" id="tb-jugar"></div></div>
-    <span class="tb-hud tb-credito">Creado por David Martínez Palacios · Versión 2.2.3</span>
+    <span class="tb-hud tb-credito">Creado por David Martínez Palacios · Versión 2.2.6</span>
   </div>
 
   <footer>
@@ -1468,7 +1468,7 @@ const MODOS = {
       'Estadísticas base y tipos sin cambios', 'Las evoluciones por intercambio pasan a ser al nivel 40', 'Facilidad de captura normal'],
     normas: ['Dificultad que sube: hasta la 2.ª medalla, entrenadores y salvajes solo con Pokémon que aún pueden evolucionar, rivales con ataques de 70 o menos',
       'Cada MT enseña un ataque al azar, sin límite de potencia (las MO no cambian); las MT que ya tienes en la mochila no cambian nunca',
-      'Al ganar la 2.ª medalla se abre la randomización completa (guarda y reinicia el juego)',
+      'Al ganar la 2.ª medalla se abre la randomización completa (guarda y reinicia el juego); desde ahí los entrenadores nunca sacan Pokémon de primera etapa',
       'La 4.ª medalla cierra la primera parte: toca el gran torneo','25 vidas','Las muertes no cuentan hasta acabar el primer combate contra un entrenador (Shauna)',
       'Raids: cada Pokémon que se debilite en una raid cuenta como muerte',
       'Cerrar el juego sin guardar cuando se te debilita un Pokémon está terminantemente prohibido: la partida se anula',
@@ -2121,7 +2121,8 @@ function pintarOnline(o) {
       ${o.conectados.map((c) => `<div class="conectado">${fotoJugador(c.usuario, c.foto)}<div><b>${esc(c.usuario)}${c.admin ? ' · admin' : ''}</b>
         <span>${c.jugando ? 'Jugando a ' + esc(c.juego || '') : 'En la biblioteca'}</span></div>
         ${s.admin ? `<button class="btn btn-neutro" type="button" data-log="${esc(c.usuario)}" title="Ver los errores de su Pokelocke">Registro</button>` : ''}
-        ${s.admin && c.usuario !== s.usuario ? `<button class="btn btn-neutro" type="button" data-remoto="${esc(c.usuario)}">PokéHex</button>` : ''}</div>`).join('') || '<p class="suave">Nadie conectado.</p>'}
+        ${s.admin && c.usuario !== s.usuario ? `<button class="btn btn-neutro" type="button" data-remoto="${esc(c.usuario)}">PokéHex</button>` : ''}
+        ${s.admin && c.usuario !== s.usuario ? `<button class="btn btn-neutro" type="button" data-permiso="${esc(c.usuario)}" data-horas="${c.pokehex ? 0 : 24}" title="${c.pokehex ? 'Quitarle el PokéHex' : 'Dejarle abrir su PokéHex 24 horas'}">${c.pokehex ? 'Quitar PokéHex' : 'Dar PokéHex 24 h'}</button>` : ''}</div>`).join('') || '<p class="suave">Nadie conectado.</p>'}
       ${o.servidor ? `<p class="suave" style="font-size: 13px;">Eres el servidor${o.ip ? ` · ${esc(o.ip)}` : ''}${o.upnp === false ? ' · el router no ha abierto los puertos' : ''}</p>` : ''}
       ${s.admin ? '<button class="btn btn-neutro" type="button" id="o-actividad">Actividad de los jugadores</button>' : ''}
       <button class="btn btn-neutro" type="button" id="o-foto">Cambiar foto de perfil</button>
@@ -3265,7 +3266,7 @@ function pintarNotas(o) {
   $('notas').classList.toggle('oculto', !notasAbiertas);
   if (!notasAbiertas) { notasHtml = ''; return; }
   const s = o.sesion;
-  const direccion = o.servidor ? '127.0.0.1' : (o.direccion || 'la que te pase el anfitrión');
+  const direccion = o.servidor ? '127.0.0.1' : (o.sala_ip || o.direccion || 'la que te pase el anfitrión');
   const html = `<div class="notas-cabecera"><h2 id="notas-titulo" style="font-size: 17px;">Entrar en la sala para combatir</h2>
       <button class="btn btn-icono" type="button" id="notas-cerrar" aria-label="Cerrar"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
     <p class="suave" style="font-size: 14px;">En Citra: <b>Multijugador → Conectar directamente a una sala</b>, y escribe:</p>
@@ -3276,7 +3277,7 @@ function pintarNotas(o) {
       <dt>Contraseña</dt><dd>vacía</dd>
     </dl>
     ${o.servidor && !o.sala ? '<p class="aviso-hex"><b>La sala no está en marcha.</b> Se vuelve a abrir sola; si esto no se quita en medio minuto, apaga y enciende el servidor.</p>' : ''}
-    ${o.servidor && o.direccion ? `<p class="aviso-hex">Eres el servidor: tú pones 127.0.0.1. Los demás ponen <b>${esc(o.direccion)}</b>.</p>` : ''}
+    ${o.servidor && o.direccion ? `<p class="aviso-hex">Eres el servidor: tú pones 127.0.0.1. Los demás ponen <b>${esc(o.sala_ip || o.direccion)}</b> (en números: Citra no acepta el nombre).</p>` : ''}
     <ol>
       <li><b>Alt+Q</b> para sacar el juego a una ventana y <b>Alt+Tab</b> a la ventana principal de Citra.</li>
       <li>Conecta con los datos de arriba. El apodo es distinto para cada uno: de 4 a 20 letras o números, sin espacios.</li>
@@ -3347,6 +3348,8 @@ $('o-panel').onclick = (ev) => {
   const b = ev.target.closest('[data-remoto]'), l = ev.target.closest('[data-log]');
   if (b) { panelAbierto = false; abrirHex(null, b.dataset.remoto); }
   if (l) { panelAbierto = false; abrirRegistro(l.dataset.log); }
+  const p = ev.target.closest('[data-permiso]');
+  if (p) { p.disabled = true; pedirOnline('permiso_pokehex', {usuario: p.dataset.permiso, horas: Number(p.dataset.horas)}).then(() => actualizar()); }
 };
 
 // ---------- el ojo de las contraseñas ----------
@@ -3728,7 +3731,7 @@ function opciones(lista, actual, desde = 0, filtro = null) {
 }
 
 // el PokéHex solo es para Daavidmp (lo comprueba también el servidor al entrar): a los demás ni se les enseña
-const esDueno = () => !!(ultimo && ultimo.online.sesion && ultimo.online.sesion.usuario === 'Daavidmp');
+const esDueno = () => !!(ultimo && ultimo.online.sesion && (ultimo.online.sesion.usuario === 'Daavidmp' || ultimo.online.pokehex));
 function abrirHex(j, remoto = null) {
   Object.assign(hex, {juego: j ? j.id : null, remoto, sel: null, borrador: null, pestana: 'equipo', caja: 0, moviendo: null, nuevoEn: null});
   $('hex-titulo').textContent = remoto ? `PokéHex de ${remoto}` : 'PokéHex';

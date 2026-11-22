@@ -178,6 +178,7 @@ def clases_y_java():
                     str(RAIZ / 'app' / 'MTFijas.java'),
                     str(RAIZ / 'app' / 'MTAzar.java'),
                     str(RAIZ / 'app' / 'MTVolver.java'),
+                    str(RAIZ / 'app' / 'RivalesFinales.java'),
                     str(RAIZ / 'app' / 'MegaTorre.java')], check=True)
     jar = DIST / upr.parent.relative_to(RAIZ) / 'pokelocke-upr.jar'
     jar.parent.mkdir(parents=True, exist_ok=True)

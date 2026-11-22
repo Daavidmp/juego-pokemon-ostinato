@@ -317,7 +317,7 @@ def configurar_azahar():
     # online: «Multijugador > Conectar directamente a una sala» ya relleno con el servidor y tu usuario
     if comun.red['sesion'] and conexion.online_direccion():
         poner('Multiplayer', 'nickname', comun.red['sesion']['usuario'])
-        poner('Multiplayer', 'ip', conexion.online_direccion())          # el anfitrión, a sí mismo
+        poner('Multiplayer', 'ip', conexion.ipv4(conexion.online_direccion()))   # Citra solo acepta IPv4 en números
         poner('Multiplayer', 'port', online.PUERTO_SALA)
     # modo ligero (Opciones): resolución interna nativa, lo que más pesa en una gráfica integrada. Al quitarlo vuelve
     # la que hubiera antes
@@ -833,6 +833,85 @@ def aliana_bajo_tope(j):
     print(time.strftime('%H:%M:%S'), 'Aliana bajada a', maximo, flush=True)
 
 
+# Entrenadores sorteados otra vez para un jugador concreto (RivalesFinales.java), por su usuario online:
+# usuario -> (version, probabilidad de última etapa). Solo cambia la especie de los Pokémon de los entrenadores (y sus
+# ataques si llevan propios); niveles, objetos y el as con Megapiedra se quedan. Va al mod de la fase completa.
+# La version se apunta en j['rivales_finales']: subirla vuelve a sortear.
+# Historial: Damian_Lux, version 1 (2.2.5, 2026-11-21), petición de David: 75 % de últimas etapas.
+RIVALES_FINALES = {'Damian_Lux': (1, 0.75)}
+
+def rivales_finales(j):
+    """Aplica RIVALES_FINALES a las partidas Mega del usuario conectado: una vez por version. Si falla se juega igual
+    y se reintenta la próxima vez."""
+    usuario = (comun.red.get('sesion') or {}).get('usuario') or conexion.recordada_usuario()
+    version, prob = RIVALES_FINALES.get(usuario or '', (None, None))
+    r = j.get('random') or {}
+    if not version or j.get('reglas') != 'mega' or not j.get('random') or r.get('avanzado') \
+            or (j.get('rivales_finales') or {}).get('version', 0) >= version:
+        return
+    carpeta = comun.DATOS / 'juegos' / j['id']
+    destino = locke.MOD_COMPLETO if j.get('fase') == 1 and (carpeta / locke.MOD_COMPLETO).exists() else 'mod'
+    romfs = next((carpeta / destino).glob('*/romfs'), None)
+    if not romfs:
+        return
+    huella_buena = j.get('firma_mod') == firma_mod(j)
+    comun.tarea('Sorteando otra vez los Pokémon de los entrenadores… (solo esta vez)')
+    try:
+        jar, jv = upr_jar(), java()
+        salida = correr([jv, '-Xmx2048M', *clase_pokelocke(jar, 'RivalesFinales'), rom_jugable(j), str(romfs), str(prob),
+                         str(carpeta / 'randomizacion.log')], jar.parent)
+    except Exception:
+        traceback.print_exc()
+        return
+    linea = next((l for l in salida.splitlines() if l.startswith(('Hecho', 'SIN ENTRENADORES'))), '')
+    print(time.strftime('%H:%M:%S'), 'entrenadores sorteados otra vez:', linea, flush=True)
+    if not linea.startswith('Hecho'):
+        return
+    with comun.lock:
+        j['rivales_finales'] = {'estado': 'hecho', 'version': version, 'mod': destino, 'resumen': linea[6:],
+                                'fecha': time.strftime('%Y-%m-%d %H:%M')}
+        if huella_buena:
+            j['firma_mod'] = firma_mod(j)
+        comun.guardar()
+
+
+SIN_PRIMERAS_VERSION = 1   # 1: los entrenadores no sacan Pokémon de primera etapa (2.2.6)
+
+def sin_primeras(j):
+    """Normas Mega, rooms que ya había: los Pokémon de primera etapa de los entrenadores (Bulbasaur, Caterpie, Pichu)
+    pasan a otros al azar que no lo son (RivalesFinales.java «primeras» -> MegaFases.sinPrimeras). Solo en el mod de
+    la fase completa (en fase 1, mod_completo): la fácil necesita Pokémon que aún evolucionen. Las partidas nuevas ya
+    salen así de MegaFases (preparar lo marca). Una vez por versión; si falla se juega igual y se reintenta."""
+    r = j.get('random') or {}
+    if j.get('reglas') != 'mega' or not j.get('random') or r.get('avanzado') \
+            or (j.get('sin_primeras') or {}).get('version', 0) >= SIN_PRIMERAS_VERSION:
+        return
+    carpeta = comun.DATOS / 'juegos' / j['id']
+    destino = locke.MOD_COMPLETO if j.get('fase') == 1 and (carpeta / locke.MOD_COMPLETO).exists() else 'mod'
+    romfs = next((carpeta / destino).glob('*/romfs'), None)
+    if not romfs:
+        return
+    huella_buena = j.get('firma_mod') == firma_mod(j)
+    comun.tarea('Quitando los Pokémon de primera etapa a los entrenadores… (solo esta vez)')
+    try:
+        jar, jv = upr_jar(), java()
+        salida = correr([jv, '-Xmx2048M', *clase_pokelocke(jar, 'RivalesFinales'), rom_jugable(j), str(romfs), 'primeras',
+                         str(carpeta / 'randomizacion.log')], jar.parent)
+    except Exception:
+        traceback.print_exc()
+        return
+    linea = next((l for l in salida.splitlines() if l.startswith(('Hecho', 'YA', 'SIN ENTRENADORES'))), '')
+    print(time.strftime('%H:%M:%S'), 'entrenadores sin primeras etapas:', linea, flush=True)
+    if not linea.startswith(('Hecho', 'YA')):
+        return
+    with comun.lock:
+        j['sin_primeras'] = {'estado': linea.split()[0].lower(), 'version': SIN_PRIMERAS_VERSION, 'mod': destino,
+                             'fecha': time.strftime('%Y-%m-%d %H:%M')}
+        if linea.startswith('Hecho') and huella_buena:
+            j['firma_mod'] = firma_mod(j)
+        comun.guardar()
+
+
 def lanzar(j):
     """Pone el mod del juego (o ninguno), abre Azahar a pantalla completa y la capa del layout encima."""
     print(time.strftime('%H:%M:%S'), 'abrir el juego', j['id'], flush=True)
@@ -846,6 +925,8 @@ def lanzar(j):
     mt_azar(j)
     mt_volver(j)
     mega_torre(j)
+    rivales_finales(j)
+    sin_primeras(j)                           # despues: si a Damian le toca otra vez el sorteo, tambien sin primeras
     with comun.lock:
         vigia.abrir(j)
         for dar in (locke.dar_caramelos, locke.dar_escamas):
@@ -889,6 +970,7 @@ def preparar(j, opciones, vidas_ini, randomizar_juego, avanzado, reglas=None):
         j['mt_azar'] = {'estado': 'de serie', 'fecha': time.strftime('%Y-%m-%d %H:%M')}    # el randomizador ya las sortea
         j['mt_fuertes'] = {'estado': 'de serie', 'fecha': time.strftime('%Y-%m-%d %H:%M')}  # sin limite de potencia
         j['mega_torre'] = {'estado': 'de serie', 'fecha': time.strftime('%Y-%m-%d %H:%M')}   # MegaFases ya la pone
+        j['sin_primeras'] = {'estado': 'de serie', 'version': SIN_PRIMERAS_VERSION, 'fecha': time.strftime('%Y-%m-%d %H:%M')}
     else:
         j['random'] = None
     with comun.lock:

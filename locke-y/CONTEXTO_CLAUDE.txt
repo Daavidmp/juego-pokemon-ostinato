@@ -579,3 +579,35 @@ Hechas con Gemini Nano Banana 2 editando SIEMPRE la misma base (no generando de 
 - normas/normas.html, cláusula séptima (torneos): Sleep Clause (un solo Pokémon del rival dormido a la vez; para dormir
   a otro, el dormido se despierta o se debilita), lo mismo con Efecto Espora, e Item Clause (sin objetos repetidos en
   el equipo). Solo texto: la app no lo comprueba.
+
+== 2.2.4 (2026-11-19): IP de la sala en números y PokéHex con permiso temporal ==
+- Citra («Conectar directamente a una sala») da «IP ipv4 is not valid» con el nombre de duckdns. conexion.ipv4 lo
+  resuelve (caché 5 min); se usa al rellenar Multiplayer/ip en emulador.py y en las notas de la sala (o.sala_ip).
+- PokéHex con permiso: el administrador pulsa «Dar PokéHex 24 h» / «Quitar PokéHex» en Conectados
+  (/pokehex/permiso, online.permiso_pokehex; usuarios[u]['pokehex_hasta'], hasta 168 h, caduca solo). /yo y el latido
+  devuelven 'pokehex'; comprobar_dueno_pokehex acepta DUENO_POKEHEX o r['pokehex']; esDueno() en app.html también.
+  Sigue haciendo falta el servidor oficial (huella) y la contraseña del PokéHex. Pruebas en test_app.py.
+
+== 2.2.5 (2026-11-21): entrenadores sorteados otra vez solo para Damian ==
+- Petición de David: en la room de Damian (usuario online Damian_Lux) se vuelven a sortear SOLO los Pokémon de los
+  entrenadores, con más probabilidad de últimas etapas (75 %: vienen de otro y ya no evolucionan; el 25 % restante,
+  cualquiera no legendario). app/RivalesFinales.java (en pokelocke-upr.jar): carga la ROM, le pone todo el romfs del
+  mod (ataques por nivel de esa partida), cambia especie (y ataques si el entrenador los lleva propios, con
+  MegaFases.movimientos), deja niveles, objetos, número de Pokémon y el as con Megapiedra; escribe solo a/0/3/8 y
+  a/0/4/0 y apunta los equipos en randomizacion.log. emulador.RIVALES_FINALES (usuario -> (version, probabilidad)) +
+  rivales_finales(j) en lanzar después de mega_torre; el usuario sale de la sesión o del recordado. Una vez por versión
+  (j['rivales_finales']); en fase 1 va a mod_completo, si no a mod. Probado sobre una copia de una partida local:
+  1745 cambiados, 1515 de 1806 en su última etapa. Pruebas en test_app.py.
+
+== 2.2.6 (2026-11-22): entrenadores sin Pokémon de primera etapa, en todas las rooms Mega ==
+- Petición de David: «los entrenadores rivales no sacarán Pokémon débiles de primera etapa». Primera etapa =
+  evoluciona y no viene de nadie (Bulbasaur, Caterpie, Pichu); los que no evolucionan nunca (Tauros) no lo son.
+  MegaFases.primeraEtapa / sinPrimeras: cada uno pasa a uno al azar no legendario que no sea de primera etapa; ataques
+  nuevos solo si el entrenador los lleva propios; el as con Megapiedra no se toca. Solo en la fase completa (MegaFases
+  lo llama antes de guardarla; la fácil sigue con Pokémon que aún evolucionan).
+- Rooms que ya había: emulador.sin_primeras, una vez (j['sin_primeras'], SIN_PRIMERAS_VERSION=1), en lanzar después de
+  rivales_finales, con RivalesFinales.java «primeras» sobre mod_completo (fase 1) o mod. Dice «YA» si no había
+  ninguna. Partidas nuevas: preparar lo marca «de serie». El sorteo de Damian (RivalesFinales con probabilidad) tampoco
+  saca ya primeras etapas en su 25 %. Comprueba releyendo que no queda ninguna. Probado en una copia: 685 cambiados,
+  la segunda vez «YA». Norma de la app (MODOS.mega) al día. PruebaMegaFases: nuevas comprobaciones bien; la de «MT de
+  menos de 70» ya fallaba antes (la norma se quitó en la 1.3.0).

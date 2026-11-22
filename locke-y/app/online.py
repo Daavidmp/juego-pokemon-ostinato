@@ -588,9 +588,30 @@ class Servidor:
         return {'usuario': nuevo}
 
     def yo(self, token):
-        """Quién es el dueño de una sesión, dicho por el servidor (el PokéHex solo se abre a DUENO_POKEHEX)."""
+        """Quién es el dueño de una sesión, dicho por el servidor (el PokéHex solo se abre a DUENO_POKEHEX o a quien
+        tenga el permiso temporal del administrador)."""
         u = self._usuario(token)
-        return {'usuario': u, 'admin': self.usuarios.get(u, {}).get('admin', False)}
+        return {'usuario': u, 'admin': self.usuarios.get(u, {}).get('admin', False), 'pokehex': self._pokehex_ok(u)}
+
+    def _pokehex_ok(self, u):
+        """Permiso temporal del PokéHex (2.2.4): usuarios[u]['pokehex_hasta'], hora de fin, lo pone el administrador."""
+        return time.time() < float(self.usuarios.get(u, {}).get('pokehex_hasta') or 0)
+
+    def permiso_pokehex(self, token, objetivo, horas):
+        """El administrador deja abrir el PokéHex a otro jugador unas horas (0 lo quita). Va a usuarios.json."""
+        u = self._usuario(token)
+        if not self.usuarios.get(u, {}).get('admin'):
+            raise PermissionError('Solo el administrador puede dar el PokéHex')
+        horas = max(0.0, min(168.0, float(horas or 0)))
+        with self.lock:
+            if objetivo not in self.usuarios:
+                raise ValueError('Ese jugador no existe')
+            if horas:
+                self.usuarios[objetivo]['pokehex_hasta'] = time.time() + horas * 3600
+            else:
+                self.usuarios[objetivo].pop('pokehex_hasta', None)
+            self._guardar()
+        return {'usuario': objetivo, 'pokehex': self._pokehex_ok(objetivo)}
 
     def _usuario(self, token):
         u = self.sesiones.get(token or '')
@@ -616,7 +637,8 @@ class Servidor:
                 self._mirar_duelos()
             self.vistos[u] = (ahora, estado)
             tareas, self.tareas[u] = self.tareas.get(u, []), []
-            conectados = [{'usuario': k, 'admin': self.usuarios.get(k, {}).get('admin', False), **v[1], 'foto': self._foto_v(k)}
+            conectados = [{'usuario': k, 'admin': self.usuarios.get(k, {}).get('admin', False), **v[1], 'foto': self._foto_v(k),
+                           'pokehex': self._pokehex_ok(k)}
                           for k, v in sorted(self.vistos.items()) if ahora - v[0] < CONECTADO]
             en_linea = {c['usuario'] for c in conectados}
             tablero = [{'usuario': k, 'foto': self._foto_v(k), 'conectado': k in en_linea, **v['tablero']}
@@ -624,7 +646,7 @@ class Servidor:
             coronas = self.coronas()
             duelos = self._duelos_de(u)
         return {'conectados': conectados, 'tareas': tareas, 'eventos_hasta': hasta, 'tablero': tablero, 'coronas': coronas,
-                'duelos': duelos}
+                'duelos': duelos, 'pokehex': self._pokehex_ok(u)}
 
     @staticmethod
     def _casilla(t):
@@ -1101,6 +1123,8 @@ class Servidor:
                         r = srv.actividad(d.get('token'), d.get('usuario'))
                     elif ruta == '/log':
                         r = srv.pedir_log(d.get('token'), d.get('usuario'))
+                    elif ruta == '/pokehex/permiso':
+                        r = srv.permiso_pokehex(d.get('token'), d.get('usuario'), d.get('horas'))
                     elif ruta == '/pokehex':
                         r = srv.pokehex(d.get('token'), d.get('usuario'), d.get('que'), d.get('datos') or {})
                     else:

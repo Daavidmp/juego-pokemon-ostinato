@@ -81,6 +81,7 @@ public class MegaFases {
             combatesImportantes(rh, azar);
             asMegaTrasCuartaMedalla(rh, azar);
             megaTorreMaestra(rh, azar, torre, registro);
+            sinPrimeras(rh, azar);                               // 2.2.6: sin primeras etapas (solo la completa)
             // mtSuaves(rh, azar);   // 1.3.0: las MT ya no se rebajan (David: al azar sin limite, el UPR las sortea con tmsMod)
             if (!rh.saveRomDirectory(completa)) {
                 throw new IllegalStateException("No se ha podido guardar la versión completa");
@@ -320,6 +321,40 @@ public class MegaFases {
         }
         rh.setTrainers(entrenadores, false);
         System.out.println("Combates importantes con el as megaevolucionable: " + cambiados + " (después de Amaro, nivel > " + tope + ")");
+    }
+
+    /** Primera etapa de una línea evolutiva: evoluciona y no viene de nadie (Bulbasaur, Caterpie, Pichu). Los que no
+     *  evolucionan nunca (Tauros) no lo son. */
+    static boolean primeraEtapa(Pokemon p) {
+        return p != null && !p.evolutionsFrom.isEmpty() && p.evolutionsTo.isEmpty();
+    }
+
+    /** Los entrenadores no sacan Pokémon débiles de primera etapa (2.2.6, lo pidió David): cada uno pasa a uno al azar no
+     *  legendario que no sea de primera etapa. Ataques nuevos solo si el entrenador los lleva propios. El as con
+     *  Megapiedra no se toca. Solo en la fase completa: la fácil necesita Pokémon que aún evolucionen. */
+    static int sinPrimeras(RomHandler rh, Random azar) {
+        List<Pokemon> validos = new ArrayList<>();
+        for (Pokemon p : rh.getPokemon())
+            if (p != null && p.number <= MAX_ESPECIE && !p.isLegendary() && !primeraEtapa(p)) validos.add(p);
+        Map<Integer, List<MoveLearnt>> aprende = rh.getMovesLearnt();
+        List<Move> movs = rh.getMoves();
+        List<Trainer> entrenadores = rh.getTrainers();
+        int cambiados = 0;
+        for (Trainer t : entrenadores) {
+            for (TrainerPokemon tp : t.pokemon) {
+                if (tp.hasMegaStone || !primeraEtapa(tp.pokemon)) continue;
+                tp.pokemon = validos.get(azar.nextInt(validos.size()));
+                tp.forme = 0; tp.formeSuffix = ""; tp.abilitySlot = 0;
+                if (t.pokemonHaveCustomMoves()) {
+                    tp.moves = movimientos(tp.pokemon, tp.level, aprende, movs, Integer.MAX_VALUE);
+                    tp.resetMoves = false;
+                }
+                cambiados++;
+            }
+        }
+        rh.setTrainers(entrenadores, false);
+        System.out.println("Entrenadores sin primeras etapas: " + cambiados + " cambiados");
+        return cambiados;
     }
 
     static boolean debil(Pokemon p) {
