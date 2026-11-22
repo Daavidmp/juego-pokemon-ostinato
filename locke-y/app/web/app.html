@@ -856,7 +856,7 @@
     </div>
     <div class="portada-izq">
       <button class="redondo-video" type="button" data-sonido aria-label="Silenciar la música"></button>
-      <span>Versión 2.2.6</span>
+      <span>Versión 2.2.7</span>
     </div>
     <div class="portada-jugar">
       <span id="p-progreso"></span>
@@ -936,7 +936,7 @@
     <section class="tb-hud tb-carta tb-objetivo" id="tb-objetivo" aria-label="Siguiente objetivo"></section>
     <section class="tb-hud tb-carta tb-marcador" id="tb-marcador" aria-label="Vidas y medallas"></section>
     <div class="tb-hud tb-abajo"><div class="tb-equipo" id="tb-equipo" aria-label="Tu equipo"></div><div class="tb-carta tb-jugar" id="tb-jugar"></div></div>
-    <span class="tb-hud tb-credito">Creado por David Martínez Palacios · Versión 2.2.6</span>
+    <span class="tb-hud tb-credito">Creado por David Martínez Palacios · Versión 2.2.7</span>
   </div>
 
   <footer>
@@ -1607,9 +1607,9 @@ const PUNTOS = [
   [615, 368], [520, 403], [388, 456], [252, 398], [300, 350], [385, 300],                          // Vánitas … Lino
   [258, 335], [165, 378], [96, 360], [122, 300],                                                   // Crómlech … Megaaro
   [505, 197], [578, 190], [604, 262], [662, 246],                                                  // Témpera … Lem
-  [960, 322], [1052, 348], [1094, 318],                                                            // Romantis … Fábrica
-  [880, 214], [1008, 160], [1062, 176], [736, 382],                                                // Fresco … Guarida
-  [922, 252], [986, 236], [1150, 386], [1162, 330], [1192, 302], [1262, 300],                      // Fractal … Torneo
+  [745, 185], [860, 180], [955, 205],                                                              // Romantis … Fábrica
+  [1080, 150], [1000, 285], [1060, 345], [960, 520],                                               // Fresco … Guarida
+  [1140, 555], [1200, 470], [1150, 386], [1162, 330], [1192, 302], [1262, 300],                    // Fractal … Torneo
 ];
 // la curva suave (Catmull-Rom) por PUNTOS entre una casilla grande y la siguiente
 const TRAMOS = PUNTOS.slice(0, -1).map((_, i) => {
@@ -1653,12 +1653,12 @@ const MISIONES = {
   central: [M('ruta13', 'Ruta 13', 'El desierto de las turbinas')],
   medalla5: [M('apagon', 'Vuelve la luz a Luminalia', 'La Torre Prisma se enciende')],
   romantis: [M('ruta14', 'Ruta 14', 'El pantano')],
-  fresco: [M('ruta15', 'Ruta 15', undefined, undefined, .27), M('hotel', 'Hotel Desolación', 'Un hotel abandonado', undefined, .42), M('ruta16', 'Ruta 16', undefined, undefined, .56)],
+  fresco: [M('ruta15', 'Ruta 15'), M('hotel', 'Hotel Desolación', 'Un hotel abandonado'), M('ruta16', 'Ruta 16')],
   fluxus: [M('helada', 'Gruta Helada', 'Ayuda a los Pokémon de la cueva', 'bosque'), M('ruta17', 'Ruta 17', 'Cruza la nieve a lomos de un Mamoswine')],
-  flare: [M('anuncio', 'Lysson habla a todo Kalos', 'Anuncia el arma definitiva'), M('labo', 'Laboratorio Lysson', 'Bajo su café, en Luminalia', undefined, .87)],
-  fractal: [M('yveltal', 'Yveltal', 'El Pokémon legendario despierta', 'yveltal', .14), M('lysson', 'Último combate contra Lysson', 'El arma definitiva', 'vs', .33),
-    M('ruta18', 'Ruta 18', undefined, undefined, .44), M('mosaico', 'Pueblo Mosaico', 'El pueblo de las cascadas', undefined, .6), M('ruta19', 'Ruta 19')],
-  victoria: [M('ruta21', 'Ruta 21', 'El camino hacia la Liga', undefined, .46)],
+  flare: [M('anuncio', 'Lysson habla a todo Kalos', 'Anuncia el arma definitiva'), M('labo', 'Laboratorio Lysson', 'Bajo su café, en Luminalia')],
+  fractal: [M('yveltal', 'Yveltal', 'El Pokémon legendario despierta', 'yveltal'), M('lysson', 'Último combate contra Lysson', 'El arma definitiva', 'vs'),
+    M('ruta18', 'Ruta 18'), M('mosaico', 'Pueblo Mosaico', 'El pueblo de las cascadas'), M('ruta19', 'Ruta 19')],
+  victoria: [M('ruta21', 'Ruta 21', 'El camino hacia la Liga')],
   torneo: [M('desfile', 'Desfile en Luminalia', 'Todo Kalos celebra a su campeón', 'estrella')],
 };
 // todas las casillas en orden, con su sitio: las grandes en PUNTOS y las misiones repartidas por la curva de antes.

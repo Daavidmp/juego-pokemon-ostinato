@@ -611,3 +611,11 @@ Hechas con Gemini Nano Banana 2 editando SIEMPRE la misma base (no generando de 
   saca ya primeras etapas en su 25 %. Comprueba releyendo que no queda ninguna. Probado en una copia: 685 cambiados,
   la segunda vez «YA». Norma de la app (MODOS.mega) al día. PruebaMegaFases: nuevas comprobaciones bien; la de «MT de
   menos de 70» ya fallaba antes (la norma se quitó en la 1.3.0).
+
+== 2.2.7 (2026-11-22): tablero, casillas desde el 4.º gimnasio sin cruzarse con las de antes ==
+- Petición de David: desde Amaro el camino volvía hacia Luminalia y cruzaba dos veces las casillas del principio (Romantis
+  pasaba por encima de la Ruta 4 y Luminalia; la Guarida estaba junto a Luminalia y de ahí a Fractal hacía una X).
+  PUNTOS nuevos de Romantis a Calle Victoria: desierto y nieve (Romantis, Valeria, Fábrica, Fresco), bosque del este
+  (Fluxus, Ástrid), bosque del sur y cascadas (Guarida, Fractal, Édel) y la cueva (Victoria); Alto Mando, Campeona y
+  Torneo igual. Sin f fijas en las misiones de esos tramos (se reparten solas). Comprobado dibujando las 71 casillas
+  sobre tablero-isla.jpg: ninguna de después del 4.º gimnasio cae encima de una de antes. Lo hecho no cambia (va por id).
