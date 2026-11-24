@@ -979,12 +979,11 @@
   #cb-sonido, #vs-sonido { position: absolute; width: 56px; height: 56px; border: none; border-radius: 50%; background: rgba(0,0,0,.5); color: #fff; cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 3; }
   #cb-sonido { left: 88px; top: 20px; }
   #vs-sonido { left: 18px; bottom: 18px; width: 44px; height: 44px; }
-  #cb-reloj { position: absolute; left: 50%; top: 18px; transform: translateX(-50%); display: flex; gap: 10px; z-index: 3; }
+  #cb-reloj { position: absolute; right: 24px; top: 412px; display: flex; flex-direction: column; align-items: flex-end; gap: 8px; z-index: 3; }   /* encima de Info */
   #cb-reloj span { padding: 6px 18px; border-radius: 999px; background: rgba(0,0,0,.6); color: #fff; font-size: 28px; font-weight: 600; line-height: 1.1; font-variant-numeric: tabular-nums; white-space: nowrap; }
   #cb-reloj span.prisa { background: #CC2B0B; }
   .cb-y { position: absolute; left: 1676px; top: 540px; width: 244px; height: 47px; padding: 0; border: none; background: transparent; cursor: pointer; }
   .cb-y img { position: absolute; left: 0; top: 0; }
-  .cb-y span { position: absolute; left: 76px; top: 8px; font-size: 25px; font-weight: 700; color: #232323; }
   #cb-datos { position: absolute; left: 1144px; top: 0; width: 776px; height: 1080px; background: #fff; box-shadow: -6px 0 18px rgba(0,0,0,.35); padding: 32px 48px 28px; box-sizing: border-box; display: flex; flex-direction: column; gap: 10px; color: #232323; z-index: 4; overflow: auto; }
   #cb-datos .pestanas { display: flex; gap: 8px; }
   #cb-datos .pestanas button { border: none; border-radius: 999px; padding: 8px 24px; background: #E3E3E1; color: #423E3E; font: 700 24px 'Barlow Semi Condensed', sans-serif; cursor: pointer; }
@@ -1059,7 +1058,7 @@
     </div>
     <div class="portada-izq">
       <button class="redondo-video" type="button" data-sonido aria-label="Silenciar la música"></button>
-      <span>Versión 2.3.2</span>
+      <span>Versión 2.3.3</span>
     </div>
     <div class="portada-jugar">
       <span id="p-progreso"></span>
@@ -1140,7 +1139,7 @@
     <section class="tb-hud tb-carta tb-objetivo" id="tb-objetivo" aria-label="Siguiente objetivo"></section>
     <section class="tb-hud tb-carta tb-marcador" id="tb-marcador" aria-label="Vidas y medallas"></section>
     <div class="tb-hud tb-abajo"><div class="tb-equipo" id="tb-equipo" aria-label="Tu equipo"></div><div class="tb-carta tb-jugar" id="tb-jugar"></div></div>
-    <span class="tb-hud tb-credito">Creado por David Martínez Palacios · Versión 2.3.2</span>
+    <span class="tb-hud tb-credito">Creado por David Martínez Palacios · Versión 2.3.3</span>
   </div>
 
   <footer>
@@ -3506,7 +3505,7 @@ function cbPintarMenu() {
     const sel = i === CB.sel;
     return `<button type="button" class="cb-cmd${sel ? ' sel' : ''}" data-cb="cmd" data-i="${i}" style="top: ${CB_FILAS[i]}px;" aria-label="${txt}">
       <img class="fondo" src="/assets/combate/${sel ? 'boton_sel' : 'boton'}.png" alt=""><span>${txt}</span><img class="icono" src="/assets/combate/${icono}.png" alt="" style="left: ${ix}px; top: ${iy}px;"></button>`;
-  }).join('') + `<button type="button" class="cb-y" data-cb="info" aria-label="Y: Info, los datos de los Pokémon"><img src="/assets/combate/y.png" alt=""><span>Info</span></button>`;
+  }).join('') + `<button type="button" class="cb-y" data-cb="info" aria-label="Y: Info, los datos de los Pokémon"><img src="/assets/combate/y.png" alt=""></button>`;
 }
 const cbMiActivo = () => (CB.cb ? CB.cb.equipo[CB.cb.activo] : null);
 function cbEficacia(e) {

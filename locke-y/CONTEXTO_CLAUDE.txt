@@ -706,3 +706,7 @@ Hechas con Gemini Nano Banana 2 editando SIEMPRE la misma base (no generando de 
   (#cb-reloj, arriba en medio): «Turno N · m:ss» (rojo en los últimos 15 s) y «Combate mm:ss».
 - Probado contra el bot (scratchpad cb_prueba): combate entero, 13 sonidos distintos, música sin silenciar, relojes,
   animación de Rayo e Info.
+
+== 2.3.3 (2026-11-24): la barra Info y los relojes ==
+- «Info está en dos partes»: y.png ya trae escrito «Info» y se escribía otra vez encima; ahora solo la imagen.
+- Los relojes (#cb-reloj), uno encima de otro a la derecha, justo encima de la barra Info (top 412), no arriba en medio.
