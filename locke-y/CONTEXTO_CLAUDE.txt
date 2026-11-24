@@ -747,3 +747,21 @@ Hechas con Gemini Nano Banana 2 editando SIEMPRE la misma base (no generando de 
 - Probado: test_combate.py (combates con equipos, habilidades y objetos al azar a través de las salas; 150 seguidos sin
   error del motor), test_app.py, y la app entera contra un bot (scratchpad cb_prueba) hasta «¡Has ganado el combate!», con
   fotos de Surf y Pulso Umbrío. NO probado entre dos PCs ni con las partidas reales de David.
+
+== 2.4.1 (2026-11-24): el combate en línea SE VE como el de Ostinato ==
+- David: «quiero que sean los pixel art, todas las opciones y todo del Pokémon Ostinato, no esos gráficos, lo quiero igual».
+- Pokémon: los animados del juego (Graphics/Pokemon/Animados, plugin 033) en vez de los de Showdown.
+  app/ostinato/exportar_sprites.rb + app/hacer_sprites.py -> assets/combate/pk (4485 tiras, 90 MB) y sprites.json
+  ({ESPECIE_forma: back, front, altitud, sombra_x, sombra, d: {m|h + s? + f|b: [archivo, cuadros, ancho, alto, vacío
+  debajo, velocidad, animado]}}). La app (cbSprite) los pone como 016/033: cuadros x2 y x3 el tuyo (de espaldas, pie en
+  x 760 + medidas, cortado por el borde de abajo: y 1080 + vacío) y x2 el del rival (x 1010 + medidas, pies en y 576 +
+  vacío + 10, con su sombra Shadow/1-3 x2); la tira a vel/2 x 60 ms por cuadro (dormido x3, congelado quieta).
+  Las animaciones de ataque, con los zooms de Ostinato (3 y 2).
+- Info (Y): la de 040_InfoCombate con sus gráficos (assets/combate/info) y medidas: radar, objeto, habilidad y su
+  explicación; «Combate en línea» (en el juego la ruta: sala, normas y los Pokémon del rival que ya han salido, ??? los
+  demás); cambios de los dos; tu Pokémon (retrato animado, tipos con sus colores, categoría, curiosidad de la Pokédex y
+  debilidades con sus círculos y x4, en pequeño si no caben). El motor manda habilidad_desc, categoria, entrada y deb
+  (OstInfo.debilidades). Flechas y teclado para cambiar de vista; Y/Escape o pulsar fuera para cerrar.
+- Recuadro de habilidad: banda_propia/banda_rival de 016 (AbilitySplashBar) en (-24, 814) / (1356, 134), solo el nombre.
+- Megaevolución: la píldora provisional de 016 (1330, 568, 330x64), «Megaevolucionar» / negra «¡Megaevolución!».
+- PENDIENTE: el equipo y la mochila como en Ostinato (las pantallas de Essentials a 512x384 con bandas: UI_Party, MUI).

@@ -273,6 +273,16 @@ def vista(m, lado)
     r = resumen_pk(pk, b)
     r[:habilidad] = (b ? b.abilityName : pk.ability&.name).to_s
     r[:objeto] = (b ? b.itemName : pk.item&.name).to_s
+    # lo de la Info de Ostinato (040_InfoCombate): la explicación de la habilidad, la categoría y la entrada de la
+    # Pokédex, y las debilidades (OstInfo.debilidades: [tipo, x4, nombre])
+    hab_id = b ? b.ability_id : pk.ability_id
+    r[:habilidad_desc] = (GameData::Ability.get(hab_id).description rescue '').to_s
+    datos = (GameData::Species.get_species_form(pk.species, pk.form) rescue GameData::Species.get(pk.species))
+    r[:categoria] = datos&.category.to_s
+    r[:entrada] = datos&.pokedex_entry.to_s
+    tipos = (b ? b.pbTypes(true) : pk.types).uniq
+    r[:deb] = (OstInfo.debilidades(tipos) rescue []).map { |t, x4| [t.to_s, x4, (GameData::Type.get(t).name rescue t.to_s)] }
+    r[:nombres_tipos] = tipos.map { |t| GameData::Type.get(t).name rescue t.to_s }
     r[:st] = b ? {atk: b.attack, def: b.defense, spa: b.spatk, spd: b.spdef, spe: b.speed} :
                  {atk: pk.attack, def: pk.defense, spa: pk.spatk, spd: pk.spdef, spe: pk.speed}
     movs = b ? b.moves : pk.moves.map { |mv| Battle::Move.from_pokemon_move(bat, mv) }
@@ -293,6 +303,7 @@ def vista(m, lado)
              acc: st[:ACCURACY], eva: st[:EVASION]}.transform_values(&:to_i)
   rival = el ? resumen_pk(el.pokemon, el) : nil
   if el
+    rival[:nombres_tipos] = el.pbTypes(true).uniq.map { |t| GameData::Type.get(t).name rescue t.to_s }
     s2 = el.stages
     rival[:cambios] = {atk: s2[:ATTACK], def: s2[:DEFENSE], spa: s2[:SPECIAL_ATTACK], spd: s2[:SPECIAL_DEFENSE], spe: s2[:SPEED],
                        acc: s2[:ACCURACY], eva: s2[:EVASION]}.transform_values(&:to_i)

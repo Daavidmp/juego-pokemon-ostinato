@@ -902,7 +902,12 @@
   #cb-escena img { display: block; }
   .cb-abs { position: absolute; }
   .cb-pk { position: absolute; transition: opacity .35s ease, transform .35s ease; transform-origin: 50% 100%; }
-  .cb-pk img { width: 100%; height: 100%; image-rendering: pixelated; }
+  .cb-dib { width: 100%; height: 100%; background-repeat: no-repeat; image-rendering: pixelated; animation: cbTira var(--dur, 1s) steps(var(--n, 1)) infinite; }
+  @keyframes cbTira { from { background-position-x: 0; } to { background-position-x: var(--fin, 0); } }
+  .cb-sombra { position: absolute; width: 0; height: 0; opacity: 0; transition: opacity .3s ease; background-repeat: no-repeat; image-rendering: pixelated; }
+  .cb-sombra[style*="sombra_1"] { width: 104px; height: 32px; margin: -16px 0 0 -52px; background-size: 104px 32px; }
+  .cb-sombra[style*="sombra_2"] { width: 144px; height: 32px; margin: -16px 0 0 -72px; background-size: 144px 32px; }
+  .cb-sombra[style*="sombra_3"] { width: 200px; height: 40px; margin: -20px 0 0 -100px; background-size: 200px 40px; }
   .cb-pk.fuera { opacity: 0; transform: scale(.2); }
   .cb-pk.cae { opacity: 0; transform: translateY(120px); transition: opacity .5s ease, transform .5s ease-in; }
   .cb-pk.golpe { animation: cbGolpe .5s steps(2) 2; }
@@ -942,7 +947,7 @@
   .cb-atq.sel { transform: scale(1.035) translateX(-10px); }
   .cb-atq:disabled { cursor: not-allowed; filter: grayscale(.6) brightness(.85); }
   #cb-flecha { position: absolute; left: 1218px; transition: top .18s ease; }
-  #cb-atras { position: absolute; left: 1299px; top: 578px; width: 150px; height: 48px; border: none; border-radius: 24px; background: #fff; color: #232323; font: 700 26px 'Barlow Semi Condensed', sans-serif; box-shadow: 2px 5px 12px rgba(0,0,0,.45); cursor: pointer; }
+  #cb-atras { position: absolute; left: 1160px; top: 576px; width: 150px; height: 48px; border: none; border-radius: 24px; background: #fff; color: #232323; font: 700 26px 'Barlow Semi Condensed', sans-serif; box-shadow: 2px 5px 12px rgba(0,0,0,.45); cursor: pointer; }
   #cb-info { position: absolute; left: 456px; top: 922px; width: 760px; height: 121px; color: #fff; }
   #cb-info > img.fondo { position: absolute; left: -12px; top: -12px; }
   #cb-info b { position: absolute; left: 76px; top: 20px; font-size: 34px; font-weight: 700; line-height: 1; white-space: nowrap; text-shadow: 0 2px 3px rgba(0,0,0,.45); }
@@ -978,23 +983,27 @@
   /* 2.3.2: botones de sonido, el reloj, la barra Y (Info) y la vista de datos */
   #cb-sonido, #vs-sonido { position: absolute; width: 56px; height: 56px; border: none; border-radius: 50%; background: rgba(0,0,0,.5); color: #fff; cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 3; }
   #cb-sonido { left: 88px; top: 20px; }
-  #cb-hab { position: absolute; z-index: 5; min-width: 360px; padding: 10px 26px; background: rgba(20,20,22,.92); color: #fff; display: flex; flex-direction: column;
-    line-height: 1.1; opacity: 0; transition: opacity .2s ease, transform .2s ease; pointer-events: none; }
-  #cb-hab b { font-size: 34px; font-weight: 700; }
-  #cb-hab span { font-size: 22px; font-weight: 500; color: #CFCFCF; }
-  #cb-hab.mio { left: 0; top: 760px; transform: translateX(-40px); border-radius: 0 999px 999px 0; }
-  #cb-hab.rival { right: 0; top: 150px; transform: translateX(40px); border-radius: 999px 0 0 999px; text-align: right; align-items: flex-end; }
+  /* el aviso de habilidad de Ostinato (016: AbilitySplashBar): su banda, solo el nombre; el tuyo encima de tu ficha, el del
+     rival debajo de la suya; entra deslizándose desde su lado */
+  #cb-hab { position: absolute; z-index: 5; width: 588px; height: 112px; background-repeat: no-repeat; pointer-events: none;
+    transition: transform .3s ease, opacity .3s ease; opacity: 0; }
+  #cb-hab b { position: absolute; top: 46px; width: 412px; font-size: 35px; font-weight: 700; line-height: 1; color: #232323; white-space: nowrap; }
+  #cb-hab span { display: none; }
+  #cb-hab.mio { left: -24px; top: 814px; background-image: url(/assets/combate/banda_propia.png); transform: translateX(-620px); }
+  #cb-hab.mio b { left: 88px; }
+  #cb-hab.rival { left: 1356px; top: 134px; background-image: url(/assets/combate/banda_rival.png); transform: translateX(620px); }
+  #cb-hab.rival b { left: 88px; text-align: right; }
   #cb-hab.ver { opacity: 1; transform: none; }
-  #cb-mega { position: absolute; left: 1465px; top: 578px; height: 48px; padding: 0 22px; border: none; border-radius: 24px; background: #fff; color: #6F35FC;
-    font: 700 24px 'Barlow Semi Condensed', sans-serif; box-shadow: 2px 5px 12px rgba(0,0,0,.45); cursor: pointer; }
-  #cb-mega[aria-pressed="true"] { background: linear-gradient(90deg, #6F35FC, #D685AD); color: #fff; }
+  #cb-mega { position: absolute; left: 1330px; top: 568px; width: 330px; height: 64px; padding: 0; border: none; border-radius: 32px; background: #fff; color: #232323;
+    font: 700 30px 'Barlow Semi Condensed', sans-serif; cursor: pointer; }
+  #cb-mega[aria-pressed="true"] { background: #000; color: #fff; }
   #vs-sonido { left: 18px; bottom: 18px; width: 44px; height: 44px; }
   #cb-reloj { position: absolute; right: 24px; top: 412px; display: flex; flex-direction: column; align-items: flex-end; gap: 8px; z-index: 3; }   /* encima de Info */
   #cb-reloj span { padding: 6px 18px; border-radius: 999px; background: rgba(0,0,0,.6); color: #fff; font-size: 28px; font-weight: 600; line-height: 1.1; font-variant-numeric: tabular-nums; white-space: nowrap; }
   #cb-reloj span.prisa { background: #CC2B0B; }
   .cb-y { position: absolute; left: 1676px; top: 540px; width: 244px; height: 47px; padding: 0; border: none; background: transparent; cursor: pointer; }
   .cb-y img { position: absolute; left: 0; top: 0; }
-  #cb-datos { position: absolute; left: 1144px; top: 0; width: 776px; height: 1080px; background: #fff; box-shadow: -6px 0 18px rgba(0,0,0,.35); padding: 32px 48px 28px; box-sizing: border-box; display: flex; flex-direction: column; gap: 10px; color: #232323; z-index: 4; overflow: auto; }
+  #cb-datos { position: absolute; left: 1144px; top: 0; width: 776px; height: 1080px; color: #2D2D2D; z-index: 4; transition: transform .26s cubic-bezier(.25,.1,.25,1); }
   #cb-datos .pestanas { display: flex; gap: 8px; }
   #cb-datos .pestanas button { border: none; border-radius: 999px; padding: 8px 24px; background: #E3E3E1; color: #423E3E; font: 700 24px 'Barlow Semi Condensed', sans-serif; cursor: pointer; }
   #cb-datos .pestanas button[aria-selected="true"] { background: #000; color: #fff; }
@@ -1068,7 +1077,7 @@
     </div>
     <div class="portada-izq">
       <button class="redondo-video" type="button" data-sonido aria-label="Silenciar la música"></button>
-      <span>Versión 2.4.0</span>
+      <span>Versión 2.4.1</span>
     </div>
     <div class="portada-jugar">
       <span id="p-progreso"></span>
@@ -1149,7 +1158,7 @@
     <section class="tb-hud tb-carta tb-objetivo" id="tb-objetivo" aria-label="Siguiente objetivo"></section>
     <section class="tb-hud tb-carta tb-marcador" id="tb-marcador" aria-label="Vidas y medallas"></section>
     <div class="tb-hud tb-abajo"><div class="tb-equipo" id="tb-equipo" aria-label="Tu equipo"></div><div class="tb-carta tb-jugar" id="tb-jugar"></div></div>
-    <span class="tb-hud tb-credito">Creado por David Martínez Palacios · Versión 2.4.0</span>
+    <span class="tb-hud tb-credito">Creado por David Martínez Palacios · Versión 2.4.1</span>
   </div>
 
   <footer>
@@ -1671,8 +1680,9 @@
   <div id="cb-escena">
     <img src="/assets/combate/estadio.jpg" alt="" style="position: absolute; left: 0; top: 0; width: 1920px; height: 1080px;">
     <canvas id="cb-anim-atras" width="1920" height="1080" aria-hidden="true" style="position: absolute; left: 0; top: 0; pointer-events: none;"></canvas>
-    <div class="cb-pk rival fuera" id="cb-pk-r"><img alt="" id="cb-img-r"></div>
-    <div class="cb-pk mio fuera" id="cb-pk-p"><img alt="" id="cb-img-p"></div>
+    <div class="cb-sombra" id="cb-sombra-r" aria-hidden="true"></div>
+    <div class="cb-pk rival fuera" id="cb-pk-r"><div class="cb-dib" id="cb-img-r" role="img" aria-label="El Pokémon del rival"></div></div>
+    <div class="cb-pk mio fuera" id="cb-pk-p"><div class="cb-dib" id="cb-img-p" role="img" aria-label="Tu Pokémon"></div></div>
     <canvas id="cb-anim" width="1920" height="1080" aria-hidden="true" style="position: absolute; left: 0; top: 0; pointer-events: none;"></canvas>
     <div class="cb-ficha" id="cb-ficha-r" style="left: 1403px; top: 24px; width: 517px; height: 100px;">
       <img class="fondo" src="/assets/combate/ficha_rival.png" alt="">
@@ -3333,7 +3343,7 @@ function cbPantallaCompleta(si) {
 }
 function cbAbrir() {
   if (CB.abierto) return;
-  Object.assign(CB, {abierto: true, n: 0, cola: [], jugando: false, vis: [{}, {}], menu: null, enviado: false, estadoVisto: ''});
+  Object.assign(CB, {abierto: true, n: 0, cola: [], jugando: false, vis: [{}, {}], menu: null, enviado: false, estadoVisto: '', vistosRival: {}, infoVista: 0});
   $('cb').classList.remove('oculto');
   ['cb-final', 'cb-equipo', 'cb-confirmar', 'cb-info'].forEach((id) => $(id).classList.add('oculto'));
   $('cb-pk-r').className = 'cb-pk rival fuera'; $('cb-pk-p').className = 'cb-pk mio fuera';
@@ -3392,6 +3402,7 @@ function cbFicha(lado) {
   barra.style.width = `${v.ps > 0 ? Math.max(0.5, frac * 100) : 0}%`;
   barra.style.backgroundColor = frac > 0.5 ? 'rgb(30,248,14)' : frac > 0.25 ? 'rgb(250,200,40)' : frac > 0.1 ? 'rgb(250,130,30)' : 'rgb(230,40,40)';
   if (k === 'p') $('cb-num-p').textContent = `${v.ps}/${v.max}`;
+  cbRitmo(lado);
   const est = $('cb-est-' + k), e = CB_ESTADO[v.estado];
   est.classList.toggle('oculto', !e);
   if (e) { est.textContent = e[0]; est.style.background = e[1]; }
@@ -3403,18 +3414,46 @@ function cbBolas() {
   pinta('cb-bolas-p', c.equipo.map((p) => (p.ps <= 0 ? 'debil' : p.estado ? 'estado' : 'bola')), [4, 23, 42, 61, 80, 99]);
   pinta('cb-bolas-r', c.rival_bolas, [17, 37, 57, 78, 98, 118]);
 }
-// el Pokémon en el campo: de espaldas el tuyo; cada uno con los pies en su sitio
-function cbSprite(lado, pk) {
-  const mio = cbMio(lado), caja = $(mio ? 'cb-pk-p' : 'cb-pk-r'), img = $(mio ? 'cb-img-p' : 'cb-img-r');
-  const [cx, pies, k] = mio ? [760, 1078, 3.6] : [1064, 700, 3];
-  img.onload = () => {
-    const w = img.naturalWidth * k, h = img.naturalHeight * k;
-    caja.style.cssText = `left: ${cx - w / 2}px; top: ${pies - h}px; width: ${w}px; height: ${h}px;`;
-  };
-  img.src = `/ani/${pk.numero || pk.especie}?${mio ? 'espalda=1&' : ''}${pk.shiny ? 'shiny=1' : ''}`;
+// el Pokémon en el campo, como en Pokémon Ostinato (016_CombateHD y 033_PokemonAnimados): su tira animada de
+// Graphics/Pokemon/Animados (cuadros x2) a x3 el tuyo (de espaldas, cortado por el borde de abajo) y x2 el del rival (de
+// frente, con los pies en el suelo del estadio y su sombra); cada uno movido según las medidas de su especie, y la tira a
+// su velocidad (dormido, tres veces más lenta; congelado, quieta). Los datos, de app/hacer_sprites.py.
+const SPR = {datos: null};
+const SPR_LISTO = fetch('/assets/combate/pk/sprites.json').then((r) => r.json()).then((d) => { SPR.datos = d; }).catch(() => { SPR.datos = {}; });
+const OST_POS = {PROPIO_X: 760, ALTO: 1080, RIVAL_X: 1010, SUELO_RIVAL_Y: 576, PIES_EN_SOMBRA: 10, K_MIO: 3, K_RIVAL: 2, RETRASO: 0.06};
+async function cbSprite(lado, pk) {
+  await SPR_LISTO;
+  const mio = cbMio(lado), caja = $(mio ? 'cb-pk-p' : 'cb-pk-r'), dib = $(mio ? 'cb-img-p' : 'cb-img-r');
+  const d = SPR.datos[`${pk.especie}_${pk.forma || 0}`] || SPR.datos[`${pk.especie}_0`];
   caja.className = `cb-pk ${mio ? 'mio' : 'rival'} fuera`;
+  if (!d) return;
+  const lado2 = mio ? 'b' : 'f';
+  const x = d.d[(pk.genero === 1 ? 'h' : 'm') + (pk.shiny ? 's' : '') + lado2] || d.d['m' + (pk.shiny ? 's' : '') + lado2] || d.d['m' + lado2];
+  if (!x) return;
+  const [archivo, n, ancho, alto, vacio, vel, animado] = x;
+  const k = mio ? OST_POS.K_MIO : OST_POS.K_RIVAL, esc = (animado ? 2 : 1) * k;
+  const W = ancho * esc, H = alto * esc;
+  const cx = mio ? OST_POS.PROPIO_X + d.back[0] * 2 * k : OST_POS.RIVAL_X + d.front[0] * 2 * k;
+  const pies = mio ? OST_POS.ALTO + vacio * esc : OST_POS.SUELO_RIVAL_Y + vacio * esc + OST_POS.PIES_EN_SOMBRA;
+  caja.style.cssText = `left: ${cx - W / 2}px; top: ${pies - H}px; width: ${W}px; height: ${H}px;`;
+  dib.dataset.dur = String(n * vel / 2 * OST_POS.RETRASO);
+  dib.style.cssText = `background-image: url(/assets/combate/pk/${archivo}); background-size: ${n * W}px ${H}px; --fin: ${-n * W}px; --n: ${n}; --dur: ${dib.dataset.dur}s;${n <= 1 ? ' animation: none;' : ''}`;
+  if (!mio) {
+    const sombra = $('cb-sombra-r'), sx = OST_POS.RIVAL_X + (d.sombra_x || 0) * 2 * k;
+    sombra.style.cssText = `left: ${sx}px; top: ${OST_POS.SUELO_RIVAL_Y}px; background-image: url(/assets/combate/pk/sombra_${d.sombra || 2}.png); opacity: 1;`;
+    sombra.dataset.sombra = String(d.sombra || 2);
+  }
+  cbRitmo(lado);
   requestAnimationFrame(() => requestAnimationFrame(() => { caja.className = `cb-pk ${mio ? 'mio' : 'rival'}`; }));
 }
+// la tira a su ritmo según el estado (como OstTira#update): dormido x3 más lenta, congelado quieta
+function cbRitmo(lado) {
+  const dib = $(cbMio(lado) ? 'cb-img-p' : 'cb-img-r'), est = (CB.vis[lado] || {}).estado, dur = Number(dib.dataset.dur || 0);
+  if (!dur) return;
+  dib.style.setProperty('--dur', `${est === 'slp' ? dur * 3 : dur}s`);
+  dib.style.animationPlayState = est === 'frz' ? 'paused' : 'running';
+}
+function cbSombra(si) { $('cb-sombra-r').style.opacity = si ? '1' : '0'; }
 function cbClase(lado, clase, ms) {
   const caja = $(cbMio(lado) ? 'cb-pk-p' : 'cb-pk-r');
   caja.classList.remove(clase); void caja.offsetWidth; caja.classList.add(clase);
@@ -3426,7 +3465,7 @@ function cbClase(lado, clase, ms) {
 // segundo; cada pieza sale de la hoja de 192x192 de su gráfico; las de foco 1/2 van pegadas al objetivo/usuario y crecen
 // con su zoom; las de 3 (usuario y objetivo) y 4 (pantalla), por la línea del editor (128,224)-(384,96) llevada a la de
 // verdad. Las piezas 0 y 1 son los propios Pokémon (se mueven). Sonidos y destellos, en sus momentos.
-const ANIM = {cache: {}, img: {}, nombres: null, indice: null, K_MIO: 3.0, K_RIVAL: 2.4};
+const ANIM = {cache: {}, img: {}, nombres: null, indice: null, K_MIO: 3, K_RIVAL: 2};
 const ANIM_LISTO = Promise.all([
   fetch('/assets/combate/anim/nombres.json').then((r) => r.json()).then((d) => { ANIM.nombres = d; }).catch(() => { ANIM.nombres = {graficos: {}, sonidos: {}}; }),
   fetch('/assets/combate/anim/indice.json').then((r) => r.json()).then((d) => { ANIM.indice = d; }).catch(() => { ANIM.indice = {}; })]);
@@ -3629,6 +3668,7 @@ async function cbReproducir() {
       await cbTexto(cbLeer(e.txt));
     } else if (e.t === 'sale') {
       CB.vis[e.lado] = {pk: e.pk, ps: e.pk.ps, max: e.pk.max, estado: e.pk.estado};
+      if (!cbMio(e.lado)) CB.vistosRival[`${e.pk.especie}_${e.pk.forma || 0}_${e.pk.nombre}`] = e.pk;
       cbSprite(e.lado, e.pk);
       cbFicha(e.lado);
       setTimeout(() => sfx(`gritos/${e.pk.numero}.ogg`, 0.8), 250);
@@ -3640,6 +3680,7 @@ async function cbReproducir() {
       await cbEspera(600);
     } else if (e.t === 'vuelve') {
       $(cbMio(e.lado) ? 'cb-pk-p' : 'cb-pk-r').classList.add('fuera');
+      if (!cbMio(e.lado)) cbSombra(false);
       await cbEspera(350);
     } else if (e.t === 'anim') {
       const lado = (e.de || 0) & 1, objetivo = (e.a && e.a.length) ? e.a[0] & 1 : lado;
@@ -3665,6 +3706,7 @@ async function cbReproducir() {
       sfx(`gritos/${(v.pk || {}).numero}.ogg`, 0.8);
       setTimeout(() => sfx('debilitado.ogg'), 450);
       $(cbMio(e.lado) ? 'cb-pk-p' : 'cb-pk-r').classList.add('cae');
+      if (!cbMio(e.lado)) cbSombra(false);
       await cbEspera(700);
     } else if (e.t === 'habilidad') {
       await cbHabilidad(e.lado, e.nombre);
@@ -3738,7 +3780,7 @@ function cbPintarAtaques() {
   const p = cbMiActivo();
   if (!p) return;
   if (CB.atk >= p.ataques.length) CB.atk = 0;
-  const mega = CB.cb && CB.cb.mega ? `<button type="button" id="cb-mega" data-cb="mega" aria-pressed="${SI(CB.mega)}">Megaevolución</button>` : '';
+  const mega = CB.cb && CB.cb.mega ? `<button type="button" id="cb-mega" data-cb="mega" aria-pressed="${SI(CB.mega)}">${CB.mega ? '¡Megaevolución!' : 'Megaevolucionar'}</button>` : '';
   $('cb-ataques').innerHTML = `<button type="button" id="cb-atras" data-cb="atras">Atrás</button>${mega}` + p.ataques.map((a, i) => {
     const sel = i === CB.atk, ef = cbEficacia(a.efic), blanco = CB_BLANCO.includes(a.tipo);
     const frac = a.max ? a.pp / a.max : 1;
@@ -3805,8 +3847,8 @@ document.addEventListener('click', (ev) => {
     if (i === 2) { cbMenus(null); return cbTexto('En el combate en línea no se usan objetos de la Mochila.', 1800).then(cbSiguiente); }
     if (i === 3) return $('cb-confirmar').classList.remove('oculto');
   }
-  if (que === 'info') { sfx('elige.ogg'); return cbDatos('mio'); }
-  if (que === 'datos') return cbDatos(b.dataset.p);
+  if (que === 'info') { sfx('elige.ogg'); return cbDatos(); }
+  if (que === 'datos') { sfx('cursor.ogg', 0.6); return cbDatos(Number(b.dataset.p)); }
   if (que === 'cerrar-datos') return cbCerrarDatos();
   if (que === 'cmd' || que === 'atq' || que === 'cambio') sfx('elige.ogg');
   if (que === 'mega') { CB.mega = !CB.mega; return cbPintarAtaques(); }
@@ -3836,8 +3878,12 @@ document.addEventListener('mouseover', (ev) => {
 // teclado: flechas para moverse, Intro para elegir, Escape para volver
 document.addEventListener('keydown', (ev) => {
   if (!CB.abierto || VS.activa) return;
-  if (!$('cb-datos').classList.contains('oculto')) { if (ev.key === 'Escape' || ev.key.toLowerCase() === 'y') { cbCerrarDatos(); ev.preventDefault(); } return; }
-  if (ev.key.toLowerCase() === 'y' && CB.cb && CB.cb.fin === null) { cbDatos('mio'); return; }
+  if (!$('cb-datos').classList.contains('oculto')) {
+    if (ev.key === 'Escape' || ev.key.toLowerCase() === 'y' || ev.key === 'Backspace') { cbCerrarDatos(); ev.preventDefault(); }
+    if (ev.key === 'ArrowLeft' || ev.key === 'ArrowRight') { cbDatos(((CB.infoVista || 0) + (ev.key === 'ArrowRight' ? 1 : 3)) % 4); ev.preventDefault(); }
+    return;
+  }
+  if (ev.key.toLowerCase() === 'y' && CB.cb && CB.cb.fin === null) { cbDatos(); return; }
   if (CB.menu === 'menu') {
     if (ev.key === 'ArrowDown' || ev.key === 'ArrowUp') { CB.sel = (CB.sel + (ev.key === 'ArrowDown' ? 1 : 3)) % 4; cbPintarMenu(); ev.preventDefault(); }
     if (ev.key === 'Enter') document.querySelector(`.cb-cmd[data-i="${CB.sel}"]`).click();
@@ -3849,6 +3895,10 @@ document.addEventListener('keydown', (ev) => {
   }
 });
 $('cb-pantalla').onclick = () => cbPantallaCompleta(!document.fullscreenElement);
+$('cb-escena').addEventListener('click', (ev) => {
+  if ($('cb-datos').classList.contains('oculto') || ev.target.closest('#cb-datos, .cb-y')) return;
+  cbCerrarDatos();
+});
 addEventListener('resize', () => { if (CB.abierto) cbEscalar(); });
 
 // ---------- la presentación del combate (VS + RONDA) ----------
@@ -4174,37 +4224,147 @@ function cbAnimar(e) {
   });
 }
 
-// Info (la Y del combate de Ostinato): tu Pokémon (con su habilidad, características y cambios) y el del rival
-const NOMBRE_CAMBIO = [['atk', 'Ataque'], ['def', 'Defensa'], ['spa', 'At. Esp.'], ['spd', 'Def. Esp.'], ['spe', 'Velocidad'], ['acc', 'Precisión'], ['eva', 'Evasión']];
-function cbFlechas(n) {
-  if (!n) return '<span style="color: #AAA;">—</span>';
-  return `<span style="color: ${n > 0 ? '#D8342C' : '#2E6BFF'};">${(n > 0 ? '▲' : '▼').repeat(Math.abs(n))}</span>`;
+// Info (la Y), la de Pokémon Ostinato (040_InfoCombate.rb) con sus gráficos (assets/combate/info) y sus medidas: un panel
+// de 776 a la derecha (x 1144) que entra deslizándose, con cuatro vistas y sus iconos arriba (flechas o iconos para
+// cambiar; la Y o Escape lo cierran): 1. estadísticas (radar, objeto y habilidad), 2. el combate (en el juego, la ruta:
+// aquí la sala y los Pokémon del rival que ya han salido), 3. cambios de características (los dos) y 4. tu Pokémon
+// (retrato, tipos, categoría, curiosidad de la Pokédex y debilidades).
+const OST_INFO = {
+  PESTANAS: [[122, 34, 77, 77], [257, 37, 69, 72], [373, 45, 70, 59], [498, 40, 43, 66]],
+  FLECHAS: [[44, 40, 40, 66], [584, 40, 40, 66]],
+  COLOR_TIPO: {NORMAL: [130, 130, 130], FIGHTING: [219, 149, 62], FLYING: [125, 171, 207], POISON: [137, 103, 202], GROUND: [160, 117, 69],
+    ROCK: [169, 163, 133], BUG: [162, 156, 55], GHOST: [106, 77, 113], STEEL: [120, 172, 200], FIRE: [217, 110, 76], WATER: [72, 156, 223],
+    GRASS: [92, 145, 59], ELECTRIC: [221, 186, 62], PSYCHIC: [220, 124, 148], ICE: [107, 196, 199], DRAGON: [88, 118, 187], DARK: [78, 73, 70],
+    FAIRY: [215, 156, 226]},
+  STATS: [['atk', 'Ataque'], ['def', 'Defensa'], ['spa', 'At. Esp.'], ['spd', 'Def. Esp.'], ['spe', 'Velocidad'], ['acc', 'Precisión'], ['eva', 'Evasión']]
+};
+const infoRgb = (t) => { const c = OST_INFO.COLOR_TIPO[t] || [130, 130, 130]; return `rgb(${c[0]},${c[1]},${c[2]})`; };
+// texto con su línea base en «base» (como OstInfo.texto): alin 0 izquierda, 1 centrado en «ancho»
+function infoTxt(x, base, txt, css, peso, alin, ancho, color) {
+  return `<span style="position: absolute; left: ${x}px; top: ${base - css * 0.8}px; width: ${ancho || 700}px; font-size: ${css}px; font-weight: ${peso}; line-height: 1; white-space: nowrap; text-align: ${alin ? 'center' : 'left'}; color: ${color || '#2D2D2D'};">${esc(txt)}</span>`;
 }
-const cbTipos = (tipos) => `<div class="tipos">${(tipos || []).map((t) => `<span class="tipo" style="background: ${(TIPO_INFO[t] || TIPO_INFO.NORMAL)[1]};">${(TIPO_INFO[t] || [t])[0]}</span>`).join('')}</div>`;
-function cbDatos(pestana) {
+const infoCentro = (cx, cy, txt, css, peso) => `<span style="position: absolute; left: ${cx}px; top: ${cy}px; transform: translate(-50%, -50%); font-size: ${css}px; font-weight: ${peso}; line-height: 1; white-space: nowrap; color: #2D2D2D;">${esc(txt)}</span>`;
+const infoParrafo = (x, top, txt, css, ancho, lineas) => `<p style="position: absolute; left: ${x}px; top: ${top}px; width: ${ancho}px; margin: 0; font-size: ${css}px; font-weight: 500; line-height: 1.3; color: #3A3A3A; display: -webkit-box; -webkit-line-clamp: ${lineas}; -webkit-box-orient: vertical; overflow: hidden;">${esc(txt)}</p>`;
+// un Pokémon de frente, su tira animada encajada en un cuadrado de «lado» con centro (cx, cy)
+function infoDibujo(pk, cx, cy, lado) {
+  const d = SPR.datos && (SPR.datos[`${pk.especie}_${pk.forma || 0}`] || SPR.datos[`${pk.especie}_0`]);
+  const x = d && (d.d[(pk.genero === 1 ? 'h' : 'm') + (pk.shiny ? 's' : '') + 'f'] || d.d['mf']);
+  if (!x) return '';
+  const [archivo, n, ancho, alto, , vel] = x, k = Math.min(lado / ancho, lado / alto), W = ancho * k, H = alto * k;
+  return `<div aria-hidden="true" style="position: absolute; left: ${cx - W / 2}px; top: ${cy - H / 2}px; width: ${W}px; height: ${H}px; background: url(/assets/combate/pk/${archivo}) no-repeat;
+    background-size: ${n * W}px ${H}px; image-rendering: pixelated; --fin: ${-n * W}px; --n: ${n}; animation: cbTira ${n * vel / 2 * OST_POS.RETRASO}s steps(${n}) infinite;"></div>`;
+}
+const infoFondo = (nombre) => `<img src="/assets/combate/info/${nombre}" alt="" style="position: absolute; left: 0; top: 0; width: 776px; height: 1080px;">`;
+function infoVistaGrafica(c) {
+  const p = c.equipo[c.activo], st = c.stats || {};
+  const vals = [p.max, st.atk, st.def, st.spe, st.spd, st.spa].map((v) => Number(v) || 0), tope = Math.max(1, ...vals) / 0.8;
+  const vert = [[360, 233], [514, 316], [514, 483], [360, 566], [206, 483], [206, 316]];
+  const pts = vert.map(([vx, vy], i) => { const k = Math.min(vals[i] / tope, 1); return `${360 + (vx - 360) * k},${400 + (vy - 400) * k}`; }).join(' ');
+  let h = infoFondo('fondo_grafica.png') + `<svg width="776" height="1080" viewBox="0 0 776 1080" aria-hidden="true" style="position: absolute; left: 0; top: 0;">
+    <polygon points="${pts}" fill="rgba(158,147,232,0.92)" stroke="rgb(134,121,222)" stroke-width="2"></polygon></svg>`;
+  h += [['PS', 360, 165], ['Ataque', 582, 287], ['Defensa', 582, 512], ['Velocidad', 360, 634], ['Def. Esp.', 139, 512], ['At. Esp.', 139, 287]]
+    .map(([t, x, y]) => infoCentro(x, y, t, 30, 500)).join('');
+  h += infoCentro(360, 209, `${p.ps} / ${p.max}`, 32, 600);
+  h += [[st.atk, 582, 331], [st.def, 582, 467], [st.spe, 360, 589], [st.spd, 139, 467], [st.spa, 139, 331]].map(([n, x, y]) => infoCentro(x, y, String(n ?? ''), 32, 600)).join('');
+  h += infoTxt(0, 729, 'Objeto', 30, 600, 1, 288) + infoTxt(0, 805, 'Habilidad', 30, 600, 1, 288);
+  h += infoTxt(318, 729.8, p.objeto || 'Ninguno', 32, 600, 0, 440, '#232323') + infoTxt(318, 805.8, p.habilidad || '', 32, 600, 0, 440, '#232323');
+  return h + infoParrafo(34, 846, p.habilidad_desc || '', 30, 690, 3);
+}
+function infoVistaCombate(c) {
+  const s = CB.sala || {}, rival = s.jugadores ? s.jugadores[1 - c.lado] : 'tu rival', n = (s.normas && s.normas.mejor_de) || 3;
+  const normas = [['sleep', 'Sleep Clause'], ['item', 'Item Clause'], ['species', 'Species Clause'], ['espora', 'Efecto Espora']].filter(([k]) => s.normas && s.normas[k]).map(([, t]) => t);
+  let h = infoFondo('fondo_ruta.png') + infoTxt(48, 171 + 0.9 * 48, 'Combate en línea', 48, 700, 0, 700, '#232323');
+  h += infoParrafo(48, 231, `Sala ${s.codigo || ''} contra ${rival}, al mejor de ${n}. Ronda ${s.ronda || 1}; vais ${s.marcador ? s.marcador[c.lado] : 0} a ${s.marcador ? s.marcador[1 - c.lado] : 0}.`, 28, 690, 3);
+  h += infoTxt(0, 420, 'Normas', 30, 600, 1, 288) + infoParrafo(48, 455, normas.length ? normas.join(' · ') + '.' : 'Sin cláusulas.', 28, 690, 3);
+  h += infoTxt(0, 645, `Pokémon de ${rival}`, 30, 600, 1, 288);
+  const total = (c.rival_bolas || []).length || 6, vistos = Object.values(CB.vistosRival || {});
+  const huecos = Math.max(4, Math.ceil(Math.min(8, total) / 4) * 4);
+  for (let i = 0; i < huecos; i++) {
+    const tx = 48 + (i % 4) * 172, ty = 680 + Math.floor(i / 4) * 165, pk = vistos[i];
+    h += `<img src="/assets/combate/info/casilla.png" alt="" style="position: absolute; left: ${tx}px; top: ${ty}px; width: 128px; height: 150px;">`;
+    if (pk) h += infoDibujo(pk, tx + 14 + 50, ty + 8 + 50, 100) + infoTxt(tx, ty + 135.6, pk.nombre, 22, 600, 1, 128);
+    else if (i < total) {
+      h += `<img src="/assets/combate/info/interrogante.png" alt="" style="position: absolute; left: ${tx + 24}px; top: ${ty + 14}px; width: 80px; height: 80px;">`;
+      h += infoTxt(tx, ty + 74.8, '?', 52, 700, 1, 128, '#fff') + infoTxt(tx, ty + 135.6, '???', 22, 600, 1, 128);
+    }
+  }
+  return h;
+}
+function infoVistaCambios(c) {
+  let h = infoFondo('fondo_cambios1.png');
+  const yo = c.equipo[c.activo];
+  [[yo, c.cambios || {}, `Tu ${yo.nombre}`, 147], [c.rival, (c.rival || {}).cambios || {}, `${(c.rival || {}).nombre || ''} rival`, 589]].forEach(([pk, cam, titulo, y0]) => {
+    if (!pk) return;
+    h += infoTxt(0, y0 + 43, titulo, 30, 600, 1, 288);
+    OST_INFO.STATS.forEach(([k, nom], i) => {
+      const y = y0 + 70 + i * 48, etapa = Math.max(-6, Math.min(6, Number(cam[k]) || 0)), cuantas = Math.abs(etapa);
+      h += infoTxt(48, y + 32.8, nom, 27, 600, 0, 200);
+      for (let j = 0; j < 6; j++) {
+        const cx = 266 + 36 + j * 72;
+        h += j < cuantas
+          ? `<img src="/assets/combate/info/${etapa < 0 ? 'flecha_azul_g' : 'flecha_g'}.png" alt="" style="position: absolute; left: ${cx - 20}px; top: ${y - 1}px; width: 40px; height: 44px;">`
+          : `<img src="/assets/combate/info/punto.png" alt="" style="position: absolute; left: ${cx - 7}px; top: ${y + 15}px; width: 14px; height: 14px;">`;
+      }
+    });
+  });
+  return h;
+}
+function infoDebil(deb, grande) {
+  const lado = grande ? 64 : 40, css = grande ? 28 : 22, css4 = grande ? 22 : 16;
+  return deb.map(([t, x4, nom]) => `<span style="display: inline-flex; align-items: center; gap: ${grande ? 12 : 8}px; margin-right: ${grande ? 30 : 20}px; height: ${lado + 4}px;">
+    <span style="position: relative; width: ${lado}px; height: ${lado}px; flex: none;">
+      <img src="/assets/combate/info/${grande ? 'sombra_tipo' : 'sombra_tipo_p'}.png" alt="" style="position: absolute; left: -8px; top: -8px; width: ${lado + 16}px; height: ${lado + 16}px;">
+      <span style="position: absolute; inset: 0; border-radius: 50%; background: ${infoRgb(t)};"></span>
+      <img src="/assets/combate/info/tipos/${t}${grande ? '' : '_p'}.png" alt="" style="position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);"></span>
+    <span style="font-size: ${css}px; font-weight: 600; color: #2D2D2D; white-space: nowrap;">${esc(nom)}</span>
+    ${x4 ? `<span style="padding: 0 ${css4 * 10 / 22}px; height: ${Math.round(30 * css4 / 22)}px; line-height: ${Math.round(30 * css4 / 22)}px; border-radius: ${Math.round(8 * css4 / 22)}px; background: #232323; color: #fff; font-size: ${css4}px; font-weight: 700;">×4</span>` : ''}</span>`).join('');
+}
+function infoVistaPokemon(c) {
+  const p = c.equipo[c.activo];
+  let h = infoFondo('fondo_info.png');
+  h += `<div style="position: absolute; left: 48px; top: ${214.2 - 48 * 0.8}px; display: flex; align-items: baseline; gap: 10px; white-space: nowrap; line-height: 1;">
+    <span style="font-size: 48px; font-weight: 700; color: #232323;">${esc(p.nombre)}</span><span style="font-size: 30px; font-weight: 600; color: #232323;">Nv. ${p.nivel}</span></div>`;
+  h += infoDibujo(p, 388, 382, 260);
+  h += `<div style="position: absolute; left: 48px; top: 547px; display: flex; align-items: center; gap: 12px; white-space: nowrap;">${(p.tipos || []).map((t, i) => `<span style="height: 39px; line-height: 39px; padding: 0 22px; border-radius: 20px; background: ${infoRgb(t)}; color: #fff; font-size: 26px; font-weight: 700;">${esc((p.nombres_tipos || [])[i] || t)}</span>`).join('')}
+    ${p.categoria ? `<span style="margin-left: 4px; font-size: 28px; font-weight: 600; color: #3A3A3A;">Pokémon ${esc(p.categoria)}</span>` : ''}</div>`;
+  h += infoTxt(0, 670, 'Curiosidad', 30, 600, 1, 288) + infoTxt(0, 900, 'Debilidades', 30, 600, 1, 288);
+  h += infoParrafo(48, 707, p.entrada || '', 28, 690, 3);
+  const deb = p.deb || [];
+  h += deb.length ? `<div class="info-deb" style="position: absolute; left: 48px; top: 929px; width: 690px; line-height: 0;">${infoDebil(deb, true)}</div>`
+    : infoTxt(48, 976.2, 'Ninguna', 28, 600, 0, 600);
+  return h;
+}
+function cbDatos(vista) {
   const c = CB.cb;
   if (!c) return;
-  CB.datos = pestana || CB.datos || 'mio';
-  const panel = $('cb-datos'), mio = CB.datos === 'mio';
-  const p = mio ? c.equipo[c.activo] : c.rival, cambios = (mio ? c.cambios : c.rival.cambios) || {};
-  const e = CB_ESTADO[p.estado];
-  let cuerpo = `<div class="cabeza"><img src="/arte/${p.numero || p.especie}" alt=""><h2>${esc(p.nombre)}<small>Nv. ${p.nivel}</small></h2>
-    <span class="sub">${p.especie_nombre && p.especie_nombre !== p.nombre ? esc(p.especie_nombre) + ' · ' : ''}${mio ? `PS ${p.ps}/${p.max}` : `PS ${Math.round(p.ps / p.max * 100)} %`}${e ? ` · <b style="color: ${e[1]};">${e[0]}</b>` : ''}</span>
-    ${cbTipos(p.tipos)}</div>`;
-  if (mio) {
-    const st = c.stats || {};
-    cuerpo += `<div class="celda">Habilidad</div><span class="hab">${esc(p.habilidad || '—')}</span>
-      <div class="celda">Características</div><table>${NOMBRE_CAMBIO.map(([k, n]) => `<tr><td>${n}</td><td class="num">${st[k] !== undefined ? st[k] : ''}</td><td class="cambio">${cbFlechas(cambios[k])}</td></tr>`).join('')}</table>
-      <div class="celda">Ataques</div><div class="ataques">${p.ataques.map((a) => `<div style="background: ${(TIPO_INFO[a.tipo] || TIPO_INFO.NORMAL)[1]};"><span>${esc(a.nombre)}</span><span>${a.pp}/${a.max}</span></div>`).join('')}</div>`;
-  } else {
-    cuerpo += `<div class="celda">Cambios en el combate</div><table>${NOMBRE_CAMBIO.map(([k, n]) => `<tr><td>${n}</td><td class="cambio">${cbFlechas(cambios[k])}</td></tr>`).join('')}</table>`;
+  CB.infoVista = vista === undefined ? (CB.infoVista || 0) : vista;
+  const panel = $('cb-datos'), v = CB.infoVista;
+  const cuerpo = [infoVistaGrafica, infoVistaCombate, infoVistaCambios, infoVistaPokemon][v](c);
+  const iconos = OST_INFO.PESTANAS.map(([x, y, w, h], i) => {
+    const sel = i === v;
+    return `<button type="button" data-cb="datos" data-p="${i}" aria-label="${['Estadísticas', 'El combate', 'Cambios de características', 'Tu Pokémon'][i]}" aria-current="${sel ? 'page' : 'false'}"
+      style="position: absolute; left: ${x}px; top: ${y}px; width: ${w}px; height: ${h}px; padding: 0; border: none; background: transparent; cursor: pointer;">
+      <img src="/assets/combate/info/icono${i + 1}${sel ? '_sel3' : ''}.png" alt="" style="position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);"></button>`;
+  }).join('') + OST_INFO.FLECHAS.map(([x, y, w, h], i) => `<button type="button" data-cb="datos" data-p="${(v + (i ? 1 : 3)) % 4}" aria-label="${i ? 'Vista siguiente' : 'Vista anterior'}"
+      style="position: absolute; left: ${x}px; top: ${y}px; width: ${w}px; height: ${h}px; padding: 0; border: none; background: transparent; cursor: pointer;"></button>`).join('');
+  panel.innerHTML = `<img src="/assets/combate/info/sombra_modal.png" alt="" style="position: absolute; left: -60px; top: 0; width: 60px; height: 1080px;">${cuerpo}${iconos}`;
+  const deb = panel.querySelector('.info-deb');
+  if (deb && deb.scrollHeight > 80) {                      // no caben en una fila: más pequeñas, en dos (como Ostinato)
+    deb.innerHTML = infoDebil(c.equipo[c.activo].deb, false);
+    deb.style.top = deb.scrollHeight > 52 ? '921px' : '941px';
   }
-  panel.innerHTML = `<div class="pestanas" role="tablist"><button type="button" role="tab" aria-selected="${SI(mio)}" data-cb="datos" data-p="mio">Tu Pokémon</button>
-    <button type="button" role="tab" aria-selected="${SI(!mio)}" data-cb="datos" data-p="rival">Rival</button></div>${cuerpo}
-    <button type="button" class="cerrar" data-cb="cerrar-datos">Cerrar</button>`;
-  panel.classList.remove('oculto');
+  if (panel.classList.contains('oculto')) {
+    panel.classList.remove('oculto');
+    panel.style.transform = 'translateX(840px)';
+    requestAnimationFrame(() => requestAnimationFrame(() => { panel.style.transform = ''; }));
+  }
 }
-function cbCerrarDatos() { $('cb-datos').classList.add('oculto'); }
+function cbCerrarDatos() {
+  const panel = $('cb-datos');
+  if (panel.classList.contains('oculto')) return;
+  panel.style.transform = 'translateX(840px)';
+  setTimeout(() => { panel.classList.add('oculto'); panel.style.transform = ''; }, 260);
+}
 
 // el reloj: 80 s por turno y 50 min el combate (los pone el servidor; aquí solo se cuentan)
 const cbMinutos = (s) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, '0')}`;
