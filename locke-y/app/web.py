@@ -292,7 +292,7 @@ class Servidor(BaseHTTPRequestHandler):
                 return self.archivo(ani(int(m[1]), 'shiny=1' in self.path, 'espalda=1' in self.path))
             except (OSError, ValueError, KeyError):
                 return self.enviar({'error': 'sin animación'}, codigo=404)
-        if m := re.fullmatch(r'/assets/((?:combate/(?:ataques/|ataque_info/)?)?[\w.-]+)', ruta):   # combate/: el combate en línea
+        if m := re.fullmatch(r'/assets/((?:combate/(?:[\w-]+/){0,2})?[\w.-]+)', ruta):   # combate/: el combate en línea
             if m[1].endswith(('.mp4', '.mp3', '.ogg')):   # el vídeo y la música (portada y combate): a trozos, para el bucle
                 return self.por_trozos(comun.ASSETS / m[1])
             return self.archivo(comun.ASSETS / m[1])

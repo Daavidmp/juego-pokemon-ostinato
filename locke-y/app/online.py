@@ -940,6 +940,9 @@ class Servidor:
                 self._sala_quitar(s, u)
         if s['estado'] == 'presentacion' and ahora > s['empieza'] + self.SALA_PRESENTACION:
             s['estado'] = 'combate'
+        if s['estado'] == 'combate' and s.get('combate'):
+            s['combate'].empezar(s['empieza'] + self.SALA_PRESENTACION)      # los relojes: 80 s por turno, 50 min el combate
+            s['combate'].tiempo(ahora)
 
     def _sala_quitar(self, s, u):
         if s['jugadores'][0] == u:              # se va quien la creo: la sala se cierra

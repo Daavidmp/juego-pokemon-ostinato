@@ -681,3 +681,28 @@ Hechas con Gemini Nano Banana 2 editando SIEMPRE la misma base (no generando de 
   la presentación, sigue sin cortarse en el combate (bucle saltando a LOOPSTART 0,3 s antes del final) y se apaga al
   salir. Con el volumen y el silencio de la app (ponerSonido), y sonar() no pone la música de la app encima.
 - El Pokémon del rival, más abajo: pies en y 700 (antes 655).
+
+== 2.3.2 (2026-11-24): sonido, animaciones, Info y relojes en el combate en línea ==
+- David: «no sale ni la música ni el sonido, las animaciones de ataques no están y no puedo ver los datos de un Pokémon
+  para ver la habilidad» y «falta un contador general y de turnos: 80 s máximo por turno y 50 min de partido máximo».
+- Música: David tiene la música de Pokelocke silenciada (localStorage pokelocke-sonido mudo) y la del combate la
+  obedecía. Ahora el combate tiene su propio sonido (SONIDO_CB, localStorage pokelocke-sonido-combate, encendido de
+  entrada): botón #cb-sonido en el combate (junto a pantalla completa) y #vs-sonido en la presentación.
+- Efectos (sfx): los de Ostinato en assets/combate/sonidos (app/hacer_sonidos_combate.py desde Audio/SE): golpe
+  normal/super/débil según la eficacia, gritos/<especie>.ogg (721, de Audio/SE/Cries) al salir y al debilitarse,
+  debilitado, vuelve, sube/baja, cura, estado, cursor/elige en los menús, y el de cada ataque (mapa.json: el suyo de
+  Audio/SE/Anim por nombre en inglés, 38, o el de su tipo). web.py sirve assets/combate/<carpeta>/<carpeta>/archivo.
+- Animaciones (cbAnimar, lienzo #cb-anim, partículas con la forma y el color del tipo: llama, burbuja, cristal, hoja,
+  chispa, humo, polvo, viento, estrella): especial = proyectil del atacante al rival y estallido (Eléctrico, además, un
+  rayo en zigzag); físico = embestida y estallido con anillo blanco; estado = destellos (sobre sí mismo si e.yo, que
+  ahora manda el motor en el suceso 'ataque').
+- Info (la Y del combate de Ostinato, barra y.png encima de Luchar, o la tecla Y): #cb-datos con «Tu Pokémon» (arte,
+  nivel, tipos, PS, estado, HABILIDAD, características con flechas de cambios y ataques con PP) y «Rival» (tipos, PS en
+  %, estado y cambios, sin habilidad). En el equipo (Pokémon) sale también la habilidad de cada uno.
+- Relojes (motor: TURNO 80 s, PARTIDO 50 min; empezar() al acabar la presentación, tiempo() en cada consulta del
+  servidor): cada vez que toca elegir, plazo = 80 s + lo que tarda en verse lo que acaba de pasar (1,4 s por suceso,
+  45 como mucho). Si se acaba, Pokelocke elige por quien falte (ataque al azar con PP, o el Pokémon que sale) y lo
+  dice. A los 50 min, gana quien conserve más Pokémon (y si no, más PS en total); si no, empate. En la pantalla
+  (#cb-reloj, arriba en medio): «Turno N · m:ss» (rojo en los últimos 15 s) y «Combate mm:ss».
+- Probado contra el bot (scratchpad cb_prueba): combate entero, 13 sonidos distintos, música sin silenciar, relojes,
+  animación de Rayo e Info.

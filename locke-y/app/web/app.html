@@ -975,6 +975,37 @@
   #cb-confirmar p { margin: 0 0 26px; font-size: 26px; font-weight: 500; color: #555; }
   #cb-confirmar button { border: none; border-radius: 999px; padding: 14px 40px; margin: 0 8px; font: 700 30px 'Barlow Semi Condensed', sans-serif; cursor: pointer; }
   @media (prefers-reduced-motion: reduce) { .cb-pk, .cb-pk.golpe, .cb-pk.ataca.mio, .cb-pk.ataca.rival { animation: none; transition: none; } }
+  /* 2.3.2: botones de sonido, el reloj, la barra Y (Info) y la vista de datos */
+  #cb-sonido, #vs-sonido { position: absolute; width: 56px; height: 56px; border: none; border-radius: 50%; background: rgba(0,0,0,.5); color: #fff; cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 3; }
+  #cb-sonido { left: 88px; top: 20px; }
+  #vs-sonido { left: 18px; bottom: 18px; width: 44px; height: 44px; }
+  #cb-reloj { position: absolute; left: 50%; top: 18px; transform: translateX(-50%); display: flex; gap: 10px; z-index: 3; }
+  #cb-reloj span { padding: 6px 18px; border-radius: 999px; background: rgba(0,0,0,.6); color: #fff; font-size: 28px; font-weight: 600; line-height: 1.1; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  #cb-reloj span.prisa { background: #CC2B0B; }
+  .cb-y { position: absolute; left: 1676px; top: 540px; width: 244px; height: 47px; padding: 0; border: none; background: transparent; cursor: pointer; }
+  .cb-y img { position: absolute; left: 0; top: 0; }
+  .cb-y span { position: absolute; left: 76px; top: 8px; font-size: 25px; font-weight: 700; color: #232323; }
+  #cb-datos { position: absolute; left: 1144px; top: 0; width: 776px; height: 1080px; background: #fff; box-shadow: -6px 0 18px rgba(0,0,0,.35); padding: 32px 48px 28px; box-sizing: border-box; display: flex; flex-direction: column; gap: 10px; color: #232323; z-index: 4; overflow: auto; }
+  #cb-datos .pestanas { display: flex; gap: 8px; }
+  #cb-datos .pestanas button { border: none; border-radius: 999px; padding: 8px 24px; background: #E3E3E1; color: #423E3E; font: 700 24px 'Barlow Semi Condensed', sans-serif; cursor: pointer; }
+  #cb-datos .pestanas button[aria-selected="true"] { background: #000; color: #fff; }
+  #cb-datos .cabeza { display: grid; grid-template-columns: 140px 1fr; gap: 6px 22px; align-items: center; }
+  #cb-datos .cabeza img { grid-row: span 4; width: 140px; height: 140px; object-fit: contain; border-radius: 50%; background: #EDEDEB; }
+  #cb-datos h2 { margin: 0; font-size: 46px; font-weight: 700; line-height: 1; }
+  #cb-datos h2 small { font-size: 28px; font-weight: 600; margin-left: 10px; }
+  #cb-datos .sub { font-size: 24px; font-weight: 500; color: #555; }
+  #cb-datos .tipos { display: flex; gap: 8px; }
+  #cb-datos .tipo { padding: 3px 18px; border-radius: 999px; color: #fff; font-size: 22px; font-weight: 700; }
+  #cb-datos .celda { padding: 6px 18px; border-radius: 12px; background: #D3D3D1; font-size: 26px; font-weight: 600; text-align: center; }
+  #cb-datos .hab { font-size: 30px; font-weight: 700; }
+  #cb-datos table { width: 100%; border-collapse: collapse; font-size: 26px; }
+  #cb-datos td { padding: 3px 4px; border-bottom: 1px solid #EDEDEB; }
+  #cb-datos td.num { text-align: right; font-weight: 700; width: 90px; }
+  #cb-datos td.cambio { width: 170px; text-align: right; font-weight: 700; letter-spacing: 2px; }
+  #cb-datos .ataques { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  #cb-datos .ataques div { display: flex; justify-content: space-between; align-items: center; gap: 8px; padding: 8px 14px; border-radius: 12px; color: #fff; font-size: 22px; font-weight: 700; }
+  #cb-datos .cerrar { align-self: flex-start; margin-top: auto; border: none; border-radius: 24px; padding: 10px 30px; background: #232323; color: #fff; font: 700 26px 'Barlow Semi Condensed', sans-serif; cursor: pointer; }
+  .cb-miembro .hab { grid-column: 2; font-size: 20px; font-weight: 600; color: #1E5A92; }
   /* la presentación (VS + RONDA) del lienzo «Pokelocke · combate del torneo»: un escenario de 1920x1080 escalado a la ventana */
   #vs-pres { position: fixed; inset: 0; z-index: 9000; background: #000; overflow: hidden; }
   #vs-escena { position: absolute; left: 50%; top: 50%; width: 1920px; height: 1080px; overflow: hidden; background: #000;
@@ -1028,7 +1059,7 @@
     </div>
     <div class="portada-izq">
       <button class="redondo-video" type="button" data-sonido aria-label="Silenciar la música"></button>
-      <span>Versión 2.3.1</span>
+      <span>Versión 2.3.2</span>
     </div>
     <div class="portada-jugar">
       <span id="p-progreso"></span>
@@ -1109,7 +1140,7 @@
     <section class="tb-hud tb-carta tb-objetivo" id="tb-objetivo" aria-label="Siguiente objetivo"></section>
     <section class="tb-hud tb-carta tb-marcador" id="tb-marcador" aria-label="Vidas y medallas"></section>
     <div class="tb-hud tb-abajo"><div class="tb-equipo" id="tb-equipo" aria-label="Tu equipo"></div><div class="tb-carta tb-jugar" id="tb-jugar"></div></div>
-    <span class="tb-hud tb-credito">Creado por David Martínez Palacios · Versión 2.3.1</span>
+    <span class="tb-hud tb-credito">Creado por David Martínez Palacios · Versión 2.3.2</span>
   </div>
 
   <footer>
@@ -1632,6 +1663,7 @@
     <img src="/assets/combate/estadio.jpg" alt="" style="position: absolute; left: 0; top: 0; width: 1920px; height: 1080px;">
     <div class="cb-pk rival fuera" id="cb-pk-r"><img alt="" id="cb-img-r"></div>
     <div class="cb-pk mio fuera" id="cb-pk-p"><img alt="" id="cb-img-p"></div>
+    <canvas id="cb-anim" width="1920" height="1080" aria-hidden="true" style="position: absolute; left: 0; top: 0; pointer-events: none;"></canvas>
     <div class="cb-ficha" id="cb-ficha-r" style="left: 1403px; top: 24px; width: 517px; height: 100px;">
       <img class="fondo" src="/assets/combate/ficha_rival.png" alt="">
       <span class="cb-nombre" id="cb-nom-r" style="left: 62px; top: 21px;"></span>
@@ -1659,6 +1691,9 @@
     <div class="oculto" id="cb-confirmar" role="alertdialog" aria-label="Rendirse"><div><h2>¿Te rindes?</h2><p>Perderás esta ronda.</p>
       <button type="button" data-cb="rendirse" style="background: #CC2B0B; color: #fff;">Rendirme</button><button type="button" data-cb="no-rendirse" style="background: #E3E3E1; color: #232323;">Seguir</button></div></div>
     <div class="oculto" id="cb-final" role="alertdialog" aria-label="Final del combate"><div><h2 id="cb-final-tit"></h2><p id="cb-final-txt"></p><button type="button" data-cb="continuar">Continuar</button></div></div>
+    <div id="cb-reloj" aria-live="off"><span id="cb-turno"></span><span id="cb-partido"></span></div>
+    <div class="oculto" id="cb-datos" role="dialog" aria-label="Datos de los Pokémon"></div>
+    <button type="button" id="cb-sonido" aria-label="Sonido del combate" title="Sonido del combate"></button>
     <button type="button" id="cb-pantalla" aria-label="Pantalla completa" title="Pantalla completa"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg></button>
   </div>
 </div>
@@ -1684,6 +1719,7 @@
     <div id="vs-marcas"></div>
     <div id="vs-negro" aria-hidden="true"></div>
   </div>
+  <button type="button" id="vs-sonido" aria-label="Sonido del combate"></button>
   <button type="button" id="vs-saltar">Saltar</button>
 </div>
 <script>
@@ -3381,14 +3417,20 @@ async function cbReproducir() {
     if (e.t === 'turno') continue;
     if (e.t === 'cambio') {
       CB.vis[e.lado] = {pk: e.pk, ps: e.pk.ps, max: e.pk.max, estado: e.pk.estado};
-      if (!cbMio(e.lado) || true) cbSprite(e.lado, e.pk);
+      cbSprite(e.lado, e.pk);
       cbFicha(e.lado);
+      setTimeout(() => sfx(`gritos/${e.pk.especie}.ogg`, 0.8), 250);
       await cbTexto(cbMio(e.lado) ? `¡Adelante, ${e.pk.nombre}!` : e.txt, 1300);
     } else if (e.t === 'ataque') {
-      cbClase(e.lado, 'ataca', 500);
-      await cbTexto(e.txt, 1200);
+      if (e.cat !== 'S') cbClase(e.lado, 'ataca', 500);
+      sfxAtaque(e.id);
+      await Promise.all([cbTexto(e.txt, 1100), cbAnimar(e)]);
     } else if (e.t === 'dano' || e.t === 'cura') {
-      if (e.t === 'dano' && !e.txt) cbClase(e.lado, 'golpe', 520);
+      if (e.t === 'dano' && !e.txt) {
+        cbClase(e.lado, 'golpe', 520);
+        sfx(e.efic > 1 ? 'golpe_super.ogg' : e.efic > 0 && e.efic < 1 ? 'golpe_debil.ogg' : 'golpe_normal.ogg');
+      } else if (e.t === 'dano') sfx('golpe_normal.ogg', 0.6);
+      else sfx('cura.ogg');
       Object.assign(v, {ps: e.ps, max: e.max});
       CB.vis[e.lado] = v;
       cbFicha(e.lado);
@@ -3398,16 +3440,23 @@ async function cbReproducir() {
       if (e.efic > 0 && e.efic < 1) await cbTexto('No es muy eficaz…', 1000);
       if (e.txt) await cbTexto(e.txt);
     } else if (e.t === 'estado') {
+      if (e.estado) sfx('estado.ogg');
       v.estado = e.estado;
       cbFicha(e.lado);
       await cbTexto(e.txt);
     } else if (e.t === 'debil') {
+      sfx(`gritos/${(CB.vis[e.lado].pk || {}).especie}.ogg`, 0.8);
+      setTimeout(() => sfx('debilitado.ogg'), 450);
       const caja = $(cbMio(e.lado) ? 'cb-pk-p' : 'cb-pk-r');
       caja.classList.add('cae');
       await cbTexto(e.txt, 1500);
     } else if (e.t === 'fin') {
       await cbTexto(e.txt, 1800);
+    } else if (e.t === 'stat') {
+      sfx(e.n > 0 ? 'sube.ogg' : 'baja.ogg');
+      await cbTexto(e.txt);
     } else {
+      if (e.t === 'msg' && /, vuelve!$/.test(e.txt || '')) sfx('vuelve.ogg');
       await cbTexto(e.txt);
     }
   }
@@ -3457,7 +3506,7 @@ function cbPintarMenu() {
     const sel = i === CB.sel;
     return `<button type="button" class="cb-cmd${sel ? ' sel' : ''}" data-cb="cmd" data-i="${i}" style="top: ${CB_FILAS[i]}px;" aria-label="${txt}">
       <img class="fondo" src="/assets/combate/${sel ? 'boton_sel' : 'boton'}.png" alt=""><span>${txt}</span><img class="icono" src="/assets/combate/${icono}.png" alt="" style="left: ${ix}px; top: ${iy}px;"></button>`;
-  }).join('');
+  }).join('') + `<button type="button" class="cb-y" data-cb="info" aria-label="Y: Info, los datos de los Pokémon"><img src="/assets/combate/y.png" alt=""><span>Info</span></button>`;
 }
 const cbMiActivo = () => (CB.cb ? CB.cb.equipo[CB.cb.activo] : null);
 function cbEficacia(e) {
@@ -3501,13 +3550,15 @@ function cbEquipo(obligado) {
     const col = frac > 0.5 ? 'rgb(30,248,14)' : frac > 0.25 ? 'rgb(250,200,40)' : frac > 0.1 ? 'rgb(250,130,30)' : 'rgb(230,40,40)';
     return `<button type="button" class="cb-miembro${activo ? ' activo' : ''}" data-cb="cambio" data-i="${i}" ${p.ps <= 0 || activo ? 'disabled' : ''}>
       <img src="/arte/${p.especie}" alt=""><b>${esc(p.nombre)} <small>Nv. ${p.nivel}${activo ? ' · en combate' : p.ps <= 0 ? ' · debilitado' : ''}</small></b>
-      <span class="linea"><span class="cb-barra"><i style="width: ${frac * 100}%; background: ${col};"></i></span>${p.ps}/${p.max}${e ? ` <span style="color: ${e[1]}; font-weight: 800;">${e[0]}</span>` : ''}</span></button>`;
+      <span class="linea"><span class="cb-barra"><i style="width: ${frac * 100}%; background: ${col};"></i></span>${p.ps}/${p.max}${e ? ` <span style="color: ${e[1]}; font-weight: 800;">${e[0]}</span>` : ''}</span>
+      ${p.habilidad ? `<span class="hab">Habilidad: ${esc(p.habilidad)}</span>` : ''}</button>`;
   }).join('') + (obligado ? '' : '<button type="button" class="cb-cerrar" data-cb="cerrar-equipo">Atrás</button>');
   panel.classList.remove('oculto');
 }
 async function cbMandar(accion) {
   const obligado = CB.cb && CB.cb.espera === 'cambio';
   CB.enviado = !obligado; CB.enviadoTurno = CB.cb ? CB.cb.turno : 0;
+  cbCerrarDatos();
   cbMenus(null);
   $('cb-equipo').classList.add('oculto');
   const r = await pedirCombate('accion', {accion});
@@ -3528,6 +3579,10 @@ document.addEventListener('click', (ev) => {
     if (i === 2) { cbMenus(null); return cbTexto('En el combate en línea no se usan objetos de la Mochila.', 1800).then(cbSiguiente); }
     if (i === 3) return $('cb-confirmar').classList.remove('oculto');
   }
+  if (que === 'info') { sfx('elige.ogg'); return cbDatos('mio'); }
+  if (que === 'datos') return cbDatos(b.dataset.p);
+  if (que === 'cerrar-datos') return cbCerrarDatos();
+  if (que === 'cmd' || que === 'atq' || que === 'cambio') sfx('elige.ogg');
   if (que === 'atq') return cbMandar({tipo: 'ataque', i});
   if (que === 'atras') return cbMenus('menu');
   if (que === 'cambio') return cbMandar({tipo: 'cambio', i});
@@ -3542,17 +3597,20 @@ document.addEventListener('mouseover', (ev) => {
   const b = ev.target.closest('.cb-cmd, .cb-atq');
   if (!b || b.disabled) return;
   const i = Number(b.dataset.i);
-  if (b.classList.contains('cb-cmd') && i !== CB.sel) { CB.sel = i; cbPintarMenu(); }
+  if (b.classList.contains('cb-cmd') && i !== CB.sel) { CB.sel = i; cbPintarMenu(); sfx('cursor.ogg', 0.6); }
   if (b.classList.contains('cb-atq') && i !== CB.atk) {
     CB.atk = i;
     document.querySelectorAll('.cb-atq').forEach((x) => x.classList.toggle('sel', Number(x.dataset.i) === i));
     $('cb-flecha').style.top = `${CB_FILAS_ATQ[i] + 15}px`;
     cbPintarInfo();
+    sfx('cursor.ogg', 0.6);
   }
 });
 // teclado: flechas para moverse, Intro para elegir, Escape para volver
 document.addEventListener('keydown', (ev) => {
   if (!CB.abierto || VS.activa) return;
+  if (!$('cb-datos').classList.contains('oculto')) { if (ev.key === 'Escape' || ev.key.toLowerCase() === 'y') { cbCerrarDatos(); ev.preventDefault(); } return; }
+  if (ev.key.toLowerCase() === 'y' && CB.cb && CB.cb.fin === null) { cbDatos('mio'); return; }
   if (CB.menu === 'menu') {
     if (ev.key === 'ArrowDown' || ev.key === 'ArrowUp') { CB.sel = (CB.sel + (ev.key === 'ArrowDown' ? 1 : 3)) % 4; cbPintarMenu(); ev.preventDefault(); }
     if (ev.key === 'Enter') document.querySelector(`.cb-cmd[data-i="${CB.sel}"]`).click();
@@ -3593,9 +3651,9 @@ let fundidoCombate = null;
 function combateMusica(si, desde) {
   clearInterval(fundidoCombate);
   const m = musicaCombate;
-  m.muted = sonido.mudo || sonido.volumen === 0;
+  m.muted = !SONIDO_CB.si;
   if (si) {
-    m.volume = Math.min(1, sonido.volumen / 100);
+    m.volume = Math.min(1, SONIDO_CB.vol / 100 * 0.6);
     if (m.paused) {
       if (desde !== undefined) { try { m.currentTime = desde; } catch (err) { /* aún sin cargar */ } }
       m.play().catch(() => {});
@@ -3744,6 +3802,202 @@ function vsPintar(p, real) {
 $('vs-saltar').onclick = () => vsCerrar();
 document.addEventListener('keydown', (ev) => { if (ev.key === 'Escape' && VS.activa) { ev.stopPropagation(); vsCerrar(); } }, true);
 addEventListener('resize', () => { if (VS.activa) vsEscalar(); });
+
+// ---------- 2.3.2: el sonido del combate, los efectos, las animaciones de los ataques, Info y el reloj ----------
+// El sonido del combate va aparte del de la app (David tiene la música de Pokelocke silenciada y en el combate no sonaba
+// nada): su propio botón, encendido de entrada, y se recuerda en este PC.
+const SONIDO_CB = {si: true, vol: 70};
+try { Object.assign(SONIDO_CB, JSON.parse(localStorage.getItem('pokelocke-sonido-combate') || '{}')); } catch (err) { /* sin almacenamiento */ }
+const ICONO_SONIDO = (si) => `<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M4 9h4l5-4v14l-5-4H4z" fill="#fff"/>${si ? '<path d="M16.5 8.5a5 5 0 0 1 0 7M19.5 5.5a9 9 0 0 1 0 13"/>' : '<path d="M17 9l5 6M22 9l-5 6"/>'}</svg>`;
+function cbPintarSonido() {
+  for (const id of ['cb-sonido', 'vs-sonido']) {
+    $(id).innerHTML = ICONO_SONIDO(SONIDO_CB.si);
+    $(id).setAttribute('aria-pressed', SI(!SONIDO_CB.si));
+    $(id).setAttribute('aria-label', SONIDO_CB.si ? 'Silenciar el combate' : 'Activar el sonido del combate');
+  }
+  musicaCombate.muted = !SONIDO_CB.si;
+  musicaCombate.volume = Math.min(1, SONIDO_CB.vol / 100 * 0.6);
+}
+function cbCambiarSonido() {
+  SONIDO_CB.si = !SONIDO_CB.si;
+  try { localStorage.setItem('pokelocke-sonido-combate', JSON.stringify(SONIDO_CB)); } catch (err) { /* nada */ }
+  cbPintarSonido();
+}
+// los efectos: los de Ostinato (assets/combate/sonidos: golpes, gritos, el de cada ataque o el de su tipo)
+const SFX_MAPA = fetch('/assets/combate/sonidos/mapa.json').then((r) => r.json()).catch(() => ({}));
+const sfxCache = {};
+function sfx(ruta, vol) {
+  if (!SONIDO_CB.si) return;
+  try {
+    let a = sfxCache[ruta];
+    if (!a) a = sfxCache[ruta] = new Audio('/assets/combate/sonidos/' + ruta);
+    const b = a.paused ? a : a.cloneNode();
+    b.volume = Math.min(1, SONIDO_CB.vol / 100 * (vol || 1));
+    b.currentTime = 0;
+    b.play().catch(() => {});
+  } catch (err) { /* sin sonido */ }
+}
+async function sfxAtaque(id) { const m = await SFX_MAPA; if (m[id]) sfx('ataques/' + m[id]); }
+
+// las animaciones de los ataques: partículas del color y la forma de su tipo. Especial: un proyectil que va del atacante
+// al rival y estalla; físico: el atacante embiste y estalla en el rival; de estado: destellos (sobre sí mismo o el rival)
+const TIPO_INFO = {NORMAL: ['Normal', '#A8A77A'], FIRE: ['Fuego', '#EE8130'], WATER: ['Agua', '#6390F0'], ELECTRIC: ['Eléctrico', '#F7D02C'],
+  GRASS: ['Planta', '#7AC74C'], ICE: ['Hielo', '#96D9D6'], FIGHTING: ['Lucha', '#C22E28'], POISON: ['Veneno', '#A33EA1'], GROUND: ['Tierra', '#E2BF65'],
+  FLYING: ['Volador', '#A98FF3'], PSYCHIC: ['Psíquico', '#F95587'], BUG: ['Bicho', '#A6B91A'], ROCK: ['Roca', '#B6A136'], GHOST: ['Fantasma', '#735797'],
+  DRAGON: ['Dragón', '#6F35FC'], DARK: ['Siniestro', '#705746'], STEEL: ['Acero', '#B7B7CE'], FAIRY: ['Hada', '#D685AD']};
+const FORMA_TIPO = {FIRE: 'llama', DRAGON: 'llama', WATER: 'burbuja', ICE: 'cristal', ROCK: 'cristal', STEEL: 'cristal', GRASS: 'hoja', BUG: 'hoja',
+  ELECTRIC: 'chispa', POISON: 'humo', GHOST: 'humo', DARK: 'humo', GROUND: 'polvo', FLYING: 'viento', FAIRY: 'estrella', PSYCHIC: 'estrella',
+  NORMAL: 'estrella', FIGHTING: 'estrella'};
+const cbParticulas = [];
+let cbAnimando = false;
+function cbCentro(lado) {
+  const caja = $(cbMio(lado) ? 'cb-pk-p' : 'cb-pk-r');
+  const x = parseFloat(caja.style.left) || (cbMio(lado) ? 660 : 960), y = parseFloat(caja.style.top) || (cbMio(lado) ? 820 : 450);
+  const w = parseFloat(caja.style.width) || 200, h = parseFloat(caja.style.height) || 200;
+  return [x + w / 2, y + h * 0.55];
+}
+function cbEchar(n, x, y, tipo, o) {
+  const col = (TIPO_INFO[tipo] || TIPO_INFO.NORMAL)[1], forma = FORMA_TIPO[tipo] || 'estrella';
+  for (let i = 0; i < n; i++) {
+    const ang = Math.random() * Math.PI * 2, vel = (o.vel || 6) * (0.4 + Math.random());
+    cbParticulas.push({x: x + (Math.random() - 0.5) * (o.disp || 20), y: y + (Math.random() - 0.5) * (o.disp || 20),
+      vx: Math.cos(ang) * vel, vy: Math.sin(ang) * vel + (o.sube ? -3 : 0), vida: 0, max: (o.vida || 32) * (0.7 + Math.random() * 0.6),
+      tam: (o.tam || 14) * (0.6 + Math.random() * 0.8), col, forma, giro: Math.random() * 6});
+  }
+}
+function cbPintarParticula(g, p) {
+  const a = Math.max(0, 1 - p.vida / p.max);
+  g.globalAlpha = a;
+  g.fillStyle = g.strokeStyle = p.col;
+  g.save(); g.translate(p.x, p.y); g.rotate(p.giro + p.vida * 0.15);
+  const t = p.tam;
+  if (p.forma === 'burbuja') { g.lineWidth = 3; g.beginPath(); g.arc(0, 0, t * 0.7, 0, 7); g.stroke(); g.globalAlpha = a * 0.25; g.fill(); }
+  else if (p.forma === 'cristal') { g.beginPath(); g.moveTo(0, -t); g.lineTo(t * 0.5, t * 0.6); g.lineTo(-t * 0.5, t * 0.6); g.closePath(); g.fill(); }
+  else if (p.forma === 'hoja') { g.beginPath(); g.ellipse(0, 0, t, t * 0.4, 0, 0, 7); g.fill(); }
+  else if (p.forma === 'chispa') { g.lineWidth = 4; g.beginPath(); g.moveTo(-t, 0); g.lineTo(-t * 0.2, -t * 0.4); g.lineTo(t * 0.2, t * 0.4); g.lineTo(t, 0); g.stroke(); }
+  else if (p.forma === 'humo') { g.globalAlpha = a * 0.55; g.beginPath(); g.arc(0, 0, t * (1 + p.vida / p.max), 0, 7); g.fill(); }
+  else if (p.forma === 'polvo') { g.fillRect(-t / 3, -t / 3, t * 0.66, t * 0.66); }
+  else if (p.forma === 'viento') { g.lineWidth = 4; g.beginPath(); g.arc(0, 0, t, 0, 2.2); g.stroke(); }
+  else if (p.forma === 'llama') { const r = g.createRadialGradient(0, 0, 0, 0, 0, t); r.addColorStop(0, '#FFF6C8'); r.addColorStop(0.4, p.col); r.addColorStop(1, 'rgba(0,0,0,0)'); g.fillStyle = r; g.beginPath(); g.arc(0, 0, t, 0, 7); g.fill(); }
+  else { g.beginPath(); for (let k = 0; k < 8; k++) { const rr = k % 2 ? t * 0.35 : t; g.lineTo(Math.cos(k * Math.PI / 4) * rr, Math.sin(k * Math.PI / 4) * rr); } g.closePath(); g.fill(); }
+  g.restore();
+  g.globalAlpha = 1;
+}
+function cbBucleAnim() {
+  if (cbAnimando) return;
+  cbAnimando = true;
+  const lienzo = $('cb-anim'), g = lienzo.getContext('2d');
+  const paso = () => {
+    g.clearRect(0, 0, 1920, 1080);
+    g.globalCompositeOperation = 'lighter';
+    for (let i = cbParticulas.length - 1; i >= 0; i--) {
+      const p = cbParticulas[i];
+      if (p.dibujo) { p.dibujo(g); p.vida++; if (p.vida > p.max) cbParticulas.splice(i, 1); continue; }
+      p.x += p.vx; p.y += p.vy; p.vx *= 0.94; p.vy = p.vy * 0.94 + (p.forma === 'llama' || p.forma === 'humo' ? -0.25 : p.forma === 'polvo' || p.forma === 'cristal' ? 0.35 : 0);
+      p.vida++;
+      if (p.vida > p.max) { cbParticulas.splice(i, 1); continue; }
+      cbPintarParticula(g, p);
+    }
+    g.globalCompositeOperation = 'source-over';
+    if (cbParticulas.length && CB.abierto) requestAnimationFrame(paso);
+    else { g.clearRect(0, 0, 1920, 1080); cbAnimando = false; }
+  };
+  requestAnimationFrame(paso);
+}
+function cbAnimar(e) {
+  return new Promise((listo) => {
+    const desde = cbCentro(e.lado), hasta = cbCentro(1 - e.lado), tipo = e.tipo || 'NORMAL', col = (TIPO_INFO[tipo] || TIPO_INFO.NORMAL)[1];
+    const estallido = (x, y, n) => {
+      cbEchar(n || 26, x, y, tipo, {vel: 9, tam: 18, vida: 30, disp: 40});
+      const anillo = {vida: 0, max: 16};                                   // el anillo blanco del golpe
+      anillo.dibujo = (g) => {
+        g.globalAlpha = Math.max(0, 1 - anillo.vida / 16); g.strokeStyle = '#fff'; g.lineWidth = 6;
+        g.beginPath(); g.arc(x, y, 20 + anillo.vida * 7, 0, 7); g.stroke();
+      };
+      cbParticulas.push(anillo);
+    };
+    if (e.cat === 'S') {
+      const [x, y] = e.yo ? desde : hasta;
+      let n = 0;
+      const t = setInterval(() => { cbEchar(4, x, y + 60, tipo, {vel: 2.5, tam: 16, vida: 40, disp: 160, sube: true}); cbBucleAnim(); if (++n > 12) clearInterval(t); }, 50);
+      return setTimeout(listo, 750);
+    }
+    if (e.cat === 'F') {
+      setTimeout(() => { estallido(hasta[0], hasta[1], 28); cbBucleAnim(); }, 220);
+      return setTimeout(listo, 650);
+    }
+    // especial: el proyectil
+    const dura = 420, t0 = performance.now();
+    if (tipo === 'ELECTRIC') {
+      cbParticulas.push({vida: 0, max: 22, x: -1, y: -1, dibujo: (g) => {      // el rayo en zigzag
+        g.globalAlpha = 0.9; g.strokeStyle = '#FFF59A'; g.lineWidth = 7; g.beginPath(); g.moveTo(desde[0], desde[1]);
+        for (let k = 1; k <= 8; k++) { const f = k / 8; g.lineTo(desde[0] + (hasta[0] - desde[0]) * f + (k < 8 ? (Math.random() - 0.5) * 60 : 0), desde[1] + (hasta[1] - desde[1]) * f + (k < 8 ? (Math.random() - 0.5) * 60 : 0)); }
+        g.stroke();
+      }});
+    }
+    const vuela = setInterval(() => {
+      const f = Math.min(1, (performance.now() - t0) / dura);
+      const x = desde[0] + (hasta[0] - desde[0]) * f, y = desde[1] + (hasta[1] - desde[1]) * f - Math.sin(f * Math.PI) * 60;
+      cbEchar(3, x, y, tipo, {vel: 1.5, tam: 22, vida: 18, disp: 14});
+      cbParticulas.push({vida: 0, max: 2, dibujo: (g) => { const r = g.createRadialGradient(x, y, 0, x, y, 34); r.addColorStop(0, '#fff'); r.addColorStop(0.5, col); r.addColorStop(1, 'rgba(0,0,0,0)'); g.fillStyle = r; g.globalAlpha = 1; g.beginPath(); g.arc(x, y, 34, 0, 7); g.fill(); }});
+      cbBucleAnim();
+      if (f >= 1) { clearInterval(vuela); estallido(hasta[0], hasta[1], 30); cbBucleAnim(); }
+    }, 16);
+    setTimeout(listo, dura + 300);
+  });
+}
+
+// Info (la Y del combate de Ostinato): tu Pokémon (con su habilidad, características y cambios) y el del rival
+const NOMBRE_CAMBIO = [['atk', 'Ataque'], ['def', 'Defensa'], ['spa', 'At. Esp.'], ['spd', 'Def. Esp.'], ['spe', 'Velocidad'], ['acc', 'Precisión'], ['eva', 'Evasión']];
+function cbFlechas(n) {
+  if (!n) return '<span style="color: #AAA;">—</span>';
+  return `<span style="color: ${n > 0 ? '#D8342C' : '#2E6BFF'};">${(n > 0 ? '▲' : '▼').repeat(Math.abs(n))}</span>`;
+}
+const cbTipos = (tipos) => `<div class="tipos">${(tipos || []).map((t) => `<span class="tipo" style="background: ${(TIPO_INFO[t] || TIPO_INFO.NORMAL)[1]};">${(TIPO_INFO[t] || [t])[0]}</span>`).join('')}</div>`;
+function cbDatos(pestana) {
+  const c = CB.cb;
+  if (!c) return;
+  CB.datos = pestana || CB.datos || 'mio';
+  const panel = $('cb-datos'), mio = CB.datos === 'mio';
+  const p = mio ? c.equipo[c.activo] : c.rival, cambios = (mio ? c.cambios : c.rival.cambios) || {};
+  const e = CB_ESTADO[p.estado];
+  let cuerpo = `<div class="cabeza"><img src="/arte/${p.especie}" alt=""><h2>${esc(p.nombre)}<small>Nv. ${p.nivel}</small></h2>
+    <span class="sub">${p.especie_nombre && p.especie_nombre !== p.nombre ? esc(p.especie_nombre) + ' · ' : ''}${mio ? `PS ${p.ps}/${p.max}` : `PS ${Math.round(p.ps / p.max * 100)} %`}${e ? ` · <b style="color: ${e[1]};">${e[0]}</b>` : ''}</span>
+    ${cbTipos(p.tipos)}</div>`;
+  if (mio) {
+    const st = c.stats || {};
+    cuerpo += `<div class="celda">Habilidad</div><span class="hab">${esc(p.habilidad || '—')}</span>
+      <div class="celda">Características</div><table>${NOMBRE_CAMBIO.map(([k, n]) => `<tr><td>${n}</td><td class="num">${st[k] !== undefined ? st[k] : ''}</td><td class="cambio">${cbFlechas(cambios[k])}</td></tr>`).join('')}</table>
+      <div class="celda">Ataques</div><div class="ataques">${p.ataques.map((a) => `<div style="background: ${(TIPO_INFO[a.tipo] || TIPO_INFO.NORMAL)[1]};"><span>${esc(a.nombre)}</span><span>${a.pp}/${a.max}</span></div>`).join('')}</div>`;
+  } else {
+    cuerpo += `<div class="celda">Cambios en el combate</div><table>${NOMBRE_CAMBIO.map(([k, n]) => `<tr><td>${n}</td><td class="cambio">${cbFlechas(cambios[k])}</td></tr>`).join('')}</table>`;
+  }
+  panel.innerHTML = `<div class="pestanas" role="tablist"><button type="button" role="tab" aria-selected="${SI(mio)}" data-cb="datos" data-p="mio">Tu Pokémon</button>
+    <button type="button" role="tab" aria-selected="${SI(!mio)}" data-cb="datos" data-p="rival">Rival</button></div>${cuerpo}
+    <button type="button" class="cerrar" data-cb="cerrar-datos">Cerrar</button>`;
+  panel.classList.remove('oculto');
+}
+function cbCerrarDatos() { $('cb-datos').classList.add('oculto'); }
+
+// el reloj: 80 s por turno y 50 min el combate (los pone el servidor; aquí solo se cuentan)
+const cbMinutos = (s) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, '0')}`;
+setInterval(() => {
+  if (!CB.abierto || !CB.cb) return;
+  const c = CB.cb, ahora = Date.now() / 1000 + combate.desfase;
+  const turno = $('cb-turno'), partido = $('cb-partido');
+  const fuera = c.fin !== null && c.fin !== undefined;
+  turno.classList.toggle('oculto', fuera || !c.plazo);
+  partido.classList.toggle('oculto', fuera || !c.fin_partido);
+  if (c.plazo) {
+    const r = Math.max(0, c.plazo - ahora);
+    turno.textContent = `Turno ${Math.max(1, c.turno + (c.espera ? 1 : 0))} · ${cbMinutos(r)}`;
+    turno.classList.toggle('prisa', r <= 15 && !!c.espera);
+  }
+  if (c.fin_partido) partido.textContent = `Combate ${cbMinutos(Math.max(0, c.fin_partido - ahora))}`;
+}, 250);
+$('cb-sonido').onclick = cbCambiarSonido;
+$('vs-sonido').onclick = cbCambiarSonido;
+cbPintarSonido();
 
 // foto de perfil: se recorta en cuadrado y se reduce a 128 px antes de mandarla al servidor
 $('foto-archivo').onchange = async () => {
@@ -4526,7 +4780,7 @@ const musicaPortada = $('musica-portada');
 let hayMusicaPortada = true;
 musicaPortada.addEventListener('error', () => { hayMusicaPortada = false; sonar(ultimo && ultimo.jugando); }, {once: true});
 function ponerSonido() {
-  for (const m of [musica, musicaPortada, musicaCombate]) {
+  for (const m of [musica, musicaPortada]) {
     m.volume = sonido.volumen / 100;
     m.muted = sonido.mudo || sonido.volumen === 0;
   }

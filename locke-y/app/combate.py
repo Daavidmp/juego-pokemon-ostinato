@@ -16,6 +16,7 @@ import json
 import math
 import random
 import sys
+import time
 from pathlib import Path
 
 _CARPETA = Path(sys._MEIPASS) / 'app' if getattr(sys, 'frozen', False) else Path(__file__).resolve().parent
@@ -112,6 +113,10 @@ def describir(mid):
     return ' '.join(frases)
 
 
+TURNO = 80              # segundos para elegir en cada turno (si se acaban, Pokelocke elige por ti)
+PARTIDO = 50 * 60       # el combate entero; al acabarse, gana quien conserve más Pokémon (y si no, más PS)
+
+
 class Combate:
     def __init__(self, jugadores, equipos, normas=None, azar=None):
         """jugadores: [nombre A, nombre B]; equipos: dos listas de Pokémon del perfil (ya en su orden de salida)."""
@@ -120,6 +125,7 @@ class Combate:
         self.lados = [{'nombre': jugadores[k], 'equipo': [self._pokemon(p) for p in equipos[k]], 'activo': 0} for k in (0, 1)]
         self.log, self.turno, self.fin = [], 0, None
         self.acciones, self.cambio = [None, None], [False, False]
+        self.inicio = self.plazo = None              # los relojes empiezan con empezar() (tras la presentación)
         self.ev('msg', txt='¡Empieza el combate!')
         for k in (0, 1):
             self._salir(k, 0, primero=True)
@@ -131,6 +137,7 @@ class Combate:
         tipos = ESPECIES.get(p['especie'], ['NORMAL'])
         ataques = [{'id': a, 'pp': ATAQUES[a][5], 'max': ATAQUES[a][5]} for a in (p.get('ataques') or []) if a in ATAQUES][:4]
         return {'especie': p['especie'], 'nombre': p.get('mote') or p.get('nombre') or '?', 'nivel': p.get('nivel', 50),
+                'especie_nombre': p.get('nombre') or '', 'habilidad': p.get('habilidad') or '',
                 'tipos': tipos, 'shiny': bool(p.get('shiny')), 'sexo': p.get('genero', 2),
                 'st': {'hp': st[0], 'atk': st[1], 'def': st[2], 'spe': st[3], 'spa': st[4], 'spd': st[5]},
                 'ps': st[0], 'ataques': ataques, 'estado': None, 'sueno': 0, 'tox': 0,
@@ -146,7 +153,7 @@ class Combate:
         lado = self.lados[k]
         p = lado['equipo'][lado['activo'] if i is None else i]
         return {'especie': p['especie'], 'nombre': p['nombre'], 'nivel': p['nivel'], 'ps': p['ps'], 'max': p['st']['hp'],
-                'estado': p['estado'], 'shiny': p['shiny'], 'sexo': p['sexo'], 'tipos': p['tipos']}
+                'estado': p['estado'], 'shiny': p['shiny'], 'sexo': p['sexo'], 'tipos': p['tipos'], 'especie_nombre': p['especie_nombre']}
 
     def _vivos(self, k):
         return [i for i, p in enumerate(self.lados[k]['equipo']) if p['ps'] > 0]
@@ -162,8 +169,14 @@ class Combate:
         self.ev('cambio', lado=k, i=i, pk=self._resumen(k), txt=f'¡{lado["nombre"]} saca a {p["nombre"]}!')
 
     # --- lo que manda cada jugador ---
-    def accion(self, k, a):
+    def accion(self, k, a, ahora=None):
         """a = {'tipo': 'ataque', 'i': 0-3} | {'tipo': 'cambio', 'i': hueco} | {'tipo': 'rendirse'}."""
+        antes = len(self.log)
+        self._accion(k, a)
+        if len(self.log) != antes:
+            self._renovar(ahora or time.time(), len(self.log) - antes)
+
+    def _accion(self, k, a):
         if self.fin is not None:
             raise ValueError('El combate ya ha terminado')
         tipo = a.get('tipo')
@@ -291,7 +304,8 @@ class Combate:
             a['pp'] -= 1
             mid, mov = a['id'], ATAQUES[a['id']]
         nombre, tipo, cat, potencia, precision, _, _, ef = mov
-        self.ev('ataque', lado=k, id=mid, tipo=tipo, cat=cat, txt=f'¡{yo["nombre"]} usa {nombre}!')
+        propio = bool(ef.get('protege')) or (cat == 'S' and not ef.get('b') and not ef.get('st') and not ef.get('conf'))
+        self.ev('ataque', lado=k, id=mid, tipo=tipo, cat=cat, yo=propio, txt=f'¡{yo["nombre"]} usa {nombre}!')
         if ef.get('protege'):
             if self.azar.random() < 1 / (3 ** yo['proteccion_seguida']):
                 yo['protegido'], yo['proteccion_seguida'] = True, yo['proteccion_seguida'] + 1
@@ -496,13 +510,48 @@ class Combate:
         self.ev('fin', ganador=ganador, txt=txt)
         return True
 
+    # --- los relojes: 80 s por turno y 50 min por partido ---
+    def empezar(self, ahora=None):
+        if self.inicio is None:
+            self.inicio = ahora or time.time()
+            self.plazo = self.inicio + TURNO + 12             # + lo que tardan en verse las salidas
+
+    def _renovar(self, ahora, nuevos):
+        """Cada vez que toca elegir otra vez: 80 s más lo que tarda en verse lo que acaba de pasar."""
+        if self.inicio is not None and self.fin is None:
+            self.plazo = ahora + TURNO + min(45, 1.4 * nuevos)
+
+    def tiempo(self, ahora=None):
+        """Lo llama el servidor con cada consulta: si alguien no ha elegido a tiempo, Pokelocke elige por él; si el
+        partido llega a 50 minutos, se acaba."""
+        if self.inicio is None or self.fin is not None:
+            return
+        ahora = ahora or time.time()
+        if ahora > self.inicio + PARTIDO:
+            self.ev('msg', txt='¡Se ha acabado el tiempo del combate!')
+            cuenta = [(len(self._vivos(k)), sum(p['ps'] / p['st']['hp'] for p in self.lados[k]['equipo'])) for k in (0, 1)]
+            self._acabar(None if cuenta[0] == cuenta[1] else 0 if cuenta[0] > cuenta[1] else 1)
+            return
+        if self.plazo and ahora > self.plazo:
+            for k in (0, 1):
+                e = self.espera(k)
+                if e == 'cambio':
+                    vivos = [i for i in self._vivos(k) if i != self.lados[k]['activo']]
+                    self.ev('msg', txt=f'Se acabó el tiempo de {self.lados[k]["nombre"]}: elige Pokelocke.')
+                    self.accion(k, {'tipo': 'cambio', 'i': self.azar.choice(vivos)}, ahora)
+                elif e == 'accion':
+                    p = self.activo(k)
+                    con_pp = [i for i, a in enumerate(p['ataques']) if a['pp'] > 0] or [0]
+                    self.ev('msg', txt=f'Se acabó el tiempo de {self.lados[k]["nombre"]}: elige Pokelocke.')
+                    self.accion(k, {'tipo': 'ataque', 'i': self.azar.choice(con_pp)}, ahora)
+
     # --- lo que ve cada uno ---
     def vista(self, k, desde=0):
         lado = self.lados[k]
         return {
             'lado': k, 'turno': self.turno, 'fin': self.fin, 'espera': self.espera(k), 'eligio': bool(self.acciones[k]),
             'n': len(self.log), 'log': self.log[max(0, int(desde or 0)):],
-            'equipo': [{**self._resumen(k, i), 'ataques': [{'id': a['id'], 'pp': a['pp'], 'max': a['max'], 'nombre': ATAQUES[a['id']][0],
+            'equipo': [{**self._resumen(k, i), 'habilidad': p['habilidad'], 'st': p['st'], 'ataques': [{'id': a['id'], 'pp': a['pp'], 'max': a['max'], 'nombre': ATAQUES[a['id']][0],
                                                             'tipo': ATAQUES[a['id']][1], 'cat': ATAQUES[a['id']][2],
                                                             'potencia': ATAQUES[a['id']][3], 'precision': ATAQUES[a['id']][4],
                                                             'desc': describir(a['id']),
@@ -510,5 +559,8 @@ class Combate:
                                                            for a in p['ataques']]}
                        for i, p in enumerate(lado['equipo'])],
             'activo': lado['activo'], 'rival_activo': self.lados[1 - k]['activo'],
+            'stats': lado['equipo'][lado['activo']]['st'], 'cambios': lado['equipo'][lado['activo']]['b'],
+            'rival': {**self._resumen(1 - k), 'cambios': self.activo(1 - k)['b']},
+            'plazo': self.plazo, 'fin_partido': self.inicio + PARTIDO if self.inicio else None,
             'rival_bolas': [('debil' if p['ps'] <= 0 else 'estado' if p['estado'] else 'bola') for p in self.lados[1 - k]['equipo']],
         }
