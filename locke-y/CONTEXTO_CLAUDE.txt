@@ -619,3 +619,23 @@ Hechas con Gemini Nano Banana 2 editando SIEMPRE la misma base (no generando de 
   (Fluxus, Ástrid), bosque del sur y cascadas (Guarida, Fractal, Édel) y la cueva (Victoria); Alto Mando, Campeona y
   Torneo igual. Sin f fijas en las misiones de esos tramos (se reparten solas). Comprobado dibujando las 71 casillas
   sobre tablero-isla.jpg: ninguna de después del 4.º gimnasio cae encima de una de antes. Lo hecho no cambia (va por id).
+
+== 2.2.8 (2026-11-24): la presentación del combate del torneo (VS + RONDA) con música ==
+- Petición de David: «la animación de cuando empieza un combate»: los dos entrenadores con sus 6 Pokémon, un VS atronante
+  y «RONDA 1/2/3» (al mejor de 3; la 3.ª sale «RONDA FINAL»). Diseñada en el lienzo de Claude Design «Pokelocke · combate
+  del torneo» (https://claude.ai/artifact/RPbacxt7fxwJ5MShNS5CEv, Presentacion.dc.html) y pasada tal cual a app.html.
+- app.html: #vs-pres (escenario 1920x1080 escalado a la ventana, vsEscalar) y presentarCombate/vsPintar (los mismos
+  tiempos del lienzo: LENTO 1,6, dura 7,2·1,6 s; Saltar o Escape). Serena si juega con chica, Calem si con chico
+  (assets/vs-serena.png y vs-calem.png, hojas de 8 recortadas sin blanco); su equipo con las animaciones /ani/<especie>
+  (Showdown), cada uno encajado en su hueco (SITIOS + encaja: que no se corte por arriba ni por los lados). Fondo, rayo,
+  impacto y letras del VS de Firefly (assets/vs-*.png|jpg). Letra Barlow Semi Condensed, ya dentro de web/fuentes.
+- Cuándo sale: sola, a quien tenga el torneo abierto, cuando un combate pasa a «En juego» y cada vez que, en juego, cambia
+  su marcador (vsMirarEnJuego; lo que ya estaba al abrir no salta). Y con «▶ VS» en cualquier combate por jugar
+  (presentarPartido). Si juegas en él, tú a la izquierda. Ronda = victorias + 1; los puntitos, el marcador.
+- Música: assets/vs-combate.ogg (Combate - Principal del mix de Descargas\Mix combate), por Web Audio con el bucle desde
+  LOOPSTART (1239018 muestras); volumen y silencio de la app, para la música de la app mientras dura y se apaga con el negro.
+- Datos: cada Pokelocke manda en el latido 'perfil' = {sexo (byte 0x14005 de la partida: bloque del entrenador 0x14000,
+  +0x05; medido 0 = chico en la de David, con su nombre en 0x14048), equipo (especies sin huevos)}; lo calcula
+  guardado.tablero en comun.biblio['mi_perfil']. El servidor lo guarda (usuarios[u]['perfil'], online._perfil lo limpia)
+  y lo da con el torneo ('perfiles'). Sin perfil (Pokelocke de antes): Calem y sin Pokémon.
+- test_torneo.py ya fallaba antes de esta versión (assert de la plaza con impares, del cuadro de 1.3.2); test_app bien.
