@@ -49,7 +49,8 @@ class Motor:
         ruby, motor, juego = rutas()
         if not ruby.exists() or not motor.exists():
             raise ValueError('Falta el motor de combate de Ostinato en este Pokelocke (tools/ruby y tools/ostinato)')
-        self.proc = subprocess.Popen([str(ruby), str(motor), str(juego)], stdin=subprocess.PIPE, stdout=subprocess.PIPE,
+        # sin gemas: el Ruby va recortado (sin ellas no avisa ni tarda más)
+        self.proc = subprocess.Popen([str(ruby), '--disable-gems', str(motor), str(juego)], stdin=subprocess.PIPE, stdout=subprocess.PIPE,
                                      stderr=open(comun.DATOS / 'motor_ostinato.log', 'a', encoding='utf-8'),
                                      encoding='utf-8', bufsize=1, creationflags=getattr(subprocess, 'CREATE_NO_WINDOW', 0))
         hola = json.loads(self.proc.stdout.readline() or '{}')
