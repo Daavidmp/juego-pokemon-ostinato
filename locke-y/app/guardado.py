@@ -22,8 +22,6 @@ import vigia
 # la contraseña del PokéHex de este PC: la crea cada uno la primera vez y se guarda cifrada (antes era una sola, escrita
 # en el código de un repositorio público)
 F_POKEHEX = comun.DATOS / 'pokehex.json'
-# chico (0) o chica (1) en la partida de X/Y: bloque del entrenador en 0x14000, byte 0x05
-SEXO_ENTRENADOR = 0x14005
 
 
 def comprobar_clave_pokehex(clave):
@@ -97,13 +95,6 @@ def tablero(j):
         equipo = [{k: x[k] for k in ('id', 'especie', 'especie_nombre', 'mote', 'nivel', 'huevo', 'shiny')}
                   for x in p.equipo() if x]
         comun.vivo['tablero_de'] = clave
-        # para la presentación del combate del torneo (va al servidor con los latidos): chico o chica (byte 0x05 del
-        # bloque del entrenador, 0x14000; medido en la partida de David: 0, chico, con su nombre en 0x14048) y su equipo
-        if j is locke.mi_locke():
-            perfil = {'sexo': p.d[SEXO_ENTRENADOR] & 1, 'equipo': [x['especie'] for x in equipo if not x['huevo']][:6]}
-            if comun.biblio.get('mi_perfil') != perfil:
-                comun.biblio['mi_perfil'] = perfil
-                comun.guardar()
         # un objeto visto una vez cuenta para siempre: el fósil se gasta al revivirlo y el pase o la llave se pueden
         # perder, y la casilla no debe apagarse
         logros = j.setdefault('logros', [])

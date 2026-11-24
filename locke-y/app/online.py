@@ -627,11 +627,7 @@ class Servidor:
         estado = dict(estado) if isinstance(estado, dict) else {}
         tablero = self._casilla(estado.pop('tablero', None))
         cuentas = self._cuentas(estado.pop('locke', None))
-        perfil = self._perfil(estado.pop('perfil', None))
         with self.lock:
-            if perfil and u in self.usuarios and self.usuarios[u].get('perfil') != perfil:
-                self.usuarios[u]['perfil'] = perfil
-                self._guardar()
             if tablero and self.usuarios.get(u, {}).get('tablero') != tablero:
                 self.usuarios[u]['tablero'] = tablero
                 self._guardar()
@@ -660,18 +656,6 @@ class Servidor:
         try:
             return {'hito': str(t.get('hito', ''))[:24], 'n': max(0, min(99, int(t.get('n', 0)))),
                     'medallas': max(0, min(8, int(t.get('medallas', 0)))), 'vidas': max(0, min(999, int(t.get('vidas', 0))))}
-        except (TypeError, ValueError):
-            return None
-
-    @staticmethod
-    def _perfil(p):
-        """Para la presentación del combate del torneo (2.2.8): si juega con chico (0) o chica (1) y las especies de
-        su equipo, de su partida. Viene de fuera."""
-        if not isinstance(p, dict) or not isinstance(p.get('equipo'), list):
-            return None
-        try:
-            return {'sexo': 1 if int(p.get('sexo', 0)) == 1 else 0,
-                    'equipo': [int(e) for e in p['equipo'][:12] if 0 < int(e) <= 1000][:6]}
         except (TypeError, ValueError):
             return None
 
@@ -904,9 +888,8 @@ class Servidor:
             t = {**t, 'sorteo': {k: v for k, v in t['sorteo'].items() if k != 'bombo'}}     # lo que queda dentro, no se ve
         with self.lock:
             fotos = {k: v['foto'] for k, v in self.usuarios.items() if v.get('foto')}
-            perfiles = {k: v['perfil'] for k, v in self.usuarios.items() if v.get('perfil')}
             admin = self.usuarios.get(u, {}).get('admin', False)
-            return {'torneo': t, 'fotos': fotos, 'perfiles': perfiles, 'usuarios': sorted(self.usuarios), 'yo': u, 'coronas': self.coronas(),
+            return {'torneo': t, 'fotos': fotos, 'usuarios': sorted(self.usuarios), 'yo': u, 'coronas': self.coronas(),
                     'admin': admin, 'puede': admin or bool(t and u in t.get('gestores', []))}
 
     # quién puede qué (1.3.3): crear y borrar el torneo, solo el administrador; lo demás (sortear, remover, sacar bola,

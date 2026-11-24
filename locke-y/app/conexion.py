@@ -220,8 +220,7 @@ def online_latidos():
                 j = comun.buscar(comun.vivo['activo']) if comun.vivo['activo'] and emulador.jugando() else None
                 mio = locke.mi_locke()
                 cuentas = mio and {'medallas': sum(mio.get('medallas', [])), 'perdidas': locke.perdidas(mio)}
-            estado = {'jugando': bool(j), 'juego': j and j['nombre'], 'tablero': comun.biblio.get('mi_tablero'), 'locke': cuentas,
-                      'perfil': comun.biblio.get('mi_perfil')}      # chico/chica y equipo: la presentación del torneo
+            estado = {'jugando': bool(j), 'juego': j and j['nombre'], 'tablero': comun.biblio.get('mi_tablero'), 'locke': cuentas}
             # los eventos que aún no tiene el servidor; hasta que diga cuántos tiene, solo se le dice cuántos hay
             eventos, total = vigia.para_mandar(comun.red.get('eventos_hasta', float('inf')))
             try:
