@@ -10,8 +10,7 @@
 #   El combate de jefe (OstJefe): al empezar se ve al Wooloo normal y en
 #   pantalla se oscurece (onda del aparato, aura, tinte morado, temblor, grito
 #   distorsionado); despues sube todas sus caracteristicas +2. Su ficha es la
-#   barra de jefe de arriba (Graphics/UI/Ostinato/Jefe/barra_jefe.png). No se
-#   puede huir ni capturar. Si se gana, el Wooloo se calma y se une al equipo;
+#   del rival de siempre (016). No se puede huir ni capturar. Si se gana, el Wooloo se calma y se une al equipo;
 #   si se pierde, se cura el equipo y se puede volver a intentar.
 #
 #   Eventos del mapa 12 (por nombre): "SecuazChico", "SecuazChica",
@@ -466,21 +465,7 @@ class Battle::Scene::BattlerSprite
   end
 end
 
-# la ficha del rival es la barra de jefe, arriba del todo
-class Battle::Scene::PokemonDataBox
-  OST_JEFE = { :pos => [55, 4], :fondo => "../Jefe/barra_jefe",
-               :nombre => [490, 66, 1100, 84], :nivel => [120, 66, 320, 84],
-               :nivel_texto => "Lv.%d", :nivel_alin => 1,
-               :vida => [350, 164, 1255, 30], :estado => [130, 150] }
-  alias ostjefe_ost_datos ost_datos
-  def ost_datos
-    return OST_JEFE if OstJefe.activo? && @battler && @battler.index.odd?
-    return ostjefe_ost_datos
-  end
-end
-
-# en el combate de jefe el Wooloo baja un poco: pisa el suelo de la plaza y la
-# barra de arriba no le tapa la cabeza
+# en el combate de jefe el Wooloo baja un poco: pisa el suelo de la plaza
 class Battle::Scene
   class << self
     alias ostjefe_pbBattlerPosition pbBattlerPosition

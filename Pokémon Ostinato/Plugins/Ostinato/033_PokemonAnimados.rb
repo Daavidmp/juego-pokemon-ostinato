@@ -11,7 +11,7 @@
 #   cuadros, ampliados x2 como los fijos (los de Anil son a tamano real y los
 #   de Ostinato van al doble), y se pasan los cuadros a su ritmo (VELOCIDAD,
 #   la de Anil). Asi todo lo de 016 (escala, pies en el suelo, corte de tus
-#   Pokemon tras la barra), 018 (camaras) y 019/031 (debilitarse) funciona
+#   Pokemon en el borde de abajo), 018 (camaras) y 019/031 (debilitarse) funciona
 #   igual: ven un bitmap del tamano de siempre.
 #   Los pies se ponen donde los tenia el dibujo fijo (sus medidas de
 #   pokemon_metrics.txt estan hechas para el), salvo donde 016 ya los apoya

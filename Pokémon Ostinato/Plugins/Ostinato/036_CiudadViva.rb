@@ -358,6 +358,8 @@ module OstCiudad
     end
     @coches = nil
     @cruces = nil
+    @parado = nil
+    @pitos = nil
     @vp_coches = nil
   end
 
@@ -430,6 +432,7 @@ module OstCiudad
       c.v = 0.0 if g <= 0 && c.v < 0.2
       avanzar(c)
       soltar_cruce(c)
+      pitar(c)
       c.alfa = c.a == :fondo ? [[(largo(c.de, c.a) - c.s) * 5, 255].min, 0].max.to_i : 255
     end
     barreras.each_with_index do |b, i|
@@ -438,6 +441,33 @@ module OstCiudad
       end
       barrera(i, cerca)
     end
+  end
+
+  # Parado porque Kaia no se aparta: al rato pita, y si sigue ahi vuelve a pitar de vez en
+  # cuando (como mucho tres veces seguidas). Unos colores llevan el claxon grave, para que
+  # no suenen todos igual.
+  PITA_A     = 75         # fotogramas parado por ella antes del primer pitido
+  PITA_CADA  = 210        # y entre un pitido y el siguiente
+  PITA_MAX   = 3
+  GRAVES     = [3, 6]     # colores con "Claxon furgoneta"
+  def self.pitar(c)
+    @parado ||= {}
+    @pitos ||= {}
+    # frena tan suave que se queda a unos px de PARA sin llegar a marcar c.kaia: cuenta
+    # como parado por ella si esta casi quieto y ella le corta el paso (cerca del morro)
+    k = por_kaia(c)
+    if !(k && k < 40 && c.v < 0.3)
+      @parado.delete(c)
+      @pitos.delete(c)
+      return
+    end
+    n = (@parado[c] = (@parado[c] || 0) + 1)
+    hechos = @pitos[c] || 0
+    return if hechos >= PITA_MAX
+    return unless n == PITA_A || (n > PITA_A && (n - PITA_A) % PITA_CADA == 0)
+    @pitos[c] = hechos + 1
+    nombre = GRAVES.include?(c.color) ? "Claxon furgoneta" : "Claxon"
+    pbSEPlay(nombre, 80, 95 + rand(11)) rescue nil
   end
 
   def self.avanzar(c)

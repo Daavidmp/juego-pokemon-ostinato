@@ -210,6 +210,20 @@ los menús siguen los fijos.
 
 ---
 
+## Fuentes
+
+### Barlow (interfaz del combate)
+
+La letra de la interfaz del combate (botones, ataques, fichas, mensajes y avisos de habilidad).
+
+- **En el proyecto:** `Fonts/OstTitulo.ttf` (Barlow Semi Condensed Bold), `Fonts/OstEtiqueta.ttf`
+  (Barlow Semi Condensed SemiBold), `Fonts/OstTexto.ttf` (Barlow Regular) y `Fonts/OstNombre.ttf`
+  (Barlow Medium). Son las de Google Fonts con el nombre de familia cambiado, para que el motor
+  no las confunda entre sí; la licencia está en `Fonts/Barlow-OFL.txt`.
+- **Autor:** **Jeremy Tribby** (The Barlow Project Authors). Licencia SIL Open Font License 1.1.
+
+---
+
 ## Motor
 
 ### Pokémon Essentials

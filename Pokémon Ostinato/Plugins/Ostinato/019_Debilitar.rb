@@ -36,7 +36,7 @@ class OstDebilitar
     @centro = getSpriteCenter(@poke)
     @cima = cima_del_dibujo
     @bx = @centro[0]
-    @by = [[@cima - 70, 110].max, OstCombate::BARRA2_Y - 230].min
+    @by = [[@cima - 70, 110].max, OstCombate::ALTO - 330].min
     crear_sprites
   end
 

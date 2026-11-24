@@ -1,6 +1,6 @@
 #===============================================================================
 # Pokemon Ostinato - El combate a pantalla completa (1920x1080) con la
-# interfaz nueva (rojo, negro y blanco, con tramas y manchas de tinta)
+# interfaz de David (2026-11, al estilo de Espada/Escudo)
 #
 #   Mientras dura el combate la pantalla sube a 1920x1080 (OstinatoHD), en vez
 #   de ir en el recuadro de 512 centrado (008_Pantallas512). Lo que se abre
@@ -9,50 +9,79 @@
 #
 #   La escena: los fondos de combate se amplian para llenar el ancho si son
 #   pequenos (los de 1920x1080 van tal cual), y los Pokemon y entrenadores se
-#   amplian ESCALA veces, un numero entero para que el pixel se vea limpio.
+#   amplian ESCALA veces, un numero entero para que el pixel se vea limpio
+#   (los Pokemon del rival, ESCALA_RIVAL: estan mas lejos).
+#   Tus Pokemon (y Kaia) van cortados por abajo: el corte, justo en el borde
+#   de abajo de la pantalla.
 #
-#   La interfaz: piezas en Graphics/UI/Ostinato/Combate/ sacadas de las
-#   maquetas de Firefly (Descargas\interfaz_combate): las fichas, la barra de
-#   mensaje, la de los cuatro botones y la de ataques, el boton seleccionado,
-#   los botones de ataque de cada tipo (ataques/ataque_TIPO.png) y los iconos
-#   de tipo (tipos/TIPO.png). El texto se escribe encima con la fuente Bangers
-#   (Fonts/Bangers-Regular.ttf, licencia OFL).
+#   La interfaz: piezas en Graphics/UI/Ostinato/Combate/ sacadas del
+#   ostinato_combate_sin_interfaz_texto.kra de David (fichas, tiras del equipo,
+#   botones, plantilla de los ataques, X/Y) y de la maqueta de Claude Design
+#   (banda de los mensajes, aviso de habilidad). El texto se escribe encima con
+#   Barlow (Fonts/OstTitulo, OstEtiqueta, OstTexto y OstNombre, licencia OFL).
+#   Todos los combates la usan, tambien el del jefe (026).
 #
 #   Todas las medidas estan en la pantalla de 1920x1080.
 #===============================================================================
 module OstCombate
   DIR    = "Graphics/UI/Ostinato/Combate/"
-  FUENTE = "Bangers"
+  F_TITULO   = "OstTitulo"   # Barlow Semi Condensed Bold: botones, ataques, habilidad
+  F_ETIQUETA = "OstEtiqueta" # Barlow Semi Condensed SemiBold: mensajes, eficacia
+  F_TEXTO    = "OstTexto"    # Barlow Regular: numeros
+  F_NOMBRE   = "OstNombre"   # Barlow Medium: nombres
   ESCALA = 3                 # Pokemon y entrenadores (sus PNG ya van a x2)
-  BASE_ESCALA = 3            # las bases de los fondos antiguos de 512
+  ESCALA_RIVAL = 2           # los Pokemon del rival (estan mas lejos): 2/3 de los tuyos
   ANCHO  = 1920
   ALTO   = 1080
-  BARRA_Y = ALTO - 282       # donde empieza la barra de ataques
-  BARRA2_Y = ALTO - 346      # la barra de mensaje y botones (con sus manchas por arriba)
+  MENSAJE_Y = ALTO - 144     # la banda oscura de los mensajes
 
-  # centro de los pies de cada lado (como las bases de la v21)
-  PROPIO = [554, 842]        # el corte de abajo del sprite de espaldas, escondido tras la barra
+  # centro de los pies de cada lado; los tuyos, el corte en el borde de abajo
+  PROPIO = [760, ALTO]
   RIVAL  = [1374, 418]
 
-  # Combates dobles (maqueta de recursos/entrenadores_tunel/maqueta_doble.py):
-  # los Pokemon a x2 (a x3 no caben cuatro) y cada uno en su sitio; los
-  # rivales, por la fila de abajo de su dibujo (sus pies), no por el borde
-  # de la imagen, para que pisen el suelo del fondo.
-  DOBLE_ESCALA = 2
-  DOBLE = [[314, 842], [1300, 605], [714, 842], [900, 550]]   # indice 0..3: [x, y]; los tuyos, los dos con el corte justo tras la barra
-  DOBLE_FICHA = 0.62         # las fichas, mas pequenas, enteras y sin tapar a nadie
-  DOBLE_FICHAS = [[1411, 530], [24, 70], [1411, 334], [24, 249]]
+  # Combates dobles: los Pokemon a su tamano de siempre (x3) y cada uno en su
+  # sitio; los rivales, por la fila de abajo de su dibujo (sus pies).
+  DOBLE_ESCALA = 3
+  DOBLE = [[760, ALTO], [1300, 605], [1160, ALTO], [900, 550]]   # indice 0..3: [x, y]
+  DOBLE_FICHA = 0.8          # las fichas, apiladas: las tuyas abajo a la izquierda, las del rival arriba a la derecha
+  DOBLE_FICHAS = [[0, 852], [1506, 18], [0, 956], [1506, 104]]
   # Los fondos no tienen losas (como en Pokemon Anil): el Pokemon y el entrenador
-  # rivales se apoyan por los pies en el suelo del fondo, aqui. Antes solo en el
-  # tunel; en los demas el rival salia flotando (a la altura pensada para las losas).
+  # rivales se apoyan por los pies en el suelo del fondo, aqui.
   # SIN_SUELO: mapas cuyo fondo si tenga losas (ninguno por ahora)
   SIN_SUELO = []
   SUELO_RIVAL_Y = 576         # (560 se veia flotando un pelin)
-  SUELO_RIVAL_X = 1010        # en individuales, el rival y su entrenador (a la izquierda de tu ficha, para que se le vean los pies)
+  SUELO_RIVAL_X = 1010        # en individuales, el rival y su entrenador
   SUELO_ENTRENADOR_Y = 567
   PIES_EN_SOMBRA = 10         # los pies del rival, esto por debajo del centro de su sombra
   # el entrenador rival de un doble: entre DOBLE[1] y DOBLE[3], pies a su altura
   DOBLE_ENTRENADOR = [1100, 584]
+  # fondos con el suelo mas abajo: mapa => lo que baja el lado rival
+  BAJAR_SUELO = { 9 => 84 }   # ruta 1: a 576 los pies caian en los arbustos del bosque
+
+  def self.bajar_suelo
+    return ($game_map && BAJAR_SUELO[$game_map.map_id]) || 0
+  end
+
+  # La letra de la interfaz nueva, por la altura de sus mayusculas
+  def self.letra(bitmap, nombre, cap)
+    bitmap.font.name = nombre
+    bitmap.font.size = (cap / 0.7).round
+    bitmap.font.bold = false
+    bitmap.font.italic = false
+    begin
+      bitmap.font.outline = false
+      bitmap.font.shadow = false
+    rescue
+    end
+  end
+
+  # Escribe con la linea base en "base" (Barlow: la caja de la linea mide
+  # 1,2 veces el tamano y la linea base queda a 1 tamano de su borde de arriba)
+  def self.escribe(bitmap, x, base, txt, alin = 0, ancho = 800, color = Color.new(35, 35, 35))
+    t = bitmap.font.size
+    bitmap.font.color = color
+    bitmap.draw_text(x, base - t, ancho, (t * 1.2).round, txt.to_s, alin)
+  end
 
   def self.rival_doble?; return @rival_doble; end
   def self.rival_doble=(v); @rival_doble = v; end
@@ -129,25 +158,6 @@ module OstCombate
     end
   end
 
-  # [centro x, centro y, ancho] de las losas: los ovalos de estilo_elegido.png
-  LOSAS = [[554, 814, 760], [1374, 407, 690]]   # la propia: y = su borde de abajo, apoyado en la barra
-
-  # Un ovalo de pixel (se amplia despues): borde oscuro, filo y relleno
-  def self.ovalo(w, h, relleno, filo, borde)
-    b = Bitmap.new(w, h)
-    a = w / 2.0
-    c = h / 2.0
-    [[0, borde], [1, filo], [3, relleno]].each do |m, col|
-      h.times do |y|
-        yy = (y + 0.5 - c) / (c - m)
-        next if yy.abs >= 1
-        hw = (a - m) * Math.sqrt(1 - yy * yy)
-        b.fill_rect((a - hw).round, y, (2 * hw).round, 1, col)
-      end
-    end
-    return b
-  end
-
   # caja del dibujo (lo no transparente) de un bitmap, mirando de 2 en 2
   def self.caja(bm)
     x0 = bm.width; y0 = bm.height; x1 = 0; y1 = 0
@@ -173,55 +183,6 @@ module OstCombate
     end
     @cache[nombre] = b
     return b
-  end
-
-  def self.fuente(bitmap, tam)
-    bitmap.font.name = FUENTE
-    bitmap.font.size = tam
-    bitmap.font.bold = false
-    bitmap.font.italic = false
-    begin
-      bitmap.font.outline = false
-      bitmap.font.shadow = false
-    rescue
-    end
-  end
-
-  # Texto con un contorno grueso (se dibuja varias veces desplazado)
-  def self.texto(bitmap, x, y, w, h, txt, alin = 0, color = Color.new(255, 255, 255),
-                 borde = nil, grosor = 3)
-    if borde
-      c = bitmap.font.color
-      bitmap.font.color = borde
-      (-grosor..grosor).step(grosor) do |dx|
-        (-grosor..grosor).step(grosor) do |dy|
-          next if dx == 0 && dy == 0
-          bitmap.draw_text(x + dx, y + dy, w, h, txt, alin)
-        end
-      end
-      bitmap.font.color = c
-    end
-    bitmap.font.color = color
-    bitmap.draw_text(x, y, w, h, txt, alin)
-  end
-
-  # Parte un texto en lineas que quepan en ancho
-  def self.lineas(bitmap, txt, ancho)
-    ret = []
-    txt.to_s.split("\n").each do |parrafo|
-      actual = ""
-      parrafo.split(" ").each do |p|
-        prueba = actual.empty? ? p : actual + " " + p
-        if bitmap.text_size(prueba).width > ancho && !actual.empty?
-          ret.push(actual)
-          actual = p
-        else
-          actual = prueba
-        end
-      end
-      ret.push(actual) if !actual.empty?
-    end
-    return ret
   end
 
   def self.tipo_id(tipo)
@@ -260,7 +221,11 @@ class Battle::Scene
     def pbBattlerPosition(index, sideSize = 1)
       return ostcomb_pbBattlerPosition(index, sideSize) if !OstCombate.activo?
       k = OstCombate::ESCALA
-      return OstCombate::DOBLE[index].clone if sideSize == 2 && OstCombate::DOBLE[index]
+      if sideSize == 2 && OstCombate::DOBLE[index]
+        ret = OstCombate::DOBLE[index].clone
+        ret[1] += OstCombate.bajar_suelo if index.odd?
+        return ret
+      end
       ret = ((index & 1) == 0) ? OstCombate::PROPIO.clone : OstCombate::RIVAL.clone
       ret[0] = OstCombate::SUELO_RIVAL_X if (index & 1) == 1 && sideSize == 1 && OstCombate.suelo?
       case sideSize
@@ -279,8 +244,8 @@ class Battle::Scene
       return ostcomb_pbTrainerPosition(side, index, sideSize) if !OstCombate.activo?
       k = OstCombate::ESCALA
       if side == 0
-        # Kaia va cortada por la cintura: su borde de abajo, escondido tras la barra
-        ret = [OstCombate::PROPIO[0] - 40, OstCombate::BARRA2_Y + 110]
+        # Kaia va cortada por la cintura: su borde de abajo, en el borde de la pantalla
+        ret = [OstCombate::PROPIO[0] - 40, OstCombate::ALTO + 2]
       else
         ret = [OstCombate::RIVAL[0], OstCombate::RIVAL[1] + TRAINER_FOE_OFFSET_Y * k]
         ret = [OstCombate::SUELO_RIVAL_X, OstCombate::SUELO_ENTRENADOR_Y] if OstCombate.suelo? && sideSize == 1
@@ -288,6 +253,7 @@ class Battle::Scene
         # combate doble contra un solo entrenador: en medio de sus dos Pokemon
         # y en su mismo suelo, no en el sitio del individual (flotaba)
         ret = OstCombate::DOBLE_ENTRENADOR.clone if OstCombate.rival_doble? && sideSize == 1
+        ret[1] += OstCombate.bajar_suelo if OstCombate.suelo?
       end
       case sideSize
       when 2
@@ -330,7 +296,8 @@ class Battle::Scene
     @sprites["cmdBar_bg"].opacity = 0 if @sprites["cmdBar_bg"]
   end
 
-  # La barra de mensaje y la ventana del texto
+  # La banda oscura de los mensajes (abajo, a la derecha de tu ficha) y el
+  # texto, en blanco
   alias ostcomb_pbInitSprites pbInitSprites
   def pbInitSprites
     ostcomb_pbInitSprites
@@ -338,41 +305,50 @@ class Battle::Scene
     box = @sprites["messageBox"]
     if box
       # con setBitmap: al refrescarse (al volver del equipo) no vuelve al de 512
-      box.setBitmap(OstCombate::DIR + "barra_mensaje")
+      box.setBitmap(OstCombate::DIR + "banda_mensaje")
       box.x = 0
-      box.y = OstCombate::BARRA2_Y
+      box.y = OstCombate::MENSAJE_Y
     end
     w = @sprites["messageWindow"]
     if w
-      w.x = 92
-      w.y = OstCombate::BARRA2_Y + 128
-      w.width = 1030
-      w.height = 200
-      w.baseColor = Color.new(20, 20, 20)
-      w.shadowColor = Color.new(200, 200, 200)
+      w.x = 548
+      w.y = OstCombate::MENSAJE_Y + 4
+      w.width = 1340
+      w.height = 140
+      w.baseColor = Color.new(255, 255, 255)
+      w.shadowColor = Color.new(0, 0, 0, 160)
       if w.contents
-        OstCombate.fuente(w.contents, 50)
-        w.contents.font.color = Color.new(20, 20, 20)
+        OstCombate.letra(w.contents, OstCombate::F_ETIQUETA, 30)
+        w.contents.font.color = Color.new(255, 255, 255)
       end
-      w.lineHeight = 60 if w.respond_to?(:lineHeight=)
+      w.lineHeight = 56 if w.respond_to?(:lineHeight=)
       # pbMessageDisplay la vuelve a pegar abajo: se le guarda su sitio
       w.instance_variable_set(:@ost_sitio, [w.x, w.y, w.width, w.height])
       # la ventana vuelve a la fuente del sistema al cambiar de texto: se le
-      # pone la grande justo antes de cada mensaje
+      # pone la suya justo antes de cada mensaje
       def w.setText(value)
-        OstCombate.fuente(self.contents, 50) if self.contents && !self.contents.disposed?
+        OstCombate.letra(self.contents, OstCombate::F_ETIQUETA, 30) if self.contents && !self.contents.disposed?
         @oldfont = nil
         super
       end
-      # la flecha de "pulsa para seguir", mas grande y mas a la derecha
+      # la flecha de "pulsa para seguir", algo mas grande
       def w.moveCursor
         super
         return if !@pausesprite || @pausesprite.disposed?
-        @pausesprite.zoom_x = @pausesprite.zoom_y = 1.6
-        @pausesprite.x += 46
-        @pausesprite.y -= 8
+        @pausesprite.zoom_x = @pausesprite.zoom_y = 1.4
+        @pausesprite.x += 30
       end
     end
+  end
+
+  # Los mensajes llevan su color dentro (shadowc3tag con MESSAGE_BASE_COLOR, el
+  # gris oscuro de la v21): sobre la banda oscura, blanco con sombra negra
+  def shadowc3tag(base, shadow)
+    if OstCombate.activo? && base == MESSAGE_BASE_COLOR
+      base = Color.new(255, 255, 255)
+      shadow = Color.new(0, 0, 0, 160)
+    end
+    return super(base, shadow)
   end
 
   # Entrenadores, a la escala de los Pokemon
@@ -412,6 +388,8 @@ end
 module OstCombateZoom
   def ost_k
     return 1 if !OstCombate.activo?
+    # los del rival, mas lejos: mas pequenos (tambien entero, pixel limpio)
+    return OstCombate::ESCALA_RIVAL if @index && @index.odd?
     return OstCombate::DOBLE_ESCALA if @sideSize && @sideSize > 1
     return OstCombate::ESCALA
   end
@@ -419,8 +397,8 @@ module OstCombateZoom
   # el rival, apoyado por sus pies (dobles, y fondos con el suelo mas abajo)
   def ost_suelo_y
     return nil if !OstCombate.activo? || !@index || @index.even?
-    return OstCombate::DOBLE[@index][1] if @sideSize == 2 && OstCombate::DOBLE[@index]
-    return OstCombate::SUELO_RIVAL_Y if OstCombate.suelo? && (!@sideSize || @sideSize == 1)
+    return OstCombate::DOBLE[@index][1] + OstCombate.bajar_suelo if @sideSize == 2 && OstCombate::DOBLE[@index]
+    return OstCombate::SUELO_RIVAL_Y + OstCombate.bajar_suelo if OstCombate.suelo? && (!@sideSize || @sideSize == 1)
     return nil
   end
 
@@ -468,6 +446,11 @@ class Battle::Scene::BattlerSprite
     # la imagen se ancla por abajo: su fila de abajo con dibujo, en el suelo (un poco dentro de la sombra,
     # que si no parecia que flotaba)
     self.y = suelo + OstCombate.vacio_abajo(@_iconBitmap.bitmap) * ost_k + OstCombate::PIES_EN_SOMBRA if suelo
+    # los tuyos: el corte de abajo de su dibujo, justo en el borde de abajo de
+    # la pantalla (sin barra que lo tape, no puede quedar mas arriba)
+    if @_iconBitmap && OstCombate.activo? && @index && @index.even?
+      self.y = OstCombate::ALTO + OstCombate.vacio_abajo(@_iconBitmap.bitmap) * ost_k
+    end
   end
 end
 
@@ -483,33 +466,48 @@ class Battle::Scene::BattlerShadowSprite
 end
 
 #-------------------------------------------------------------------------------
-# Las fichas
+# Las fichas: las del dibujo de David (blancas, con el borde inclinado). El
+# nombre, el nivel y los PS se escriben encima; las barras de vida y de
+# experiencia las pinta el codigo. Debajo de la ficha de abajo de cada lado, la
+# tira del equipo: una Poke Ball por Pokemon (amarilla si tiene un problema de
+# estado, gris si esta debilitado). La del rival, solo contra entrenadores.
+#
+#   :nombre, :nivel => [x, linea base]; :numeros => [x, y] de su recuadro
+#   (la linea base va a OST_NUM_BASE dentro); :vida, :exp => [x, y, ancho, alto].
 #-------------------------------------------------------------------------------
 class Battle::Scene::PokemonDataBox
-  # [x, y] de la ficha y, dentro, todo lo demas
-  # (medido sobre las piezas de Descargas\interfaz_combate\piezas2, colocadas
-  # como en estilo_elegido.png)
-  OST_RIVAL = { :pos => [79, 13], :fondo => "ficha_rival",
-                :nombre => [60, 70, 370, 84], :nivel => [470, 86, 200, 84],
-                :nivel_texto => "Lv.%d", :nivel_alin => 1,
-                :vida => [322, 200, 312, 34], :bloques => 8, :estado => [70, 150],
-                :bolitas => [137, 268, 82] }   # sin la flecha de debajo
-  OST_PROPIA = { :pos => [1112, 474], :fondo => "ficha_propia",
-                 :nombre => [112, 40, 390, 84], :nivel => [604, 48, 130, 84],
-                 :nivel_texto => "%d", :nivel_alin => 0,
-                 :vida => [382, 140, 298, 26], :numeros => [400, 178, 280, 66],
-                 :exp => [258, 272, 394, 11], :estado => [110, 200] }
-  OST_COLORES = [Color.new(70, 200, 80), Color.new(250, 200, 40),
+  OST_RIVAL = { :pos => [1403, 24], :fondo => "ficha_rival",
+                :nombre => [62, 49], :nivel => [418, 54], :vida => [62, 66, 404, 15] }
+  OST_PROPIA = { :pos => [0, 921], :fondo => "ficha_propia",
+                 :nombre => [16, 50], :nivel => [372, 55], :vida => [16, 59, 404, 15],
+                 :numeros => [16, 61], :exp => [245, 80, 175, 9] }
+  OST_NUM_BASE = 52
+  OST_TEXTO  = Color.new(35, 35, 35)
+  OST_HUECO  = Color.new(222, 222, 222)       # lo que falta de la barra de vida
+  OST_COLORES = [Color.new(30, 248, 14), Color.new(250, 200, 40),
                  Color.new(250, 130, 30), Color.new(230, 40, 40)]
+  # las Poke Balls de la tira: x de cada hueco y su y (tira_propia / tira_rival)
+  OST_BOLAS = { true => [[4, 23, 42, 61, 80, 99], 3], false => [[17, 37, 57, 78, 98, 118], 3] }
 
   alias ostcomb_initialize initialize
   def initialize(battler, sideSize, viewport = nil)
     @ost = OstCombate.activo?
+    @ost_lado = sideSize
     ostcomb_initialize(battler, sideSize, viewport)
   end
 
   def ost_datos
     return (@battler.index.even?) ? OST_PROPIA : OST_RIVAL
+  end
+
+  # la tira del equipo va debajo de la ficha de abajo de cada lado; la del
+  # rival, solo si es un entrenador
+  def ost_con_tira?
+    lado = @battler.index & 1
+    n = (@battler.battle.pbSideSize(lado) rescue 1)
+    return false if @battler.index != lado + 2 * (n - 1)
+    return true if lado == 0
+    return (@battler.battle.trainerBattle? rescue false)
   end
 
   alias ostcomb_initializeDataBoxGraphic initializeDataBoxGraphic
@@ -540,7 +538,6 @@ class Battle::Scene::PokemonDataBox
     @hpBarBitmap   = AnimatedBitmap.new("Graphics/UI/Battle/overlay_hp")
     @expBarBitmap  = AnimatedBitmap.new("Graphics/UI/Battle/overlay_exp")
     @hpNumbers = BitmapSprite.new(300, 70, viewport)
-    OstCombate.fuente(@hpNumbers.bitmap, 52)
     @sprites["hpNumbers"] = @hpNumbers
     @hpPercent = BitmapSprite.new(4, 4, viewport)
     @sprites["hpPercent"] = @hpPercent
@@ -555,17 +552,15 @@ class Battle::Scene::PokemonDataBox
     @ostExp.fill_rect(0, 0, e[2], e[3], Color.new(60, 170, 240))
     @expBar.bitmap = @ostExp
     @sprites["expBar"] = @expBar
-    # el rival: las bolitas de su equipo, debajo de la ficha (en dobles no)
-    if d[:bolitas] && @ost_esc == 1.0
+    if ost_con_tira?
       @ostLinea = Sprite.new(viewport)
-      @ostLinea.bitmap = Bitmap.new(720, 420)
+      @ostLinea.bitmap = Bitmap.new(140, 27)
       @sprites["ostLinea"] = @ostLinea
     end
     @contents = Bitmap.new(@databoxBitmap.width, @databoxBitmap.height)
     self.bitmap  = @contents
     self.visible = false
     self.z       = DATABOX_BASE_Z + ((@battler.index / 2) * 5)
-    OstCombate.fuente(self.bitmap, 64)
     if @ost_esc != 1.0
       [self, @hpBar, @expBar, @hpNumbers].each { |sp| sp.zoom_x = sp.zoom_y = @ost_esc }
     end
@@ -578,6 +573,17 @@ class Battle::Scene::PokemonDataBox
     ostcomb_dispose
   end
 
+  # la tira: la tuya pegada al borde izquierdo, la del rival al derecho (los
+  # dos, el mismo que el de la ficha), y justo debajo de la ficha
+  def ost_tira_xy(bx, by)
+    e = @ost_esc || 1.0
+    alto = (@databoxBitmap.height * e).round
+    if @battler.index.even?
+      return [bx, by + alto]
+    end
+    return [bx + (@databoxBitmap.width * e).round - @ostLinea.bitmap.width, by + alto - 1]
+  end
+
   alias ostcomb_x_set x=
   def x=(value)
     return ostcomb_x_set(value) if !@ost
@@ -588,7 +594,9 @@ class Battle::Scene::PokemonDataBox
     @expBar.x = value + ((d[:exp] ? d[:exp][0] : 0) * e).round
     @hpNumbers.x = value + ((d[:numeros] ? d[:numeros][0] : 0) * e).round
     @hpPercent.x = value
-    @ostLinea.x = value if @ostLinea
+    if @ostLinea
+      @ostLinea.x = ost_tira_xy(value, self.y)[0]
+    end
   end
 
   alias ostcomb_y_set y=
@@ -601,7 +609,9 @@ class Battle::Scene::PokemonDataBox
     @expBar.y = value + ((d[:exp] ? d[:exp][1] : 0) * e).round
     @hpNumbers.y = value + ((d[:numeros] ? d[:numeros][1] : 0) * e).round
     @hpPercent.y = value
-    @ostLinea.y = value if @ostLinea
+    if @ostLinea
+      @ostLinea.y = ost_tira_xy(self.x, value)[1]
+    end
   end
 
   alias ostcomb_refresh refresh
@@ -610,21 +620,16 @@ class Battle::Scene::PokemonDataBox
     self.bitmap.clear
     return if !@battler.pokemon
     d = ost_datos
-    self.bitmap.blt(0, 0, @databoxBitmap.bitmap, Rect.new(0, 0, @databoxBitmap.width, @databoxBitmap.height))
     b = self.bitmap
-    # nombre: blanco con contorno negro, sobre el rojo
-    n = d[:nombre]
-    OstCombate.fuente(b, 64)
-    nombre = @battler.name
-    OstCombate.texto(b, n[0], n[1], n[2], n[3], nombre.upcase, 0,
-                     Color.new(255, 255, 255), Color.new(0, 0, 0), 3)
-    # nivel: negro sobre el blanco
-    l = d[:nivel]
-    OstCombate.fuente(b, 66)
-    OstCombate.texto(b, l[0], l[1], l[2], l[3], format(d[:nivel_texto], @battler.level), d[:nivel_alin],
-                     Color.new(20, 20, 20))
-    ost_bolitas
-    # estado (el icono de la v21, ampliado)
+    b.blt(0, 0, @databoxBitmap.bitmap, Rect.new(0, 0, @databoxBitmap.width, @databoxBitmap.height))
+    v = d[:vida]
+    b.fill_rect(v[0], v[1], v[2], v[3], OST_HUECO)
+    OstCombate.letra(b, OstCombate::F_NOMBRE, 24)
+    nombre = @battler.name.to_s
+    OstCombate.escribe(b, d[:nombre][0], d[:nombre][1], nombre, 0, 330, OST_TEXTO)
+    OstCombate.letra(b, OstCombate::F_TEXTO, 35)
+    OstCombate.escribe(b, d[:nivel][0], d[:nivel][1], @battler.level.to_s, 0, 90, OST_TEXTO)
+    # el estado (el icono de la v21, x2), detras del nombre
     if @battler.status != :NONE
       begin
         if @battler.status == :POISON && @battler.statusCount > 0
@@ -633,15 +638,17 @@ class Battle::Scene::PokemonDataBox
           s = GameData::Status.get(@battler.status).icon_position
         end
         if s >= 0
+          OstCombate.letra(b, OstCombate::F_NOMBRE, 24)
+          x = d[:nombre][0] + b.text_size(nombre).width + 12
           ic = Bitmap.new("Graphics/UI/Battle/icon_statuses")
-          e = d[:estado]
-          b.stretch_blt(Rect.new(e[0], e[1], ic.width * 3, STATUS_ICON_HEIGHT * 3), ic,
+          b.stretch_blt(Rect.new(x, d[:nombre][1] - 26, ic.width * 2, STATUS_ICON_HEIGHT * 2), ic,
                         Rect.new(0, s * STATUS_ICON_HEIGHT, ic.width, STATUS_ICON_HEIGHT))
           ic.dispose
         end
       rescue
       end
     end
+    ost_tira
     refresh_hp
     refresh_exp
   end
@@ -653,9 +660,10 @@ class Battle::Scene::PokemonDataBox
     return if !@battler.pokemon
     d = ost_datos
     if @show_hp_numbers && d[:numeros]
-      OstCombate.fuente(@hpNumbers.bitmap, 52)
-      OstCombate.texto(@hpNumbers.bitmap, 0, 0, d[:numeros][2], d[:numeros][3],
-                       "#{self.hp.round}/ #{@battler.totalhp}", 2, Color.new(255, 255, 255), Color.new(0, 0, 0), 3)
+      nb = @hpNumbers.bitmap
+      # "PS/total" de un tiron, pegado a la izquierda: la "/" cae donde toque
+      OstCombate.letra(nb, OstCombate::F_TEXTO, 29)
+      OstCombate.escribe(nb, 0, OST_NUM_BASE, "#{self.hp.round}/#{@battler.totalhp}", 0, 300, OST_TEXTO)
     end
     v = d[:vida]
     w = 0
@@ -666,56 +674,39 @@ class Battle::Scene::PokemonDataBox
     idx, _sig, _mezcla = pbHPBarZoneInfo(self.hp, @battler.totalhp, HP_COLOR_COUNT)
     col = OST_COLORES[[idx, 3].min]
     @hpBarDisplay.clear
-    claro = Color.new([col.red + 50, 255].min, [col.green + 50, 255].min, [col.blue + 50, 255].min)
-    if d[:bloques]
-      # el rival: la vida en bloques, como en la maqueta; los vacios, grises
-      n = d[:bloques]
-      hueco = 6
-      bw = (v[2] - hueco * (n - 1)) / n
-      llenos = (self.hp <= 0) ? 0 : [(n * self.hp.to_f / @battler.totalhp).ceil, 1].max
-      n.times do |k|
-        x = k * (bw + hueco)
-        c = (k < llenos) ? col : Color.new(70, 70, 70)
-        @hpBarDisplay.fill_rect(x, 0, bw, v[3], c)
-        @hpBarDisplay.fill_rect(x, 0, bw, [v[3] / 4, 2].max, claro) if k < llenos
-      end
-      @hpBar.src_rect.width = v[2]
-    else
-      @hpBarDisplay.fill_rect(0, 0, v[2], v[3], col)
-      @hpBarDisplay.fill_rect(0, 0, v[2], [v[3] / 4, 2].max, claro)
-      @hpBar.src_rect.width = w
-    end
+    @hpBarDisplay.fill_rect(0, 0, v[2], v[3], col)
+    @hpBar.src_rect.width = w
   end
 
   alias ostcomb_databox_z_set z=
   def z=(value)
     ostcomb_databox_z_set(value)
-    @ostLinea.z = 40 if @ostLinea && !@ostLinea.disposed?   # por detras de los Pokemon
+    return if !@ostLinea || @ostLinea.disposed?
+    @ostLinea.z = value   # la tira, con su ficha
   end
 
-  def ost_bolitas
+  # la tira del equipo
+  def ost_tira
     return if !@ostLinea || @ostLinea.disposed?
-    @ostLinea.z = 40
-    d = ost_datos
     b = @ostLinea.bitmap
     b.clear
+    propio = @battler.index.even?
+    base = OstCombate.bmp(propio ? "tira_propia" : "tira_rival")
+    b.blt(0, 0, base, base.rect)
     equipo = []
     begin
       equipo = @battler.battle.pbParty(@battler.index)
     rescue
     end
-    bx, by, paso = d[:bolitas]
-    lado = 72
-    6.times do |i|
+    xs, y = OST_BOLAS[propio]
+    xs.each_with_index do |x, i|
       pk = equipo[i]
-      if pk && !pk.egg?
-        bm = OstCombate.bmp(pk.fainted? ? "bolita_gris" : "bolita")
-        b.stretch_blt(Rect.new(bx + i * paso, by, lado, lado), bm, bm.rect)
-      else
-        bm = OstCombate.bmp("bolita_gris")
-        b.stretch_blt(Rect.new(bx + i * paso, by, lado, lado), bm, bm.rect, 90)
-      end
+      next if !pk || pk.egg?
+      n = (pk.fainted?) ? "bola_debil" : (pk.status != :NONE) ? "bola_estado" : "bola"
+      bm = OstCombate.bmp(n)
+      b.blt(x, y, bm, bm.rect)
     end
+    @ostLinea.x, @ostLinea.y = ost_tira_xy(self.x, self.y)
   end
 
   alias ostcomb_refresh_exp refresh_exp
@@ -727,11 +718,27 @@ class Battle::Scene::PokemonDataBox
 end
 
 #-------------------------------------------------------------------------------
-# Los cuatro botones (Luchar, Mochila, Pokemon, Huir)
+# Los cuatro botones (Luchar, Pokemon, Mochila, Huir): pildoras blancas a la
+# derecha, una debajo de otra; la elegida, negra con la letra blanca y un
+# pelin mas grande. Los iconos son los del dibujo de David (icono_*).
 #-------------------------------------------------------------------------------
 class Battle::Scene::CommandMenu
-  OST_BOTONES = [[1402, 879], [1738, 882], [1400, 1006], [1741, 1010]]
-  OST_ICONOS  = ["icono_luchar", "icono_mochila", "icono_pokemon", "icono_huir"]
+  OST_X     = 1555                   # borde izquierdo de las pildoras
+  OST_Y     = [609, 726, 843, 959]   # borde de arriba de cada fila
+  OST_W     = 351
+  OST_H     = 103
+  OST_PAD   = 24                     # el margen de la sombra en boton.png
+  OST_FILA  = [0, 2, 1, 3]           # de arriba abajo, con los indices de la v21
+  OST_ICONO = [["icono_luchar", 213, 1], ["icono_mochila", 197, 1],
+               ["icono_pokemon", 197, 1], ["icono_huir", 197, 3]]   # por indice
+  OST_GRANDE = 1.03                  # la elegida
+
+  def ost_filas; return OST_FILA; end
+
+  def ost_centro(i)
+    f = OST_FILA.index(i) || i
+    return [OST_X + OST_W / 2.0, OST_Y[f] + OST_H / 2.0]
+  end
 
   alias ostcomb_initialize initialize
   def initialize(viewport, z)
@@ -739,27 +746,50 @@ class Battle::Scene::CommandMenu
     return ostcomb_initialize(viewport, z) if !@ost
     Battle::Scene::MenuBase.instance_method(:initialize).bind(self).call(viewport)
     self.x = 0
-    self.y = OstCombate::BARRA2_Y
+    self.y = 0
     @textos = []
-    fondo = Sprite.new(viewport)
-    fondo.bitmap = OstCombate.bmp("barra")
-    fondo.y = OstCombate::BARRA2_Y
-    addSprite("fondo", fondo)
-    @ostSel = Sprite.new(viewport)
-    @ostSel.bitmap = OstCombate.bmp("boton_sel")
-    @ostSel.ox = @ostSel.bitmap.width / 2
-    @ostSel.oy = @ostSel.bitmap.height / 2
-    addSprite("sel", @ostSel)
-    @ostTexto = BitmapSprite.new(OstCombate::ANCHO, 346, viewport)
-    @ostTexto.y = OstCombate::BARRA2_Y
-    addSprite("texto", @ostTexto)
-    # zonas para el raton (invisibles)
-    @ostZona = Bitmap.new(320, 110)
+    @ostZoom = [1.0, 1.0, 1.0, 1.0]
+    @ostXY = Sprite.new(viewport)
+    @ostXY.bitmap = OstCombate.bmp("xy")
+    @ostXY.x = 1676
+    @ostXY.y = 466
+    addSprite("xy", @ostXY)
+    @ostFondo = []
+    @ostIcono = []
+    @ostLetras = []
+    @ostZona = Bitmap.new(OST_W, OST_H)
     @buttons = Array.new(4) do |i|
+      cx, cy = ost_centro(i)
+      f = Sprite.new(viewport)
+      f.bitmap = OstCombate.bmp("boton")
+      f.ox = OST_PAD + OST_W / 2.0
+      f.oy = OST_PAD + OST_H / 2.0
+      f.x = cx
+      f.y = cy
+      addSprite("fondo_#{i}", f)
+      @ostFondo[i] = f
+      nombre, ix, iy = OST_ICONO[i]
+      ic = Sprite.new(viewport)
+      ic.bitmap = OstCombate.bmp("" + nombre)
+      ic.ox = OST_W / 2.0 - ix
+      ic.oy = OST_H / 2.0 - iy
+      ic.x = cx
+      ic.y = cy
+      addSprite("icono_#{i}", ic)
+      @ostIcono[i] = ic
+      l = Sprite.new(viewport)
+      l.bitmap = Bitmap.new(OST_W, OST_H)
+      l.ox = OST_W / 2.0
+      l.oy = OST_H / 2.0
+      l.x = cx
+      l.y = cy
+      addSprite("letras_#{i}", l)
+      @ostLetras[i] = l
+      # la zona para el raton (invisible), del tamano de la pildora
       s = Sprite.new(viewport)
       s.bitmap = @ostZona
-      s.x = OST_BOTONES[i][0] - 160
-      s.y = OST_BOTONES[i][1] - 55
+      s.x = OST_X
+      s.y = OST_Y[OST_FILA.index(i)]
       s.opacity = 0
       addSprite("zona_#{i}", s)
       next s
@@ -770,6 +800,7 @@ class Battle::Scene::CommandMenu
 
   alias ostcomb_dispose dispose
   def dispose
+    @ostLetras&.each { |l| l.bitmap.dispose if l && !l.disposed? && l.bitmap }
     ostcomb_dispose
     @ostZona&.dispose
   end
@@ -778,8 +809,12 @@ class Battle::Scene::CommandMenu
   def z=(value)
     return ostcomb_z_set(value) if !@ost
     Battle::Scene::MenuBase.instance_method(:z=).bind(self).call(value)
-    @ostSel.z = value + 1
-    @ostTexto.z = value + 2
+    @ostXY.z = value + 1
+    4.times do |i|
+      @ostFondo[i].z = value + 1
+      @ostIcono[i].z = value + 2
+      @ostLetras[i].z = value + 3
+    end
   end
 
   alias ostcomb_setTexts setTexts
@@ -792,48 +827,56 @@ class Battle::Scene::CommandMenu
   alias ostcomb_refresh refresh
   def refresh
     return ostcomb_refresh if !@ost
-    p = OST_BOTONES[@index] || OST_BOTONES[0]
-    @ostSel.x = p[0]
-    @ostSel.y = p[1]
-    b = @ostTexto.bitmap
-    b.clear
-    # la pregunta, en el panel blanco
-    if @textos[0]
-      OstCombate.fuente(b, 56)
-      OstCombate.lineas(b, @textos[0].to_s.gsub("\n", " "), 980).each_with_index do |linea, i|
-        OstCombate.texto(b, 92, 124 + i * 64, 1000, 64, linea, 0, Color.new(20, 20, 20))
-      end
-    end
-    # cada boton: su palabra y su icono, en negro (como en la maqueta)
-    OstCombate.fuente(b, 62)
     4.times do |i|
       t = @textos[i + 1]
-      next if !t
-      q = OST_BOTONES[i]
-      ty = q[1] - OstCombate::BARRA2_Y
-      txt = t.to_s.upcase
-      ic = OstCombate.bmp(OST_ICONOS[i])
-      ancho = b.text_size(txt).width + 14 + ic.width
-      x0 = q[0] - ancho / 2
-      OstCombate.texto(b, x0, ty - 36, ancho, 72, txt, 0, Color.new(15, 15, 15))
-      b.blt(x0 + ancho - ic.width, ty - ic.height / 2, ic, ic.rect)
+      hay = !nil_or_empty?(t)
+      sel = (i == @index)
+      @ostFondo[i].bitmap = OstCombate.bmp(sel ? "boton_sel" : "boton")
+      b = @ostLetras[i].bitmap
+      b.clear
+      if hay
+        OstCombate.letra(b, OstCombate::F_TITULO, 28)
+        OstCombate.escribe(b, 39, 64, t.to_s, 0, 220,
+                           sel ? Color.new(255, 255, 255) : Color.new(35, 35, 35))
+      end
+      ["fondo_#{i}", "icono_#{i}", "letras_#{i}", "zona_#{i}"].each do |k|
+        @visibility[k] = hay
+        @sprites[k].visible = @visible && hay if @sprites[k]
+      end
+    end
+  end
+
+  def update
+    super
+    return if !@ost || !@ostFondo
+    4.times do |i|
+      meta = (i == @index) ? OST_GRANDE : 1.0
+      @ostZoom[i] += (meta - @ostZoom[i]) * 0.35
+      [@ostFondo[i], @ostIcono[i], @ostLetras[i]].each do |s|
+        s.zoom_x = s.zoom_y = @ostZoom[i] if s && !s.disposed?
+      end
     end
   end
 end
 
 #-------------------------------------------------------------------------------
-# Los ataques
+# Los ataques: la pildora de la capa "Lucha" del .kra de David, con lo blanco
+# del color del tipo (el circulo grande de su tabla) y el icono del tipo; el
+# nombre y la eficacia encima y los PP en la parte negra. Una debajo de otra;
+# la elegida sale un poco hacia la izquierda con la flecha delante.
 #-------------------------------------------------------------------------------
 class Battle::Scene::FightMenu
-  # los botones de la hoja de Firefly (Descargas/interfaz_combate/ataques),
-  # 400x92 (alargados estirando solo su tramo liso), en dos filas dentro del
-  # panel blanco; la de abajo, un poco a la izquierda siguiendo la inclinacion
-  OST_BOTONES = [[277, 896], [700, 896], [265, 1002], [688, 1002]]
-  OST_CIRCULO = [58, 43]           # el circulo del icono, dentro del boton
-  OST_ICONO   = 0.43               # el icono de tipo (96 px), como insignia en el circulo
-  OST_NOMBRE  = [8, -2, 215]      # el nombre: desplazamiento desde el centro y ancho
-  OST_PP      = [931, 864, 255, 164]
-  OST_DESC    = [1268, 858, 612, 196]
+  OST_X      = 1299
+  OST_Y      = [651, 754, 858, 964]
+  OST_W      = 603
+  OST_H      = 91
+  OST_PAD    = 16                  # el margen de la sombra en ataques/*.png
+  OST_GIRO   = 0.7                 # crece desde aqui (por el lado de los PP)
+  OST_FLECHA = [1218, 15]
+  OST_PP_X   = 512                 # centro de los PP en la parte negra
+  OST_BLANCO = ["POISON", "GROUND", "GHOST", "DRAGON", "DARK"]   # texto en blanco
+
+  def ost_filas; return [0, 1, 2, 3]; end
 
   alias ostcomb_initialize initialize
   def initialize(viewport, z)
@@ -841,199 +884,283 @@ class Battle::Scene::FightMenu
     return ostcomb_initialize(viewport, z) if !@ost
     Battle::Scene::MenuBase.instance_method(:initialize).bind(self).call(viewport)
     self.x = 0
-    self.y = OstCombate::BARRA_Y
+    self.y = 0
     @battler   = nil
     @shiftMode = 0
-    fondo = Sprite.new(viewport)
-    fondo.bitmap = OstCombate.bmp("barra_ataques")
-    fondo.y = OstCombate::BARRA_Y
-    addSprite("background", fondo)
+    @ostZoom = [1.0, 1.0, 1.0, 1.0]
+    @ostDx = [0.0, 0.0, 0.0, 0.0]
+    @ostY = Sprite.new(viewport)
+    @ostY.bitmap = OstCombate.bmp("y")
+    @ostY.x = 1676
+    @ostY.y = 527
+    addSprite("y", @ostY)
+    @ostPildora = []
+    @ostLetras = []
+    @ostZona = Bitmap.new(OST_W, OST_H)
     @buttons = Array.new(Pokemon::MAX_MOVES) do |i|
+      p = Sprite.new(viewport)
+      p.bitmap = OstCombate.bmp("ataques/NORMAL")
+      p.ox = OST_PAD + OST_W * OST_GIRO
+      p.oy = OST_PAD + OST_H / 2.0
+      p.x = OST_X + OST_W * OST_GIRO
+      p.y = OST_Y[i] + OST_H / 2.0
+      addSprite("pildora_#{i}", p)
+      @ostPildora[i] = p
+      l = Sprite.new(viewport)
+      l.bitmap = Bitmap.new(OST_W, OST_H)
+      l.ox = OST_W * OST_GIRO
+      l.oy = OST_H / 2.0
+      l.x = p.x
+      l.y = p.y
+      addSprite("letras_#{i}", l)
+      @ostLetras[i] = l
       s = Sprite.new(viewport)
-      s.bitmap = OstCombate.bmp("ataques/ataque_NORMAL")
-      s.ox = s.bitmap.width / 2
-      s.oy = s.bitmap.height / 2
-      s.x = OST_BOTONES[i][0]
-      s.y = OST_BOTONES[i][1]
+      s.bitmap = @ostZona
+      s.x = OST_X
+      s.y = OST_Y[i]
+      s.opacity = 0
       addSprite("button_#{i}", s)
       next s
     end
-    @ostIconos = Array.new(Pokemon::MAX_MOVES) do |i|
-      s = Sprite.new(viewport)
-      s.bitmap = OstCombate.bmp("tipos/NORMAL")
-      s.ox = s.bitmap.width / 2
-      s.oy = s.bitmap.height / 2
-      s.zoom_x = s.zoom_y = OST_ICONO
-      addSprite("icono_#{i}", s)
-      next s
-    end
-    @overlay = BitmapSprite.new(OstCombate::ANCHO, 282, viewport)
-    @overlay.y = OstCombate::BARRA_Y
-    addSprite("overlay", @overlay)
-    @infoOverlay = BitmapSprite.new(OstCombate::ANCHO, 282, viewport)
-    @infoOverlay.y = OstCombate::BARRA_Y
-    addSprite("infoOverlay", @infoOverlay)
+    @ostFlecha = Sprite.new(viewport)
+    @ostFlecha.bitmap = OstCombate.bmp("flecha")
+    @ostFlecha.x = OST_FLECHA[0]
+    @ostFlecha.y = OST_Y[0] + OST_FLECHA[1]
+    addSprite("flecha", @ostFlecha)
+    # (PROVISIONAL, hasta que David dibuje el suyo) el boton de megaevolucionar,
+    # encima de los ataques: blanco si se puede, negro si ya esta elegido
+    @ostMega = Sprite.new(viewport)
+    @ostMega.bitmap = Bitmap.new(OST_MEGA[2], OST_MEGA[3])
+    @ostMega.x = OST_MEGA[0]
+    @ostMega.y = OST_MEGA[1]
+    addSprite("mega", @ostMega)
+    @visibility["mega"] = false
     self.z = z
+  end
+
+  OST_MEGA = [1330, 568, 330, 64]    # x, y, ancho, alto del boton provisional
+
+  def ost_mega; return @ostMega; end
+
+  # una pildora con los extremos redondos (fila a fila, con un pelin de suavizado)
+  def ost_pildora(b, color)
+    w = b.width; h = b.height; r = h / 2.0
+    h.times do |y|
+      dy = (y + 0.5 - r).abs
+      next if dy > r
+      dx = Math.sqrt(r * r - dy * dy)
+      x0 = r - dx
+      b.fill_rect(x0.ceil, y, (w - 2 * x0.ceil), 1, color)
+      fr = x0.ceil - x0
+      if fr > 0.05
+        c = Color.new(color.red, color.green, color.blue, (color.alpha * fr).round)
+        b.fill_rect(x0.floor, y, 1, 1, c)
+        b.fill_rect(w - x0.ceil, y, 1, 1, c)
+      end
+    end
+  end
+
+  def ost_dibujar_mega
+    return if !@ostMega || @ostMega.disposed?
+    b = @ostMega.bitmap
+    b.clear
+    puede = (@mode == 1 || @mode == 2)
+    @visibility["mega"] = puede
+    @ostMega.visible = @visible && puede
+    return if !puede
+    elegida = (@mode == 2)
+    ost_pildora(b, elegida ? Color.new(0, 0, 0) : Color.new(255, 255, 255))
+    OstCombate.letra(b, OstCombate::F_TITULO, 24)
+    texto = elegida ? _INTL("¡Megaevolución!") : _INTL("Megaevolucionar")
+    OstCombate.escribe(b, 0, 44, texto, 1, b.width,
+                       elegida ? Color.new(255, 255, 255) : Color.new(35, 35, 35))
+  end
+
+  alias ostcomb_dispose dispose
+  def dispose
+    @ostLetras&.each { |l| l.bitmap.dispose if l && !l.disposed? && l.bitmap }
+    @ostMega.bitmap.dispose if @ostMega && !@ostMega.disposed? && @ostMega.bitmap
+    ostcomb_dispose
+    @ostZona&.dispose
   end
 
   alias ostcomb_z_set z=
   def z=(value)
     return ostcomb_z_set(value) if !@ost
     Battle::Scene::MenuBase.instance_method(:z=).bind(self).call(value)
-    @buttons.each { |s| s.z = value + 1 }
-    @ostIconos.each { |s| s.z = value + 2 }
-    @overlay.z = value + 3
-    @infoOverlay.z = value + 3
+    @ostY.z = value + 1
+    @ostMega.z = value + 1 if @ostMega
+    @ostPildora.each { |s| s.z = value + 1 }
+    @ostLetras.each { |s| s.z = value + 2 }
+    @ostFlecha.z = value + 3
   end
 
-  def ost_colocar
-    @buttons.each_with_index do |s, i|
-      sel = (i == @index)
-      dx = sel ? 14 : 0
-      s.x = OST_BOTONES[i][0] + dx
-      s.y = OST_BOTONES[i][1] - (sel ? 4 : 0)
-      s.tone = sel ? Tone.new(30, 30, 30) : Tone.new(-35, -35, -35, 40)
-      s.zoom_x = s.zoom_y = sel ? 1.06 : 1.0
-      s.opacity = (@ostVacio && @ostVacio[i]) ? 110 : 255
-      ost_icono(i)
-      ic = @ostIconos[i]
-      ic.visible = @visible && @visibility["button_#{i}"] && !(@ostVacio && @ostVacio[i])
-      @visibility["icono_#{i}"] = @visibility["button_#{i}"] && !(@ostVacio && @ostVacio[i])
+  def ost_tipo(move)
+    t = OstCombate.tipo_id(move.display_type(@battler)) rescue "NORMAL"
+    t = "NORMAL" if !pbResolveBitmap(OstCombate::DIR + "ataques/" + t)
+    return t
+  end
+
+  # "Supereficaz", "Poco eficaz"... contra el rival, si solo queda uno delante
+  def ost_eficacia(move)
+    return "" if !move || !@battler
+    return "" if move.respond_to?(:statusMove?) && move.statusMove?
+    rivales = @battler.battle.allOtherSideBattlers(@battler.index).select { |b| b && !b.fainted? }
+    return "" if rivales.length != 1
+    tipo = move.display_type(@battler)
+    ef = Effectiveness.calculate(tipo, *rivales[0].pbTypes(true))
+    return _INTL("No afecta") if Effectiveness.ineffective?(ef)
+    return _INTL("Poco eficaz") if Effectiveness.not_very_effective?(ef)
+    return _INTL("Supereficaz") if Effectiveness.super_effective?(ef)
+    return _INTL("Eficaz")
+  rescue StandardError
+    return ""
+  end
+
+  def ost_dibujar(i)
+    moves = (@battler) ? @battler.moves : []
+    m = moves[i]
+    hay = !!(m && m.id)
+    b = @ostLetras[i].bitmap
+    b.clear
+    if hay
+      t = ost_tipo(m)
+      @ostPildora[i].bitmap = OstCombate.bmp("ataques/" + t)
+      color = OST_BLANCO.include?(t) ? Color.new(255, 255, 255) : Color.new(35, 35, 35)
+      OstCombate.letra(b, OstCombate::F_TITULO, 24)
+      nombre = m.name.to_s
+      # si no cabe hasta la parte negra, mas pequena
+      cap = 24
+      while cap > 16 && b.text_size(nombre).width > 300
+        cap -= 1
+        OstCombate.letra(b, OstCombate::F_TITULO, cap)
+      end
+      ef = ost_eficacia(m)
+      # sin la linea de la eficacia (ataques de estado, o en dobles), el nombre en medio
+      OstCombate.escribe(b, 98, ef.empty? ? 57 : 42, nombre, 0, 320, color)
+      if !ef.empty?
+        OstCombate.letra(b, OstCombate::F_ETIQUETA, 14)
+        OstCombate.escribe(b, 99, 71, ef, 0, 300, color)
+      end
+      if m.total_pp > 0
+        frac = m.pp.to_f / m.total_pp
+        col = (m.pp == 0) ? Color.new(255, 90, 90) : (frac <= 0.25) ? Color.new(255, 160, 70) :
+              (frac <= 0.5) ? Color.new(255, 225, 80) : Color.new(255, 255, 255)
+        OstCombate.letra(b, OstCombate::F_TEXTO, 29)
+        OstCombate.escribe(b, OST_PP_X - 100, 60, "#{m.pp}/#{m.total_pp}", 1, 200, col)
+      end
     end
-  end
-
-  # el icono de tipo en el circulo del boton, siguiendo su zoom (el elegido late)
-  def ost_icono(i)
-    s = @buttons[i]
-    ic = @ostIconos[i]
-    return if !s || !ic || s.disposed? || ic.disposed?
-    ic.x = s.x + (OST_CIRCULO[0] - s.ox) * s.zoom_x
-    ic.y = s.y + (OST_CIRCULO[1] - s.oy) * s.zoom_y
-    ic.zoom_x = ic.zoom_y = OST_ICONO * s.zoom_x
+    ["pildora_#{i}", "letras_#{i}", "button_#{i}"].each do |k|
+      @visibility[k] = hay
+      @sprites[k].visible = @visible && hay if @sprites[k]
+    end
   end
 
   alias ostcomb_refreshButtonNames refreshButtonNames
   def refreshButtonNames
     return ostcomb_refreshButtonNames if !@ost
-    moves = (@battler) ? @battler.moves : []
-    b = @overlay.bitmap
-    b.clear
-    @buttons.each_with_index do |s, i|
-      next if !moves[i]
-      x = OST_BOTONES[i][0] + ((i == @index) ? 14 : 0) + OST_NOMBRE[0]
-      y = OST_BOTONES[i][1] - ((i == @index) ? 4 : 0) - OstCombate::BARRA_Y + OST_NOMBRE[1]
-      w = OST_NOMBRE[2]
-      nombre = moves[i].name.upcase
-      # la letra mas grande que quepa a la derecha del circulo
-      tam = 42
-      OstCombate.fuente(b, tam)
-      while tam > 28 && b.text_size(nombre).width > w
-        tam -= 2
-        OstCombate.fuente(b, tam)
-      end
-      OstCombate.texto(b, x - w / 2, y - 30, w, 60, nombre, 1,
-                       Color.new(255, 255, 255), Color.new(0, 0, 0), 3)
-    end
+    Pokemon::MAX_MOVES.times { |i| ost_dibujar(i) }
   end
 
   alias ostcomb_refreshSelection refreshSelection
   def refreshSelection
     return ostcomb_refreshSelection if !@ost
-    moves = (@battler) ? @battler.moves : []
-    @buttons.each_with_index do |s, i|
-      @ostVacio ||= []
-      if !moves[i]
-        # hueco sin ataque: el boton gris y apagado, sin icono
-        @ostVacio[i] = true
-        @visibility["button_#{i}"] = true
-        s.visible = @visible
-        s.bitmap = OstCombate.bmp("ataques/ataque_NORMAL")
-        next
-      end
-      @ostVacio[i] = false
-      @visibility["button_#{i}"] = true
-      s.visible = @visible
-      t = OstCombate.tipo_id(moves[i].display_type(@battler))
-      s.bitmap = OstCombate.bmp("ataques/ataque_#{t}")
-      @ostIconos[i].bitmap = OstCombate.bmp("tipos/#{t}")
-    end
-    ost_colocar
-    refreshButtonNames
-    refreshMoveData(moves[@index])
+    Pokemon::MAX_MOVES.times { |i| ost_dibujar(i) }
+    @ostFlecha.y = OST_Y[@index] + OST_FLECHA[1] if OST_Y[@index]
   end
 
   alias ostcomb_refreshMoveData refreshMoveData
   def refreshMoveData(move)
     return ostcomb_refreshMoveData(move) if !@ost
-    b = @infoOverlay.bitmap
-    b.clear
-    return if !move
-    yb = OstCombate::BARRA_Y
-    # PP y tipo, en blanco sobre la caja negra
-    pp = OST_PP
-    OstCombate.fuente(b, 50)
-    if move.total_pp > 0
-      frac = move.pp.to_f / move.total_pp
-      col = (move.pp == 0) ? Color.new(255, 80, 80) : (frac <= 0.25) ? Color.new(255, 150, 60) :
-            (frac <= 0.5) ? Color.new(255, 220, 60) : Color.new(255, 255, 255)
-      OstCombate.texto(b, pp[0], pp[1] - yb + 18, pp[2], 60, "PP  #{move.pp}/#{move.total_pp}", 1, col)
-    end
-    tipo = GameData::Type.get(move.display_type(@battler)).name rescue ""
-    OstCombate.fuente(b, 44)
-    OstCombate.texto(b, pp[0], pp[1] - yb + 90, pp[2], 56, tipo.upcase, 1, Color.new(255, 255, 255))
-    # descripcion, potencia y precision
-    de = OST_DESC
-    gm = GameData::Move.try_get(move.id) rescue nil
-    texto = (gm) ? gm.description.to_s : ""
-    # la letra mas grande que deje el texto en tres lineas
-    tam = 40
-    lineas = []
-    while tam >= 28
-      OstCombate.fuente(b, tam)
-      lineas = OstCombate.lineas(b, texto, de[2] - 20)
-      break if lineas.length <= 3
-      tam -= 2
-    end
-    lineas = lineas[0, 3]
-    lineas.each_with_index do |l, i|
-      OstCombate.texto(b, de[0] + 6, de[1] - yb + 4 + i * (tam + 4), de[2] - 12, tam + 6, l, 0, Color.new(30, 30, 30))
-    end
-    pot = (gm && gm.power.to_i > 1) ? gm.power.to_s : "-"
-    pre = (gm && gm.accuracy.to_i > 0) ? gm.accuracy.to_s : "-"
-    cat = ["F\u00CDSICO", "ESPECIAL", "ESTADO"][gm ? gm.category : 2] rescue ""
-    # una franja negra abajo con los datos, en tres columnas
-    fy = de[1] - yb + 146
-    b.fill_rect(de[0] - 4, fy, de[2] + 8, 48, Color.new(15, 15, 15))
-    OstCombate.fuente(b, 36)
-    tercio = (de[2] + 8) / 3
-    [["POT", pot], ["PREC", pre], [cat, nil]].each_with_index do |(et, val), k|
-      txt = val ? "#{et} #{val}" : et
-      OstCombate.texto(b, de[0] - 4 + k * tercio, fy + 2, tercio, 46, txt, 1,
-                       (k == 2) ? Color.new(255, 200, 60) : Color.new(255, 255, 255))
-    end
   end
 
   alias ostcomb_refreshMegaEvolutionButton refreshMegaEvolutionButton
   def refreshMegaEvolutionButton
     return ostcomb_refreshMegaEvolutionButton if !@ost
+    ost_dibujar_mega
   end
 
   alias ostcomb_refreshShiftButton refreshShiftButton
   def refreshShiftButton
     return ostcomb_refreshShiftButton if !@ost
   end
+
+  def update
+    super
+    return if !@ost || !@ostPildora
+    Pokemon::MAX_MOVES.times do |i|
+      sel = (i == @index)
+      @ostZoom[i] += ((sel ? 1.035 : 1.0) - @ostZoom[i]) * 0.35
+      @ostDx[i] += ((sel ? -10.0 : 0.0) - @ostDx[i]) * 0.35
+      [@ostPildora[i], @ostLetras[i]].each do |s|
+        next if !s || s.disposed?
+        s.zoom_x = s.zoom_y = @ostZoom[i]
+        s.x = OST_X + OST_W * OST_GIRO + @ostDx[i].round
+      end
+    end
+    if @ostFlecha && !@ostFlecha.disposed?
+      @ostFlecha.y = OST_Y[@index] + OST_FLECHA[1] if OST_Y[@index]
+      @ostFlecha.opacity += (255 - @ostFlecha.opacity) * 0.35
+    end
+  end
 end
 
 #-------------------------------------------------------------------------------
-# A quien se ataca (combates dobles). El de la v21 quitaba la barra de abajo
-# (y tus Pokemon se quedaban cortados en el aire) y ponia sus botones de 512.
-# Aqui es como el de los cuatro botones: la misma barra, la pregunta en el
-# panel blanco y un boton por Pokemon, colocados como estan en el campo
-# (arriba los rivales, abajo los tuyos). El elegido, en rojo y latiendo.
+# A quien se ataca (dobles): las mismas pildoras de los cuatro botones, una por
+# Pokemon (primero los rivales, de izquierda a derecha, y luego los tuyos); la
+# que se elige, negra. La pregunta, en la banda de los mensajes.
 #-------------------------------------------------------------------------------
 class Battle::Scene::TargetMenu
   attr_accessor :ost_quien     # el nombre del que ataca, para la pregunta
   attr_accessor :ost_nombres   # los de todos, para escribir en gris los que no se pueden elegir
+  attr_reader   :ost_orden     # los indices de los Pokemon, de arriba abajo
+
+  def ost_filas; return @ost_orden; end
+
+  OST_ICONO_LADO = 80     # el icono de cada pildora, a la derecha del nombre
+  OST_ICONO_X    = 287    # su centro dentro de la pildora
+
+  # El icono de cada Pokemon, sacado de su sprite de frente (fijo): recortado
+  # por lo dibujado y encogido hasta caber en OST_ICONO_LADO. Se guardan por
+  # Pokemon mientras dura el combate.
+  def ost_poner_iconos(battlers)
+    @ost_iconos ||= {}
+    @ost_icono_de = {}
+    battlers.each_with_index do |bt, i|
+      next if !bt || bt.fainted?
+      pk = (bt.respond_to?(:displayPokemon) && bt.displayPokemon) || bt.pokemon
+      next if !pk
+      clave = [pk.species, pk.form, pk.shiny?, pk.gender]
+      @ost_iconos[clave] ||= ost_hacer_icono(pk)
+      @ost_icono_de[i] = @ost_iconos[clave]
+    end
+  end
+
+  def ost_hacer_icono(pk)
+    ab = GameData::Species.sprite_bitmap_from_pokemon(pk, false) rescue nil
+    return nil if !ab
+    bm = ab.bitmap
+    x0 = bm.width; y0 = bm.height; x1 = -1; y1 = -1
+    bm.height.times do |y|
+      bm.width.times do |x|
+        next if bm.get_pixel(x, y).alpha < 40
+        x0 = x if x < x0; x1 = x if x > x1
+        y0 = y if y < y0; y1 = y if y > y1
+      end
+    end
+    if x1 < 0
+      ab.dispose
+      return nil
+    end
+    w = x1 - x0 + 1; h = y1 - y0 + 1
+    k = [OST_ICONO_LADO.to_f / w, OST_ICONO_LADO.to_f / h].min
+    dw = (w * k).round; dh = (h * k).round
+    icono = Bitmap.new(OST_ICONO_LADO, OST_ICONO_LADO)
+    icono.stretch_blt(Rect.new((OST_ICONO_LADO - dw) / 2, (OST_ICONO_LADO - dh) / 2, dw, dh),
+                      bm, Rect.new(x0, y0, w, h))
+    ab.dispose
+    return icono
+  end
 
   alias ostcomb_initialize initialize
   def initialize(viewport, z, sideSizes)
@@ -1044,114 +1171,285 @@ class Battle::Scene::TargetMenu
     @texts = []
     @mode = 0
     self.x = 0
-    self.y = OstCombate::BARRA2_Y
-    fondo = Sprite.new(viewport)
-    fondo.bitmap = OstCombate.bmp("barra")
-    fondo.y = OstCombate::BARRA2_Y
-    addSprite("fondo", fondo)
-    @ostZona = Bitmap.new(320, 110)
+    self.y = 0
+    rivales = []
+    propios = []
+    (sideSizes.max * 2).times do |i|
+      next if sideSizes[i % 2] <= i / 2
+      x = Battle::Scene.pbBattlerPosition(i, sideSizes[i % 2])[0] rescue i
+      (i.odd? ? rivales : propios).push([x, i])
+    end
+    @ost_orden = rivales.sort.map { |a| a[1] } + propios.sort.map { |a| a[1] }
+    @ostZoom = {}
+    @ostFondo = {}
+    @ostLetras = {}
+    @ostZona = Bitmap.new(Battle::Scene::CommandMenu::OST_W, Battle::Scene::CommandMenu::OST_H)
+    banda = Sprite.new(viewport)
+    banda.bitmap = OstCombate.bmp("banda_mensaje")
+    banda.y = OstCombate::MENSAJE_Y
+    addSprite("banda", banda)
+    @ostPregunta = BitmapSprite.new(OstCombate::ANCHO, 144, viewport)
+    @ostPregunta.y = OstCombate::MENSAJE_Y
+    addSprite("pregunta", @ostPregunta)
+    cm = Battle::Scene::CommandMenu
     maximo = (sideSizes[0] > sideSizes[1]) ? (sideSizes[0] - 1) * 2 : (sideSizes[1] * 2) - 1
-    @ostSel = []
     @buttons = Array.new(maximo + 1) do |i|
-      next nil if sideSizes[i % 2] <= i / 2
-      p = ost_sitio(i)
-      sel = Sprite.new(viewport)
-      sel.bitmap = OstCombate.bmp("boton_sel")
-      sel.ox = sel.bitmap.width / 2
-      sel.oy = sel.bitmap.height / 2
-      sel.x, sel.y = p
-      sel.visible = false
-      addSprite("sel_#{i}", sel)
-      @ostSel[i] = sel
-      # zona para el raton (invisible)
+      fila = @ost_orden.index(i)
+      next nil if !fila || !cm::OST_Y[fila]
+      cx = cm::OST_X + cm::OST_W / 2.0
+      cy = cm::OST_Y[fila] + cm::OST_H / 2.0
+      f = Sprite.new(viewport)
+      f.bitmap = OstCombate.bmp("boton")
+      f.ox = cm::OST_PAD + cm::OST_W / 2.0
+      f.oy = cm::OST_PAD + cm::OST_H / 2.0
+      f.x = cx
+      f.y = cy
+      addSprite("fondo_#{i}", f)
+      @ostFondo[i] = f
+      l = Sprite.new(viewport)
+      l.bitmap = Bitmap.new(cm::OST_W, cm::OST_H)
+      l.ox = cm::OST_W / 2.0
+      l.oy = cm::OST_H / 2.0
+      l.x = cx
+      l.y = cy
+      addSprite("letras_#{i}", l)
+      @ostLetras[i] = l
+      @ostZoom[i] = 1.0
       s = Sprite.new(viewport)
       s.bitmap = @ostZona
-      s.x = p[0] - 160
-      s.y = p[1] - 55
+      s.x = cm::OST_X
+      s.y = cm::OST_Y[fila]
       s.opacity = 0
       addSprite("zona_#{i}", s)
       next s
     end
-    @ostTexto = BitmapSprite.new(OstCombate::ANCHO, 346, viewport)
-    @ostTexto.y = OstCombate::BARRA2_Y
-    addSprite("texto", @ostTexto)
     self.z = z
     refresh
   end
 
-  # los rivales arriba y los tuyos abajo, cada uno en el lado en que esta
-  # (el 1 del rival, a la derecha; el 0 tuyo, a la izquierda)
-  def ost_sitio(i)
-    n = @sideSizes[i % 2]
-    col = i.even? ? i / 2 : n - 1 - i / 2
-    col = 1 if n == 1                        # uno solo: el boton de la derecha
-    fila = i.even? ? 1 : 0
-    return Battle::Scene::CommandMenu::OST_BOTONES[fila * 2 + col]
-  end
-
   alias ostcomb_dispose dispose
   def dispose
+    @ostLetras&.each_value { |l| l.bitmap.dispose if l && !l.disposed? && l.bitmap }
     ostcomb_dispose
     @ostZona&.dispose
+    @ost_iconos&.each_value { |b| b.dispose if b && !b.disposed? }
   end
 
   alias ostcomb_z_set z=
   def z=(value)
     return ostcomb_z_set(value) if !@ost
     Battle::Scene::MenuBase.instance_method(:z=).bind(self).call(value)
-    @ostSel.each { |s| s.z = value + 1 if s }
-    @ostTexto.z = value + 2 if @ostTexto
+    @sprites["banda"].z = value + 1 if @sprites["banda"]
+    @ostPregunta.z = value + 2 if @ostPregunta
+    @ostFondo&.each_value { |s| s.z = value + 1 }
+    @ostLetras&.each_value { |s| s.z = value + 2 }
   end
 
   alias ostcomb_refresh refresh
   def refresh
     return ostcomb_refresh if !@ost
-    b = @ostTexto.bitmap
+    b = @ostPregunta.bitmap
     b.clear
     quien = @ost_quien.to_s
     pregunta = quien.empty? ? _INTL("¿A quién?") : _INTL("¿A quién ataca {1}?", quien)
-    OstCombate.fuente(b, 56)
-    OstCombate.lineas(b, pregunta, 980).each_with_index do |linea, i|
-      OstCombate.texto(b, 92, 124 + i * 64, 1000, 64, linea, 0, Color.new(20, 20, 20))
-    end
-    @buttons.each_with_index do |boton, i|
-      next if !boton
+    OstCombate.letra(b, OstCombate::F_ETIQUETA, 30)
+    OstCombate.escribe(b, 560, 86, pregunta, 0, 1300, Color.new(255, 255, 255))
+    @ostFondo.each_key do |i|
       vale = !nil_or_empty?(@texts[i])
-      @ostSel[i].visible = vale && (@mode == 1 || i == @index)
       nombre = vale ? @texts[i] : (@ost_nombres || [])[i]
-      next if nil_or_empty?(nombre)
-      p = ost_sitio(i)
-      txt = nombre.to_s.upcase
-      tam = 62
-      OstCombate.fuente(b, tam)
-      while b.text_size(txt).width > 270 && tam > 36
-        tam -= 4
-        OstCombate.fuente(b, tam)
+      hay = !nil_or_empty?(nombre)
+      sel = vale && (@mode == 1 || i == @index)
+      @ostFondo[i].bitmap = OstCombate.bmp(sel ? "boton_sel" : "boton")
+      l = @ostLetras[i].bitmap
+      l.clear
+      if hay
+        OstCombate.letra(l, OstCombate::F_TITULO, 28)
+        color = sel ? Color.new(255, 255, 255) : vale ? Color.new(35, 35, 35) : Color.new(160, 160, 160)
+        OstCombate.escribe(l, 39, 64, nombre.to_s, 0, 200, color)
+        ic = @ost_icono_de && @ost_icono_de[i]
+        if ic && !ic.disposed?
+          cm = Battle::Scene::CommandMenu
+          l.blt(OST_ICONO_X - OST_ICONO_LADO / 2, (cm::OST_H - OST_ICONO_LADO) / 2, ic, ic.rect,
+                vale ? 255 : 110)
+        end
       end
-      OstCombate.texto(b, p[0] - 150, p[1] - OstCombate::BARRA2_Y - 36, 300, 72, txt, 1,
-                       vale ? Color.new(15, 15, 15) : Color.new(150, 150, 150))
+      ["fondo_#{i}", "letras_#{i}", "zona_#{i}"].each do |k|
+        @visibility[k] = hay
+        @sprites[k].visible = @visible && hay if @sprites[k]
+      end
     end
   end
 
   def update
     super
-    return if !@ost
-    z = 1.0 + 0.035 * Math.sin(System.uptime * 7)
-    @ostSel.each { |s| s.zoom_x = s.zoom_y = z if s && s.visible }
+    return if !@ost || !@ostFondo
+    @ostFondo.each_key do |i|
+      sel = !nil_or_empty?(@texts[i]) && (@mode == 1 || i == @index)
+      @ostZoom[i] += ((sel ? Battle::Scene::CommandMenu::OST_GRANDE : 1.0) - @ostZoom[i]) * 0.35
+      [@ostFondo[i], @ostLetras[i]].each { |s| s.zoom_x = s.zoom_y = @ostZoom[i] if s && !s.disposed? }
+    end
   end
 end
 
+#-------------------------------------------------------------------------------
+# Los menus van en columna: arriba y abajo se mueven por las filas (la v21 los
+# lleva en una rejilla de 2x2 con izquierda/derecha). Lo demas, igual que la v21.
+#-------------------------------------------------------------------------------
 class Battle::Scene
-  # La barra de abajo no se quita nunca: los tuyos van cortados por debajo y
-  # sin ella se quedaban partidos en el aire (al acabar un combate, la v21
-  # dejaba unos fotogramas sin ninguna ventana). Sin otra ventana, la del
-  # mensaje, aunque sea vacia.
-  alias ostcomb_pbShowWindow pbShowWindow
-  def pbShowWindow(windowType)
-    ostcomb_pbShowWindow(windowType)
-    return if !OstCombate.activo?
-    return if [COMMAND_BOX, FIGHT_BOX, TARGET_BOX].include?(windowType)
-    @sprites["messageBox"].visible = true if @sprites["messageBox"]
+  def ost_fila_siguiente(cw, paso, valido = nil)
+    filas = cw.ost_filas
+    f = filas.index(cw.index) || 0
+    loop do
+      f += paso
+      return cw.index if f < 0 || f >= filas.length
+      i = filas[f]
+      next if valido && !valido.call(i)
+      return i
+    end
+  end
+
+  # La fila de Poke Balls de la v21 al empezar contra un entrenador (encima de
+  # la banda de "te desafia") no sale: el equipo ya va en las tiras de las fichas
+  alias ostcomb_pbShowPartyLineup pbShowPartyLineup
+  def pbShowPartyLineup(side, fullAnim = false)
+    return if OstCombate.activo?
+    ostcomb_pbShowPartyLineup(side, fullAnim)
+  end
+
+  alias ostcomb_pbCommandMenuEx pbCommandMenuEx
+  def pbCommandMenuEx(idxBattler, texts, mode = 0)
+    cw = @sprites["commandWindow"]
+    return ostcomb_pbCommandMenuEx(idxBattler, texts, mode) if !OstCombate.activo? || !cw.respond_to?(:ost_filas)
+    pbShowWindow(COMMAND_BOX)
+    cw.setTexts(texts)
+    cw.setIndexAndMode(@lastCmd[idxBattler], mode)
+    pbSelectBattler(idxBattler)
+    ret = -1
+    mouseState = pbInitializeMouseState
+    infoState = pbInitializeMouseState   # la barra "Y Info" (040)
+    loop do
+      oldIndex = cw.index
+      pbUpdate(cw)
+      if respond_to?(:ost_info_pedida?) && ost_info_pedida?(cw, infoState)
+        ost_abrir_info(idxBattler)
+        mouseState = pbInitializeMouseState
+        infoState = pbInitializeMouseState
+        next
+      end
+      if Input.trigger?(Input::UP)
+        cw.index = ost_fila_siguiente(cw, -1, proc { |i| !nil_or_empty?(texts[i + 1]) })
+      elsif Input.trigger?(Input::DOWN)
+        cw.index = ost_fila_siguiente(cw, 1, proc { |i| !nil_or_empty?(texts[i + 1]) })
+      end
+      pbPlayCursorSE if cw.index != oldIndex
+      clickedIndex = pbCheckMouseButtons(cw.buttons, mouseState)
+      if clickedIndex
+        cw.index = clickedIndex
+        pbPlayDecisionSE
+        ret = cw.index
+        @lastCmd[idxBattler] = ret
+        break
+      end
+      if Input.trigger?(Input::USE)
+        pbPlayDecisionSE
+        ret = cw.index
+        @lastCmd[idxBattler] = ret
+        break
+      elsif Input.trigger?(Input::BACK) && mode == 1
+        pbPlayCancelSE
+        break
+      elsif Input.trigger?(Input::F9) && $DEBUG
+        pbPlayDecisionSE
+        ret = -2
+        break
+      end
+    end
+    return ret
+  end
+
+  alias ostcomb_pbFightMenu pbFightMenu
+  def pbFightMenu(idxBattler, megaEvoPossible = false, &block)
+    cw = @sprites["fightWindow"]
+    return ostcomb_pbFightMenu(idxBattler, megaEvoPossible, &block) if !OstCombate.activo? || !cw.respond_to?(:ost_filas)
+    battler = @battle.battlers[idxBattler]
+    cw.battler = battler
+    moveIndex = 0
+    moveIndex = @lastMove[idxBattler] if battler.moves[@lastMove[idxBattler]]&.id
+    cw.shiftMode = (@battle.pbCanShift?(idxBattler)) ? 1 : 0
+    cw.setIndexAndMode(moveIndex, (megaEvoPossible) ? 1 : 0)
+    needFullRefresh = true
+    needRefresh = false
+    mouseState = pbInitializeMouseState
+    megaState = pbInitializeMouseState   # el del boton de mega: el de los ataques cuenta por indice
+    loop do
+      if needFullRefresh
+        pbShowWindow(FIGHT_BOX)
+        pbSelectBattler(idxBattler)
+        needFullRefresh = false
+      end
+      if needRefresh
+        if megaEvoPossible
+          newMode = (@battle.pbRegisteredMegaEvolution?(idxBattler)) ? 2 : 1
+          cw.mode = newMode if newMode != cw.mode
+          cw.refresh
+        end
+        needRefresh = false
+      end
+      oldIndex = cw.index
+      pbUpdate(cw)
+      if Input.trigger?(Input::UP)
+        cw.index = ost_fila_siguiente(cw, -1, proc { |i| battler.moves[i]&.id })
+      elsif Input.trigger?(Input::DOWN)
+        cw.index = ost_fila_siguiente(cw, 1, proc { |i| battler.moves[i]&.id })
+      end
+      pbPlayCursorSE if cw.index != oldIndex
+      clickedIndex = pbCheckMouseButtons(cw.buttons, mouseState, proc { |i| battler.moves[i]&.id })
+      # el boton (provisional) de megaevolucionar, con el raton: como la tecla ACTION
+      megaClick = false
+      if megaEvoPossible && !clickedIndex && cw.respond_to?(:ost_mega) && cw.ost_mega
+        megaClick = !!pbCheckMouseButtons([cw.ost_mega], megaState) rescue false
+      end
+      if megaClick
+        pbPlayDecisionSE
+        break if yield(-2)
+        needFullRefresh = respond_to?(:fight_action_handler) ? fight_action_handler(battler, idxBattler, cw) : true
+        needRefresh = true
+      elsif clickedIndex
+        cw.index = clickedIndex
+        pbPlayDecisionSE
+        if yield cw.index
+          break
+        else
+          needFullRefresh = true
+          needRefresh = true
+        end
+      end
+      if Input.trigger?(Input::USE)
+        pbPlayDecisionSE
+        break if yield cw.index
+        needFullRefresh = true
+        needRefresh = true
+      elsif Input.trigger?(Input::BACK)
+        pbPlayCancelSE
+        fight_cancel_handler(battler, idxBattler, cw) if respond_to?(:fight_cancel_handler)
+        break if yield(-1)
+        needRefresh = true
+      elsif Input.trigger?(Input::ACTION)
+        if megaEvoPossible
+          pbPlayDecisionSE
+          break if yield(-2)
+          needFullRefresh = respond_to?(:fight_action_handler) ? fight_action_handler(battler, idxBattler, cw) : true
+          needRefresh = true
+        end
+      elsif Input.trigger?(Input::SPECIAL)
+        if cw.shiftMode > 0
+          pbPlayDecisionSE
+          break if yield(-3)
+          needRefresh = true
+        end
+      end
+    end
+    @lastMove[idxBattler] = cw.index
   end
 
   alias ostcomb_pbChooseTarget pbChooseTarget
@@ -1160,37 +1458,84 @@ class Battle::Scene
     if cw.respond_to?(:ost_quien=)
       cw.ost_quien = (@battle.battlers[idxBattler].name rescue nil)
       cw.ost_nombres = @battle.battlers.map { |bt| (bt && !bt.fainted?) ? bt.name : nil }
+      begin
+        cw.ost_poner_iconos(@battle.battlers)
+      rescue StandardError => e
+        echoln("OstCombate iconos: #{e.class}: #{e.message}")
+      end
     end
-    return ostcomb_pbChooseTarget(idxBattler, target_data, visibleSprites)
+    return ostcomb_pbChooseTarget(idxBattler, target_data, visibleSprites) if !OstCombate.activo? || !cw.respond_to?(:ost_filas) || !cw.ost_filas
+    pbShowWindow(TARGET_BOX)
+    texts = pbCreateTargetTexts(idxBattler, target_data)
+    mode = (target_data.num_targets == 1) ? 0 : 1
+    cw.setDetails(texts, mode)
+    cw.index = pbFirstTarget(idxBattler, target_data)
+    pbSelectBattler((mode == 0) ? cw.index : texts, 2)
+    pbFadeInAndShow(@sprites, visibleSprites) if visibleSprites
+    ret = -1
+    mouseState = pbInitializeMouseState
+    loop do
+      oldIndex = cw.index
+      pbUpdate(cw)
+      clickedIndex = pbCheckMouseButtons(cw.buttons, mouseState, proc { |i| cw.buttons[i] && !texts[i].nil? })
+      if clickedIndex
+        cw.index = clickedIndex
+        ret = cw.index
+        pbPlayDecisionSE
+        break
+      end
+      if mode == 0
+        if Input.trigger?(Input::UP)
+          cw.index = ost_fila_siguiente(cw, -1, proc { |i| !texts[i].nil? })
+        elsif Input.trigger?(Input::DOWN)
+          cw.index = ost_fila_siguiente(cw, 1, proc { |i| !texts[i].nil? })
+        end
+        if cw.index != oldIndex
+          pbPlayCursorSE
+          pbSelectBattler(cw.index, 2)
+        end
+      end
+      if Input.trigger?(Input::USE)
+        ret = cw.index
+        pbPlayDecisionSE
+        break
+      elsif Input.trigger?(Input::BACK)
+        ret = -1
+        pbPlayCancelSE
+        break
+      end
+    end
+    pbSelectBattler(-1)
+    return ret
   end
 end
 
 #-------------------------------------------------------------------------------
-# El cartel de habilidad ("Mar Llamas de Fennekin"), al estilo de la interfaz
+# El aviso de habilidad ("Torrente"): una banda blanca fina con el borde
+# inclinado y una franja negra por el lado por el que entra; solo el nombre de
+# la habilidad. El tuyo, encima de tu ficha; el del rival, debajo de la suya.
 #-------------------------------------------------------------------------------
 class Battle::Scene::AbilitySplashBar
-  # propio: a la izquierda, entre las bolitas del rival y la cabeza de tu
-  # Pokemon; rival: arriba a la derecha, por encima de su Pokemon
-  OST_Y = [364, 0]
+  OST_PAD   = 24                 # el margen de la sombra en banda_*.png
+  OST_ANCHO = 540
+  OST_X     = [-24, 1356]        # donde se queda (con el margen de la sombra)
+  OST_Y     = [814, 134]         # individuales (el del rival, debajo de la tira de su equipo)
+  OST_Y2    = [758, 194]         # dobles: por encima / por debajo de las dos fichas y la tira
 
   alias ostcomb_initialize initialize
   def initialize(side, viewport = nil)
     ostcomb_initialize(side, viewport)
     @ost = OstCombate.activo?
     return if !@ost
-    # el cartel de Firefly (habilidad.png: panel blanco sobre tira roja, mancha
-    # arriba a la izquierda, rombo negro a la derecha); el del rival, volteado
-    fondo = OstCombate.bmp("habilidad")
+    fondo = OstCombate.bmp((side == 0) ? "banda_propia" : "banda_rival")
     @bgSprite.bitmap = fondo
     @bgSprite.src_rect = Rect.new(0, 0, fondo.width, fondo.height)
-    @bgSprite.mirror = (side == 1)
-    w = fondo.width
+    @bgSprite.mirror = false
     @contents.dispose
-    @contents = Bitmap.new(w, fondo.height)
+    @contents = Bitmap.new(fondo.width, fondo.height)
     self.bitmap = @contents
-    OstCombate.fuente(self.bitmap, 58)
-    # la animacion la mueve medio ancho de pantalla: asi acaba pegada a su borde
-    self.x = (side == 0) ? -(Graphics.width / 2) : Graphics.width + (Graphics.width / 2 - w)
+    # la animacion la mueve medio ancho de pantalla: asi acaba en su sitio
+    self.x = (side == 0) ? OST_X[0] - Graphics.width / 2 : OST_X[1] + Graphics.width / 2
     self.y = OST_Y[side]
   end
 
@@ -1199,49 +1544,22 @@ class Battle::Scene::AbilitySplashBar
     return ostcomb_refresh if !@ost
     self.bitmap.clear
     return if !@battler
-    # el texto, en negro y centrado en lo blanco (lejos de la mancha y la trama,
-    # que en el del rival quedan a la derecha)
-    x0 = (@side == 0) ? 100 : 40
-    OstCombate.fuente(self.bitmap, 54)
-    OstCombate.texto(self.bitmap, x0, 44, 400, 56, @battler.abilityName.upcase, 1,
-                     Color.new(16, 16, 16))
-    OstCombate.fuente(self.bitmap, 30)
-    OstCombate.texto(self.bitmap, x0, 98, 400, 34, _INTL("de {1}", @battler.name).upcase, 1,
-                     Color.new(200, 30, 40))
+    dobles = (@battler.battle.pbSideSize(@side) > 1) rescue false
+    self.y = (dobles ? OST_Y2 : OST_Y)[@side]
+    b = self.bitmap
+    OstCombate.letra(b, OstCombate::F_TITULO, 28)
+    OstCombate.escribe(b, OST_PAD + 64, OST_PAD + 46, @battler.abilityName.to_s,
+                       (@side == 0) ? 0 : 2, OST_ANCHO - 128, Color.new(35, 35, 35))
   end
 end
 
-# La ventana de mensajes del combate se queda en el panel blanco
+# La ventana de mensajes del combate se queda en la banda oscura
 alias ostcomb_pbRepositionMessageWindow pbRepositionMessageWindow
 def pbRepositionMessageWindow(msgwindow, linecount = 2)
   ostcomb_pbRepositionMessageWindow(msgwindow, linecount)
   s = msgwindow.instance_variable_get(:@ost_sitio)
   return if !s || !OstCombate.activo?
   msgwindow.x, msgwindow.y, msgwindow.width, msgwindow.height = s
-end
-
-# El boton elegido late un poco, y el ataque elegido tambien
-class Battle::Scene::CommandMenu
-  def update
-    super
-    return if !@ost || !@ostSel || @ostSel.disposed?
-    z = 1.0 + 0.035 * Math.sin(System.uptime * 7)
-    @ostSel.zoom_x = z
-    @ostSel.zoom_y = z
-  end
-end
-
-class Battle::Scene::FightMenu
-  def update
-    super
-    return if !@ost || !@buttons
-    s = @buttons[@index]
-    return if !s || s.disposed?
-    z = 1.06 + 0.025 * Math.sin(System.uptime * 7)
-    s.zoom_x = z
-    s.zoom_y = z
-    ost_icono(@index)
-  end
 end
 
 #-------------------------------------------------------------------------------
@@ -1325,7 +1643,7 @@ end
 # Las animaciones de los ataques calculan el centro del Pokemon con su zoom.
 # Nuestros Pokemon dicen tener zoom 1 (para que las animaciones no los
 # encojan), asi que aqui se usa el zoom real: si no, el Pokemon se dibujaba
-# mas abajo durante cada ataque y la barra lo tapaba.
+# mas abajo durante cada ataque y se salia por abajo.
 #-------------------------------------------------------------------------------
 alias ostcomb_getSpriteCenter getSpriteCenter
 def getSpriteCenter(sprite)

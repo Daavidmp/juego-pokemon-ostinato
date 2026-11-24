@@ -414,7 +414,7 @@ de abajo arriba en motas de polvo de su color (una copia quieta del dibujo recor
   quepan todos (a_pokemon_varios); antes solo apuntaba al primero.
 - Encuadres por lo dibujado (OstCamara.caja: los pixeles visibles del sprite, sin el margen de su cuadro):
   a_pokemon_varios centra el grupo en la pantalla con MARGEN 520 a cada lado (las fichas de vida llegan a x 470).
-  La pantalla partida (dividida) en un doble parte cada mitad en dos recuadros de 480 (uno por Pokemon, de izquierda
+  (Ya no existe: se quito el 2026-11-23.) La pantalla partida (dividida) en un doble parte cada mitad en dos recuadros de 480 (uno por Pokemon, de izquierda
   a derecha como en el combate) con una raya fina entre ellos; cada uno centrado en su recuadro y a un tamano que
   ocupa el 60 % de su ancho (como mucho 1,45; en individuales 1,7, como antes). Los tuyos, pegados a la barra.
   En el VS, los del rival se apoyan en una misma linea (PIE_RIVAL, el 80 % de SUELO) para quedar alineados; el zoom
@@ -456,6 +456,12 @@ de abajo arriba en motas de polvo de su color (una copia quieta del dibujo recor
   · Linea discontinua en el centro de las carreteras de dos carriles (raya de 3 px en el borde de una casilla de
     asfalto), solo en tramos de 3 casillas o mas y sin cruces ni pasos de cebra cerca.
   · OJO: Ciudad_Gimnasio.png ya mide 32160 px de alto; RGSS/mkxp no aguantan bitmaps de mas de 32768: quedan 19 filas.
+- GIMNASIO DE SOL (2026-11-10): la taberna se cambio por un club de swing art deco (Firefly: Downloads/taller/gimnasio_sol,
+  resultado1.png). Fachada a la mitad exacta de la imagen, tejado al 83 % de alto; ocupa x 13-25, y 0-12 (una fila mas que la
+  taberna, la 0) en la capa 2. Se repintaron las casillas de la taberna en su sitio (mismo numero) y 16 nuevas en las filas
+  VACIAS 809 y 890 del tileset (la imagen no crece: sigue en 1022 filas). En (15,12) y (23,12) la casilla lleva la copa del
+  naranjo encima; la base vieja de la capa 1 (6554) se quito. Todo bloqueado menos la puerta (19,12), aun sin evento.
+  Copia de antes en %LOCALAPPDATA%/rmxp_motor/copias/gimnasio_sol_*.
 - SI EL OTRO PC TIENE CAMBIOS SIN SUBIR EN Map019.rxdata / Tilesets.rxdata / Ciudad_Gimnasio.png (los coches que se
   mueven): son binarios y git no los junta. Alli: guardar copia de esos 3 archivos, quedarse con SU version al
   juntar (git checkout --ours o copiarlos encima tras el pull), y volver a ejecutar aplicar.py.
@@ -503,3 +509,41 @@ de abajo arriba en motas de polvo de su color (una copia quieta del dibujo recor
 - Pendiente: sacar las piezas al tileset (32 px/casilla con reduccion de calidad, LANCZOS), el mapa con su paso y
   prioridades, y las luces en un plugin (como 007_Farolas.rb).
 
+23. INTERFAZ DE COMBATE NUEVA (2026-11-23, al estilo de Espada/Escudo; sustituye a la de comic)
+- La diseno David en Downloads\ostinato_combate_sin_interfaz_texto.kra (capas: fichas, botones, X/Y, tiras del
+  equipo, plantilla de ataques "Lucha", tabla de tipos). Maquetas animadas en Claude Design (privadas de David).
+- Piezas en Graphics/UI/Ostinato/Combate/ (y ataques/<TIPO>.png). Letras: Fonts/OstTitulo, OstEtiqueta, OstTexto,
+  OstNombre (Barlow, OFL, con la familia renombrada; en CREDITOS.md). La interfaz de comic se borro entera (piezas,
+  letra Bangers, ficha del jefe Jefe/barra_jefe.png y su codigo): el jefe Wooloo (026) usa la ficha nueva del rival.
+  Las pildoras de ataque tienen los dos extremos semicirculares exactos (rehechas por codigo; la plantilla tenia la
+  izquierda torcida).
+- 016_CombateHD: sin barra roja. Tus Pokemon y Kaia con el corte JUSTO en el borde de abajo (PROPIO [760, 1080],
+  anclado por la ultima fila con dibujo); dobles a x3 (DOBLE_ESCALA), los tuyos en 760 y 1160, los rivales en
+  (900, 550) y (1300, 605); fichas de dobles al 80 % apiladas (DOBLE_FICHAS). BAJAR_SUELO: en la ruta 1 (mapa 9) el
+  rival va 84 px mas abajo (a 576 pisaba los arbustos).
+  * Fichas: dibujo de David; nombre, nivel y "PS/total" (de un tiron, alineado a la izquierda: la "/" se mueve con
+    las cifras) se escriben encima; barras por codigo. Tira del equipo bajo la ficha de abajo de cada lado (la del
+    rival solo contra entrenadores): bola roja, amarilla con problema de estado, gris debilitado, nada si no hay.
+  * Botones: pildoras en columna (Luchar, Pokemon, Mochila, Huir); la elegida, negra con letra blanca. Arriba/abajo
+    se mueven por las filas (pbCommandMenuEx, pbFightMenu y pbChooseTarget reescritos solo en eso).
+  * Ataques: pildora de la plantilla con lo blanco del color del tipo (circulo grande de la tabla), icono del tipo,
+    nombre, eficacia contra el rival (solo si queda uno delante y no es de estado) y PP; la elegida sale con flecha.
+  * Mensajes: banda negra al 78 % abajo, a la derecha de tu ficha, letra blanca (shadowc3tag cambiado en
+    Battle::Scene). Objetivo en dobles: pildoras con los nombres y la pregunta en la banda.
+  * Aviso de habilidad: banda blanca fina con franja negra, solo el nombre de la habilidad (diseno de Claude).
+- 018: SUELO = el borde de abajo de la pantalla y VISIBLE_Y 540. 019: la ball de debilitarse, como mucho a 750.
+- Probado escondido (ost_prueba, debug): salvaje individual en la ruta 1 y doble contra entrenador en la ruta 2, con
+  capturas de menu, ataques, objetivo, mensajes y avisos; y el del jefe Wooloo. SIN PROBAR: megaevolucion,
+  safari, la pregunta Si/No de cambiar de Pokemon y la mochila/equipo abiertos desde el combate.
+- Sin VS: la pantalla partida del principio (OstCamara.dividida) se quito; el combate empieza en el plano general.
+- Objetivo en dobles: cada pildora lleva a la derecha un icono del Pokemon sacado de su sprite de frente
+  (TargetMenu#ost_poner_iconos: recortado por lo dibujado y encogido a 80 px).
+- INFO CON LA Y (2026-11-24, 040_InfoCombate.rb): en el menu de comandos, la Y (tecla Y o D = Input::SPECIAL, o pinchar
+  la barra "Y Info") abre por la derecha el modal de la capa "info" del .kra (maqueta InfoCombate del Claude Design).
+  Cuatro vistas (izq./der., flechas o iconos; Y o atras cierra): grafica (stats, objeto, habilidad y su descripcion),
+  ruta (OstInfo::RUTAS por mapa: nombre, descripcion, curiosidad; Pokemon del combate salvaje + encuentros del mapa,
+  los no vistos con "?"), cambios (stages +1..+6 en flechitas; en dobles 2x2) e info (tu Pokemon de frente animado,
+  tipos, categoria, entrada de la Pokedex como curiosidad y debilidades con x4). Piezas fijas en
+  Graphics/UI/Ostinato/Combate/info/ (las genera recursos/info_combate/piezas_info.py desde el diseno: barras en la diagonal del dibujo,
+  x = 1744,7 - 0,3665*y). Letra nueva Fonts/OstMedia.ttf (Barlow Semi Condensed Medium, OFL). 016 llama a
+  ost_info_pedida?/ost_abrir_info desde pbCommandMenuEx. Probado escondido en individual (ruta 1) y doble (colegas).

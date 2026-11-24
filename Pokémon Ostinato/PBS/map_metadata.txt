@@ -113,3 +113,7 @@ Name = Ciudad Gimnasio
 Outdoor = true
 ShowArea = true
 SnapEdges = true
+#-------------------------------
+[020]
+Name = Gimnasio Discoteca
+SnapEdges = true

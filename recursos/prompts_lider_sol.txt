@@ -1,0 +1,213 @@
+POKEMON OSTINATO - SOL, LIDER DEL GIMNASIO 1 (Ciudad Sonaja) + MUSICA DE LA CIUDAD - 2026-11-06
+
+Quien es Sol (guion del acto 0 y biblia):
+  - Lider del gimnasio 1, tipo Normal, medalla Sonaja. Equipo: Sentret, Chatot y Whismur (el as).
+  - 30 años con la energia de un crio de 8. Sale saltando. Entusiasta, generoso, ruidoso.
+    Tiene que caer simpatico en cuanto se le ve.
+  - El gimnasio es su local (el bar de la ciudad), con tarima, altavoces y karaoke los viernes.
+    El combate es un duelo de ritmo.
+  - En el acto III se le ve "de piedra": el diseño tiene que leerse bien tambien como estatua
+    (silueta clara, nada de detalles finos que solo funcionen con color).
+
+================================================================================
+1d. SOL TRAJEADO (2026-11-06, David lo quiere con traje)
+================================================================================
+Idea: el dueño del local que se viste para su público. Traje de tres piezas a medida,
+color propio (terracota tostado con forro naranja que asoma), chaleco dorado, camisa
+negra sin corbata con un pañuelo al cuello, y la pandereta como seña. Elegante pero
+cercano: chaqueta abierta, mangas un poco subidas, sonrisa de anfitrion.
+Mismos ajustes: 1:1, Arte, estilo = ref_estilo_kaia.png, intensidad alta. Pedir 4.
+
+PROMPT:
+Full body character design of a charismatic Pokémon gym leader, a main character
+with a striking, memorable silhouette, drawn in EXACTLY the same art style as the
+reference girl: hand-drawn anime illustration in the style of official Pokémon
+Scarlet and Violet character art, clean dark brown ink outline of even thickness,
+flat cel colours with one soft shadow tone, small pink blush on the cheeks, simple
+shapes, same head-to-body proportions and same line quality, plain white
+background, no text.
+He is a magnetic, warm host of about 30, the owner of the town's music club: tall
+and slim with broad shoulders, warm tan skin, a confident charming smile, bright
+amber eyes, thick dark eyebrows, short dark brown hair styled in a loose, slightly
+messy quiff, neat short beard along the jaw.
+Outfit, a sharp tailored three-piece suit with his own style: a slim-fit jacket in
+rich burnt terracotta with wide peaked lapels, worn open, with a bright orange
+lining showing at the edges and the sleeves pushed up a little to the forearms; a
+matching waistcoat in mustard gold with small brass buttons; a black shirt with
+the top button open and a patterned orange and plum silk scarf tied loosely at the
+neck; slim terracotta trousers with a crisp crease; polished two-tone brown and
+white brogues. A folded pocket square in the shape of a little sunburst, a gold
+ring on one hand, and a small round lapel pin showing a circle with seven little
+holes.
+Pose: a relaxed, confident leader pose, standing with weight on one leg, both hands
+casually in his trouser pockets, jacket pushed back behind the wrists showing the
+orange lining, head slightly tilted with a playful wink, full figure visible from
+head to shoes, centred, empty hands.
+(2026-11-06: sin saludar ni brazo levantado, lo pidio David. Imagen elegida de base:
+Descargas\Full body character design of a  224304 GtQ.png, a retocar en Firefly:
+Insertar sobre brazo levantado + panderetas + costado con "his arm relaxed down at his
+side with the hand tucked casually into his trouser pocket, terracotta suit sleeve,
+open jacket edge with orange lining, terracotta trousers, same art style".)
+
+Excluir: texto, letras, marca de agua, fondo, escenario, otros personajes, Pokémon,
+estilo realista, 3D, corbata, sombrero, gafas de sol, instrumentos musicales,
+pandereta, micrófono, objetos en las manos.
+(2026-11-06: sin pandereta, lo pidio David.)
+
+Si sale demasiado serio (mafioso o ejecutivo): añadir "friendly, cheerful, a big warm
+grin, playful energy". Si los colores salen apagados: "bold colour blocking, high
+contrast, vivid terracotta and mustard". Si el traje sale de otro color: "a burnt
+orange suit, not brown, not red".
+
+================================================================================
+1c. SOL CON CARISMA DE LIDER (descartada: lo quiere trajeado) (2026-11-06, la 1b "parece un secundario")
+================================================================================
+Idea: el dueño del bar que, cuando sube a la tarima, es el alma de la fiesta. Traje propio
+que se reconoce por la silueta: el cuello de puntas como rayos de sol que le enmarca la
+cabeza, la chaqueta corta de director de banda, la pandereta a la cadera como una pistolera,
+las baquetas cruzadas a la espalda y los botines de claqué. Se tiene que reconocer igual
+convertido en piedra (acto III).
+Mismos ajustes: 1:1, Arte, estilo = ref_estilo_kaia.png, intensidad alta. Pedir 4.
+
+PROMPT:
+Full body character design of a charismatic Pokémon gym leader, a main character
+with a striking, memorable silhouette, drawn in EXACTLY the same art style as the
+reference girl: hand-drawn anime illustration in the style of official Pokémon
+Scarlet and Violet character art, clean dark brown ink outline of even thickness,
+flat cel colours with one soft shadow tone, small pink blush on the cheeks, simple
+shapes, same head-to-body proportions and same line quality, plain white
+background, no text.
+He is a magnetic, sunny showman of about 30, the soul of every party: tall and
+lanky, warm tan skin, a confident lopsided grin, bright golden eyes, swept-back
+glossy black hair with one bold orange streak falling over his forehead.
+Original stage outfit in sunset orange, deep plum and gold: a cropped marching
+band jacket in bright sunset orange with two rows of round brass buttons and gold
+braided cords across the chest, sleeves pushed up to the elbows; a tall stiff
+collar cut into sharp golden points that fan out behind his head like the rays of
+the sun; underneath, a black and white checkerboard waistcoat; high-waisted wide
+deep plum trousers with a gold stripe down the side; white spats over black tap
+dance shoes. A brass tambourine hangs at his hip like a gunslinger's holster, two
+drumsticks are tucked crossed behind his belt, and a bar towel hangs from his back
+pocket. A small round pin on the jacket shows a circle with seven little holes.
+Pose: a bold leader pose, one foot forward resting on its heel, leaning back
+slightly, one hand snapping its fingers towards the viewer, the other spinning the
+tambourine on one finger, full figure visible from head to shoes, centred.
+
+Excluir: texto, letras, marca de agua, fondo, escenario, otros personajes, Pokémon,
+estilo realista, 3D, capa, corona, alas.
+
+Si el cuello de rayos sale como una corona o un peinado: "a stiff high collar with
+six short golden points, like a stylised sun, attached to the jacket". Si sale
+demasiado militar: quitar "gold braided cords" y poner "a big golden sun emblem on
+the chest". Si sale soso de color: "bold colour blocking, high contrast".
+
+================================================================================
+1b. SOL, EL DUEÑO DEL BAR (descartada: parecia un secundario) (2026-11-06, la 1 no le gusto a David)
+================================================================================
+Mismos ajustes que la 1 (1:1, Arte, estilo = ref_estilo_kaia.png, intensidad alta).
+
+PROMPT:
+Full body character design of a Pokémon gym leader, drawn in EXACTLY the same art
+style as the reference girl: hand-drawn anime illustration in the style of official
+Pokémon Scarlet and Violet character art, clean dark brown ink outline of even
+thickness, flat cel colours with one soft shadow tone, small pink blush on the
+cheeks, simple shapes, same head-to-body proportions and same line quality, plain
+white background, no text.
+He is the friendly owner of a small neighbourhood music bar, a man of about 30 with
+the restless energy of a kid: slim and lively, warm light-olive skin, short messy
+dark brown hair sticking up at the front, two-day stubble, bright brown eyes, a huge
+warm grin and one eye closed in a playful wink.
+Outfit: a white shirt with the sleeves rolled up to the elbows, the collar open,
+under a deep burgundy waistcoat; a slightly crooked black bow tie; a long black
+waiter's apron tied at the waist; a striped tea towel thrown over one shoulder;
+dark grey trousers and worn brown boots. A small round badge pinned to the
+waistcoat shows a circle with seven little holes.
+Pose: leaning forward cheerfully, holding out a round silver serving tray on one
+hand at shoulder height with a brass tambourine lying on it instead of drinks,
+the other hand on his hip, full figure visible from head to shoes, centred.
+
+Excluir: texto, letras, marca de agua, fondo, barra de bar, botellas, vasos, alcohol,
+otros personajes, Pokémon, estilo realista, 3D.
+
+Si sale demasiado serio o elegante (camarero de restaurante caro): añadir "rumpled,
+casual, a little messy, a small coffee stain on the apron". Si la bandeja tapa la
+cara: "holding the tray low at waist height".
+
+================================================================================
+3. CLAXON DE LOS COCHES · Adobe Firefly (Generar efectos de sonido)
+================================================================================
+Para Audio/SE: "Claxon" (y "Claxon furgoneta" si sale bien la segunda). Recorto yo el
+silencio de los bordes y lo igualo de volumen. Pedir 4 variantes de cada uno.
+
+a) Coche pequeño:
+Two short friendly honks from a small city car horn, "beep beep", bright and clean,
+slightly cartoony like a video game, quick and polite, recorded close, no traffic
+noise, no engine, no echo, ends cleanly.
+
+b) Furgoneta:
+One short low honk from a delivery van horn, a single firm "honk", a bit deeper and
+duller than a small car, friendly not angry, recorded close, no traffic noise, no
+engine, no echo, ends cleanly.
+
+Si suenan agresivos o largos: añadir "very short, gentle, half a second each".
+
+================================================================================
+1. SOL DE CUERPO ENTERO · Adobe Firefly  (DESCARTADA: no le gusto el diseño)
+================================================================================
+Referencias (Descargas\entrenador_nuevo\):
+  - ref_estilo_kaia.png -> referencia de ESTILO, intensidad alta (mismo trazo que Kaia).
+Firefly: cuadrado 1:1 · tipo de contenido "Arte" · sin estilos de la galeria.
+Pedir 4 variantes; quedarse con la que tenga la pose mas clara y la cara mas simpatica.
+
+PROMPT:
+Full body character design of a Pokémon gym leader, drawn in EXACTLY the same art
+style as the reference girl: hand-drawn anime illustration in the style of official
+Pokémon Scarlet and Violet character art, clean dark brown ink outline of even
+thickness, flat cel colours with one soft shadow tone, small pink blush on the
+cheeks, simple shapes, same head-to-body proportions and same line quality, plain
+white background, no text.
+He is a cheerful man of about 30 who moves like an excited eight-year-old: lean and
+springy, warm tanned skin, a huge open-mouthed grin, bright amber eyes, thick
+expressive eyebrows raised high. Messy, spiky, sun-bleached golden blond hair that
+sticks out in every direction like rays of sunshine, pushed back with a red
+sweatband. A few freckles on the nose.
+Outfit, the owner of a lively music bar: a short-sleeved mustard yellow bowling shirt
+with an orange sunburst pattern on the chest, worn open over a white tank top; a
+black apron tied at the waist with a small towel tucked into it; rolled-up dark
+blue jeans; scuffed red high-top sneakers with mismatched laces. A round brass
+tambourine hangs from his belt, and a small round badge on the apron shows a circle
+with seven little holes.
+Pose: caught mid-jump in a happy little hop, one knee up, one arm raised high
+shaking a tambourine, the other hand pointing at the viewer with a wink, full
+figure visible from head to shoes, centred.
+
+Excluir: texto, letras, marca de agua, fondo con escenario, otros personajes,
+Pokémon, estilo realista, 3D, instrumentos grandes (guitarras, baterías).
+
+Si sale demasiado "cantante de rock": quitar "bowling shirt" y poner "a mustard
+yellow short-sleeved shirt". Si la pose salta tanto que se cortan los pies, cambiar
+la pose por "standing on tiptoe, leaning forward eagerly".
+
+De esta imagen saco yo: el retrato del "SOL TE DESAFIA" (Graphics/Titles/Desafio/sol.png),
+el sprite de combate (Graphics/Trainers) y una base para el personaje del mapa.
+
+================================================================================
+2. MUSICA DE CIUDAD SONAJA · Suno (Instrumental)
+================================================================================
+Nombre en el juego: "Ciudad Sonaja" (Audio/BGM). Va en bucle: si sale con una entrada
+que no se repite y luego una parte que si, mejor, le marco el bucle.
+
+Estilo:
+cheerful town theme from a classic handheld monster-collecting RPG, lively
+Mediterranean city plaza on a sunny afternoon, upbeat funky groove with a bouncy
+swing, bright jangly tambourine and hand claps, cajón and light shaker, warm
+acoustic nylon guitar strumming, walking bass, playful muted trumpet and saxophone
+melody, a hint of bar piano, catchy whistleable main melody, friendly and busy like
+street life with bars and music everywhere, 118 bpm, major key, short intro then a
+loopable main section, clean professional mix, game OST, instrumental, no vocals
+
+Excluir: vocals, lyrics, choir, orchestral epic, sad, slow tempo, dubstep, heavy
+metal, lo-fi hiss, flamenco singing
+
+Si sale demasiado jazz de ascensor: quitar "saxophone" y "bar piano" y añadir
+"bright synth lead, chiptune accents". Si sale demasiado fiesta: bajar a 108 bpm.
