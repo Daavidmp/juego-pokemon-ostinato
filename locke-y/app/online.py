@@ -25,7 +25,7 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from urllib.parse import urljoin
 
-import combate as motor_combate
+import motor_ostinato
 import errores
 
 PUERTO_SERVIDOR = 8766          # TCP http: solo /descargar y /version (la primera descarga, desde el navegador)
@@ -683,7 +683,15 @@ class Servidor:
                                    # lo del combate (2.3.0): estadísticas reales, ataques (hasta 4) y sexo del Pokémon
                                    'stats': stats if len(stats) == 6 else None,
                                    'ataques': [int(a) for a in (x.get('ataques') or [])[:4] if 0 < int(a) <= 1000],
-                                   'genero': max(0, min(2, int(x.get('genero', 2))))})
+                                   'genero': max(0, min(2, int(x.get('genero', 2)))),
+                                   # para el motor de Ostinato (2.4.0)
+                                   'ivs': [max(0, min(31, int(v))) for v in (x.get('ivs') or [])[:6]] or None,
+                                   'evs': [max(0, min(255, int(v))) for v in (x.get('evs') or [])[:6]] or None,
+                                   'naturaleza': max(0, min(24, int(x.get('naturaleza', 0)))),
+                                   'habilidad_n': max(0, min(400, int(x.get('habilidad_n', 0)))),
+                                   'objeto': max(0, min(2000, int(x.get('objeto', 0)))),
+                                   'pp_up': [max(0, min(3, int(v))) for v in (x.get('pp_up') or [])[:4]],
+                                   'forma': max(0, min(31, int(x.get('forma', 0))))})
             return {'sexo': 1 if int(p.get('sexo', 0)) == 1 else 0, 'equipo': equipo}
         except (TypeError, ValueError):
             return None
@@ -977,8 +985,8 @@ class Servidor:
         """Su equipo para el combate, en el orden que eligió (el 1.º sale primero). Sin los datos del combate
         (un Pokelocke de antes de la 2.3.0 o la partida sin leer), no se puede."""
         equipo = self._sala_equipo(u)
-        if not equipo or not all(x.get('stats') and x.get('ataques') for x in equipo):
-            raise ValueError(f'Falta el equipo de {u}: tiene que abrir la biblioteca de Pokelocke 2.3.0 con el juego cerrado para que lea su partida')
+        if not equipo or not all(x.get('ataques') and x.get('ivs') for x in equipo):
+            raise ValueError(f'Falta el equipo de {u}: tiene que abrir la biblioteca de Pokelocke 2.4.0 con el juego cerrado para que lea su partida')
         orden = [k for k in s['orden'].get(u, []) if k < len(equipo)]
         orden += [k for k in range(len(equipo)) if k not in orden]
         return [equipo[k] for k in orden]
@@ -1059,8 +1067,9 @@ class Servidor:
                         s['listos'].pop(u, None)
                     if all(s['listos'].get(j) for j in s['jugadores']):
                         # el combate se crea ya (sus primeros sucesos son la salida de los dos) y empieza tras la presentación
-                        s['combate'] = motor_combate.Combate(s['jugadores'], [self._sala_equipo_combate(s, j) for j in s['jugadores']],
-                                                             s['normas'])
+                        # el motor de combate de Pokémon Ostinato (2.4.0), en el Ruby del anfitrión
+                        s['combate'] = motor_ostinato.CombateOstinato(s['jugadores'], [self._sala_equipo_combate(s, j) for j in s['jugadores']],
+                                                                      s['normas'])
                         s['apuntado'] = False
                         s['estado'], s['empieza'], s['listos'] = 'presentacion', ahora + 2.0, {}
                 elif que == 'accion' and s['estado'] in ('presentacion', 'combate') and s.get('combate'):
@@ -1068,6 +1077,7 @@ class Servidor:
                 elif que == 'continuar' and s.get('combate') and s['combate'].fin is not None:
                     # visto el final: a la sala para la ronda siguiente, o se acabó
                     self._sala_resultado(s)
+                    s['combate'].cerrar()
                     s['combate'] = None
                     lider = max(range(2), key=lambda k: s['marcador'][k])
                     if s['marcador'][lider] > s['normas']['mejor_de'] // 2:

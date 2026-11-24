@@ -115,7 +115,7 @@ def version_app():
 def pyinstaller():
     # websocket-client: con él, el navegador que pinta la capa se queda abierto (main.Fotografo)
     subprocess.run([sys.executable, '-m', 'pip', 'install', '-q', 'websocket-client'], check=True)
-    datos = [('app/web', 'app/web'), ('app/datos_pkx', 'app/datos_pkx'), ('app/datos_combate.json', 'app'), ('app/LockeSettings.java', 'app'), ('app/MegaFases.java', 'app'),
+    datos = [('app/web', 'app/web'), ('app/datos_pkx', 'app/datos_pkx'), ('app/ids_ostinato.json', 'app'), ('app/ostinato', 'app/ostinato'), ('app/LockeSettings.java', 'app'), ('app/MegaFases.java', 'app'),
              (online_json(), 'app'), ('assets', 'assets'),
              # opciones de la biblioteca: vídeo de normas, guía y contrato (se rellena con la firma)
              ('video/normas.mp4', 'video'), ('guia/Guia-Mega-Pokelocke-Y.pdf', 'guia'),
@@ -145,6 +145,21 @@ def archivos():
     for f in sorted((RAIZ / 'fanart').rglob('*')):
         if f.is_file():
             yield f, f.relative_to(RAIZ)
+    # el combate en línea (2.4.0): un Ruby portátil recortado (sin documentación, cabeceras ni gemas) y los datos del juego
+    # que usa el motor de combate de Pokémon Ostinato (código y .dat de Data), de la carpeta del juego de David
+    ruby = TOOLS / 'ruby'
+    if not (ruby / 'bin' / 'ruby.exe').exists():
+        raise SystemExit(f'Falta el Ruby portátil en {ruby} (RubyInstaller 3.3 x64, ver CONTEXTO 2.4.0)')
+    for f in sorted(ruby.rglob('*')):
+        partes = f.relative_to(ruby).parts
+        if f.is_file() and partes[0] in ('bin', 'lib') and 'gems' not in partes and 'pkgconfig' not in partes                 and not f.name.endswith(('.bat', '.cmd', '.ps1', '.a')) and (partes[0] != 'bin' or len(partes) > 2 or f.suffix in ('.exe', '.dll')):
+            yield f, f.relative_to(RAIZ)
+    juego = RAIZ.parent / 'Pokémon Ostinato'
+    if not (juego / 'Data' / 'Scripts.rxdata').exists():
+        raise SystemExit(f'Falta el juego en {juego} (su Data es el motor del combate en línea)')
+    for f in sorted((juego / 'Data').iterdir()):
+        if f.suffix == '.dat' or f.name in ('Scripts.rxdata', 'PluginScripts.rxdata'):
+            yield f, Path('tools') / 'ostinato' / 'Data' / f.name
 
 
 def copiar_herramientas():

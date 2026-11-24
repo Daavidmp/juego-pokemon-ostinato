@@ -65,6 +65,11 @@ for m in moves.values():
         if not (SALIDA / 'ataques' / archivo).exists():
             shutil.copy2(SE / 'Anim' / archivo, SALIDA / 'ataques' / archivo)
     mapa[n] = archivo
+# también por el nombre interno del motor de Ostinato (los sucesos 'anim' traen el ataque así)
+ids = json.loads((RAIZ / 'app' / 'ids_ostinato.json').read_text(encoding='utf-8'))['ataques']
+for n, archivo in list(mapa.items()):
+    if str(n) in ids:
+        mapa[ids[str(n)]] = archivo
 (SALIDA / 'mapa.json').write_text(json.dumps(mapa, separators=(',', ':')), encoding='utf-8')
 peso = sum(f.stat().st_size for f in SALIDA.rglob('*') if f.is_file())
 print(f'{gritos} gritos, {propios} ataques con su sonido ({len(mapa)} en total), {peso / 2**20:.1f} MB')

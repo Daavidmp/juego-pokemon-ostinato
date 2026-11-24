@@ -978,6 +978,16 @@
   /* 2.3.2: botones de sonido, el reloj, la barra Y (Info) y la vista de datos */
   #cb-sonido, #vs-sonido { position: absolute; width: 56px; height: 56px; border: none; border-radius: 50%; background: rgba(0,0,0,.5); color: #fff; cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 3; }
   #cb-sonido { left: 88px; top: 20px; }
+  #cb-hab { position: absolute; z-index: 5; min-width: 360px; padding: 10px 26px; background: rgba(20,20,22,.92); color: #fff; display: flex; flex-direction: column;
+    line-height: 1.1; opacity: 0; transition: opacity .2s ease, transform .2s ease; pointer-events: none; }
+  #cb-hab b { font-size: 34px; font-weight: 700; }
+  #cb-hab span { font-size: 22px; font-weight: 500; color: #CFCFCF; }
+  #cb-hab.mio { left: 0; top: 760px; transform: translateX(-40px); border-radius: 0 999px 999px 0; }
+  #cb-hab.rival { right: 0; top: 150px; transform: translateX(40px); border-radius: 999px 0 0 999px; text-align: right; align-items: flex-end; }
+  #cb-hab.ver { opacity: 1; transform: none; }
+  #cb-mega { position: absolute; left: 1465px; top: 578px; height: 48px; padding: 0 22px; border: none; border-radius: 24px; background: #fff; color: #6F35FC;
+    font: 700 24px 'Barlow Semi Condensed', sans-serif; box-shadow: 2px 5px 12px rgba(0,0,0,.45); cursor: pointer; }
+  #cb-mega[aria-pressed="true"] { background: linear-gradient(90deg, #6F35FC, #D685AD); color: #fff; }
   #vs-sonido { left: 18px; bottom: 18px; width: 44px; height: 44px; }
   #cb-reloj { position: absolute; right: 24px; top: 412px; display: flex; flex-direction: column; align-items: flex-end; gap: 8px; z-index: 3; }   /* encima de Info */
   #cb-reloj span { padding: 6px 18px; border-radius: 999px; background: rgba(0,0,0,.6); color: #fff; font-size: 28px; font-weight: 600; line-height: 1.1; font-variant-numeric: tabular-nums; white-space: nowrap; }
@@ -1058,7 +1068,7 @@
     </div>
     <div class="portada-izq">
       <button class="redondo-video" type="button" data-sonido aria-label="Silenciar la música"></button>
-      <span>Versión 2.3.3</span>
+      <span>Versión 2.4.0</span>
     </div>
     <div class="portada-jugar">
       <span id="p-progreso"></span>
@@ -1139,7 +1149,7 @@
     <section class="tb-hud tb-carta tb-objetivo" id="tb-objetivo" aria-label="Siguiente objetivo"></section>
     <section class="tb-hud tb-carta tb-marcador" id="tb-marcador" aria-label="Vidas y medallas"></section>
     <div class="tb-hud tb-abajo"><div class="tb-equipo" id="tb-equipo" aria-label="Tu equipo"></div><div class="tb-carta tb-jugar" id="tb-jugar"></div></div>
-    <span class="tb-hud tb-credito">Creado por David Martínez Palacios · Versión 2.3.3</span>
+    <span class="tb-hud tb-credito">Creado por David Martínez Palacios · Versión 2.4.0</span>
   </div>
 
   <footer>
@@ -1660,6 +1670,7 @@
 <div id="cb" class="oculto" role="dialog" aria-modal="true" aria-label="Combate">
   <div id="cb-escena">
     <img src="/assets/combate/estadio.jpg" alt="" style="position: absolute; left: 0; top: 0; width: 1920px; height: 1080px;">
+    <canvas id="cb-anim-atras" width="1920" height="1080" aria-hidden="true" style="position: absolute; left: 0; top: 0; pointer-events: none;"></canvas>
     <div class="cb-pk rival fuera" id="cb-pk-r"><img alt="" id="cb-img-r"></div>
     <div class="cb-pk mio fuera" id="cb-pk-p"><img alt="" id="cb-img-p"></div>
     <canvas id="cb-anim" width="1920" height="1080" aria-hidden="true" style="position: absolute; left: 0; top: 0; pointer-events: none;"></canvas>
@@ -1690,6 +1701,8 @@
     <div class="oculto" id="cb-confirmar" role="alertdialog" aria-label="Rendirse"><div><h2>¿Te rindes?</h2><p>Perderás esta ronda.</p>
       <button type="button" data-cb="rendirse" style="background: #CC2B0B; color: #fff;">Rendirme</button><button type="button" data-cb="no-rendirse" style="background: #E3E3E1; color: #232323;">Seguir</button></div></div>
     <div class="oculto" id="cb-final" role="alertdialog" aria-label="Final del combate"><div><h2 id="cb-final-tit"></h2><p id="cb-final-txt"></p><button type="button" data-cb="continuar">Continuar</button></div></div>
+    <div id="cb-flash" aria-hidden="true" style="position: absolute; inset: 0; opacity: 0; pointer-events: none; z-index: 4;"></div>
+    <div id="cb-hab" aria-live="polite"></div>
     <div id="cb-reloj" aria-live="off"><span id="cb-turno"></span><span id="cb-partido"></span></div>
     <div class="oculto" id="cb-datos" role="dialog" aria-label="Datos de los Pokémon"></div>
     <button type="button" id="cb-sonido" aria-label="Sonido del combate" title="Sonido del combate"></button>
@@ -3398,7 +3411,7 @@ function cbSprite(lado, pk) {
     const w = img.naturalWidth * k, h = img.naturalHeight * k;
     caja.style.cssText = `left: ${cx - w / 2}px; top: ${pies - h}px; width: ${w}px; height: ${h}px;`;
   };
-  img.src = `/ani/${pk.especie}?${mio ? 'espalda=1&' : ''}${pk.shiny ? 'shiny=1' : ''}`;
+  img.src = `/ani/${pk.numero || pk.especie}?${mio ? 'espalda=1&' : ''}${pk.shiny ? 'shiny=1' : ''}`;
   caja.className = `cb-pk ${mio ? 'mio' : 'rival'} fuera`;
   requestAnimationFrame(() => requestAnimationFrame(() => { caja.className = `cb-pk ${mio ? 'mio' : 'rival'}`; }));
 }
@@ -3407,56 +3420,266 @@ function cbClase(lado, clase, ms) {
   caja.classList.remove(clase); void caja.offsetWidth; caja.classList.add(clase);
   setTimeout(() => caja.classList.remove(clase), ms);
 }
+// ---------- 2.4.0 · las animaciones de combate de Pokémon Ostinato ----------
+// Las del juego (Data/PkmnAnimations.rxdata, exportadas a assets/combate/anim por app/hacer_animaciones.py), reproducidas
+// como PBAnimationPlayerX de Essentials con el ajuste a 1920 de Ostinato (042_AnimacionesHD.rb): 20 fotogramas por
+// segundo; cada pieza sale de la hoja de 192x192 de su gráfico; las de foco 1/2 van pegadas al objetivo/usuario y crecen
+// con su zoom; las de 3 (usuario y objetivo) y 4 (pantalla), por la línea del editor (128,224)-(384,96) llevada a la de
+// verdad. Las piezas 0 y 1 son los propios Pokémon (se mueven). Sonidos y destellos, en sus momentos.
+const ANIM = {cache: {}, img: {}, nombres: null, indice: null, K_MIO: 3.0, K_RIVAL: 2.4};
+const ANIM_LISTO = Promise.all([
+  fetch('/assets/combate/anim/nombres.json').then((r) => r.json()).then((d) => { ANIM.nombres = d; }).catch(() => { ANIM.nombres = {graficos: {}, sonidos: {}}; }),
+  fetch('/assets/combate/anim/indice.json').then((r) => r.json()).then((d) => { ANIM.indice = d; }).catch(() => { ANIM.indice = {}; })]);
+function animDatos(n) {
+  if (!ANIM.cache[n]) ANIM.cache[n] = fetch(`/assets/combate/anim/${n}.json`).then((r) => r.json()).catch(() => null);
+  return ANIM.cache[n];
+}
+function animImagen(nombre) {
+  const archivo = ANIM.nombres && ANIM.nombres.graficos[nombre];
+  if (!archivo) return Promise.resolve(null);
+  if (!ANIM.img[archivo]) {
+    ANIM.img[archivo] = new Promise((listo) => {
+      const im = new Image();
+      im.onload = () => listo(im);
+      im.onerror = () => listo(null);
+      im.src = `/assets/combate/anim/g/${archivo}`;
+    });
+  }
+  return ANIM.img[archivo];
+}
+function animSonido(nombre, vol, tono) {
+  if (!SONIDO_CB.si || !ANIM.nombres) return;
+  const archivo = ANIM.nombres.sonidos[nombre];
+  if (!archivo) return;
+  try {
+    const a = new Audio(`/assets/combate/anim/s/${archivo}`);
+    a.volume = Math.min(1, (vol || 80) / 100 * SONIDO_CB.vol / 100);
+    a.playbackRate = Math.max(0.5, Math.min(2, (tono || 100) / 100));
+    a.preservesPitch = false;
+    a.play().catch(() => {});
+  } catch (err) { /* sin sonido */ }
+}
+// la caja del Pokémon de un lado: su centro, su tamaño y su zoom (el de Ostinato: x3 el tuyo, el del rival menor)
+function animPokemon(lado) {
+  const mio = cbMio(lado), caja = $(mio ? 'cb-pk-p' : 'cb-pk-r');
+  const x = parseFloat(caja.style.left) || (mio ? 660 : 960), y = parseFloat(caja.style.top) || (mio ? 820 : 450);
+  const w = parseFloat(caja.style.width) || 200, h = parseFloat(caja.style.height) || 200;
+  return {caja, cx: x + w / 2, cy: y + h / 2, k: mio ? ANIM.K_MIO : ANIM.K_RIVAL};
+}
+// reproduce la animación n con «usuario» y «objetivo» en los lados dados; si no se puede, devuelve false
+async function animReproducir(n, ladoUsuario, ladoObjetivo) {
+  await ANIM_LISTO;
+  const a = await animDatos(n);
+  if (!a || !a.f || !a.f.length) return false;
+  const hoja = a.g ? await animImagen(a.g) : null;
+  const u = animPokemon(ladoUsuario), t = animPokemon(ladoObjetivo === null || ladoObjetivo === undefined ? ladoUsuario : ladoObjetivo);
+  const src = [128, 224, 384, 96], dst = [u.cx, u.cy, t.cx, t.cy];
+  const linea = Math.abs(dst[2] - dst[0]) > 1 && Math.abs(dst[3] - dst[1]) > 1;
+  const al = (px, py) => {               // transformPoint de Essentials: la línea del editor llevada a la de verdad
+    const fx = src[2] === src[0] ? 0 : (px - src[0]) / (src[2] - src[0]), fy = src[3] === src[1] ? 0 : (py - src[1]) / (src[3] - src[1]);
+    return [dst[0] + fx * (dst[2] - dst[0]), dst[1] + fy * (dst[3] - dst[1])];
+  };
+  const invertida = src[0] < src[2] ? dst[0] > dst[2] : dst[0] < dst[2];
+  const delante = $('cb-anim'), detras = $('cb-anim-atras'), gD = delante.getContext('2d'), gA = detras.getContext('2d');
+  const fondo = {color: null, op: 0}, frente = {color: null, op: 0};
+  const flash = $('cb-flash');
+  const t0 = performance.now();
+  let ultimo = -1;
+  await new Promise((listo) => {
+    const paso = () => {
+      const f = Math.floor((performance.now() - t0) / 50);
+      if (f >= a.f.length || !CB.abierto) return listo();
+      if (f !== ultimo) {
+        for (let k = ultimo + 1; k <= f; k++) {                       // los momentos: sonidos, destellos y fondos
+          for (const m of a.t || []) {
+            if (m.f !== k) continue;
+            if (m.tipo === 0 && m.se) animSonido(m.se, m.vol, m.tono);
+            if (m.tipo === 0 && m.flash && m.color && m.color[3] > 0) {
+              const dura = Math.max(1, m.dura || 5) * 50, col = `rgba(${m.color[0]},${m.color[1]},${m.color[2]},${m.color[3] / 255})`;
+              if (m.flash === 3) { flash.style.transition = 'none'; flash.style.background = col; flash.style.opacity = '1'; requestAnimationFrame(() => { flash.style.transition = `opacity ${dura}ms linear`; flash.style.opacity = '0'; }); }
+              else {
+                const caja = (m.flash === 1 ? t : u).caja;
+                caja.style.filter = 'brightness(2.2) saturate(0.3)';
+                setTimeout(() => { caja.style.filter = ''; }, dura);
+              }
+            }
+            if (m.tipo === 1 || m.tipo === 2 || m.tipo === 3 || m.tipo === 4) {
+              const capa = m.tipo <= 2 ? fondo : frente;
+              if (m.bgcolor) capa.color = m.bgcolor;
+              if (m.op !== null && m.op !== undefined) capa.op = m.op;
+            }
+          }
+        }
+        ultimo = f;
+        gD.clearRect(0, 0, 1920, 1080); gA.clearRect(0, 0, 1920, 1080);
+        for (const [g, capa] of [[gA, fondo], [gD, frente]]) {
+          if (capa.color && capa.op > 0) { g.fillStyle = `rgba(${capa.color[0]},${capa.color[1]},${capa.color[2]},${capa.op / 255})`; g.fillRect(0, 0, 1920, 1080); }
+        }
+        const cels = a.f[f] || [];
+        for (let i = 0; i < cels.length; i++) {
+          const c = cels[i];
+          if (i < 2) {                                               // los propios Pokémon
+            const pk = i === 0 ? u : t;
+            if (!c) continue;
+            let x = c[0], y = c[1];
+            if (c[15] === 1) { x = t.cx + (x - 384) * t.k; y = t.cy + (y - 96) * t.k; }
+            else if (c[15] === 2) { x = u.cx + (x - 128) * u.k; y = u.cy + (y - 224) * u.k; }
+            else if (linea) [x, y] = al(x, y);
+            pk.caja.style.transform = `translate(${x - pk.cx}px, ${y - pk.cy}px)`;
+            pk.caja.style.opacity = c[6] === 1 ? String(c[8] / 255) : '0';
+            continue;
+          }
+          if (!c || c[6] !== 1 || !hoja || c[7] < 0) continue;
+          let x = c[0], y = c[1], k = (u.k + t.k) / 2;
+          if (c[15] === 1) { k = t.k; x = t.cx + (x - 384) * k; y = t.cy + (y - 96) * k; }
+          else if (c[15] === 2) { k = u.k; x = u.cx + (x - 128) * k; y = u.cy + (y - 224) * k; }
+          else if (linea) [x, y] = al(x, y);
+          else { k = u.k; x = u.cx + (x - 128) * k; y = u.cy + (y - 224) * k; }
+          const g = (c[14] === 0 || c[14] === 2) ? gA : gD;
+          const p = c[7], sx = (p % 5) * 192, sy = Math.floor(p / 5) * 192;
+          let espejo = c[4] > 0;
+          if (c[15] === 3 && invertida) espejo = !espejo;
+          g.save();
+          g.translate(x, y);
+          g.rotate(-(c[3] || 0) * Math.PI / 180);
+          g.scale((espejo ? -1 : 1) * (c[2] / 100) * k, (c[9] / 100) * k);
+          g.globalAlpha = Math.max(0, Math.min(1, c[8] / 255));
+          g.globalCompositeOperation = c[5] === 1 ? 'lighter' : c[5] === 2 ? 'difference' : 'source-over';
+          if (a.h) g.filter = `hue-rotate(${a.h}deg)`;
+          g.imageSmoothingEnabled = false;
+          g.drawImage(hoja, sx, sy, 192, 192, -96, -96, 192, 192);
+          if (c[13] > 0) {                                            // el color de la pieza (tinte)
+            g.globalCompositeOperation = 'source-atop';
+            g.globalAlpha = c[13] / 255;
+            g.fillStyle = `rgb(${c[10]},${c[11]},${c[12]})`;
+            g.fillRect(-96, -96, 192, 192);
+          }
+          g.restore();
+        }
+      }
+      requestAnimationFrame(paso);
+    };
+    requestAnimationFrame(paso);
+  });
+  gD.clearRect(0, 0, 1920, 1080); gA.clearRect(0, 0, 1920, 1080);
+  for (const pk of [u, t]) { pk.caja.style.transform = ''; pk.caja.style.opacity = ''; pk.caja.style.filter = ''; }
+  return true;
+}
+// el ataque, desde este lado: si ataca el tuyo, la animación de «ataca el jugador»; si ataca el rival, la suya (con OppMove,
+// usuario y objetivo cambiados, como Battle::Scene#pbAnimation)
+async function animAtaque(e) {
+  const lado = (e.de || 0) & 1, objetivo = (e.a && e.a.length) ? e.a[0] & 1 : null;
+  const [n, opp] = (cbMio(lado) ? e.anim0 : e.anim1) || [];
+  if (n === undefined || n === null) return false;
+  if (opp) return animReproducir(n, objetivo === null ? lado : objetivo, lado);
+  return animReproducir(n, lado, objetivo);
+}
+async function animComun(nombre, de, a) {
+  await ANIM_LISTO;
+  const n = ANIM.indice && ANIM.indice['Common:' + nombre];
+  if (n === undefined) return false;
+  const lado = ((de !== null && de !== undefined) ? de : 0) & 1;
+  return animReproducir(n, lado, (a !== null && a !== undefined) ? a & 1 : lado);
+}
+
+// los textos del motor de Ostinato llevan marcas para leerse desde cada lado (app/ostinato/motor.rb):
+// \x01<lado><l|U><nombre>\x02 un Pokémon, \x03<lado><l|U>\x02 un equipo, \x04<lado>S|R<nombres>\x02 una salida o retirada,
+// \x05<lado>\x02 una rendición, \x06<lado>\x02 «se le acabó el tiempo», \x07\x02 «¡X te desafía!»
+function cbLeer(txt) {
+  const yo = CB.cb ? CB.cb.lado : 0, s = CB.sala, rival = s ? s.jugadores[1 - yo] : 'Tu rival', quien = (l) => (s ? s.jugadores[l] : '');
+  let t = String(txt || '')
+    .replace(/\x01(\d)([lU])([^\x02]*)\x02/g, (_, l, low, n) => (Number(l) === yo ? n : low === 'l' ? `el ${n} rival` : `El ${n} rival`))
+    .replace(/\x03(\d)([lU])\x02/g, (_, l, low) => (Number(l) === yo ? (low === 'l' ? 'tu equipo' : 'Tu equipo') : (low === 'l' ? 'el equipo rival' : 'El equipo rival')))
+    .replace(/\x04(\d)S([^\x02]*)\x02/g, (_, l, n) => (Number(l) === yo ? `¡Adelante, ${n}!` : `¡${rival} saca a ${n}!`))
+    .replace(/\x04(\d)R([^\x02]*)\x02/g, (_, l, n) => (Number(l) === yo ? `¡${n}, regresa!` : `¡${rival} retira a ${n}!`))
+    .replace(/\x05(\d)\x02/g, (_, l) => (Number(l) === yo ? 'Te has rendido.' : `¡${rival} se ha rendido!`))
+    .replace(/\x06(\d)\x02/g, (_, l) => `Se acabó el tiempo de ${quien(Number(l))}: elige Pokelocke.`)
+    .replace(/\x07\x02/g, `¡${rival} te desafía!`)
+    .replace(/\\n|\n/g, ' ');
+  // como en Ostinato (OstCombate.plural): «de el» -> «del», «a el» -> «al»
+  return t.replace(/\bdel el\b/g, 'del').replace(/\bal el\b/g, 'al').replace(/\bde el\b/g, 'del').replace(/\ba el\b/g, 'al')
+    .replace(/\bDe el\b/g, 'Del').replace(/\bA el\b/g, 'Al');
+}
+// el recuadro de la habilidad (como el de Ostinato: «Torrente de Greninja»), un momento junto a su ficha
+async function cbHabilidad(lado, nombre) {
+  const caja = $('cb-hab'), mio = cbMio(lado), pk = (CB.vis[lado] || {}).pk || {};
+  caja.innerHTML = `<b>${esc(nombre || '')}</b><span>de ${esc(cbLeer(pk.nombre || ''))}</span>`;
+  caja.className = mio ? 'mio ver' : 'rival ver';
+  await cbEspera(1300);
+  caja.className = mio ? 'mio' : 'rival';
+}
+// las animaciones comunes del motor (subir características, estados, curarse...): un sonido y unos destellos
+const CB_COMUN = {StatUp: ['sube.ogg', 'S', true], StatDown: ['baja.ogg', 'S', false], HealthUp: ['cura.ogg', 'S', true],
+  Burn: ['estado.ogg', 'FIRE'], Poison: ['estado.ogg', 'POISON'], Toxic: ['estado.ogg', 'POISON'], Paralysis: ['estado.ogg', 'ELECTRIC'],
+  Sleep: ['estado.ogg', 'PSYCHIC'], Frozen: ['estado.ogg', 'ICE'], Confusion: ['estado.ogg', 'PSYCHIC'], Attract: ['estado.ogg', 'FAIRY'],
+  MegaEvolution: ['sube.ogg', 'DRAGON', true], MegaEvolution2: ['sube.ogg', 'DRAGON', true], LeechSeed: ['estado.ogg', 'GRASS'],
+  UseItem: ['cura.ogg', 'NORMAL', true], Shiny: ['sube.ogg', 'FAIRY', true]};
 async function cbReproducir() {
   CB.jugando = true;
   cbMenus(null);
   while (CB.cola.length && CB.abierto) {
     const e = CB.cola.shift();
     const v = CB.vis[e.lado] || {};
-    if (e.t === 'turno') continue;
-    if (e.t === 'cambio') {
+    if (e.t === 'msg') {
+      if (/\x04\dR/.test(e.txt || '')) {                         // una retirada: el Pokémon se va
+        const l = Number(e.txt.match(/\x04(\d)R/)[1]);
+        sfx('vuelve.ogg');
+        $(cbMio(l) ? 'cb-pk-p' : 'cb-pk-r').classList.add('fuera');
+      }
+      await cbTexto(cbLeer(e.txt));
+    } else if (e.t === 'sale') {
       CB.vis[e.lado] = {pk: e.pk, ps: e.pk.ps, max: e.pk.max, estado: e.pk.estado};
       cbSprite(e.lado, e.pk);
       cbFicha(e.lado);
-      setTimeout(() => sfx(`gritos/${e.pk.especie}.ogg`, 0.8), 250);
-      await cbTexto(cbMio(e.lado) ? `¡Adelante, ${e.pk.nombre}!` : e.txt, 1300);
-    } else if (e.t === 'ataque') {
-      if (e.cat !== 'S') cbClase(e.lado, 'ataca', 500);
-      sfxAtaque(e.id);
-      await Promise.all([cbTexto(e.txt, 1100), cbAnimar(e)]);
-    } else if (e.t === 'dano' || e.t === 'cura') {
-      if (e.t === 'dano' && !e.txt) {
-        cbClase(e.lado, 'golpe', 520);
-        sfx(e.efic > 1 ? 'golpe_super.ogg' : e.efic > 0 && e.efic < 1 ? 'golpe_debil.ogg' : 'golpe_normal.ogg');
-      } else if (e.t === 'dano') sfx('golpe_normal.ogg', 0.6);
-      else sfx('cura.ogg');
+      setTimeout(() => sfx(`gritos/${e.pk.numero}.ogg`, 0.8), 250);
+      await cbEspera(650);
+    } else if (e.t === 'forma') {                                    // megaevolución o transformación
+      CB.vis[e.lado] = {...v, pk: e.pk, ps: e.pk.ps, max: e.pk.max};
+      cbSprite(e.lado, e.pk);
+      cbFicha(e.lado);
+      await cbEspera(600);
+    } else if (e.t === 'vuelve') {
+      $(cbMio(e.lado) ? 'cb-pk-p' : 'cb-pk-r').classList.add('fuera');
+      await cbEspera(350);
+    } else if (e.t === 'anim') {
+      const lado = (e.de || 0) & 1, objetivo = (e.a && e.a.length) ? e.a[0] & 1 : lado;
+      if (!(await animAtaque(e))) {
+        if (e.cat !== 'S' && objetivo !== lado) cbClase(lado, 'ataca', 500);
+        sfxAtaque(e.mov);
+        await cbAnimar({lado, tipo: e.tipo, cat: e.cat, yo: objetivo === lado, mov: e.mov});
+      }
+    } else if (e.t === 'golpe') {
+      cbClase(e.lado, 'golpe', 520);
+      sfx(e.efic === 2 ? 'golpe_super.ogg' : e.efic === 1 ? 'golpe_debil.ogg' : 'golpe_normal.ogg');
+    } else if (e.t === 'ps') {
+      const antes = v.ps;
       Object.assign(v, {ps: e.ps, max: e.max});
       CB.vis[e.lado] = v;
       cbFicha(e.lado);
-      await cbEspera(650);
-      if (e.critico) await cbTexto('¡Un golpe crítico!', 1000);
-      if (e.efic > 1) await cbTexto('¡Es muy eficaz!', 1000);
-      if (e.efic > 0 && e.efic < 1) await cbTexto('No es muy eficaz…', 1000);
-      if (e.txt) await cbTexto(e.txt);
-    } else if (e.t === 'estado') {
-      if (e.estado) sfx('estado.ogg');
-      v.estado = e.estado;
+      if (antes !== undefined && e.ps !== antes) await cbEspera(600);
+    } else if (e.t === 'ficha') {
+      Object.assign(v, {ps: e.ps, max: e.max, estado: e.estado});
+      CB.vis[e.lado] = v;
       cbFicha(e.lado);
-      await cbTexto(e.txt);
     } else if (e.t === 'debil') {
-      sfx(`gritos/${(CB.vis[e.lado].pk || {}).especie}.ogg`, 0.8);
+      sfx(`gritos/${(v.pk || {}).numero}.ogg`, 0.8);
       setTimeout(() => sfx('debilitado.ogg'), 450);
-      const caja = $(cbMio(e.lado) ? 'cb-pk-p' : 'cb-pk-r');
-      caja.classList.add('cae');
-      await cbTexto(e.txt, 1500);
+      $(cbMio(e.lado) ? 'cb-pk-p' : 'cb-pk-r').classList.add('cae');
+      await cbEspera(700);
+    } else if (e.t === 'habilidad') {
+      await cbHabilidad(e.lado, e.nombre);
+    } else if (e.t === 'comun') {
+      const c = CB_COMUN[e.nombre];
+      if (await animComun(e.nombre, e.de, e.a)) { /* la del juego */ } else if (c) {
+        sfx(c[0]);
+        const lado = ((e.de !== null && e.de !== undefined) ? e.de : 0) & 1;
+        await cbAnimar({lado, tipo: c[1] === 'S' ? 'NORMAL' : c[1], cat: 'S', yo: true});
+      }
     } else if (e.t === 'fin') {
-      await cbTexto(e.txt, 1800);
-    } else if (e.t === 'stat') {
-      sfx(e.n > 0 ? 'sube.ogg' : 'baja.ogg');
-      await cbTexto(e.txt);
-    } else {
-      if (e.t === 'msg' && /, vuelve!$/.test(e.txt || '')) sfx('vuelve.ogg');
-      await cbTexto(e.txt);
+      const yo = CB.cb ? CB.cb.lado : 0;
+      await cbTexto(e.ganador === null || e.ganador === undefined ? '¡Empate!' : e.ganador === yo ? '¡Has ganado el combate!' : `¡${CB.sala ? CB.sala.jugadores[1 - yo] : 'Tu rival'} gana el combate!`, 1800);
+    } else if (e.txt) {
+      await cbTexto(cbLeer(e.txt));
     }
   }
   CB.jugando = false;
@@ -3515,11 +3738,12 @@ function cbPintarAtaques() {
   const p = cbMiActivo();
   if (!p) return;
   if (CB.atk >= p.ataques.length) CB.atk = 0;
-  $('cb-ataques').innerHTML = `<button type="button" id="cb-atras" data-cb="atras">Atrás</button>` + p.ataques.map((a, i) => {
+  const mega = CB.cb && CB.cb.mega ? `<button type="button" id="cb-mega" data-cb="mega" aria-pressed="${SI(CB.mega)}">Megaevolución</button>` : '';
+  $('cb-ataques').innerHTML = `<button type="button" id="cb-atras" data-cb="atras">Atrás</button>${mega}` + p.ataques.map((a, i) => {
     const sel = i === CB.atk, ef = cbEficacia(a.efic), blanco = CB_BLANCO.includes(a.tipo);
     const frac = a.max ? a.pp / a.max : 1;
     const colPP = a.pp === 0 ? '#FF5A5A' : frac <= 0.25 ? '#FFA046' : frac <= 0.5 ? '#FFE150' : '#fff';
-    return `<button type="button" class="cb-atq${sel ? ' sel' : ''}" data-cb="atq" data-i="${i}" style="top: ${CB_FILAS_ATQ[i]}px;" ${a.pp > 0 ? '' : 'disabled'}
+    return `<button type="button" class="cb-atq${sel ? ' sel' : ''}" data-cb="atq" data-i="${i}" style="top: ${CB_FILAS_ATQ[i]}px;" ${a.pp > 0 && a.elegible !== false ? '' : 'disabled'}
       aria-label="${esc(`${a.nombre}, ${a.pp} de ${a.max} PP${ef ? ', ' + ef : ''}`)}">
       <img src="/assets/combate/ataques/${a.tipo}.png" alt=""><b style="top: ${ef ? 14 : 29}px; color: ${blanco ? '#fff' : '#232323'};">${esc(a.nombre)}</b>
       ${ef ? `<small style="color: ${blanco ? '#fff' : '#232323'};">${ef}</small>` : ''}<em style="color: ${colPP};">${a.pp}/${a.max}</em></button>`;
@@ -3548,7 +3772,7 @@ function cbEquipo(obligado) {
     const frac = p.max ? p.ps / p.max : 0, activo = i === c.activo, e = CB_ESTADO[p.estado];
     const col = frac > 0.5 ? 'rgb(30,248,14)' : frac > 0.25 ? 'rgb(250,200,40)' : frac > 0.1 ? 'rgb(250,130,30)' : 'rgb(230,40,40)';
     return `<button type="button" class="cb-miembro${activo ? ' activo' : ''}" data-cb="cambio" data-i="${i}" ${p.ps <= 0 || activo ? 'disabled' : ''}>
-      <img src="/arte/${p.especie}" alt=""><b>${esc(p.nombre)} <small>Nv. ${p.nivel}${activo ? ' · en combate' : p.ps <= 0 ? ' · debilitado' : ''}</small></b>
+      <img src="/arte/${p.numero || p.especie}" alt=""><b>${esc(p.nombre)} <small>Nv. ${p.nivel}${activo ? ' · en combate' : p.ps <= 0 ? ' · debilitado' : ''}</small></b>
       <span class="linea"><span class="cb-barra"><i style="width: ${frac * 100}%; background: ${col};"></i></span>${p.ps}/${p.max}${e ? ` <span style="color: ${e[1]}; font-weight: 800;">${e[0]}</span>` : ''}</span>
       ${p.habilidad ? `<span class="hab">Habilidad: ${esc(p.habilidad)}</span>` : ''}</button>`;
   }).join('') + (obligado ? '' : '<button type="button" class="cb-cerrar" data-cb="cerrar-equipo">Atrás</button>');
@@ -3574,7 +3798,10 @@ document.addEventListener('click', (ev) => {
   if (que === 'cmd') {
     CB.sel = i;
     if (i === 0) return cbMenus('ataques');
-    if (i === 1) return cbEquipo(false);
+    if (i === 1) {
+      if (CB.cb && CB.cb.puede_cambiar === false) { cbMenus(null); return cbTexto('¡No puedes cambiar de Pokémon ahora!', 1600).then(cbSiguiente); }
+      return cbEquipo(false);
+    }
     if (i === 2) { cbMenus(null); return cbTexto('En el combate en línea no se usan objetos de la Mochila.', 1800).then(cbSiguiente); }
     if (i === 3) return $('cb-confirmar').classList.remove('oculto');
   }
@@ -3582,7 +3809,8 @@ document.addEventListener('click', (ev) => {
   if (que === 'datos') return cbDatos(b.dataset.p);
   if (que === 'cerrar-datos') return cbCerrarDatos();
   if (que === 'cmd' || que === 'atq' || que === 'cambio') sfx('elige.ogg');
-  if (que === 'atq') return cbMandar({tipo: 'ataque', i});
+  if (que === 'mega') { CB.mega = !CB.mega; return cbPintarAtaques(); }
+  if (que === 'atq') { const mega = !!(CB.mega && CB.cb && CB.cb.mega); CB.mega = false; return cbMandar({tipo: 'ataque', i, mega}); }
   if (que === 'atras') return cbMenus('menu');
   if (que === 'cambio') return cbMandar({tipo: 'cambio', i});
   if (que === 'cerrar-equipo') { $('cb-equipo').classList.add('oculto'); return cbMenus('menu'); }
@@ -3960,7 +4188,7 @@ function cbDatos(pestana) {
   const panel = $('cb-datos'), mio = CB.datos === 'mio';
   const p = mio ? c.equipo[c.activo] : c.rival, cambios = (mio ? c.cambios : c.rival.cambios) || {};
   const e = CB_ESTADO[p.estado];
-  let cuerpo = `<div class="cabeza"><img src="/arte/${p.especie}" alt=""><h2>${esc(p.nombre)}<small>Nv. ${p.nivel}</small></h2>
+  let cuerpo = `<div class="cabeza"><img src="/arte/${p.numero || p.especie}" alt=""><h2>${esc(p.nombre)}<small>Nv. ${p.nivel}</small></h2>
     <span class="sub">${p.especie_nombre && p.especie_nombre !== p.nombre ? esc(p.especie_nombre) + ' · ' : ''}${mio ? `PS ${p.ps}/${p.max}` : `PS ${Math.round(p.ps / p.max * 100)} %`}${e ? ` · <b style="color: ${e[1]};">${e[0]}</b>` : ''}</span>
     ${cbTipos(p.tipos)}</div>`;
   if (mio) {

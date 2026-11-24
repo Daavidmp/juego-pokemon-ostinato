@@ -105,7 +105,11 @@ def tablero(j):
                       'equipo': [{'especie': x['especie'], 'nombre': x['especie_nombre'], 'mote': x['mote'], 'nivel': x['nivel'],
                                   'habilidad': pokehex._nombre('habilidades', x['habilidad']), 'shiny': x['shiny'],
                                   # para el combate: sus estadísticas reales (PS, Atq, Def, Vel, AtE, DfE), ataques y sexo
-                                  'stats': x['stats'], 'ataques': [a for a in x['movimientos'] if a], 'genero': x['sexo']}
+                                  'stats': x['stats'], 'ataques': [a for a in x['movimientos'] if a], 'genero': x['sexo'],
+                                  # el motor de Ostinato (2.4.0) calcula todo desde aquí
+                                  'ivs': x['ivs'], 'evs': x['evs'], 'naturaleza': x['naturaleza'], 'habilidad_n': x['habilidad'],
+                                  'objeto': x['objeto'], 'pp_up': [p for a, p in zip(x['movimientos'], x['pp_up']) if a],
+                                  'forma': x['forma']}
                                  for x in completos]}
             if comun.biblio.get('mi_perfil') != perfil:
                 comun.biblio['mi_perfil'] = perfil

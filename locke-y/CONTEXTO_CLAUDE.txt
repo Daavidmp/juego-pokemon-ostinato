@@ -710,3 +710,40 @@ Hechas con Gemini Nano Banana 2 editando SIEMPRE la misma base (no generando de 
 == 2.3.3 (2026-11-24): la barra Info y los relojes ==
 - «Info está en dos partes»: y.png ya trae escrito «Info» y se escribía otra vez encima; ahora solo la imagen.
 - Los relojes (#cb-reloj), uno encima de otro a la derecha, justo encima de la barra Info (top 412), no arriba en medio.
+
+== 2.4.0 (2026-11-24): EL MOTOR DE COMBATE DE POKÉMON OSTINATO en el combate en línea ==
+- David: «quiero que cambies el motor, que sea como el de Pokémon Ostinato, lo quiero igual» (mecánicas, animaciones y
+  mensajes). Se cambió el motor propio (combate.py, borrado) por el del juego: Essentials v21 + los plugins de Ostinato.
+- RUBY: RubyInstaller 3.3.14 x64 portátil en tools/ruby (no va en git; descargado del GitHub de oneclick/rubyinstaller2,
+  .7z, con permiso de David). empaquetar.py copia solo bin y lib sin gemas (~27 MB) y los datos del juego (Data/*.dat,
+  Scripts.rxdata y PluginScripts.rxdata, ~5 MB, de ../Pokémon Ostinato) a tools/ostinato/Data.
+- app/ostinato/carga.rb: carga el código del juego (Scripts.rxdata y PluginScripts.rxdata, en orden, sin Main) en un Ruby
+  normal con piezas de relleno para RGSS/mkxp-z (Bitmap, Sprite, Graphics, Input con constantes, Color/Tone con _load...)
+  y preparar_partida ($game_switches, $PokemonSystem, $player...). Quedan 5 errores de carga que no tocan al combate
+  (tilesets, RPG_Cache, y Make It Rain, que el juego también tiene repetido con otro padre).
+- app/ostinato/motor.rb: el motor por líneas JSON (nuevo/accion/ver/cerrar). Cada combate en un Fiber; BatallaRed < Battle:
+  pbCommandPhaseLoop y pbSwitchInBetween piden la orden a cada lado (Mando.pedir: si no ha llegado, Fiber.yield); nadie
+  usa la IA. EscenaRed (< DebugSceneNoVisuals) convierte lo que pasa en sucesos: msg, anim (con anim0/anim1: la animación
+  si ataca «el jugador» o «el rival», con OppMove), comun, golpe (0 normal, 1 poco eficaz, 2 muy eficaz), ps, sale, vuelve,
+  debil, ficha, habilidad, forma, fin. Los textos van con MARCAS para leerse desde cada lado (pbThis, pbTeam, salidas y
+  retiradas, «te desafía», rendición, tiempo): \x01 Pokémon, \x03 equipo, \x04 S/R, \x05, \x06, \x07; la app las lee
+  (cbLeer) y arregla «de el»/«a el»/«al el» como OstCombate.plural. Sin dinero ni «has perdido» (pbEndOfBattle propio).
+  Normas: sleepclause, speciesclause, evasionclause, ohkoclause. Megaevolución: pbHasMegaRing? = true y la orden 'mega'.
+  vista(lado): equipo con habilidad, objeto, características, ataques (descripción del juego, eficacia ×, elegible), cambios,
+  rival, bolas, puede_cambiar, mega.
+- app/motor_ostinato.py: un Ruby para todo el servidor (Motor, con lock; se rearranca si se cae) y CombateOstinato con la
+  forma de antes (accion/espera/vista/empezar/tiempo/cerrar); los relojes (80 s / 50 min) siguen aquí. Traduce el perfil
+  (números de X/Y) a los nombres del motor con app/ids_ostinato.json (hacer_ids_ostinato.py: Showdown + la lista de ids
+  del motor; 721 especies, 620 ataques —Poder Oculto a mano—, 191 habilidades, 414 objetos) y añade a los sucesos el
+  número de la especie ('numero') y los estados con los códigos de la app.
+- El perfil del latido lleva ahora ivs, evs, naturaleza, habilidad_n, objeto, pp_up y forma (guardado.tablero); sin ellos
+  (Pokelocke de antes) no deja ponerse listo.
+- ANIMACIONES: app/ostinato/exportar_animaciones.rb + app/hacer_animaciones.py -> assets/combate/anim (<n>.json de las 1532,
+  indice.json de las comunes, g/ los 598 gráficos, s/ los 1385 sonidos pasados a ogg, nombres.json; 40 MB). La app
+  (animReproducir) las reproduce como PBAnimationPlayerX con el ajuste a 1920 de 042_AnimacionesHD.rb: 20 fps, hoja de
+  192x192, focos 1/2 pegados al objetivo/usuario con su zoom (K_MIO 3, K_RIVAL 2,4), 3 y 4 por la línea (128,224)-(384,96)
+  llevada a la real, piezas 0/1 mueven los Pokémon, prioridad 0/2 detrás (#cb-anim-atras), mezcla, tinte, matiz, sonidos y
+  destellos. Si no hay animación, las partículas de la 2.3.2.
+- Probado: test_combate.py (combates con equipos, habilidades y objetos al azar a través de las salas; 150 seguidos sin
+  error del motor), test_app.py, y la app entera contra un bot (scratchpad cb_prueba) hasta «¡Has ganado el combate!», con
+  fotos de Surf y Pulso Umbrío. NO probado entre dos PCs ni con las partidas reales de David.
