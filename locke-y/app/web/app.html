@@ -812,6 +812,83 @@
   #v-torneo.pizarra .vacio, #v-torneo.pizarra .error { color: #fff; }
   .aviso-hex { padding: 12px 16px; border-radius: 12px; background: var(--oro-claro); color: #6B4E00; font-weight: 700; font-size: 14px; }
 
+  /* 2.3.0 · COMBATE EN LÍNEA: salas con un código de 4 números (sin Citra). Fuera de la sala, dos pestañas (Crear sala /
+     Entrar por código); dentro, los dos entrenadores con su equipo sobre el fondo del VS, y al empezar, la presentación */
+  #v-combate { background: #0B0D16; color: #fff; }
+  #v-combate header { background: transparent; border-bottom-color: rgba(255,255,255,.08); }
+  #v-combate header .titulo { color: #fff; }
+  #v-combate header .btn-icono { background: rgba(255,255,255,.1); }
+  #v-combate header .btn-icono svg { stroke: #fff; }
+  .cl-cuerpo { position: relative; flex-grow: 1; display: flex; flex-direction: column; overflow: hidden; font-family: 'Barlow Semi Condensed', Nunito, sans-serif; }
+  .cl-fondo { position: absolute; inset: 0; background: url(/assets/vs-fondo.jpg) center/cover; filter: brightness(.35) saturate(.9); }
+  .cl-entrada { position: relative; margin: auto; width: min(460px, calc(100% - 32px)); padding: 28px; border-radius: 20px; background: rgba(12,14,24,.82);
+    border: 1px solid rgba(255,255,255,.12); box-shadow: 0 20px 60px rgba(0,0,0,.5); text-align: center; }
+  .cl-pestanas { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; padding: 5px; border-radius: 999px; background: rgba(255,255,255,.08); margin-bottom: 26px; }
+  .cl-pestanas button { border: none; border-radius: 999px; padding: 10px 0; background: transparent; color: rgba(255,255,255,.7); font: 700 18px 'Barlow Semi Condensed', sans-serif; cursor: pointer; }
+  .cl-pestanas button[aria-selected="true"] { background: #fff; color: #111; }
+  .cl-entrada p { margin: 0 0 20px; color: rgba(255,255,255,.7); font: 500 17px Nunito, sans-serif; }
+  .cl-cifras { display: flex; justify-content: center; gap: 12px; margin-bottom: 22px; }
+  .cl-cifras input { width: 64px; height: 80px; border-radius: 14px; border: 2px solid rgba(255,255,255,.25); background: rgba(255,255,255,.06); color: #fff;
+    text-align: center; font: 700 44px 'Barlow Semi Condensed', sans-serif; caret-color: #fff; }
+  .cl-cifras input:focus { outline: none; border-color: #fff; background: rgba(255,255,255,.12); }
+  .cl-boton { border: none; border-radius: 999px; padding: 14px 40px; background: #fff; color: #111; font: 700 22px 'Barlow Semi Condensed', sans-serif; letter-spacing: 1px;
+    cursor: pointer; box-shadow: 0 6px 18px rgba(0,0,0,.4); }
+  .cl-boton:hover { transform: translateY(-1px); }
+  .cl-boton:disabled { opacity: .45; cursor: default; transform: none; }
+  .cl-boton.secundario { background: rgba(255,255,255,.12); color: #fff; box-shadow: none; }
+  .cl-boton.listo { background: #2E6BFF; color: #fff; }
+  .cl-error { min-height: 22px; margin-top: 14px; color: #FF8C8C; font: 700 15px Nunito, sans-serif; }
+  .cl-sala { position: relative; flex-grow: 1; display: grid; grid-template-columns: 1fr auto 1fr; gap: 20px; padding: 14px 28px 0; min-height: 0; overflow: auto; }
+  .cl-lado { display: flex; flex-direction: column; align-items: center; min-width: 0; }
+  .cl-nombre { align-self: stretch; padding: 4px 22px 6px; font: italic 800 38px/1 'Barlow Semi Condensed', sans-serif; letter-spacing: 1px; text-shadow: 0 3px 0 rgba(0,0,0,.45);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .cl-lado.tu .cl-nombre { background: linear-gradient(90deg, #1E4FD8, rgba(30,79,216,0)); }
+  .cl-lado.rival .cl-nombre { background: linear-gradient(270deg, #D81E2E, rgba(216,30,46,0)); text-align: right; }
+  .cl-estado { align-self: stretch; margin-top: 6px; font: 600 15px Nunito, sans-serif; color: rgba(255,255,255,.65); }
+  .cl-lado.rival .cl-estado { text-align: right; }
+  .cl-estado.ok { color: #7CE0A0; }
+  .cl-avatar { margin: 4px 0 8px; background-repeat: no-repeat; image-rendering: pixelated; animation: clRespira 1s steps(8) infinite; }
+  .cl-lado.tu .cl-avatar { filter: drop-shadow(0 0 18px rgba(80,140,255,.7)); }
+  .cl-lado.rival .cl-avatar { filter: drop-shadow(0 0 18px rgba(255,70,80,.7)); }
+  @keyframes clRespira { from { background-position-x: 0; } to { background-position-x: var(--fin); } }
+  .cl-equipo { width: 100%; display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px 10px; }
+  .cl-poke { position: relative; display: flex; flex-direction: column; align-items: center; padding: 8px 6px 8px; border-radius: 14px; border: 2px solid rgba(255,255,255,.1);
+    background: rgba(10,12,20,.7); color: #fff; font-family: 'Barlow Semi Condensed', sans-serif; text-align: center; min-width: 0; }
+  button.cl-poke { cursor: pointer; }
+  button.cl-poke:hover { border-color: rgba(255,255,255,.45); }
+  .cl-poke.primero { border-color: #fff; background: rgba(46,107,255,.35); }
+  .cl-poke img { width: 64px; height: 64px; object-fit: contain; filter: drop-shadow(0 4px 6px rgba(0,0,0,.5)); }
+  .cl-poke b { display: block; max-width: 100%; margin-top: 4px; font-size: 19px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .cl-poke small { display: block; font-size: 14px; font-weight: 500; color: rgba(255,255,255,.7); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
+  .cl-poke .cl-sale { position: absolute; top: -10px; left: 50%; transform: translateX(-50%); padding: 2px 10px; border-radius: 999px; background: #fff; color: #111; font-size: 12px; font-weight: 800; white-space: nowrap; }
+  .cl-centro { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; padding-bottom: 40px; }
+  .cl-codigo-et { font: 600 15px 'Barlow Semi Condensed', sans-serif; letter-spacing: 8px; color: rgba(255,255,255,.55); padding-left: 8px; }
+  .cl-codigo { font: 800 64px/1 'Barlow Semi Condensed', sans-serif; letter-spacing: 10px; padding-left: 10px; }
+  .cl-vs { margin: 14px 0 4px; font: italic 800 72px/1 'Barlow Semi Condensed', sans-serif; text-shadow: 0 0 24px rgba(255,255,255,.35); }
+  .cl-ronda { font: 300 26px 'Barlow Semi Condensed', sans-serif; letter-spacing: 6px; padding-left: 6px; }
+  .cl-ronda b { font-weight: 800; }
+  .cl-sub { font: 600 13px 'Barlow Semi Condensed', sans-serif; letter-spacing: 6px; padding-left: 6px; color: rgba(255,255,255,.5); }
+  .cl-pips { display: flex; gap: 12px; }
+  .cl-pips i { width: 12px; height: 12px; border-radius: 50%; border: 2px solid rgba(255,255,255,.6); box-sizing: border-box; }
+  .cl-vacio { margin: 40px 0; text-align: center; font: 500 18px Nunito, sans-serif; color: rgba(255,255,255,.7); }
+  .cl-vacio b { display: block; margin-top: 6px; font: 800 42px 'Barlow Semi Condensed', sans-serif; letter-spacing: 8px; color: #fff; }
+  .cl-pie { position: relative; display: flex; justify-content: center; align-items: center; gap: 14px; padding: 14px; }
+  .cl-aviso { position: relative; margin: auto; max-width: 560px; padding: 30px; border-radius: 20px; background: rgba(12,14,24,.85); text-align: center; border: 1px solid rgba(255,255,255,.12); }
+  .cl-aviso h2 { margin: 0 0 10px; font: 800 44px 'Barlow Semi Condensed', sans-serif; }
+  .cl-aviso p { margin: 0 0 22px; color: rgba(255,255,255,.7); font: 500 16px Nunito, sans-serif; }
+  .cl-aviso .cl-botones { display: flex; justify-content: center; gap: 12px; flex-wrap: wrap; }
+  @media (max-width: 1000px) { .cl-sala { grid-template-columns: 1fr; } .cl-centro { order: -1; padding-bottom: 0; } }
+  @media (prefers-reduced-motion: reduce) { .cl-avatar { animation: none; } }
+
+  /* la presentación (VS + RONDA) del lienzo «Pokelocke · combate del torneo»: un escenario de 1920x1080 escalado a la ventana */
+  #vs-pres { position: fixed; inset: 0; z-index: 9000; background: #000; overflow: hidden; }
+  #vs-escena { position: absolute; left: 50%; top: 50%; width: 1920px; height: 1080px; overflow: hidden; background: #000;
+    font-family: 'Barlow Semi Condensed', 'Bahnschrift', sans-serif; color: #fff; transform-origin: 0 0; }
+  #vs-escena .pix { image-rendering: pixelated; background-repeat: no-repeat; }
+  #vs-escena img.pix { display: block; width: 100%; height: 100%; }
+  #vs-saltar { position: absolute; right: 18px; bottom: 18px; z-index: 2; padding: 8px 18px; border: none; border-radius: 999px; background: rgba(255,255,255,.16);
+    color: #fff; font: 600 15px Nunito, sans-serif; cursor: pointer; }
+  #vs-saltar:hover { background: rgba(255,255,255,.28); }
   @media (max-width: 700px) {
     header, footer, main.contenido, .barra-acciones { padding-left: 16px; padding-right: 16px; }
   }
@@ -856,7 +933,7 @@
     </div>
     <div class="portada-izq">
       <button class="redondo-video" type="button" data-sonido aria-label="Silenciar la música"></button>
-      <span>Versión 2.2.7</span>
+      <span>Versión 2.3.0</span>
     </div>
     <div class="portada-jugar">
       <span id="p-progreso"></span>
@@ -872,6 +949,7 @@
     <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap; position: relative;">
       <label class="interruptor oculto" id="o-servidor-caja" title="Enciende el servidor para que los demás puedan conectarse y jugar online"><input type="checkbox" id="o-servidor"> Servidor</label>
       <button class="btn btn-icono" type="button" data-notas aria-label="Cómo entrar en la sala para combatir" title="Cómo entrar en la sala para combatir"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6M8 13h8M8 17h5"/></svg></button>
+      <button class="btn btn-neutro oculto" type="button" id="b-combate">⚔️ Combate en línea</button>
       <button class="btn btn-neutro oculto" type="button" id="b-torneo">🏆 Torneo</button>
       <button class="usuario-chip oculto" type="button" id="o-chip" aria-expanded="false" style="padding-left: 6px;"><span id="o-avatar" style="display: flex;"></span><span class="punto" id="o-punto"></span><span id="o-texto"></span></button>
       <button class="btn btn-neutro oculto" type="button" id="o-entrar">Entrar</button>
@@ -936,7 +1014,7 @@
     <section class="tb-hud tb-carta tb-objetivo" id="tb-objetivo" aria-label="Siguiente objetivo"></section>
     <section class="tb-hud tb-carta tb-marcador" id="tb-marcador" aria-label="Vidas y medallas"></section>
     <div class="tb-hud tb-abajo"><div class="tb-equipo" id="tb-equipo" aria-label="Tu equipo"></div><div class="tb-carta tb-jugar" id="tb-jugar"></div></div>
-    <span class="tb-hud tb-credito">Creado por David Martínez Palacios · Versión 2.2.7</span>
+    <span class="tb-hud tb-credito">Creado por David Martínez Palacios · Versión 2.3.0</span>
   </div>
 
   <footer>
@@ -1149,6 +1227,18 @@
 <div class="notas oculto" id="notas" role="dialog" aria-labelledby="notas-titulo"></div>
 
 <!-- ============ TORNEO ============ -->
+<!-- ============ COMBATE EN LÍNEA (2.3.0) ============ -->
+<section class="vista" id="v-combate">
+  <header>
+    <div class="marca">
+      <button class="btn btn-icono" id="cl-atras" type="button" aria-label="Volver a la biblioteca">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1B2030" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>
+      </button>
+      <span class="titulo">⚔️ Combate en línea</span>
+    </div>
+  </header>
+  <div class="cl-cuerpo"><div class="cl-fondo" aria-hidden="true"></div><div id="cl-cuerpo" style="position: relative; flex-grow: 1; display: flex; flex-direction: column; min-height: 0;"></div></div>
+</section>
 <section class="vista" id="v-torneo">
   <header>
     <div class="marca">
@@ -1441,6 +1531,30 @@
   </form>
 </div>
 
+<!-- la presentación del combate: VS con los dos entrenadores y sus equipos, y RONDA N -->
+<div id="vs-pres" class="oculto" role="dialog" aria-modal="true" aria-label="Presentación del combate">
+  <div id="vs-escena">
+    <div id="vs-temblor">
+      <img id="vs-fondo" src="/assets/vs-fondo.jpg" alt="" style="position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; display: block;">
+      <div id="vs-ent-0" class="pix" aria-hidden="true"></div>
+      <div id="vs-nom-0"></div>
+      <div id="vs-eq-0"></div>
+      <div id="vs-ent-1" class="pix" aria-hidden="true"></div>
+      <div id="vs-nom-1"></div>
+      <div id="vs-eq-1"></div>
+      <div id="vs-rayo" aria-hidden="true"></div>
+      <div id="vs-impacto" aria-hidden="true"></div>
+      <div id="vs-letras" role="img" aria-label="VS"></div>
+    </div>
+    <div id="vs-destello" aria-hidden="true"></div>
+    <div id="vs-oscuro" aria-hidden="true"></div>
+    <div id="vs-fila"><span id="vs-ronda">RONDA</span><span id="vs-numero"></span></div>
+    <div id="vs-sub"></div>
+    <div id="vs-marcas"></div>
+    <div id="vs-negro" aria-hidden="true"></div>
+  </div>
+  <button type="button" id="vs-saltar">Saltar</button>
+</div>
 <script>
 const $ = (id) => document.getElementById(id);
 const esc = (t) => String(t).replace(/[&<>"]/g, (c) => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;'}[c]));
@@ -2100,6 +2214,7 @@ function pintarOnline(o) {
   const s = o.sesion;
   $('o-chip').classList.toggle('oculto', !s);
   $('b-torneo').classList.toggle('oculto', !s);
+  $('b-combate').classList.toggle('oculto', !s);
   $('o-entrar').classList.toggle('oculto', !!s);
   $('o-servidor-caja').classList.toggle('oculto', !(o.servidor || (s && s.admin)));
   $('o-servidor').checked = o.servidor;
@@ -2786,6 +2901,360 @@ document.addEventListener('change', (ev) => {
   const caja = (k) => document.querySelector(`input[data-tn="${k}"][data-id="${id}"]`).value;
   editarTorneo('marcador', {id, ma: caja('ma'), mb: caja('mb')});
 });
+
+// ---------- 2.3.0 · COMBATE EN LÍNEA ----------
+// Salas con un código de 4 números en el servidor del anfitrión (online.Servidor.combate), sin Citra ni su sala.
+// Fuera: «Crear sala» (te da el código) o «Entrar por código». Dentro: tú a la izquierda y tu rival a la derecha, con el
+// entrenador de su partida (Serena o Calem) y su equipo (fan art, nombre y nivel; la habilidad, solo de los tuyos).
+// Eliges cuál sale primero y pulsas «¡Listo!»; con los dos listos, la presentación (VS + RONDA N, al mejor de 3) sale
+// a la vez en los dos Pokelocke (el servidor da la hora de empezar y la suya, 'ahora'). El combate dentro de la app es
+// la siguiente fase: de momento, al acabar la presentación se apunta quién ha ganado la ronda.
+const combate = {abierto: false, pestana: 'crear', datos: null, error: '', reloj: null, pidiendo: false, desfase: 0, presentada: null, pintado: ''};
+async function pedirCombate(que, datos) {
+  let r;
+  try {
+    r = await (await fetch('/api/online/combate', {method: 'POST', headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({que, ...(datos || {})})})).json();
+  } catch (err) { r = {error: 'Pokelocke no responde'}; }
+  if (r.error) { combate.error = r.error; pintarCombate(); return null; }
+  combate.error = '';
+  combate.desfase = r.ahora - Date.now() / 1000;          // su reloj menos el nuestro: así la presentación empieza a la vez
+  combate.datos = r.sala;
+  pintarCombate();
+  mirarPresentacion();
+  return r;
+}
+function abrirCombate() {
+  combate.abierto = true; combate.error = ''; combate.pintado = '';
+  actualizar();
+  pedirCombate('ver');
+  clearInterval(combate.reloj);
+  combate.reloj = setInterval(() => {
+    if (combate.pidiendo || (document.activeElement && document.activeElement.matches('.cl-cifras input'))) return;
+    combate.pidiendo = true;
+    pedirCombate('ver').finally(() => { combate.pidiendo = false; });
+  }, 1000);
+}
+function cerrarCombate() {
+  combate.abierto = false; clearInterval(combate.reloj);
+  actualizar();
+}
+const ENTRENADOR = [{src: '/assets/vs-calem.png', n: 8, w: 238, h: 363}, {src: '/assets/vs-serena.png', n: 8, w: 252, h: 372}];
+function avatarSala(perfil) {
+  const e = ENTRENADOR[perfil && perfil.sexo === 1 ? 1 : 0], alto = 180, ancho = Math.round(e.w * alto / e.h);
+  return `<div class="cl-avatar" aria-hidden="true" style="width: ${ancho}px; height: ${alto}px; background-image: url(${e.src}); background-size: ${e.n * ancho}px ${alto}px; --fin: ${-e.n * ancho}px;"></div>`;
+}
+function equipoSala(perfil, mio, sala, quien) {
+  const equipo = (perfil && perfil.equipo) || [];
+  if (!equipo.length) return `<p class="cl-estado">${mio ? 'Tu equipo saldrá aquí cuando Pokelocke lea tu partida (ábrela una vez en la biblioteca).' : 'Su equipo saldrá cuando su Pokelocke lea su partida.'}</p>`;
+  const primero = sala.primero[quien];
+  const puede = mio && sala.estado === 'sala';
+  return `<div class="cl-equipo">${equipo.map((x, i) => {
+    const sale = mio && primero === i;
+    const dentro = `${sale ? '<span class="cl-sale">Sale primero</span>' : ''}<img src="/arte/${x.especie}" alt="" loading="lazy">
+      <b>${esc(x.mote || x.nombre)}</b><small>${x.mote && x.mote !== x.nombre ? esc(x.nombre) + ' · ' : ''}Nv. ${x.nivel}</small>${mio && x.habilidad ? `<small>${esc(x.habilidad)}</small>` : ''}`;
+    return puede ? `<button type="button" class="cl-poke${sale ? ' primero' : ''}" data-cl="primero" data-hueco="${i}" aria-pressed="${SI(sale)}" title="Que salga primero">${dentro}</button>`
+      : `<div class="cl-poke${sale ? ' primero' : ''}">${dentro}</div>`;
+  }).join('')}</div>`;
+}
+function pipsSala(sala, tu) {
+  const m = sala.marcador, mios = m[tu], suyos = m[1 - tu];
+  return `<div class="cl-pips" aria-label="Marcador ${mios} a ${suyos}">${[0, 1, 2].map((i) => {
+    const col = i < mios ? '#2E6BFF' : i < mios + suyos ? '#FF2E3E' : '';
+    return `<i style="${col ? `background: ${col}; border-color: ${col};` : ''}"></i>`;
+  }).join('')}</div>`;
+}
+function pintarCombate() {
+  if (!combate.abierto) return;
+  const caja = $('cl-cuerpo'), s = combate.datos;
+  let html;
+  if (!s) {
+    const crear = combate.pestana === 'crear';
+    html = `<div class="cl-entrada">
+      <div class="cl-pestanas" role="tablist">
+        <button type="button" role="tab" aria-selected="${SI(crear)}" data-cl="pestana" data-p="crear">Crear sala</button>
+        <button type="button" role="tab" aria-selected="${SI(!crear)}" data-cl="pestana" data-p="entrar">Entrar por código</button>
+      </div>
+      ${crear ? '<p>Crea una sala y pásale el código de 4 números a tu rival.</p><button type="button" class="cl-boton" data-cl="crear">Crear sala</button>'
+        : `<p>Escribe el código que te ha pasado tu rival.</p>
+          <div class="cl-cifras">${[0, 1, 2, 3].map((i) => `<input type="text" inputmode="numeric" maxlength="4" autocomplete="off" aria-label="Cifra ${i + 1} del código" data-cifra="${i}">`).join('')}</div>
+          <button type="button" class="cl-boton" data-cl="entrar">Entrar</button>`}
+      <div class="cl-error" role="alert">${esc(combate.error || '')}</div>
+    </div>`;
+  } else {
+    const tu = s.yo, el = 1 - tu, yo = s.jugadores[tu], rival = s.jugadores[el];
+    if (s.estado === 'combate' || (s.estado === 'presentacion' && !VS.activa)) {
+      html = `<div class="cl-aviso"><h2>¡A combatir!</h2>
+        <p>Ronda ${s.ronda} de 3. El combate dentro de Pokelocke llega en la próxima versión: cuando acabéis esta ronda, apuntad quién ha ganado.</p>
+        <div class="cl-botones"><button type="button" class="cl-boton listo" data-cl="ganador" data-lado="${tu}">Gané yo</button>
+        <button type="button" class="cl-boton" data-cl="ganador" data-lado="${el}">Ganó ${esc(rival || '')}</button></div>
+        <div class="cl-error" role="alert">${esc(combate.error || '')}</div></div>`;
+    } else if (s.estado === 'terminado') {
+      const gano = s.ganador === yo;
+      html = `<div class="cl-aviso"><h2>${gano ? '¡Has ganado!' : `Gana ${esc(s.ganador)}`}</h2>
+        <p>${s.marcador[tu]} - ${s.marcador[el]} al mejor de 3.</p>
+        <div class="cl-botones"><button type="button" class="cl-boton" data-cl="revancha">Revancha</button>
+        <button type="button" class="cl-boton secundario" data-cl="salir">Salir de la sala</button></div></div>`;
+    } else {
+      const listo = !!s.listos[yo], rivalListo = !!(rival && s.listos[rival]);
+      const ronda = s.ronda === 3 ? '<b>FINAL</b>' : `<b>${s.ronda}</b>`;
+      const sinElegir = s.primero[yo] === undefined && ((s.perfiles[yo] && s.perfiles[yo].equipo) || []).length > 0;
+      html = `<div class="cl-sala">
+        <section class="cl-lado tu" aria-label="Tú">
+          <div class="cl-nombre">${esc(yo)}</div>
+          <div class="cl-estado${listo ? ' ok' : ''}">${listo ? '¡Listo!' : sinElegir ? 'Elige qué Pokémon sale primero' : 'Pulsa «¡Listo!» cuando quieras'}</div>
+          ${avatarSala(s.perfiles[yo])}
+          ${equipoSala(s.perfiles[yo], true, s, yo)}
+        </section>
+        <div class="cl-centro">
+          <span class="cl-codigo-et">CÓDIGO</span>
+          <span class="cl-codigo">${esc(s.codigo)}</span>
+          <span class="cl-vs" aria-hidden="true">VS</span>
+          <span class="cl-ronda">RONDA ${ronda}</span>
+          <span class="cl-sub">AL MEJOR DE 3</span>
+          ${pipsSala(s, tu)}
+        </div>
+        <section class="cl-lado rival" aria-label="Tu rival">
+          ${rival ? `<div class="cl-nombre">${esc(rival)}</div>
+            <div class="cl-estado${rivalListo ? ' ok' : ''}">${rivalListo ? '¡Listo!' : 'Eligiendo…'}</div>
+            ${avatarSala(s.perfiles[rival])}
+            ${equipoSala(s.perfiles[rival], false, s, rival)}`
+          : `<div class="cl-vacio">Esperando a tu rival…<br>Pásale este código:<b>${esc(s.codigo)}</b></div>`}
+        </section>
+      </div>
+      <div class="cl-pie">
+        <button type="button" class="cl-boton secundario" data-cl="salir">Salir de la sala</button>
+        <button type="button" class="cl-boton${listo ? ' listo' : ''}" data-cl="listo" ${rival && !sinElegir ? '' : 'disabled'}>${listo ? 'Esperando a tu rival…' : '¡Listo!'}</button>
+      </div>
+      <div class="cl-error" role="alert" style="text-align: center; margin: 0 0 12px;">${esc(combate.error || '')}</div>`;
+    }
+  }
+  if (html === combate.pintado) return;                // nada cambia: no se repinta (no corta los avatares ni el foco)
+  combate.pintado = html;
+  const conFoco = !!(document.activeElement && document.activeElement.matches('.cl-cifras input'));
+  caja.innerHTML = html;
+  const primera = caja.querySelector('.cl-cifras input');
+  if (primera && !conFoco) primera.focus();
+}
+// con los dos listos: la presentación, a la hora que dice el servidor (una vez por ronda)
+function mirarPresentacion() {
+  const s = combate.datos;
+  if (!s || s.estado !== 'presentacion' || !s.empieza) return;
+  const clave = `${s.codigo}-${s.empieza}`;
+  if (combate.presentada === clave) return;
+  combate.presentada = clave;
+  const tu = s.yo, el = 1 - tu;
+  const retraso = s.empieza - (Date.now() / 1000 + combate.desfase);
+  presentarCombate({izq: {nombre: s.jugadores[tu], perfil: s.perfiles[s.jugadores[tu]]}, der: {nombre: s.jugadores[el], perfil: s.perfiles[s.jugadores[el]]},
+    mejorDe: 3, ma: s.marcador[tu], mb: s.marcador[el], retraso});
+  combate.pintado = '';
+}
+$('b-combate').onclick = abrirCombate;
+$('cl-atras').onclick = cerrarCombate;
+document.addEventListener('click', (ev) => {
+  const b = ev.target.closest('[data-cl]');
+  if (!b || !combate.abierto || b.disabled) return;
+  const que = b.dataset.cl, s = combate.datos;
+  if (que === 'pestana') { combate.pestana = b.dataset.p; combate.error = ''; return pintarCombate(); }
+  if (que === 'crear') return pedirCombate('crear');
+  if (que === 'entrar') {
+    const codigo = [...document.querySelectorAll('.cl-cifras input')].map((x) => x.value).join('');
+    if (!/^\d{4}$/.test(codigo)) { combate.error = 'El código son 4 números'; combate.pintado = ''; return pintarCombate(); }
+    return pedirCombate('entrar', {codigo});
+  }
+  if (que === 'primero') return pedirCombate('primero', {hueco: Number(b.dataset.hueco)});
+  if (que === 'listo') return pedirCombate('listo', {listo: !(s && s.listos[s.jugadores[s.yo]])});
+  if (que === 'ganador') return pedirCombate('ganador', {lado: Number(b.dataset.lado)});
+  if (que === 'revancha') return pedirCombate('revancha');
+  if (que === 'salir') return pedirCombate('salir');
+});
+// las 4 cifras: una por casilla, salta sola a la siguiente; borrar vuelve atrás; pegar «1234» las rellena todas; Intro entra
+document.addEventListener('input', (ev) => {
+  const x = ev.target;
+  if (!x.matches || !x.matches('.cl-cifras input')) return;
+  const cajas = [...document.querySelectorAll('.cl-cifras input')], i = Number(x.dataset.cifra);
+  const cifras = x.value.replace(/\D/g, '');
+  if (cifras.length > 1) {
+    cifras.slice(0, 4 - i).split('').forEach((c, k) => { cajas[i + k].value = c; });
+    cajas[Math.min(3, i + cifras.length - 1)].focus();
+    return;
+  }
+  x.value = cifras;
+  if (cifras && i < 3) cajas[i + 1].focus();
+});
+document.addEventListener('keydown', (ev) => {
+  const x = ev.target;
+  if (!x.matches || !x.matches('.cl-cifras input')) return;
+  const cajas = [...document.querySelectorAll('.cl-cifras input')], i = Number(x.dataset.cifra);
+  if (ev.key === 'Backspace' && !x.value && i > 0) { cajas[i - 1].focus(); cajas[i - 1].value = ''; ev.preventDefault(); }
+  if (ev.key === 'Enter') document.querySelector('[data-cl="entrar"]').click();
+});
+
+// ---------- la presentación del combate (VS + RONDA) ----------
+// La del lienzo «Pokelocke · combate del torneo» (Presentacion.dc.html), igual: los dos entrenadores (Serena si juega
+// con chica, Calem si con chico) con su equipo detrás, el rayo, el VS que cae, y «RONDA N» con el marcador en puntitos.
+// Suena la canción de combate del mix (assets/vs-combate.ogg, con su bucle desde LOOPSTART), con el volumen de la app.
+const VS = {
+  LENTO: 1.6, DURA: 7.2 * 1.6, BUCLE_DESDE: 1239018 / 44100,
+  ENT: [{src: '/assets/vs-calem.png', n: 8, w: 238, h: 363, k: 2.5, top: 290},     // chico
+    {src: '/assets/vs-serena.png', n: 8, w: 252, h: 372, k: 2.6, top: 250}],       // chica
+  // el sitio de cada uno de los 6 (la referencia de Firefly): [desplazamiento desde el centro de su mitad, pies, tamaño, delante?]
+  SITIOS: [[0, 490, 700, false], [-222, 675, 460, false], [218, 675, 460, false], [-302, 1052, 420, true], [-152, 1035, 360, false], [258, 998, 380, true]],
+  activa: null, cancion: null, ctx: null
+};
+function vsSonido() {
+  try {
+    if (!VS.ctx) {
+      VS.ctx = new (window.AudioContext || window.webkitAudioContext)();
+      VS.cancion = fetch('/assets/vs-combate.ogg').then((r) => r.arrayBuffer()).then((b) => VS.ctx.decodeAudioData(b)).catch(() => null);
+    }
+    return VS.cancion;
+  } catch (err) { return Promise.resolve(null); }
+}
+// la música empieza con la presentación; si la canción tarda en cargar, entra por donde toca
+async function vsMusica(p) {
+  const buffer = await vsSonido();
+  if (!buffer || VS.activa !== p) return;
+  const vol = VS.ctx.createGain(), f = VS.ctx.createBufferSource();
+  vol.gain.value = (sonido.mudo ? 0 : sonido.volumen / 100) * 0.9;
+  f.buffer = buffer; f.loop = true; f.loopStart = VS.BUCLE_DESDE; f.loopEnd = buffer.duration;
+  f.connect(vol); vol.connect(VS.ctx.destination);
+  try { await VS.ctx.resume(); } catch (err) { /* sin permiso: sin música */ }
+  const desde = (performance.now() - p.t0) / 1000;
+  if (desde < 0) f.start(VS.ctx.currentTime - desde); else f.start(0, Math.min(desde, VS.BUCLE_DESDE));
+  p.fuente = f; p.vol = vol;
+}
+function vsEscalar() {
+  const s = Math.min(innerWidth / 1920, innerHeight / 1080);
+  $('vs-escena').style.transform = `scale(${s}) translate(-50%, -50%)`;
+}
+// izq/der: {nombre, perfil}; mejorDe 1 o 3; ma/mb: victorias de cada uno hasta ahora; retraso: segundos hasta empezar
+function presentarCombate({izq, der, mejorDe, ma, mb, retraso}) {
+  vsCerrar(true);
+  const jugadas = ma + mb, ronda = Math.min(jugadas + 1, mejorDe);
+  const p = {t0: performance.now() + Math.max(-VS.DURA, retraso || 0) * 1000, izq, der, mejorDe, ma, mb, ronda, eq: [[], []]};
+  VS.activa = p;
+  musica.pause(); musicaPortada.pause();
+  [izq, der].forEach((j, lado) => {
+    p['ent' + lado] = VS.ENT[j.perfil && j.perfil.sexo === 1 ? 1 : 0];
+    const caja = $('vs-eq-' + lado);
+    caja.innerHTML = '';
+    ((j.perfil && j.perfil.equipo) || []).slice(0, 6).forEach((x, i) => {
+      const casilla = document.createElement('div'), img = document.createElement('img');
+      img.className = 'pix'; img.alt = ''; img.src = `/ani/${x.especie}${x.shiny ? '?shiny=1' : ''}`;
+      const pk = {casilla, img, i, w: 0, h: 0};
+      img.onload = () => { pk.w = img.naturalWidth; pk.h = img.naturalHeight; };
+      casilla.appendChild(img); caja.appendChild(casilla);
+      p.eq[lado].push(pk);
+    });
+    $('vs-nom-' + lado).textContent = j.nombre.toUpperCase();
+  });
+  $('vs-numero').textContent = mejorDe === 1 ? 'ÚNICA' : ronda === mejorDe ? 'FINAL' : String(ronda);
+  $('vs-sub').textContent = `AL MEJOR DE ${mejorDe}`;
+  $('vs-marcas').innerHTML = Array.from({length: mejorDe}, () => '<div></div>').join('');
+  $('vs-pres').classList.remove('oculto');
+  vsEscalar();
+  vsMusica(p);
+  const paso = () => {
+    if (VS.activa !== p) return;
+    const real = (performance.now() - p.t0) / 1000;
+    if (real > VS.DURA) return vsCerrar();
+    vsPintar(p, Math.max(0, real));
+    requestAnimationFrame(paso);
+  };
+  requestAnimationFrame(paso);
+  $('vs-saltar').focus();
+}
+function vsCerrar(seguida) {
+  const p = VS.activa;
+  if (!p) return;
+  VS.activa = null;
+  if (p.fuente) {
+    const ahora = VS.ctx.currentTime;
+    try { p.vol.gain.setTargetAtTime(0, ahora, 0.15); p.fuente.stop(ahora + 0.8); } catch (err) { /* ya parada */ }
+  }
+  if (!seguida) {
+    $('vs-pres').classList.add('oculto');
+    sonar(ultimo && ultimo.jugando);
+    if (combate.abierto) { combate.pintado = ''; pintarCombate(); }
+  }
+}
+function vsPintar(p, real) {
+  const t = real / VS.LENTO;
+  const cl = (v) => Math.max(0, Math.min(1, v));
+  const fase = (a, b) => cl((t - a) / (b - a));
+  const sale = (x) => 1 - Math.pow(1 - x, 3);
+  const rebote = (x) => { const c = 1.7; return 1 + (c + 1) * Math.pow(x - 1, 3) + c * Math.pow(x - 1, 2); };
+  const entra = (x) => x * x * x;
+  const fr = (fps, n, desde) => Math.max(0, Math.floor((real - (desde || 0) * VS.LENTO) * fps)) % n;
+  const hoja = (src, n, w, h, k, i) => `background-image: url(${src}); background-size: ${n * w * k}px ${h * k}px; background-position: ${-i * w * k}px 0;`;
+  const css = (id, s) => { $(id).style.cssText = s; };
+
+  const fuera = sale(fase(3.9, 4.3));
+  css('vs-fondo', `position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; display: block; transform: scale(${1.12 - 0.12 * sale(fase(0, 0.6))}); filter: brightness(${0.55 + 0.45 * sale(fase(0, 0.5))});`);
+  // los entrenadores: grandes, en el centro de su mitad, cortados por las rodillas
+  [0, 1].forEach((lado) => {
+    const e = p['ent' + lado], W = e.w * e.k, H = e.h * e.k;
+    const x0 = lado ? 1390 - W / 2 : 480 - W / 2;
+    const a = rebote(fase(lado ? 0.4 : 0.3, lado ? 0.95 : 0.85));
+    const x = x0 + (lado ? 1 : -1) * (900 * (1 - a) + 1100 * fuera);
+    css('vs-ent-' + lado, `position: absolute; z-index: 2; left: ${x}px; top: ${e.top}px; width: ${W}px; height: ${H}px; ${hoja(e.src, e.n, e.w, e.h, e.k, 0)} filter: drop-shadow(0 0 26px ${lado ? 'rgba(255,70,80,0.8)' : 'rgba(80,140,255,0.8)'});`);
+    const an = sale(fase(lado ? 0.65 : 0.55, lado ? 1.0 : 0.9)), sitio = lado ? 'right' : 'left';
+    css('vs-nom-' + lado, `position: absolute; z-index: 4; top: 70px; ${sitio}: 60px; max-width: 760px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; padding: 4px 34px 8px; font-size: 76px; font-weight: 800; font-style: italic; letter-spacing: 2px; line-height: 1; `
+      + `background: ${lado ? 'linear-gradient(270deg, #D81E2E, rgba(216,30,46,0))' : 'linear-gradient(90deg, #1E4FD8, rgba(30,79,216,0))'}; text-shadow: 0 4px 0 rgba(0,0,0,0.5); opacity: ${an * (1 - fuera)}; transform: translateX(${(lado ? 1 : -1) * 80 * (1 - an)}px);`);
+  });
+  // los equipos: cada uno encajado en su hueco según sus medidas (que no asome por arriba ni por los lados)
+  const MARGEN = 26, BAJA_MAX = 160, SUELO = 1078;
+  const encaja = (w, h, cx, pies, ladoMax) => {
+    let k = Math.min(ladoMax / w, ladoMax / h), pp = pies;
+    if (pp - h * k < MARGEN) pp = Math.min(pies + BAJA_MAX, MARGEN + h * k, SUELO);
+    if (pp - h * k < MARGEN) k = (pp - MARGEN) / h;
+    const W = w * k;
+    return {x: Math.max(12, Math.min(1908 - W, cx - W / 2)), top: pp - h * k, W, H: h * k};
+  };
+  [0, 1].forEach((lado) => p.eq[lado].forEach((pk) => {
+    if (!pk.w) { pk.casilla.style.cssText = 'display: none;'; return; }
+    const [desp, pies, tam, delante] = VS.SITIOS[pk.i];
+    const e = encaja(pk.w, pk.h, lado ? 1440 - desp : 480 + desp, pies, tam);
+    const t0 = lado ? 0.95 : 0.85, a = fase(t0 + pk.i * 0.11, t0 + pk.i * 0.11 + 0.3), s = a <= 0 ? 0 : rebote(a);
+    const brillo = lado ? 'rgba(255,80,90,0.7)' : 'rgba(90,150,255,0.7)';
+    pk.casilla.style.cssText = `position: absolute; left: ${e.x + (lado ? 900 : -900) * fuera}px; top: ${e.top + Math.sin((real + pk.i) * 2.2) * 5}px; width: ${e.W}px; height: ${e.H}px; `
+      + `z-index: ${delante ? 3 : 1}; transform-origin: 50% 100%; transform: scale(${s}); opacity: ${cl(a * 3) * (1 - fuera)}; filter: drop-shadow(0 0 10px ${brillo}) drop-shadow(0 6px 6px rgba(0,0,0,0.45));`;
+  }));
+  // el rayo por la grieta, la explosión y el VS que cae
+  const fRayo = Math.floor((real - 1.55 * VS.LENTO) * 20);
+  css('vs-rayo', `position: absolute; z-index: 10; left: 315px; top: -80px; width: 1240px; height: 1240px; mix-blend-mode: screen; background-repeat: no-repeat; ${hoja('/assets/vs-rayo.png', 16, 122, 122, 1240 / 122, Math.min(15, Math.max(0, fRayo)))} opacity: ${fRayo >= 0 && fRayo < 16 ? 1 : 0};`);
+  const tv = 1.75, golpe = 1.93, cae = entra(fase(tv, golpe));
+  const escVS = t < tv ? 0 : (t < golpe ? 4 - 3 * cae : 1 + 0.06 * Math.max(0, 1 - (t - golpe) / 0.25) * Math.sin((t - golpe) * 40));
+  css('vs-letras', `position: absolute; z-index: 12; left: 540px; top: 310px; width: 840px; height: 420px; background-repeat: no-repeat; ${hoja('/assets/vs-letras.png', 8, 256, 128, 840 / 256, fr(12, 8))} `
+    + `opacity: ${t < tv ? 0 : cl(fase(tv, tv + 0.06)) * (1 - fuera)}; transform: scale(${escVS * (1 + 0.6 * fuera)}); filter: drop-shadow(0 8px 18px rgba(0,0,0,0.6));`);
+  const fImp = Math.floor((real - golpe * VS.LENTO) * 24);
+  css('vs-impacto', `position: absolute; z-index: 11; left: 400px; top: -40px; width: 1120px; height: 1120px; mix-blend-mode: screen; background-repeat: no-repeat; ${hoja('/assets/vs-impacto.png', 16, 122, 122, 1120 / 122, Math.min(15, Math.max(0, fImp)))} opacity: ${fImp >= 0 && fImp < 16 ? 1 : 0};`);
+  css('vs-destello', `position: absolute; inset: 0; background: #fff; pointer-events: none; opacity: ${t >= golpe ? 0.85 * Math.max(0, 1 - (t - golpe) / 0.22) : 0};`);
+  const sacude = t >= golpe && t < golpe + 0.45 ? 1 - (t - golpe) / 0.45 : 0;
+  css('vs-temblor', `position: absolute; inset: 0; transform: translate(${Math.sin(t * 90) * 18 * sacude}px, ${Math.cos(t * 77) * 14 * sacude}px);`);
+  // RONDA N (minimalista): «RONDA» fino y el número grueso en una línea, «AL MEJOR DE N» y los puntitos
+  const tR = 4.3;
+  css('vs-oscuro', `position: absolute; inset: 0; background: #05060C; pointer-events: none; opacity: ${0.86 * sale(fase(3.95, 4.35))};`);
+  const aT = sale(fase(4.35, 4.75)), aN = sale(fase(tR + 0.15, tR + 0.6));
+  css('vs-fila', 'position: absolute; left: 0; right: 0; top: 452px; display: flex; justify-content: center; align-items: baseline; gap: 44px; line-height: 1;');
+  css('vs-ronda', `display: inline-block; font-size: 128px; font-weight: 300; letter-spacing: 20px; color: rgba(255,255,255,0.88); opacity: ${aT}; transform: translateX(${-24 * (1 - aT)}px);`);
+  css('vs-numero', `display: inline-block; font-size: 128px; font-weight: 800; color: #fff; opacity: ${aN}; transform: scale(${1.12 - 0.12 * aN});`);
+  css('vs-sub', `position: absolute; left: 0; right: 0; top: 604px; text-align: center; font-size: 22px; font-weight: 600; letter-spacing: 12px; padding-left: 12px; color: rgba(255,255,255,0.55); opacity: ${sale(fase(4.8, 5.1))};`);
+  css('vs-marcas', 'position: absolute; left: 0; right: 0; top: 648px; display: flex; justify-content: center; gap: 18px;');
+  const hechas = [...Array(p.ma).fill('#2E6BFF'), ...Array(p.mb).fill('#FF2E3E')];
+  [...$('vs-marcas').children].forEach((d, i) => {
+    const col = hechas[i], actual = i + 1 === p.ronda && !col, brillo = actual ? 0.55 + 0.45 * Math.sin(t * 6) : 0;
+    d.style.cssText = `width: 14px; height: 14px; border-radius: 50%; box-sizing: border-box; background: ${col || (actual ? '#fff' : 'transparent')}; border: 2px solid ${col || 'rgba(255,255,255,0.6)'}; `
+      + `box-shadow: 0 0 ${12 * brillo}px rgba(255,255,255,${brillo}); opacity: ${sale(fase(4.95 + i * 0.08, 5.15 + i * 0.08))};`;
+  });
+  css('vs-negro', `position: absolute; inset: 0; background: #000; pointer-events: none; opacity: ${Math.max(1 - sale(fase(0, 0.35)), sale(fase(6.6, 7.2)))};`);
+  // la música se apaga con el negro del final
+  if (p.vol && t > 6.6 && !p.apagando) { p.apagando = true; try { p.vol.gain.setTargetAtTime(0, VS.ctx.currentTime, 0.25); } catch (err) { /* nada */ } }
+}
+$('vs-saltar').onclick = () => vsCerrar();
+document.addEventListener('keydown', (ev) => { if (ev.key === 'Escape' && VS.activa) { ev.stopPropagation(); vsCerrar(); } }, true);
+addEventListener('resize', () => { if (VS.activa) vsEscalar(); });
 
 // foto de perfil: se recorta en cuadrado y se reduce a 128 px antes de mandarla al servidor
 $('foto-archivo').onchange = async () => {
@@ -3525,7 +3994,7 @@ function pintar(e) {
       vista('login'); pintarLogin(e.online); return;
     }
   }
-  if (enPortada && (e.online.sesion || e.online.recordada) && !(e.jugando && e.activo) && !hex.abierto && !preparando && !torneo.abierto) {
+  if (enPortada && (e.online.sesion || e.online.recordada) && !(e.jugando && e.activo) && !hex.abierto && !preparando && !torneo.abierto && !combate.abierto) {
     if (t && (!t.fin || (t.error && t.mensaje !== errorVisto))) pintarModal(t);     // p. ej. la descarga de la nueva versión
     else cerrarModal();
     vista('portada'); pintarPortada(e); return;
@@ -3550,6 +4019,7 @@ function pintar(e) {
   }
   if (preparando) { vista('preparar'); return; }
   if (torneo.abierto) { vista('torneo'); return; }
+  if (combate.abierto) { vista('combate'); return; }
   vista('biblioteca');
   pintarBiblioteca(e);
 }

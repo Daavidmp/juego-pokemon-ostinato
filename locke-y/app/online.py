@@ -467,6 +467,7 @@ class Servidor:
         self.http = None
         self.eventos = {}                # usuario -> {'hasta': último evento recibido, 'h': su huella}
         self.lock_eventos = threading.Lock()
+        self.salas = {}                  # codigo de 4 numeros -> sala del combate en linea (2.3.0), solo en memoria
 
     # --- cuentas ---
     def _guardar(self):
@@ -627,7 +628,11 @@ class Servidor:
         estado = dict(estado) if isinstance(estado, dict) else {}
         tablero = self._casilla(estado.pop('tablero', None))
         cuentas = self._cuentas(estado.pop('locke', None))
+        perfil = self._perfil(estado.pop('perfil', None))
         with self.lock:
+            if perfil and u in self.usuarios and self.usuarios[u].get('perfil') != perfil:
+                self.usuarios[u]['perfil'] = perfil
+                self._guardar()
             if tablero and self.usuarios.get(u, {}).get('tablero') != tablero:
                 self.usuarios[u]['tablero'] = tablero
                 self._guardar()
@@ -656,6 +661,24 @@ class Servidor:
         try:
             return {'hito': str(t.get('hito', ''))[:24], 'n': max(0, min(99, int(t.get('n', 0)))),
                     'medallas': max(0, min(8, int(t.get('medallas', 0)))), 'vidas': max(0, min(999, int(t.get('vidas', 0))))}
+        except (TypeError, ValueError):
+            return None
+
+    @staticmethod
+    def _perfil(p):
+        """Para la sala del combate en linea (2.3.0): chico (0) o chica (1) en su partida y su equipo (especie, nombre,
+        mote, nivel, habilidad y si es variocolor). Viene de fuera."""
+        if not isinstance(p, dict) or not isinstance(p.get('equipo'), list):
+            return None
+        txt = lambda v: str(v or '')[:24]
+        try:
+            equipo = []
+            for x in p['equipo'][:6]:
+                if isinstance(x, dict) and 0 < int(x.get('especie', 0)) <= 1000:
+                    equipo.append({'especie': int(x['especie']), 'nombre': txt(x.get('nombre')), 'mote': txt(x.get('mote')),
+                                   'nivel': max(1, min(100, int(x.get('nivel', 1)))), 'habilidad': txt(x.get('habilidad')),
+                                   'shiny': bool(x.get('shiny'))})
+            return {'sexo': 1 if int(p.get('sexo', 0)) == 1 else 0, 'equipo': equipo}
         except (TypeError, ValueError):
             return None
 
@@ -892,6 +915,103 @@ class Servidor:
             return {'torneo': t, 'fotos': fotos, 'usuarios': sorted(self.usuarios), 'yo': u, 'coronas': self.coronas(),
                     'admin': admin, 'puede': admin or bool(t and u in t.get('gestores', []))}
 
+    # --- combate en linea (2.3.0): salas con un codigo de 4 numeros, sin Citra ---
+    # {'codigo', 'jugadores': [anfitrion, invitado o None], 'listos': {u: True}, 'primero': {u: hueco 0-5},
+    #  'marcador': [a, b], 'estado': sala|presentacion|combate|terminado, 'empieza': hora de la presentacion,
+    #  'ganador': u, 'visto': {u: hora de su ultima consulta}}. Al mejor de 3: quien llega a 2 gana.
+    # La presentacion empieza a la vez en los dos (su hora va en 'empieza' y cada uno la cuadra con 'ahora').
+    SALA_PRESENTACION = 7.2 * 1.6       # lo que dura la presentacion (VS + RONDA) en la app
+    SALA_OLVIDO = 90                    # sin consultar en este tiempo, el jugador ha salido de la sala
+
+    def _sala_al_dia(self, s, ahora):
+        for k, u in enumerate(s['jugadores']):
+            if u and ahora - s['visto'].get(u, ahora) > self.SALA_OLVIDO:
+                self._sala_quitar(s, u)
+        if s['estado'] == 'presentacion' and ahora > s['empieza'] + self.SALA_PRESENTACION:
+            s['estado'] = 'combate'
+
+    def _sala_quitar(self, s, u):
+        if s['jugadores'][0] == u:              # se va quien la creo: la sala se cierra
+            self.salas.pop(s['codigo'], None)
+            s['cerrada'] = True
+        elif s['jugadores'][1] == u:
+            s['jugadores'][1] = None
+            s['listos'], s['estado'] = {}, 'sala'
+            s['primero'].pop(u, None)
+            s['marcador'], s['ganador'] = [0, 0], None
+
+    def _sala_de(self, u):
+        return next((s for s in self.salas.values() if u in s['jugadores']), None)
+
+    def _sala_vista(self, s, u, ahora):
+        if not s or s.get('cerrada'):
+            return {'sala': None, 'ahora': ahora}
+        perfiles = {j: self.usuarios.get(j, {}).get('perfil') for j in s['jugadores'] if j}
+        return {'sala': {**{k: s[k] for k in ('codigo', 'jugadores', 'marcador', 'estado', 'empieza', 'ganador')},
+                         'listos': dict(s['listos']), 'primero': dict(s['primero']), 'perfiles': perfiles,
+                         'fotos': {j: self._foto_v(j) for j in s['jugadores'] if j},
+                         'ronda': min(3, sum(s['marcador']) + 1), 'yo': s['jugadores'].index(u)},
+                'ahora': ahora}
+
+    def combate(self, token, que, d):
+        u = self._usuario(token)
+        ahora = time.time()
+        with self.lock:
+            for s in list(self.salas.values()):
+                self._sala_al_dia(s, ahora)
+            s = self._sala_de(u)
+            if s:
+                s['visto'][u] = ahora
+            if que == 'crear':
+                if s:
+                    self._sala_quitar(s, u)
+                libres = [c for c in (f'{n:04d}' for n in range(1000, 10000)) if c not in self.salas]
+                codigo = secrets.choice(libres)
+                s = {'codigo': codigo, 'jugadores': [u, None], 'listos': {}, 'primero': {}, 'marcador': [0, 0],
+                     'estado': 'sala', 'empieza': None, 'ganador': None, 'visto': {u: ahora}}
+                self.salas[codigo] = s
+            elif que == 'entrar':
+                codigo = re.sub(r'\D', '', str(d.get('codigo', '')))[:4]
+                otra = self.salas.get(codigo)
+                if not otra:
+                    raise ValueError('No hay ninguna sala con ese código')
+                if u not in otra['jugadores']:
+                    if otra['jugadores'][1]:
+                        raise ValueError('Esa sala ya está llena')
+                    if s:
+                        self._sala_quitar(s, u)
+                    otra['jugadores'][1] = u
+                otra['visto'][u] = ahora
+                s = otra
+            elif que == 'salir':
+                if s:
+                    self._sala_quitar(s, u)
+                return {'sala': None, 'ahora': ahora}
+            elif que in ('primero', 'listo', 'ganador', 'revancha'):
+                if not s:
+                    raise ValueError('Ya no estás en ninguna sala')
+                if que == 'primero' and s['estado'] == 'sala':
+                    s['primero'][u] = max(0, min(5, int(d.get('hueco', 0))))
+                    s['listos'].pop(u, None)
+                elif que == 'listo' and s['estado'] == 'sala' and all(s['jugadores']):
+                    if d.get('listo', True):
+                        s['listos'][u] = True
+                    else:
+                        s['listos'].pop(u, None)
+                    if all(s['listos'].get(j) for j in s['jugadores']):
+                        s['estado'], s['empieza'], s['listos'] = 'presentacion', ahora + 2.0, {}
+                elif que == 'ganador' and s['estado'] == 'combate':
+                    # hasta que el combate se juegue dentro de Pokelocke, lo apunta cualquiera de los dos
+                    k = 1 if int(d.get('lado', 0)) else 0
+                    s['marcador'][k] += 1
+                    if s['marcador'][k] >= 2:
+                        s['estado'], s['ganador'] = 'terminado', s['jugadores'][k]
+                    else:
+                        s['estado'] = 'sala'
+                elif que == 'revancha' and s['estado'] == 'terminado':
+                    s['marcador'], s['ganador'], s['estado'], s['listos'] = [0, 0], None, 'sala', {}
+            return self._sala_vista(s, u, ahora)
+
     # quién puede qué (1.3.3): crear y borrar el torneo, solo el administrador; lo demás (sortear, remover, sacar bola,
     # vaciar el cuadro y marcar resultados), también los organizadores que eligió al crearlo ('gestores')
     SOLO_ADMIN = ('crear', 'reiniciar')
@@ -1107,6 +1227,8 @@ class Servidor:
                         r = srv.editar_torneo(d.get('token'), d.get('que'), d)
                     elif ruta == '/yo':
                         r = srv.yo(d.get('token'))
+                    elif ruta == '/combate':
+                        r = srv.combate(d.get('token'), d.get('que'), d)
                     elif ruta == '/duelo/retar':
                         r = srv.retar(d.get('token'), d.get('usuario'))
                     elif ruta == '/duelo/responder':

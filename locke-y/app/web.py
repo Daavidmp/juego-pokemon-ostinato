@@ -189,7 +189,7 @@ def elegir_rom():
 
 TIPOS = {'.html': 'text/html; charset=utf-8', '.png': 'image/png', '.gif': 'image/gif', '.jpg': 'image/jpeg',
          '.jpeg': 'image/jpeg', '.webp': 'image/webp', '.js': 'text/javascript', '.css': 'text/css',
-         '.pdf': 'application/pdf', '.mp4': 'video/mp4', '.woff2': 'font/woff2', '.mp3': 'audio/mpeg'}
+         '.pdf': 'application/pdf', '.mp4': 'video/mp4', '.woff2': 'font/woff2', '.mp3': 'audio/mpeg', '.ogg': 'audio/ogg'}
 # las tipografías van dentro de la app (web/fuentes): sin internet también, y sin esperar a Google
 FUENTES_LOCALES = '<link rel="stylesheet" href="/fuentes/fuentes.css">'
 

@@ -220,7 +220,8 @@ def online_latidos():
                 j = comun.buscar(comun.vivo['activo']) if comun.vivo['activo'] and emulador.jugando() else None
                 mio = locke.mi_locke()
                 cuentas = mio and {'medallas': sum(mio.get('medallas', [])), 'perdidas': locke.perdidas(mio)}
-            estado = {'jugando': bool(j), 'juego': j and j['nombre'], 'tablero': comun.biblio.get('mi_tablero'), 'locke': cuentas}
+            estado = {'jugando': bool(j), 'juego': j and j['nombre'], 'tablero': comun.biblio.get('mi_tablero'), 'locke': cuentas,
+                      'perfil': comun.biblio.get('mi_perfil')}      # chico/chica y equipo: la sala del combate en linea
             # los eventos que aún no tiene el servidor; hasta que diga cuántos tiene, solo se le dice cuántos hay
             eventos, total = vigia.para_mandar(comun.red.get('eventos_hasta', float('inf')))
             try:
@@ -467,15 +468,17 @@ def online_accion(que, d):
         comun.red['sesion'], comun.red['conectados'] = None, []
         online_guardar_sesion()
         return online_estado()
-    if que in ('torneo', 'torneo_editar', 'foto', 'duelo_retar', 'duelo_responder'):    # el torneo lo cambia el administrador
+    if que in ('torneo', 'torneo_editar', 'foto', 'duelo_retar', 'duelo_responder', 'combate'):    # el torneo lo cambia el administrador
         if not comun.red['sesion']:
             raise RuntimeError('Entra con tu usuario')
-        ruta = {'torneo': '/torneo', 'torneo_editar': '/torneo/editar', 'foto': '/foto',
+        ruta = {'torneo': '/torneo', 'torneo_editar': '/torneo/editar', 'foto': '/foto', 'combate': '/combate',
                 'duelo_retar': '/duelo/retar', 'duelo_responder': '/duelo/responder'}[que]
         try:
             r = online.peticion(direccion, ruta, {**d, 'token': comun.red['sesion']['token']}, espera=15)
         except OSError as e:
             raise RuntimeError(f'No se puede conectar con el servidor ({online_motivo(e)})')
+        if r.get('error') == 'No existe' and que == 'combate':
+            raise RuntimeError('El servidor todavía no tiene el combate en línea: el anfitrión tiene que actualizar Pokelocke')
         if r.get('error') == 'No existe':       # un servidor de antes de los duelos
             raise RuntimeError('El servidor todavía no tiene duelos: el anfitrión tiene que actualizar Pokelocke')
         if 'error' in r:

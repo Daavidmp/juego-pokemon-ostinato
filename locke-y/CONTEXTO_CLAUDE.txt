@@ -619,3 +619,32 @@ Hechas con Gemini Nano Banana 2 editando SIEMPRE la misma base (no generando de 
   (Fluxus, Ástrid), bosque del sur y cascadas (Guarida, Fractal, Édel) y la cueva (Victoria); Alto Mando, Campeona y
   Torneo igual. Sin f fijas en las misiones de esos tramos (se reparten solas). Comprobado dibujando las 71 casillas
   sobre tablero-isla.jpg: ninguna de después del 4.º gimnasio cae encima de una de antes. Lo hecho no cambia (va por id).
+
+== 2.2.8 (2026-11-24): REVERTIDA ==
+- Colgaba la presentación VS del torneo («En juego» y «▶ VS»). David: «no es lo que pedí»; lo que quería es la 2.3.0.
+
+== 2.3.0 (2026-11-24): COMBATE EN LÍNEA, salas con código de 4 números (fase 1 de 2) ==
+- Petición de David (sesión del 2026-11-2x): los combates del torneo dentro de Pokelocke, sin Citra: un apartado
+  «Combate en línea» con dos pestañas, «Crear sala» y «Entrar por código» de 4 números. Fase 1 (esta): la sala y la
+  presentación. Fase 2 (pendiente): el combate en sí con la interfaz de Ostinato (lienzo «Pokelocke · combate del
+  torneo», https://claude.ai/artifact/RPbacxt7fxwJ5MShNS5CEv, Main.dc.html) y un motor de combate.
+- Servidor (online.Servidor.combate, ruta /combate, conexion 'combate'): self.salas en MEMORIA (codigo -> sala), una
+  sala por jugador. que = crear | entrar (codigo) | ver | primero (hueco 0-5) | listo | ganador (lado) | revancha |
+  salir. Estados: sala -> presentacion (con los dos listos; 'empieza' = ahora + 2 s) -> combate (pasados 7,2·1,6 s)
+  -> sala (ronda siguiente) o terminado (quien llega a 2; al mejor de 3). Quien la crea se va: se cierra. Sin consultar
+  90 s, el jugador sale. 'ahora' va en cada respuesta: el cliente saca su desfase y la presentación empieza a la vez.
+  Hasta la fase 2, al acabar la presentación cualquiera de los dos apunta quién ganó la ronda («Gané yo» / «Ganó X»).
+- Perfil en el latido: {sexo (byte 0x14005 de la partida: bloque del entrenador 0x14000 +5; 0 = chico, medido en la de
+  David con su nombre en 0x14048), equipo [{especie, nombre, mote, nivel, habilidad, shiny}]} de guardado.tablero en
+  comun.biblio['mi_perfil']; online._perfil lo limpia y lo guarda en usuarios[u]['perfil'].
+- app.html: botón «⚔️ Combate en línea» (b-combate, con sesión), vista #v-combate (combate.abierto, pide 'ver' cada 1 s):
+  pestañas; sala con fondo del VS, tú a la izquierda (azul) y el rival (rojo): nombre en placa, Serena/Calem animados
+  (hoja de 8), equipo con fan art (/arte), nombre/mote, nivel y la habilidad SOLO de los tuyos; pulsar uno = «Sale
+  primero»; «¡Listo!» (hace falta elegir); en medio código, VS, «RONDA N/FINAL», «AL MEJOR DE 3» y puntitos.
+  La presentación (#vs-pres, presentarCombate/vsPintar, la del lienzo Presentacion.dc.html) con assets/vs-*.png|jpg,
+  música assets/vs-combate.ogg (Combate - Principal del mix, bucle desde LOOPSTART 1239018) por Web Audio con el
+  volumen de la app; Saltar o Escape. Letra Barlow Semi Condensed en web/fuentes.
+- Probado: servidor con dos jugadores de mentira (crear, código malo, entrar, listos, rondas, revancha, salir) y la
+  pantalla en Edge sin ventana con datos de mentira (entrada, esperando, sala, combate) y la app entera cargando sin
+  errores. NO probado entre dos PCs: hace falta que el anfitrión (David) instale la 2.3.0 para que su servidor tenga salas.
+- test_torneo.py ya fallaba antes (assert de la plaza con impares, del cuadro de 1.3.2).
