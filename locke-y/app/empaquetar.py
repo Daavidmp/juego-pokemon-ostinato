@@ -115,7 +115,7 @@ def version_app():
 def pyinstaller():
     # websocket-client: con él, el navegador que pinta la capa se queda abierto (main.Fotografo)
     subprocess.run([sys.executable, '-m', 'pip', 'install', '-q', 'websocket-client'], check=True)
-    datos = [('app/web', 'app/web'), ('app/datos_pkx', 'app/datos_pkx'), ('app/LockeSettings.java', 'app'), ('app/MegaFases.java', 'app'),
+    datos = [('app/web', 'app/web'), ('app/datos_pkx', 'app/datos_pkx'), ('app/datos_combate.json', 'app'), ('app/LockeSettings.java', 'app'), ('app/MegaFases.java', 'app'),
              (online_json(), 'app'), ('assets', 'assets'),
              # opciones de la biblioteca: vídeo de normas, guía y contrato (se rellena con la firma)
              ('video/normas.mp4', 'video'), ('guia/Guia-Mega-Pokelocke-Y.pdf', 'guia'),

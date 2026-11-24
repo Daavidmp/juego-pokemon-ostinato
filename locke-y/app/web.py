@@ -62,14 +62,16 @@ def foto_estado():
         }
 
 
-def ani(especie, shiny):
-    """Su animación del juego: se baja la primera vez (Pokémon Showdown) y se queda en datos/ani."""
+def ani(especie, shiny, espalda=False):
+    """Su animación del juego: se baja la primera vez (Pokémon Showdown) y se queda en datos/ani. De espaldas (el tuyo
+    en el combate en línea, 2.3.0): las ani-back."""
     if not 0 < especie <= pokehex.MAX_ESPECIE:
         raise ValueError('Esa especie no existe')
-    f = comun.DATOS / 'ani' / f'{especie}{"-shiny" if shiny else ""}.gif'
+    f = comun.DATOS / 'ani' / f'{especie}{"-back" if espalda else ""}{"-shiny" if shiny else ""}.gif'
     if not f.exists():
         nombre = re.sub('[^a-z0-9]', '', pokehex._json(f'https://pokeapi.co/api/v2/pokemon-species/{especie}')['name'])
-        pedido = urllib.request.Request(f'https://play.pokemonshowdown.com/sprites/{"ani-shiny" if shiny else "ani"}/{nombre}.gif', headers={'User-Agent': 'Pokelocke'})
+        carpeta = ('ani-back' if espalda else 'ani') + ('-shiny' if shiny else '')
+        pedido = urllib.request.Request(f'https://play.pokemonshowdown.com/sprites/{carpeta}/{nombre}.gif', headers={'User-Agent': 'Pokelocke'})
         with urllib.request.urlopen(pedido, timeout=8) as r:
             datos = r.read(3_000_000)
         if datos[:4] != b'GIF8':
@@ -287,10 +289,10 @@ class Servidor(BaseHTTPRequestHandler):
                 return self.enviar({'error': 'sin arte'}, codigo=404)
         if m := re.fullmatch(r'/ani/(\d{1,3})', ruta):
             try:
-                return self.archivo(ani(int(m[1]), 'shiny=1' in self.path))
+                return self.archivo(ani(int(m[1]), 'shiny=1' in self.path, 'espalda=1' in self.path))
             except (OSError, ValueError, KeyError):
                 return self.enviar({'error': 'sin animación'}, codigo=404)
-        if m := re.fullmatch(r'/assets/([\w.-]+)', ruta):
+        if m := re.fullmatch(r'/assets/((?:combate/(?:ataques/|ataque_info/)?)?[\w.-]+)', ruta):   # combate/: el combate en línea
             if m[1].endswith(('.mp4', '.mp3')):         # el vídeo y la música de la portada: a trozos, para el bucle
                 return self.por_trozos(comun.ASSETS / m[1])
             return self.archivo(comun.ASSETS / m[1])

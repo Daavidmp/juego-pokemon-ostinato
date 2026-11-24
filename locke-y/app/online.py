@@ -25,6 +25,7 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from urllib.parse import urljoin
 
+import combate as motor_combate
 import errores
 
 PUERTO_SERVIDOR = 8766          # TCP http: solo /descargar y /version (la primera descarga, desde el navegador)
@@ -675,9 +676,14 @@ class Servidor:
             equipo = []
             for x in p['equipo'][:6]:
                 if isinstance(x, dict) and 0 < int(x.get('especie', 0)) <= 1000:
+                    stats = [max(1, min(999, int(v))) for v in (x.get('stats') or [])[:6]]
                     equipo.append({'especie': int(x['especie']), 'nombre': txt(x.get('nombre')), 'mote': txt(x.get('mote')),
                                    'nivel': max(1, min(100, int(x.get('nivel', 1)))), 'habilidad': txt(x.get('habilidad')),
-                                   'shiny': bool(x.get('shiny'))})
+                                   'shiny': bool(x.get('shiny')),
+                                   # lo del combate (2.3.0): estadísticas reales, ataques (hasta 4) y sexo del Pokémon
+                                   'stats': stats if len(stats) == 6 else None,
+                                   'ataques': [int(a) for a in (x.get('ataques') or [])[:4] if 0 < int(a) <= 1000],
+                                   'genero': max(0, min(2, int(x.get('genero', 2))))})
             return {'sexo': 1 if int(p.get('sexo', 0)) == 1 else 0, 'equipo': equipo}
         except (TypeError, ValueError):
             return None
@@ -916,15 +922,20 @@ class Servidor:
                     'admin': admin, 'puede': admin or bool(t and u in t.get('gestores', []))}
 
     # --- combate en linea (2.3.0): salas con un codigo de 4 numeros, sin Citra ---
-    # {'codigo', 'jugadores': [anfitrion, invitado o None], 'listos': {u: True}, 'primero': {u: hueco 0-5},
-    #  'marcador': [a, b], 'estado': sala|presentacion|combate|terminado, 'empieza': hora de la presentacion,
-    #  'ganador': u, 'visto': {u: hora de su ultima consulta}}. Al mejor de 3: quien llega a 2 gana.
+    # El diseno es la «Sala nueva 1» del lienzo «Combate en linea · Pokelocke»: cada uno toca sus 6 en orden (el 1.o sale
+    # primero) y quien crea la sala propone las normas (al mejor de 1, 3 o 5 y las clausulas); si las cambia, los dos
+    # vuelven a «no preparado».
+    # {'codigo', 'jugadores': [anfitrion, invitado o None], 'listos': {u: True}, 'orden': {u: [huecos 0-5]},
+    #  'normas': {...}, 'marcador': [a, b], 'estado': sala|presentacion|combate|terminado, 'empieza': hora de la
+    #  presentacion, 'ganador': u, 'visto': {u: hora de su ultima consulta}}. Gana quien llega a la mitad + 1.
     # La presentacion empieza a la vez en los dos (su hora va en 'empieza' y cada uno la cuadra con 'ahora').
+    # El orden de cada uno solo lo ve el (el rival no sabe con quien sales).
     SALA_PRESENTACION = 7.2 * 1.6       # lo que dura la presentacion (VS + RONDA) en la app
     SALA_OLVIDO = 90                    # sin consultar en este tiempo, el jugador ha salido de la sala
+    SALA_NORMAS = {'mejor_de': 3, 'sleep': True, 'item': True, 'species': True, 'espora': True}
 
     def _sala_al_dia(self, s, ahora):
-        for k, u in enumerate(s['jugadores']):
+        for u in list(s['jugadores']):
             if u and ahora - s['visto'].get(u, ahora) > self.SALA_OLVIDO:
                 self._sala_quitar(s, u)
         if s['estado'] == 'presentacion' and ahora > s['empieza'] + self.SALA_PRESENTACION:
@@ -937,21 +948,45 @@ class Servidor:
         elif s['jugadores'][1] == u:
             s['jugadores'][1] = None
             s['listos'], s['estado'] = {}, 'sala'
-            s['primero'].pop(u, None)
-            s['marcador'], s['ganador'] = [0, 0], None
+            s['orden'].pop(u, None)
+            s['marcador'], s['ganador'], s['combate'] = [0, 0], None, None
 
     def _sala_de(self, u):
         return next((s for s in self.salas.values() if u in s['jugadores']), None)
 
-    def _sala_vista(self, s, u, ahora):
+    def _sala_equipo(self, u):
+        return (self.usuarios.get(u, {}).get('perfil') or {}).get('equipo') or []
+
+    def _sala_vista(self, s, u, ahora, desde=0):
         if not s or s.get('cerrada'):
             return {'sala': None, 'ahora': ahora}
         perfiles = {j: self.usuarios.get(j, {}).get('perfil') for j in s['jugadores'] if j}
+        n = s['normas']['mejor_de']
+        yo = s['jugadores'].index(u)
+        c = s.get('combate')
         return {'sala': {**{k: s[k] for k in ('codigo', 'jugadores', 'marcador', 'estado', 'empieza', 'ganador')},
-                         'listos': dict(s['listos']), 'primero': dict(s['primero']), 'perfiles': perfiles,
-                         'fotos': {j: self._foto_v(j) for j in s['jugadores'] if j},
-                         'ronda': min(3, sum(s['marcador']) + 1), 'yo': s['jugadores'].index(u)},
+                         'listos': dict(s['listos']), 'orden': list(s['orden'].get(u, [])), 'normas': dict(s['normas']),
+                         'perfiles': perfiles, 'ronda': min(n, sum(s['marcador']) + 1 - (1 if c and c.fin is not None else 0)),
+                         'yo': yo, 'combate': c.vista(yo, desde) if c else None},
                 'ahora': ahora}
+
+    def _sala_equipo_combate(self, s, u):
+        """Su equipo para el combate, en el orden que eligió (el 1.º sale primero). Sin los datos del combate
+        (un Pokelocke de antes de la 2.3.0 o la partida sin leer), no se puede."""
+        equipo = self._sala_equipo(u)
+        if not equipo or not all(x.get('stats') and x.get('ataques') for x in equipo):
+            raise ValueError(f'Falta el equipo de {u}: tiene que abrir la biblioteca de Pokelocke 2.3.0 con el juego cerrado para que lea su partida')
+        orden = [k for k in s['orden'].get(u, []) if k < len(equipo)]
+        orden += [k for k in range(len(equipo)) if k not in orden]
+        return [equipo[k] for k in orden]
+
+    def _sala_resultado(self, s):
+        """Al acabar un combate: su ganador suma una al marcador (una vez)."""
+        c = s.get('combate')
+        if c and c.fin is not None and not s.get('apuntado'):
+            s['apuntado'] = True
+            if c.fin in (0, 1):
+                s['marcador'][c.fin] += 1
 
     def combate(self, token, que, d):
         u = self._usuario(token)
@@ -967,8 +1002,8 @@ class Servidor:
                     self._sala_quitar(s, u)
                 libres = [c for c in (f'{n:04d}' for n in range(1000, 10000)) if c not in self.salas]
                 codigo = secrets.choice(libres)
-                s = {'codigo': codigo, 'jugadores': [u, None], 'listos': {}, 'primero': {}, 'marcador': [0, 0],
-                     'estado': 'sala', 'empieza': None, 'ganador': None, 'visto': {u: ahora}}
+                s = {'codigo': codigo, 'jugadores': [u, None], 'listos': {}, 'orden': {}, 'normas': dict(self.SALA_NORMAS),
+                     'marcador': [0, 0], 'estado': 'sala', 'empieza': None, 'ganador': None, 'visto': {u: ahora}, 'combate': None}
                 self.salas[codigo] = s
             elif que == 'entrar':
                 codigo = re.sub(r'\D', '', str(d.get('codigo', '')))[:4]
@@ -987,30 +1022,60 @@ class Servidor:
                 if s:
                     self._sala_quitar(s, u)
                 return {'sala': None, 'ahora': ahora}
-            elif que in ('primero', 'listo', 'ganador', 'revancha'):
+            elif que in ('orden', 'normas', 'listo', 'accion', 'continuar', 'revancha'):
                 if not s:
                     raise ValueError('Ya no estás en ninguna sala')
-                if que == 'primero' and s['estado'] == 'sala':
-                    s['primero'][u] = max(0, min(5, int(d.get('hueco', 0))))
+                if que == 'orden' and s['estado'] == 'sala':
+                    cuantos = len(self._sala_equipo(u)) or 6
+                    orden = []
+                    for k in d.get('orden') or []:
+                        k = int(k)
+                        if 0 <= k < cuantos and k not in orden:
+                            orden.append(k)
+                    s['orden'][u] = orden
                     s['listos'].pop(u, None)
+                elif que == 'normas' and s['estado'] == 'sala':
+                    if s['jugadores'][0] != u:
+                        raise PermissionError('Las normas las propone quien ha creado la sala')
+                    n = dict(s['normas'])
+                    if int(d.get('mejor_de', n['mejor_de'])) in (1, 3, 5):
+                        n['mejor_de'] = int(d.get('mejor_de', n['mejor_de']))
+                    for k in ('sleep', 'item', 'species', 'espora'):
+                        if k in d:
+                            n[k] = bool(d[k])
+                    if n != s['normas']:
+                        s['normas'], s['listos'] = n, {}      # si cambian, los dos vuelven a «no preparado»
                 elif que == 'listo' and s['estado'] == 'sala' and all(s['jugadores']):
                     if d.get('listo', True):
+                        equipo = self._sala_equipo(u)
+                        if equipo and len(s['orden'].get(u, [])) < len(equipo):
+                            raise ValueError('Elige el orden de tus Pokémon')
+                        self._sala_equipo_combate(s, u)
                         s['listos'][u] = True
                     else:
                         s['listos'].pop(u, None)
                     if all(s['listos'].get(j) for j in s['jugadores']):
+                        # el combate se crea ya (sus primeros sucesos son la salida de los dos) y empieza tras la presentación
+                        s['combate'] = motor_combate.Combate(s['jugadores'], [self._sala_equipo_combate(s, j) for j in s['jugadores']],
+                                                             s['normas'])
+                        s['apuntado'] = False
                         s['estado'], s['empieza'], s['listos'] = 'presentacion', ahora + 2.0, {}
-                elif que == 'ganador' and s['estado'] == 'combate':
-                    # hasta que el combate se juegue dentro de Pokelocke, lo apunta cualquiera de los dos
-                    k = 1 if int(d.get('lado', 0)) else 0
-                    s['marcador'][k] += 1
-                    if s['marcador'][k] >= 2:
-                        s['estado'], s['ganador'] = 'terminado', s['jugadores'][k]
+                elif que == 'accion' and s['estado'] in ('presentacion', 'combate') and s.get('combate'):
+                    s['combate'].accion(s['jugadores'].index(u), d.get('accion') or {})
+                elif que == 'continuar' and s.get('combate') and s['combate'].fin is not None:
+                    # visto el final: a la sala para la ronda siguiente, o se acabó
+                    self._sala_resultado(s)
+                    s['combate'] = None
+                    lider = max(range(2), key=lambda k: s['marcador'][k])
+                    if s['marcador'][lider] > s['normas']['mejor_de'] // 2:
+                        s['estado'], s['ganador'] = 'terminado', s['jugadores'][lider]
                     else:
                         s['estado'] = 'sala'
                 elif que == 'revancha' and s['estado'] == 'terminado':
-                    s['marcador'], s['ganador'], s['estado'], s['listos'] = [0, 0], None, 'sala', {}
-            return self._sala_vista(s, u, ahora)
+                    s['marcador'], s['ganador'], s['estado'], s['listos'], s['combate'] = [0, 0], None, 'sala', {}, None
+            if s:
+                self._sala_resultado(s)
+            return self._sala_vista(s, u, ahora, d.get('desde', 0))
 
     # quién puede qué (1.3.3): crear y borrar el torneo, solo el administrador; lo demás (sortear, remover, sacar bola,
     # vaciar el cuadro y marcar resultados), también los organizadores que eligió al crearlo ('gestores')

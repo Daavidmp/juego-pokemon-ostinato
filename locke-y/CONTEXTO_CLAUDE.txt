@@ -623,28 +623,50 @@ Hechas con Gemini Nano Banana 2 editando SIEMPRE la misma base (no generando de 
 == 2.2.8 (2026-11-24): REVERTIDA ==
 - Colgaba la presentación VS del torneo («En juego» y «▶ VS»). David: «no es lo que pedí»; lo que quería es la 2.3.0.
 
-== 2.3.0 (2026-11-24): COMBATE EN LÍNEA, salas con código de 4 números (fase 1 de 2) ==
-- Petición de David (sesión del 2026-11-2x): los combates del torneo dentro de Pokelocke, sin Citra: un apartado
-  «Combate en línea» con dos pestañas, «Crear sala» y «Entrar por código» de 4 números. Fase 1 (esta): la sala y la
-  presentación. Fase 2 (pendiente): el combate en sí con la interfaz de Ostinato (lienzo «Pokelocke · combate del
-  torneo», https://claude.ai/artifact/RPbacxt7fxwJ5MShNS5CEv, Main.dc.html) y un motor de combate.
-- Servidor (online.Servidor.combate, ruta /combate, conexion 'combate'): self.salas en MEMORIA (codigo -> sala), una
-  sala por jugador. que = crear | entrar (codigo) | ver | primero (hueco 0-5) | listo | ganador (lado) | revancha |
-  salir. Estados: sala -> presentacion (con los dos listos; 'empieza' = ahora + 2 s) -> combate (pasados 7,2·1,6 s)
-  -> sala (ronda siguiente) o terminado (quien llega a 2; al mejor de 3). Quien la crea se va: se cierra. Sin consultar
-  90 s, el jugador sale. 'ahora' va en cada respuesta: el cliente saca su desfase y la presentación empieza a la vez.
-  Hasta la fase 2, al acabar la presentación cualquiera de los dos apunta quién ganó la ronda («Gané yo» / «Ganó X»).
-- Perfil en el latido: {sexo (byte 0x14005 de la partida: bloque del entrenador 0x14000 +5; 0 = chico, medido en la de
-  David con su nombre en 0x14048), equipo [{especie, nombre, mote, nivel, habilidad, shiny}]} de guardado.tablero en
-  comun.biblio['mi_perfil']; online._perfil lo limpia y lo guarda en usuarios[u]['perfil'].
-- app.html: botón «⚔️ Combate en línea» (b-combate, con sesión), vista #v-combate (combate.abierto, pide 'ver' cada 1 s):
-  pestañas; sala con fondo del VS, tú a la izquierda (azul) y el rival (rojo): nombre en placa, Serena/Calem animados
-  (hoja de 8), equipo con fan art (/arte), nombre/mote, nivel y la habilidad SOLO de los tuyos; pulsar uno = «Sale
-  primero»; «¡Listo!» (hace falta elegir); en medio código, VS, «RONDA N/FINAL», «AL MEJOR DE 3» y puntitos.
-  La presentación (#vs-pres, presentarCombate/vsPintar, la del lienzo Presentacion.dc.html) con assets/vs-*.png|jpg,
-  música assets/vs-combate.ogg (Combate - Principal del mix, bucle desde LOOPSTART 1239018) por Web Audio con el
-  volumen de la app; Saltar o Escape. Letra Barlow Semi Condensed en web/fuentes.
-- Probado: servidor con dos jugadores de mentira (crear, código malo, entrar, listos, rondas, revancha, salir) y la
-  pantalla en Edge sin ventana con datos de mentira (entrada, esperando, sala, combate) y la app entera cargando sin
-  errores. NO probado entre dos PCs: hace falta que el anfitrión (David) instale la 2.3.0 para que su servidor tenga salas.
+== 2.3.0 (2026-11-24): COMBATE EN LÍNEA, salas con código de 4 números y el combate dentro de Pokelocke ==
+- Petición de David: los combates del torneo dentro de Pokelocke, sin Citra: un apartado «Combate en línea» con dos
+  pestañas, «Crear sala» y «Entrar con código» de 4 números; la sala, la presentación y el combate con la interfaz de
+  Ostinato, a pantalla completa. (Primero se subió una 2.3.0 solo con la sala; David: «previamente se hizo un diseño de la
+  sala, aplícalo», «mete ya el combate en la versión» y «cuando se entre en combate se pondrá en pantalla completa».)
+- DISEÑO: lienzo «Combate en línea · Pokelocke» (de la otra cuenta de David; copias en el scratchpad de la sesión
+  4e4dc5d7, combate_design/project): «A · Entrar con código» (elegida), «Sala nueva 1» (tocas los 6 en orden, el 1.º
+  sale primero; normas en píldoras arriba) y «Fondo 2 · Atardecer en Luminalia» detrás de tu personaje (la noche detrás
+  del rival). El combate: el del lienzo «Pokelocke · combate del torneo» (https://claude.ai/artifact/RPbacxt7fxwJ5MShNS5CEv),
+  que es la interfaz de Ostinato (piezas en assets/combate, copiadas de Graphics/UI/Ostinato/Combate; estadio.jpg es el
+  fondo del torneo de Firefly sin líneas).
+- Servidor (online.Servidor.combate, ruta /combate, conexion 'combate'): self.salas en MEMORIA, una por jugador.
+  que = crear | entrar (codigo) | ver (desde) | orden (lista de huecos) | normas (solo quien la crea; si cambian, los dos
+  vuelven a «no preparado») | listo | accion ({tipo: ataque|cambio|rendirse, i}) | continuar | revancha | salir.
+  Estados: sala -> presentacion (los dos listos: se crea el Combate y 'empieza' = ahora + 2 s) -> combate (pasados
+  7,2·1,6 s) -> «continuar» tras el final -> sala (ronda siguiente) o terminado (más de la mitad de mejor_de: 1, 3 o 5).
+  El orden de cada uno solo lo ve él. Sin consultar 90 s, sale de la sala; si se va quien la creó, se cierra.
+- MOTOR (app/combate.py, en el servidor): 6 contra 6 individual con los Pokémon REALES de la partida (estadísticas,
+  ataques, nivel). Gen 6: daño, STAB, eficacia, crítico (y crítico alto), aleatorio 85-100 %, quemadura; prioridad y
+  velocidad (parálisis ×0,25); par/que/env/env grave/dormido 1-3/congelado 20 %, confusión, retroceso; cambios de
+  características; absorber, retroceso, curarse, golpes múltiples, daño fijo, fulminantes, Protección (falla más si se
+  repite), autodestrucción, Forcejeo sin PP; Sleep Clause. SIN habilidades ni objetos todavía (ni cargas/recargas).
+  Datos: app/datos_combate.json (app/hacer_datos_combate.py desde moves.json/pokedex.json/typechart.js de Pokémon Showdown,
+  nombres de ataques de datos_pkx/Moves.txt); describir(id) da la frase de la banda de información.
+  Lo que pasa sale como 'log' de sucesos (msg, cambio, turno, ataque, dano, cura, estado, stat, debil, fin); vista(lado,
+  desde) da los nuevos, tu equipo entero (PS, PP, eficacia de cada ataque contra el rival) y las bolas del rival.
+- Perfil en el latido (guardado.tablero -> comun.biblio['mi_perfil']): sexo del entrenador (byte 0x14005 de la partida:
+  bloque 0x14000 +5; 0 = chico, medido en la de David con su nombre en 0x14048) y el equipo con especie, nombre, mote,
+  nivel, habilidad, shiny, stats (PS, Atq, Def, Vel, AtE, DfE del PK6), ataques y genero. online._perfil lo limpia.
+  Sin stats/ataques (Pokelocke viejo o partida sin leer) no deja ponerse listo.
+- app.html: botón «⚔️ Combate en línea» (b-combate), vista #v-combate (pintarCombate: entrada, sala, aviso de combate en
+  curso, terminado). La presentación (#vs-pres, presentarCombate/vsPintar) a la hora del servidor. La pantalla del
+  combate (#cb, escenario 1920x1080 escalado): cbActualizar recibe los sucesos y cbReproducir los va pintando (banda
+  de mensajes y la ficha propia que sube 150 px, barras de PS con los 4 colores, parpadeo al recibir, caída al
+  debilitarse, eficacia y críticos); luego cbSiguiente: menú (Luchar/Pokémon/Mochila/Huir con boton/boton_sel e iconos,
+  hover = elegido), ataques (píldoras ataques/TIPO.png, PP con sus colores, «Muy eficaz/Poco eficaz/No afecta», flecha,
+  banda ataque_info/TIPO.png con categoría, potencia, precisión y descripción, «Atrás»), equipo (cambiar; obligado si
+  se debilita), Mochila (aviso: sin objetos), Huir = rendirse (confirmación), final («Continuar»). Teclado: flechas,
+  Intro, Escape. CB.enviado/enviadoTurno: los botones vuelven cuando el turno es otro. Pantalla completa al pulsar
+  «Estoy preparado» (necesita el clic) y se quita al salir del combate; botón arriba a la izquierda para ponerla/quitarla.
+  Música: la del mix (vs-combate.ogg) en bucle durante el combate. Sprites: /ani/<n> de Showdown (de espaldas el tuyo,
+  ?espalda=1 -> ani-back, en datos/ani/<n>-back.gif).
+- Probado: test_combate.py (300 combates simulados sin errores), test_app.py, y la app entera en Edge sin ventana contra
+  un bot con el servidor y el motor de verdad (scratchpad cb_prueba): sala, presentación, combate completo hasta
+  «¡Has ganado!» con marcador 1-0. NO probado entre dos PCs: el anfitrión (David) tiene que instalar la 2.3.0 para que su
+  servidor tenga salas y motor.
 - test_torneo.py ya fallaba antes (assert de la plaza con impares, del cuadro de 1.3.2).

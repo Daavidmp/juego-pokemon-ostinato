@@ -812,74 +812,169 @@
   #v-torneo.pizarra .vacio, #v-torneo.pizarra .error { color: #fff; }
   .aviso-hex { padding: 12px 16px; border-radius: 12px; background: var(--oro-claro); color: #6B4E00; font-weight: 700; font-size: 14px; }
 
-  /* 2.3.0 · COMBATE EN LÍNEA: salas con un código de 4 números (sin Citra). Fuera de la sala, dos pestañas (Crear sala /
-     Entrar por código); dentro, los dos entrenadores con su equipo sobre el fondo del VS, y al empezar, la presentación */
-  #v-combate { background: #0B0D16; color: #fff; }
-  #v-combate header { background: transparent; border-bottom-color: rgba(255,255,255,.08); }
-  #v-combate header .titulo { color: #fff; }
-  #v-combate header .btn-icono { background: rgba(255,255,255,.1); }
-  #v-combate header .btn-icono svg { stroke: #fff; }
-  .cl-cuerpo { position: relative; flex-grow: 1; display: flex; flex-direction: column; overflow: hidden; font-family: 'Barlow Semi Condensed', Nunito, sans-serif; }
-  .cl-fondo { position: absolute; inset: 0; background: url(/assets/vs-fondo.jpg) center/cover; filter: brightness(.35) saturate(.9); }
-  .cl-entrada { position: relative; margin: auto; width: min(460px, calc(100% - 32px)); padding: 28px; border-radius: 20px; background: rgba(12,14,24,.82);
-    border: 1px solid rgba(255,255,255,.12); box-shadow: 0 20px 60px rgba(0,0,0,.5); text-align: center; }
-  .cl-pestanas { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; padding: 5px; border-radius: 999px; background: rgba(255,255,255,.08); margin-bottom: 26px; }
-  .cl-pestanas button { border: none; border-radius: 999px; padding: 10px 0; background: transparent; color: rgba(255,255,255,.7); font: 700 18px 'Barlow Semi Condensed', sans-serif; cursor: pointer; }
-  .cl-pestanas button[aria-selected="true"] { background: #fff; color: #111; }
-  .cl-entrada p { margin: 0 0 20px; color: rgba(255,255,255,.7); font: 500 17px Nunito, sans-serif; }
-  .cl-cifras { display: flex; justify-content: center; gap: 12px; margin-bottom: 22px; }
-  .cl-cifras input { width: 64px; height: 80px; border-radius: 14px; border: 2px solid rgba(255,255,255,.25); background: rgba(255,255,255,.06); color: #fff;
-    text-align: center; font: 700 44px 'Barlow Semi Condensed', sans-serif; caret-color: #fff; }
-  .cl-cifras input:focus { outline: none; border-color: #fff; background: rgba(255,255,255,.12); }
-  .cl-boton { border: none; border-radius: 999px; padding: 14px 40px; background: #fff; color: #111; font: 700 22px 'Barlow Semi Condensed', sans-serif; letter-spacing: 1px;
-    cursor: pointer; box-shadow: 0 6px 18px rgba(0,0,0,.4); }
-  .cl-boton:hover { transform: translateY(-1px); }
-  .cl-boton:disabled { opacity: .45; cursor: default; transform: none; }
-  .cl-boton.secundario { background: rgba(255,255,255,.12); color: #fff; box-shadow: none; }
-  .cl-boton.listo { background: #2E6BFF; color: #fff; }
-  .cl-error { min-height: 22px; margin-top: 14px; color: #FF8C8C; font: 700 15px Nunito, sans-serif; }
-  .cl-sala { position: relative; flex-grow: 1; display: grid; grid-template-columns: 1fr auto 1fr; gap: 20px; padding: 14px 28px 0; min-height: 0; overflow: auto; }
-  .cl-lado { display: flex; flex-direction: column; align-items: center; min-width: 0; }
-  .cl-nombre { align-self: stretch; padding: 4px 22px 6px; font: italic 800 38px/1 'Barlow Semi Condensed', sans-serif; letter-spacing: 1px; text-shadow: 0 3px 0 rgba(0,0,0,.45);
-    white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .cl-lado.tu .cl-nombre { background: linear-gradient(90deg, #1E4FD8, rgba(30,79,216,0)); }
-  .cl-lado.rival .cl-nombre { background: linear-gradient(270deg, #D81E2E, rgba(216,30,46,0)); text-align: right; }
-  .cl-estado { align-self: stretch; margin-top: 6px; font: 600 15px Nunito, sans-serif; color: rgba(255,255,255,.65); }
-  .cl-lado.rival .cl-estado { text-align: right; }
-  .cl-estado.ok { color: #7CE0A0; }
-  .cl-avatar { margin: 4px 0 8px; background-repeat: no-repeat; image-rendering: pixelated; animation: clRespira 1s steps(8) infinite; }
-  .cl-lado.tu .cl-avatar { filter: drop-shadow(0 0 18px rgba(80,140,255,.7)); }
-  .cl-lado.rival .cl-avatar { filter: drop-shadow(0 0 18px rgba(255,70,80,.7)); }
-  @keyframes clRespira { from { background-position-x: 0; } to { background-position-x: var(--fin); } }
-  .cl-equipo { width: 100%; display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px 10px; }
-  .cl-poke { position: relative; display: flex; flex-direction: column; align-items: center; padding: 8px 6px 8px; border-radius: 14px; border: 2px solid rgba(255,255,255,.1);
-    background: rgba(10,12,20,.7); color: #fff; font-family: 'Barlow Semi Condensed', sans-serif; text-align: center; min-width: 0; }
-  button.cl-poke { cursor: pointer; }
-  button.cl-poke:hover { border-color: rgba(255,255,255,.45); }
-  .cl-poke.primero { border-color: #fff; background: rgba(46,107,255,.35); }
-  .cl-poke img { width: 64px; height: 64px; object-fit: contain; filter: drop-shadow(0 4px 6px rgba(0,0,0,.5)); }
-  .cl-poke b { display: block; max-width: 100%; margin-top: 4px; font-size: 19px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .cl-poke small { display: block; font-size: 14px; font-weight: 500; color: rgba(255,255,255,.7); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
-  .cl-poke .cl-sale { position: absolute; top: -10px; left: 50%; transform: translateX(-50%); padding: 2px 10px; border-radius: 999px; background: #fff; color: #111; font-size: 12px; font-weight: 800; white-space: nowrap; }
-  .cl-centro { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; padding-bottom: 40px; }
-  .cl-codigo-et { font: 600 15px 'Barlow Semi Condensed', sans-serif; letter-spacing: 8px; color: rgba(255,255,255,.55); padding-left: 8px; }
-  .cl-codigo { font: 800 64px/1 'Barlow Semi Condensed', sans-serif; letter-spacing: 10px; padding-left: 10px; }
-  .cl-vs { margin: 14px 0 4px; font: italic 800 72px/1 'Barlow Semi Condensed', sans-serif; text-shadow: 0 0 24px rgba(255,255,255,.35); }
-  .cl-ronda { font: 300 26px 'Barlow Semi Condensed', sans-serif; letter-spacing: 6px; padding-left: 6px; }
-  .cl-ronda b { font-weight: 800; }
-  .cl-sub { font: 600 13px 'Barlow Semi Condensed', sans-serif; letter-spacing: 6px; padding-left: 6px; color: rgba(255,255,255,.5); }
-  .cl-pips { display: flex; gap: 12px; }
-  .cl-pips i { width: 12px; height: 12px; border-radius: 50%; border: 2px solid rgba(255,255,255,.6); box-sizing: border-box; }
-  .cl-vacio { margin: 40px 0; text-align: center; font: 500 18px Nunito, sans-serif; color: rgba(255,255,255,.7); }
-  .cl-vacio b { display: block; margin-top: 6px; font: 800 42px 'Barlow Semi Condensed', sans-serif; letter-spacing: 8px; color: #fff; }
-  .cl-pie { position: relative; display: flex; justify-content: center; align-items: center; gap: 14px; padding: 14px; }
-  .cl-aviso { position: relative; margin: auto; max-width: 560px; padding: 30px; border-radius: 20px; background: rgba(12,14,24,.85); text-align: center; border: 1px solid rgba(255,255,255,.12); }
-  .cl-aviso h2 { margin: 0 0 10px; font: 800 44px 'Barlow Semi Condensed', sans-serif; }
-  .cl-aviso p { margin: 0 0 22px; color: rgba(255,255,255,.7); font: 500 16px Nunito, sans-serif; }
-  .cl-aviso .cl-botones { display: flex; justify-content: center; gap: 12px; flex-wrap: wrap; }
-  @media (max-width: 1000px) { .cl-sala { grid-template-columns: 1fr; } .cl-centro { order: -1; padding-bottom: 0; } }
-  @media (prefers-reduced-motion: reduce) { .cl-avatar { animation: none; } }
+  /* 2.3.0 · COMBATE EN LÍNEA: salas con un código de 4 números (sin Citra). El diseño del lienzo «Combate en línea ·
+     Pokelocke»: «A · Entrar con código» y «Sala nueva 1» (tocas tus 6 en orden: el 1.º sale primero), con el «Fondo 2 ·
+     Atardecer en Luminalia» detrás de tu personaje y la noche detrás del rival */
+  #v-combate { background: var(--fondo); }
+  .cl-cuerpo { flex-grow: 1; display: flex; flex-direction: column; min-height: 0; padding: 18px 28px; gap: 16px; color: var(--tinta); font-family: Nunito, sans-serif; }
+  .cl-entrada { margin: auto; width: min(560px, 100%); padding: 30px 28px; border-radius: 24px; background: #fff; border: 2px solid var(--linea);
+    display: flex; flex-direction: column; align-items: center; gap: 20px; text-align: center; }
+  .cl-pestanas { display: flex; gap: 4px; padding: 4px; background: var(--linea); border-radius: 999px; }
+  .cl-pestanas button { border: none; border-radius: 999px; padding: 9px 20px; background: transparent; color: var(--suave); font: 800 15px Nunito, sans-serif; cursor: pointer; }
+  .cl-pestanas button[aria-selected="true"] { background: #fff; color: var(--tinta); font-weight: 900; box-shadow: 0 2px 0 var(--linea-fuerte); }
+  .cl-entrada h2 { margin: 8px 0 0; font: 400 24px Bungee, sans-serif; }
+  .cl-entrada .cl-ayuda { font-weight: 800; color: var(--suave); }
+  .cl-cifras { display: flex; gap: 12px; }
+  .cl-cifras input { width: 72px; height: 88px; box-sizing: border-box; border-radius: 18px; border: 3px solid var(--rojo); background: #fff; text-align: center;
+    font: 400 40px Bungee, sans-serif; color: var(--tinta); }
+  .cl-cifras input.lleno { border-color: var(--linea-fuerte); }
+  .cl-cifras input:focus { outline: none; border-color: var(--rojo); box-shadow: 0 0 0 4px var(--rojo-claro); }
+  .cl-boton { min-height: 56px; padding: 0 34px; border: 0; border-radius: 18px; background: var(--rojo); color: #fff; font: 400 18px Bungee, sans-serif;
+    box-shadow: 0 5px 0 #7E1A06; cursor: pointer; }
+  .cl-boton:active { transform: translateY(3px); box-shadow: 0 2px 0 #7E1A06; }
+  .cl-boton.gris { background: #9AA6BC; box-shadow: 0 5px 0 #7F8BA5; cursor: not-allowed; }
+  .cl-boton.verde { background: #1F9D55; box-shadow: 0 5px 0 #176B3C; }
+  .cl-boton.azul { background: #2A75BB; box-shadow: 0 5px 0 #1E5A92; }
+  .cl-error { min-height: 20px; color: var(--rojo-texto); font-weight: 800; font-size: 14px; }
+  .cl-cabeza { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+  .cl-cabeza h1 { margin: 0; font: 400 26px Bungee, sans-serif; }
+  .cl-codigo { font: 400 26px Bungee, sans-serif; letter-spacing: 8px; color: var(--rojo); }
+  .cl-copiar { border: 0; background: var(--azul-claro); color: var(--azul-texto); font: 900 14px Nunito, sans-serif; border-radius: 12px; padding: 0 14px; min-height: 40px; cursor: pointer; }
+  .cl-normas { margin-left: auto; display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
+  .cl-normas button { min-height: 36px; padding: 0 12px; border-radius: 999px; border: 2px solid var(--linea); background: #fff; color: var(--suave); font: 800 13px Nunito, sans-serif; cursor: pointer; }
+  .cl-normas button[aria-pressed="true"] { border-color: var(--rojo); background: var(--rojo-claro); color: var(--rojo-texto); }
+  .cl-normas button:disabled { cursor: default; }
+  .cl-rejilla { display: grid; grid-template-columns: 340px minmax(0, 1fr); gap: 18px; flex-grow: 1; min-height: 0; }
+  .cl-tarjeta { border-radius: 24px; background: #fff; border: 2px solid var(--linea); display: flex; flex-direction: column; overflow: hidden; min-height: 0; }
+  .cl-escena { position: relative; flex-grow: 1; min-height: 0; overflow: hidden; display: flex; align-items: flex-end; justify-content: center; }
+  .cl-escena svg { position: absolute; left: 0; bottom: 0; }
+  .cl-escena.tarde { background: linear-gradient(#FFB36B 0%, #F77E6B 45%, #B9506E 75%); }
+  .cl-escena.noche { border-radius: 18px; background: linear-gradient(#6E7FD6 0%, #8A6EC4 50%, #B9506E 85%); }
+  .cl-escena-et { position: absolute; left: 14px; top: 14px; font-weight: 900; font-size: 12px; letter-spacing: 1px; color: #5A2E52; }
+  .cl-pj { position: relative; flex: none; margin-bottom: 6px; background-repeat: no-repeat; image-rendering: pixelated; animation: clHoja 1.6s steps(8) infinite; }
+  .cl-pj.rival { animation-delay: -.8s; }
+  @keyframes clHoja { from { background-position: 0 0; } to { background-position: var(--fin) 0; } }
+  .cl-quien { padding: 14px 18px; display: flex; align-items: center; gap: 10px; }
+  .cl-quien strong { font-size: 20px; font-weight: 900; }
+  .cl-quien span.sub, .cl-rival-cab span.sub { font-size: 13px; color: var(--suave); font-weight: 700; }
+  .cl-estado { margin-left: auto; flex: none; font-weight: 900; font-size: 13px; padding: 6px 12px; border-radius: 999px; background: #FFF6D6; color: #7A5B00; }
+  .cl-estado.ok { background: #E3F6EC; color: #176B3C; }
+  .cl-rival { padding: 16px 18px; gap: 12px; }
+  .cl-rival-cab { display: flex; align-items: center; gap: 12px; }
+  .cl-rival-cab strong { font-size: 19px; font-weight: 900; }
+  .cl-rival-cuerpo { display: grid; grid-template-columns: 260px minmax(0, 1fr); gap: 14px; flex-grow: 1; min-height: 0; }
+  .cl-suyos { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); grid-template-rows: repeat(2, minmax(0, 1fr)); gap: 12px; min-height: 0; }
+  .cl-suyo { border-radius: 18px; background: var(--fondo); overflow: hidden; display: flex; flex-direction: column; min-height: 0; }
+  .cl-suyo img { width: 100%; flex: 1 1 auto; min-height: 0; height: 112px; object-fit: cover; display: block; }
+  .cl-suyo div { padding: 8px 12px; display: flex; align-items: baseline; gap: 8px; }
+  .cl-suyo b { font-weight: 900; font-size: 17px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .cl-suyo small { margin-left: auto; flex: none; font-size: 13px; color: var(--suave); font-weight: 800; }
+  .cl-espera { margin: auto; text-align: center; font-weight: 800; color: var(--suave); }
+  .cl-espera b { display: block; margin-top: 8px; font: 400 40px Bungee, sans-serif; letter-spacing: 8px; color: var(--rojo); }
+  .cl-orden { border-radius: 22px; background: #fff; border: 2px solid var(--linea); padding: 12px 16px; display: flex; align-items: center; gap: 14px; }
+  .cl-orden-info { display: flex; flex-direction: column; gap: 6px; width: 160px; flex: none; }
+  .cl-orden-info strong { font: 400 15px Bungee, sans-serif; }
+  .cl-orden-info span { font-size: 13px; color: var(--suave); font-weight: 700; }
+  .cl-orden-info button { align-self: flex-start; min-height: 36px; padding: 0 12px; border: 0; border-radius: 10px; background: var(--linea); color: var(--tinta); font: 900 13px Nunito, sans-serif; cursor: pointer; }
+  .cl-mios { display: flex; gap: 10px; }
+  .cl-mio { position: relative; width: 112px; padding: 0; border-radius: 16px; border: 3px solid var(--linea); background: var(--fondo); overflow: hidden; display: flex; flex-direction: column; text-align: left; cursor: pointer; }
+  .cl-mio.puesto { border-color: var(--tinta); }
+  .cl-mio.primero { border-color: var(--rojo); }
+  .cl-mio img { width: 100%; height: 70px; object-fit: cover; display: block; opacity: .55; }
+  .cl-mio.puesto img { opacity: 1; }
+  .cl-mio .num { position: absolute; left: 4px; top: 4px; min-width: 24px; height: 24px; border-radius: 12px; background: var(--tinta); color: #fff; font: 400 13px Bungee, sans-serif;
+    display: flex; align-items: center; justify-content: center; padding: 0 6px; }
+  .cl-mio.primero .num { background: var(--rojo); }
+  .cl-mio .nom { padding: 5px 8px 0; font-size: 13px; font-weight: 900; color: var(--tinta); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .cl-mio .hab { padding: 0 8px 6px; font-size: 11px; font-weight: 800; color: var(--azul-texto); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .cl-orden .cl-boton { margin-left: auto; min-height: 58px; padding: 0 28px; flex: none; }
+  .cl-aviso { margin: auto; width: min(600px, 100%); padding: 30px; border-radius: 24px; background: #fff; border: 2px solid var(--linea); text-align: center; display: flex; flex-direction: column; align-items: center; gap: 14px; }
+  .cl-aviso h2 { margin: 0; font: 400 30px Bungee, sans-serif; }
+  .cl-aviso p { margin: 0; color: var(--suave); font-weight: 700; }
+  .cl-aviso .cl-botones { display: flex; justify-content: center; gap: 12px; flex-wrap: wrap; margin-top: 6px; }
+  .cl-marcador { font: 400 44px Bungee, sans-serif; letter-spacing: 6px; }
+  @media (prefers-reduced-motion: reduce) { .cl-pj { animation: none; } }
 
+  /* 2.3.0 · LA PANTALLA DEL COMBATE: la interfaz de Ostinato a 1920x1080 (escalada a la ventana, en pantalla completa).
+     Las piezas son las del juego (assets/combate, de Graphics/UI/Ostinato/Combate) y las medidas, las de 016_CombateHD.rb */
+  #cb { position: fixed; inset: 0; z-index: 8500; background: #000; overflow: hidden; font-family: 'Barlow Semi Condensed', 'Bahnschrift', sans-serif; }
+  #cb-escena { position: absolute; left: 50%; top: 50%; width: 1920px; height: 1080px; overflow: hidden; transform-origin: 0 0; color: #232323; }
+  #cb-escena img { display: block; }
+  .cb-abs { position: absolute; }
+  .cb-pk { position: absolute; transition: opacity .35s ease, transform .35s ease; transform-origin: 50% 100%; }
+  .cb-pk img { width: 100%; height: 100%; image-rendering: pixelated; }
+  .cb-pk.fuera { opacity: 0; transform: scale(.2); }
+  .cb-pk.cae { opacity: 0; transform: translateY(120px); transition: opacity .5s ease, transform .5s ease-in; }
+  .cb-pk.golpe { animation: cbGolpe .5s steps(2) 2; }
+  @keyframes cbGolpe { 50% { opacity: .15; } }
+  .cb-pk.ataca.mio { animation: cbAtacaMio .45s ease; }
+  .cb-pk.ataca.rival { animation: cbAtacaRival .45s ease; }
+  @keyframes cbAtacaMio { 40% { transform: translate(60px, -30px); } }
+  @keyframes cbAtacaRival { 40% { transform: translate(-60px, 30px); } }
+  .cb-ficha { position: absolute; transition: transform .26s ease; }
+  .cb-ficha > img.fondo { position: absolute; left: 0; top: 0; }
+  .cb-nombre { position: absolute; font-size: 34px; font-weight: 700; line-height: 1; white-space: nowrap; }
+  .cb-nivel { position: absolute; font-size: 28px; font-weight: 600; line-height: 1; white-space: nowrap; }
+  .cb-ps { position: absolute; font-size: 26px; font-weight: 600; line-height: 1; }
+  .cb-barra { position: absolute; background: #DEDEDE; overflow: hidden; }
+  .cb-barra i { position: absolute; left: 0; top: 0; bottom: 0; transition: width .6s ease, background-color .6s ease; }
+  .cb-estado { position: absolute; padding: 2px 10px; border-radius: 999px; color: #fff; font-size: 18px; font-weight: 700; line-height: 1.2; }
+  .cb-tira { position: absolute; }
+  .cb-tira img.bola { position: absolute; }
+  #cb-banda { position: absolute; left: 0; top: 930px; width: 1920px; height: 150px; transform: translateY(160px); transition: transform .26s ease; }
+  #cb-banda.ver { transform: none; }
+  #cb-banda span { position: absolute; left: 96px; top: 40px; right: 160px; font-size: 44px; font-weight: 600; line-height: 1.2; color: #fff; text-shadow: 0 2px 3px rgba(0,0,0,.6); }
+  #cb-banda img.flecha { position: absolute; right: 90px; top: 64px; animation: ostFlechita .9s ease-in-out infinite; }
+  @keyframes ostFlechita { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(6px); } }
+  .cb-capa { position: absolute; inset: 0; transition: transform .26s ease, opacity .26s ease; }
+  .cb-capa.oculta { opacity: 0; transform: translateX(120px); pointer-events: none; }
+  .cb-cmd { position: absolute; left: 1555px; width: 351px; height: 103px; padding: 0; margin: 0; border: 0; background: transparent; cursor: pointer; transform-origin: 60% 50%; transition: transform .18s ease; }
+  .cb-cmd > img.fondo { position: absolute; left: -24px; top: -24px; width: 399px; height: 151px; }
+  .cb-cmd > span { position: absolute; left: 39px; top: 50%; transform: translateY(-52%); font-size: 36px; font-weight: 700; line-height: 1; color: #232323; }
+  .cb-cmd > img.icono { position: absolute; pointer-events: none; }
+  .cb-cmd.sel { transform: scale(1.03); }
+  .cb-cmd.sel > span { color: #fff; }
+  .cb-atq { position: absolute; left: 1299px; width: 603px; height: 91px; padding: 0; margin: 0; border: 0; background: transparent; cursor: pointer; transform-origin: 70% 50%; transition: transform .18s ease; }
+  .cb-atq > img { position: absolute; left: -16px; top: -16px; width: 635px; height: 123px; }
+  .cb-atq b { position: absolute; left: 98px; font-size: 34px; font-weight: 700; line-height: 1; white-space: nowrap; }
+  .cb-atq small { position: absolute; left: 99px; top: 55px; font-size: 19px; font-weight: 600; line-height: 1; }
+  .cb-atq em { position: absolute; left: 412px; width: 200px; top: 24px; text-align: center; font-style: normal; font-size: 40px; font-weight: 500; line-height: 1; }
+  .cb-atq.sel { transform: scale(1.035) translateX(-10px); }
+  .cb-atq:disabled { cursor: not-allowed; filter: grayscale(.6) brightness(.85); }
+  #cb-flecha { position: absolute; left: 1218px; transition: top .18s ease; }
+  #cb-atras { position: absolute; left: 1299px; top: 578px; width: 150px; height: 48px; border: none; border-radius: 24px; background: #fff; color: #232323; font: 700 26px 'Barlow Semi Condensed', sans-serif; box-shadow: 2px 5px 12px rgba(0,0,0,.45); cursor: pointer; }
+  #cb-info { position: absolute; left: 456px; top: 922px; width: 760px; height: 121px; color: #fff; }
+  #cb-info > img.fondo { position: absolute; left: -12px; top: -12px; }
+  #cb-info b { position: absolute; left: 76px; top: 20px; font-size: 34px; font-weight: 700; line-height: 1; white-space: nowrap; text-shadow: 0 2px 3px rgba(0,0,0,.45); }
+  #cb-info .cat { position: absolute; top: 23px; width: 64px; height: 28px; background: url(/assets/combate/categoria.png) no-repeat; image-rendering: pixelated; }
+  #cb-info p { position: absolute; left: 62px; top: 62px; width: 400px; margin: 0; font-size: 20px; font-weight: 500; line-height: 1.25; color: #E6E6E6; }
+  #cb-info .datos { position: absolute; left: 490px; top: 18px; width: 200px; display: grid; grid-template-columns: 1fr 1fr; text-align: center; }
+  #cb-info .datos strong { display: block; font-size: 46px; font-weight: 700; line-height: 1; }
+  #cb-info .datos span { display: block; margin-top: 6px; font-size: 17px; font-weight: 600; color: #CFCFCF; }
+  #cb-equipo { position: absolute; left: 1144px; top: 0; width: 776px; height: 1080px; background: #fff; box-shadow: -6px 0 18px rgba(0,0,0,.35); padding: 48px; box-sizing: border-box; display: flex; flex-direction: column; gap: 16px; }
+  #cb-equipo h2 { margin: 0 0 8px; font-size: 48px; font-weight: 700; color: #232323; }
+  .cb-miembro { display: grid; grid-template-columns: 96px 1fr; gap: 6px 18px; align-items: center; padding: 12px 18px; border-radius: 18px; border: 3px solid #E3E3E1; background: #F4F4F2; text-align: left; cursor: pointer; font-family: inherit; color: #232323; }
+  .cb-miembro:hover:not(:disabled) { border-color: #232323; }
+  .cb-miembro:disabled { cursor: default; opacity: .55; }
+  .cb-miembro.activo { border-color: #232323; background: #fff; }
+  .cb-miembro img { grid-row: span 2; width: 96px; height: 96px; object-fit: contain; }
+  .cb-miembro b { font-size: 30px; font-weight: 700; display: flex; justify-content: space-between; gap: 10px; }
+  .cb-miembro b small { font-size: 24px; font-weight: 600; color: #555; }
+  .cb-miembro .linea { display: flex; align-items: center; gap: 12px; font-size: 22px; font-weight: 600; color: #555; }
+  .cb-miembro .linea .cb-barra { position: relative; flex-grow: 1; height: 14px; border-radius: 7px; }
+  #cb-equipo .cb-cerrar { align-self: flex-start; margin-top: auto; border: none; border-radius: 24px; padding: 10px 30px; background: #232323; color: #fff; font: 700 26px 'Barlow Semi Condensed', sans-serif; cursor: pointer; }
+  #cb-final { position: absolute; inset: 0; background: rgba(0,0,0,.6); display: flex; align-items: center; justify-content: center; }
+  #cb-final > div { width: 760px; padding: 50px; border-radius: 32px; background: #fff; text-align: center; color: #232323; }
+  #cb-final h2 { margin: 0 0 10px; font-size: 72px; font-weight: 800; font-style: italic; }
+  #cb-final p { margin: 0 0 26px; font-size: 30px; font-weight: 600; color: #555; }
+  #cb-final button { border: none; border-radius: 999px; padding: 16px 60px; background: #232323; color: #fff; font: 700 34px 'Barlow Semi Condensed', sans-serif; cursor: pointer; }
+  #cb-pantalla { position: absolute; left: 20px; top: 20px; width: 56px; height: 56px; border: none; border-radius: 50%; background: rgba(0,0,0,.5); color: #fff; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+  #cb-confirmar { position: absolute; inset: 0; background: rgba(0,0,0,.55); display: flex; align-items: center; justify-content: center; }
+  #cb-confirmar > div { width: 680px; padding: 44px; border-radius: 28px; background: #fff; text-align: center; color: #232323; }
+  #cb-confirmar h2 { margin: 0 0 12px; font-size: 52px; font-weight: 700; }
+  #cb-confirmar p { margin: 0 0 26px; font-size: 26px; font-weight: 500; color: #555; }
+  #cb-confirmar button { border: none; border-radius: 999px; padding: 14px 40px; margin: 0 8px; font: 700 30px 'Barlow Semi Condensed', sans-serif; cursor: pointer; }
+  @media (prefers-reduced-motion: reduce) { .cb-pk, .cb-pk.golpe, .cb-pk.ataca.mio, .cb-pk.ataca.rival { animation: none; transition: none; } }
   /* la presentación (VS + RONDA) del lienzo «Pokelocke · combate del torneo»: un escenario de 1920x1080 escalado a la ventana */
   #vs-pres { position: fixed; inset: 0; z-index: 9000; background: #000; overflow: hidden; }
   #vs-escena { position: absolute; left: 50%; top: 50%; width: 1920px; height: 1080px; overflow: hidden; background: #000;
@@ -1237,7 +1332,7 @@
       <span class="titulo">⚔️ Combate en línea</span>
     </div>
   </header>
-  <div class="cl-cuerpo"><div class="cl-fondo" aria-hidden="true"></div><div id="cl-cuerpo" style="position: relative; flex-grow: 1; display: flex; flex-direction: column; min-height: 0;"></div></div>
+  <div class="cl-cuerpo" id="cl-cuerpo"></div>
 </section>
 <section class="vista" id="v-torneo">
   <header>
@@ -1531,6 +1626,42 @@
   </form>
 </div>
 
+<!-- el combate en línea (2.3.0): la interfaz de Ostinato -->
+<div id="cb" class="oculto" role="dialog" aria-modal="true" aria-label="Combate">
+  <div id="cb-escena">
+    <img src="/assets/combate/estadio.jpg" alt="" style="position: absolute; left: 0; top: 0; width: 1920px; height: 1080px;">
+    <div class="cb-pk rival fuera" id="cb-pk-r"><img alt="" id="cb-img-r"></div>
+    <div class="cb-pk mio fuera" id="cb-pk-p"><img alt="" id="cb-img-p"></div>
+    <div class="cb-ficha" id="cb-ficha-r" style="left: 1403px; top: 24px; width: 517px; height: 100px;">
+      <img class="fondo" src="/assets/combate/ficha_rival.png" alt="">
+      <span class="cb-nombre" id="cb-nom-r" style="left: 62px; top: 21px;"></span>
+      <span class="cb-nivel" id="cb-niv-r" style="left: 418px; top: 31px;"></span>
+      <span class="cb-estado oculto" id="cb-est-r" style="right: 120px; top: -2px;"></span>
+      <div class="cb-barra" style="left: 62px; top: 66px; width: 404px; height: 15px;"><i id="cb-ps-r"></i></div>
+      <div class="cb-tira" style="left: 377px; top: 99px;"><img src="/assets/combate/tira_rival.png" alt=""><div id="cb-bolas-r"></div></div>
+    </div>
+    <div class="cb-ficha" id="cb-ficha-p" style="left: 0; top: 921px; width: 498px; height: 122px;">
+      <img class="fondo" src="/assets/combate/ficha_propia.png" alt="">
+      <span class="cb-nombre" id="cb-nom-p" style="left: 16px; top: 22px;"></span>
+      <span class="cb-nivel" id="cb-niv-p" style="left: 372px; top: 32px;"></span>
+      <span class="cb-estado oculto" id="cb-est-p" style="left: 300px; top: -14px;"></span>
+      <div class="cb-barra" style="left: 16px; top: 59px; width: 404px; height: 15px;"><i id="cb-ps-p"></i></div>
+      <span class="cb-ps" id="cb-num-p" style="left: 16px; top: 84px;"></span>
+      <div class="cb-tira" style="left: 0; top: 122px;"><img src="/assets/combate/tira_propia.png" alt=""><div id="cb-bolas-p"></div></div>
+    </div>
+    <div id="cb-info" class="oculto"><img class="fondo" id="cb-info-fondo" alt=""><b id="cb-info-nom"></b><span class="cat" id="cb-info-cat"></span>
+      <p id="cb-info-desc"></p><div class="datos"><div><strong id="cb-info-pot"></strong><span>Potencia</span></div><div><strong id="cb-info-pre"></strong><span>Precisión</span></div></div></div>
+    <div id="cb-banda" role="status" aria-live="polite"><img src="/assets/combate/banda_ancha.png" alt="" style="position: absolute; left: 0; top: 0;"><span id="cb-texto"></span>
+      <img class="flecha oculto" id="cb-flechita" src="/assets/combate/flecha_mensaje.png" alt=""></div>
+    <div class="cb-capa oculta" id="cb-menu"></div>
+    <div class="cb-capa oculta" id="cb-ataques"></div>
+    <div class="oculto" id="cb-equipo" role="dialog" aria-label="Tu equipo"></div>
+    <div class="oculto" id="cb-confirmar" role="alertdialog" aria-label="Rendirse"><div><h2>¿Te rindes?</h2><p>Perderás esta ronda.</p>
+      <button type="button" data-cb="rendirse" style="background: #CC2B0B; color: #fff;">Rendirme</button><button type="button" data-cb="no-rendirse" style="background: #E3E3E1; color: #232323;">Seguir</button></div></div>
+    <div class="oculto" id="cb-final" role="alertdialog" aria-label="Final del combate"><div><h2 id="cb-final-tit"></h2><p id="cb-final-txt"></p><button type="button" data-cb="continuar">Continuar</button></div></div>
+    <button type="button" id="cb-pantalla" aria-label="Pantalla completa" title="Pantalla completa"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg></button>
+  </div>
+</div>
 <!-- la presentación del combate: VS con los dos entrenadores y sus equipos, y RONDA N -->
 <div id="vs-pres" class="oculto" role="dialog" aria-modal="true" aria-label="Presentación del combate">
   <div id="vs-escena">
@@ -2914,7 +3045,7 @@ async function pedirCombate(que, datos) {
   let r;
   try {
     r = await (await fetch('/api/online/combate', {method: 'POST', headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({que, ...(datos || {})})})).json();
+      body: JSON.stringify({que, desde: CB.abierto ? CB.n : 0, ...(datos || {})})})).json();
   } catch (err) { r = {error: 'Pokelocke no responde'}; }
   if (r.error) { combate.error = r.error; pintarCombate(); return null; }
   combate.error = '';
@@ -2922,6 +3053,7 @@ async function pedirCombate(que, datos) {
   combate.datos = r.sala;
   pintarCombate();
   mirarPresentacion();
+  cbActualizar(r.sala);
   return r;
 }
 function abrirCombate() {
@@ -2939,97 +3071,114 @@ function cerrarCombate() {
   combate.abierto = false; clearInterval(combate.reloj);
   actualizar();
 }
-const ENTRENADOR = [{src: '/assets/vs-calem.png', n: 8, w: 238, h: 363}, {src: '/assets/vs-serena.png', n: 8, w: 252, h: 372}];
-function avatarSala(perfil) {
-  const e = ENTRENADOR[perfil && perfil.sexo === 1 ? 1 : 0], alto = 180, ancho = Math.round(e.w * alto / e.h);
-  return `<div class="cl-avatar" aria-hidden="true" style="width: ${ancho}px; height: ${alto}px; background-image: url(${e.src}); background-size: ${e.n * ancho}px ${alto}px; --fin: ${-e.n * ancho}px;"></div>`;
+// los personajes de la sala: las hojas de 8 de Serena y Calem (la chica, un pelín más pequeña)
+const ENTRENADOR = [{src: '/assets/vs-calem.png', n: 8, w: 238, h: 363, k: 1, quien: 'Calem (el chico)'},
+  {src: '/assets/vs-serena.png', n: 8, w: 252, h: 372, k: 0.95, quien: 'Serena (la chica)'}];
+const entrenadorDe = (perfil) => ENTRENADOR[perfil && perfil.sexo === 1 ? 1 : 0];
+function personajeSala(perfil, alto, rival) {
+  const e = entrenadorDe(perfil), h = Math.round(alto * e.k), w = Math.round(e.w * h / e.h);
+  return `<div class="cl-pj${rival ? ' rival' : ''}" role="img" aria-label="${rival ? 'El personaje del rival' : 'Tu personaje'}, animado"
+    style="width: ${w}px; height: ${h}px; background-image: url(${e.src}); background-size: ${e.n * w}px ${h}px; --fin: ${-e.n * w}px;"></div>`;
 }
-function equipoSala(perfil, mio, sala, quien) {
-  const equipo = (perfil && perfil.equipo) || [];
-  if (!equipo.length) return `<p class="cl-estado">${mio ? 'Tu equipo saldrá aquí cuando Pokelocke lea tu partida (ábrela una vez en la biblioteca).' : 'Su equipo saldrá cuando su Pokelocke lea su partida.'}</p>`;
-  const primero = sala.primero[quien];
-  const puede = mio && sala.estado === 'sala';
-  return `<div class="cl-equipo">${equipo.map((x, i) => {
-    const sale = mio && primero === i;
-    const dentro = `${sale ? '<span class="cl-sale">Sale primero</span>' : ''}<img src="/arte/${x.especie}" alt="" loading="lazy">
-      <b>${esc(x.mote || x.nombre)}</b><small>${x.mote && x.mote !== x.nombre ? esc(x.nombre) + ' · ' : ''}Nv. ${x.nivel}</small>${mio && x.habilidad ? `<small>${esc(x.habilidad)}</small>` : ''}`;
-    return puede ? `<button type="button" class="cl-poke${sale ? ' primero' : ''}" data-cl="primero" data-hueco="${i}" aria-pressed="${SI(sale)}" title="Que salga primero">${dentro}</button>`
-      : `<div class="cl-poke${sale ? ' primero' : ''}">${dentro}</div>`;
-  }).join('')}</div>`;
-}
-function pipsSala(sala, tu) {
-  const m = sala.marcador, mios = m[tu], suyos = m[1 - tu];
-  return `<div class="cl-pips" aria-label="Marcador ${mios} a ${suyos}">${[0, 1, 2].map((i) => {
-    const col = i < mios ? '#2E6BFF' : i < mios + suyos ? '#FF2E3E' : '';
-    return `<i style="${col ? `background: ${col}; border-color: ${col};` : ''}"></i>`;
-  }).join('')}</div>`;
-}
+// el Fondo 2 (atardecer en Luminalia, detrás de ti) y la noche (detrás del rival), tal cual del lienzo
+const FONDO_TARDE = `<svg width="340" height="500" viewBox="0 0 340 500" aria-hidden="true"><circle cx="250" cy="250" r="60" fill="#FFE2A8" opacity=".9"/>
+  <path d="M170 120l-8 110h-14l-10 110h64l-10-110h-14z" fill="#5A2E52"/><path d="M150 290h40M156 250h28" stroke="#FFB36B" stroke-width="4"/>
+  <path d="M0 370h40v-50h30v30h30v-60h36v80h80v-40h30v70h44v-30h50V500H0z" fill="#6B3159"/><path d="M0 430h340V500H0z" fill="#3F1E3C"/></svg>`;
+const FONDO_NOCHE = `<svg width="260" height="500" viewBox="0 0 260 500" aria-hidden="true"><g fill="#FFFFFF"><circle cx="40" cy="70" r="2"/><circle cx="200" cy="40" r="1.5"/>
+  <circle cx="120" cy="110" r="1.5"/><circle cx="220" cy="150" r="2"/><circle cx="70" cy="180" r="1.5"/></g>
+  <path d="M0 360h30v-40h40v70h50v-50h30v40h40v-80h40v60h30V500H0z" fill="#3E2F6B"/><path d="M0 430h260V500H0z" fill="#26204A"/></svg>`;
+const NORMAS_SALA = [['mejor_de', 1, 'Al mejor de 1'], ['mejor_de', 3, 'Al mejor de 3'], ['mejor_de', 5, 'Al mejor de 5'],
+  ['sleep', true, 'Sleep Clause'], ['item', true, 'Item Clause'], ['species', true, 'Species Clause'], ['espora', true, 'Efecto Espora']];
+const nombrePoke = (x) => x.mote || x.nombre;
 function pintarCombate() {
   if (!combate.abierto) return;
   const caja = $('cl-cuerpo'), s = combate.datos;
   let html;
   if (!s) {
+    // diseño «A · Entrar con código»
     const crear = combate.pestana === 'crear';
     html = `<div class="cl-entrada">
       <div class="cl-pestanas" role="tablist">
         <button type="button" role="tab" aria-selected="${SI(crear)}" data-cl="pestana" data-p="crear">Crear sala</button>
-        <button type="button" role="tab" aria-selected="${SI(!crear)}" data-cl="pestana" data-p="entrar">Entrar por código</button>
+        <button type="button" role="tab" aria-selected="${SI(!crear)}" data-cl="pestana" data-p="entrar">Entrar con código</button>
       </div>
-      ${crear ? '<p>Crea una sala y pásale el código de 4 números a tu rival.</p><button type="button" class="cl-boton" data-cl="crear">Crear sala</button>'
-        : `<p>Escribe el código que te ha pasado tu rival.</p>
-          <div class="cl-cifras">${[0, 1, 2, 3].map((i) => `<input type="text" inputmode="numeric" maxlength="4" autocomplete="off" aria-label="Cifra ${i + 1} del código" data-cifra="${i}">`).join('')}</div>
+      ${crear ? `<h2>Crea una sala</h2><span class="cl-ayuda">Te damos un código de 4 números para que tu rival entre.</span>
+          <button type="button" class="cl-boton" data-cl="crear">Crear sala</button>`
+        : `<h2>Escribe el código de la sala</h2>
+          <div class="cl-cifras">${[0, 1, 2, 3].map((i) => `<label style="display: flex;"><span class="oculto-lector" style="position: absolute; width: 1px; height: 1px; overflow: hidden;">Cifra ${i + 1}</span><input type="text" inputmode="numeric" maxlength="4" autocomplete="off" data-cifra="${i}"></label>`).join('')}</div>
+          <span class="cl-ayuda">Te lo da quien ha creado la sala: 4 números.</span>
           <button type="button" class="cl-boton" data-cl="entrar">Entrar</button>`}
       <div class="cl-error" role="alert">${esc(combate.error || '')}</div>
     </div>`;
   } else {
-    const tu = s.yo, el = 1 - tu, yo = s.jugadores[tu], rival = s.jugadores[el];
+    const tu = s.yo, el = 1 - tu, yo = s.jugadores[tu], rival = s.jugadores[el], n = (s.normas && s.normas.mejor_de) || 3;
+    const mio = s.perfiles[yo], suyo = rival && s.perfiles[rival];
+    const etiquetaRonda = n === 1 ? 'Combate único' : s.ronda === n ? 'Ronda final' : `Ronda ${s.ronda} de ${n}`;
     if (s.estado === 'combate' || (s.estado === 'presentacion' && !VS.activa)) {
-      html = `<div class="cl-aviso"><h2>¡A combatir!</h2>
-        <p>Ronda ${s.ronda} de 3. El combate dentro de Pokelocke llega en la próxima versión: cuando acabéis esta ronda, apuntad quién ha ganado.</p>
-        <div class="cl-botones"><button type="button" class="cl-boton listo" data-cl="ganador" data-lado="${tu}">Gané yo</button>
-        <button type="button" class="cl-boton" data-cl="ganador" data-lado="${el}">Ganó ${esc(rival || '')}</button></div>
+      html = `<div class="cl-aviso"><h2>Combate en curso</h2>
+        <p>${etiquetaRonda} · al mejor de ${n}.</p>
+        <span class="cl-marcador" aria-label="Marcador ${s.marcador[tu]} a ${s.marcador[el]}">${s.marcador[tu]} - ${s.marcador[el]}</span>
+        <div class="cl-botones"><button type="button" class="cl-boton" data-cl="vercombate">Volver al combate</button></div>
         <div class="cl-error" role="alert">${esc(combate.error || '')}</div></div>`;
     } else if (s.estado === 'terminado') {
-      const gano = s.ganador === yo;
-      html = `<div class="cl-aviso"><h2>${gano ? '¡Has ganado!' : `Gana ${esc(s.ganador)}`}</h2>
-        <p>${s.marcador[tu]} - ${s.marcador[el]} al mejor de 3.</p>
+      html = `<div class="cl-aviso"><h2>${s.ganador === yo ? '¡Has ganado!' : `Gana ${esc(s.ganador)}`}</h2>
+        <span class="cl-marcador">${s.marcador[tu]} - ${s.marcador[el]}</span><p>Al mejor de ${n}.</p>
         <div class="cl-botones"><button type="button" class="cl-boton" data-cl="revancha">Revancha</button>
-        <button type="button" class="cl-boton secundario" data-cl="salir">Salir de la sala</button></div></div>`;
+        <button type="button" class="cl-boton azul" data-cl="salir">Salir de la sala</button></div></div>`;
     } else {
+      // diseño «Sala nueva 1»
       const listo = !!s.listos[yo], rivalListo = !!(rival && s.listos[rival]);
-      const ronda = s.ronda === 3 ? '<b>FINAL</b>' : `<b>${s.ronda}</b>`;
-      const sinElegir = s.primero[yo] === undefined && ((s.perfiles[yo] && s.perfiles[yo].equipo) || []).length > 0;
-      html = `<div class="cl-sala">
-        <section class="cl-lado tu" aria-label="Tú">
-          <div class="cl-nombre">${esc(yo)}</div>
-          <div class="cl-estado${listo ? ' ok' : ''}">${listo ? '¡Listo!' : sinElegir ? 'Elige qué Pokémon sale primero' : 'Pulsa «¡Listo!» cuando quieras'}</div>
-          ${avatarSala(s.perfiles[yo])}
-          ${equipoSala(s.perfiles[yo], true, s, yo)}
-        </section>
-        <div class="cl-centro">
-          <span class="cl-codigo-et">CÓDIGO</span>
-          <span class="cl-codigo">${esc(s.codigo)}</span>
-          <span class="cl-vs" aria-hidden="true">VS</span>
-          <span class="cl-ronda">RONDA ${ronda}</span>
-          <span class="cl-sub">AL MEJOR DE 3</span>
-          ${pipsSala(s, tu)}
+      const anfitrion = tu === 0;
+      const equipo = (mio && mio.equipo) || [], orden = s.orden || [];
+      const completo = !equipo.length || orden.length >= equipo.length;
+      const normas = NORMAS_SALA.map(([k, v, txt]) => {
+        const on = k === 'mejor_de' ? s.normas.mejor_de === v : !!s.normas[k];
+        return `<button type="button" data-cl="norma" data-k="${k}" data-v="${v}" aria-pressed="${SI(on)}" ${anfitrion ? '' : 'disabled title="Las propone quien ha creado la sala"'}>${txt}</button>`;
+      }).join('');
+      const ayuda = !equipo.length ? 'Pokelocke aún no ha leído tu partida' : orden.length === 0 ? 'Toca el que sale primero'
+        : completo ? 'Listo: el 1.º sale al combate' : `Ahora toca el ${orden.length + 1}.º`;
+      const mios = equipo.map((x, i) => {
+        const k = orden.indexOf(i);
+        return `<button type="button" class="cl-mio${k >= 0 ? ' puesto' : ''}${k === 0 ? ' primero' : ''}" data-cl="pick" data-i="${i}"
+          aria-label="${esc(k >= 0 ? `${nombrePoke(x)}, sale en el puesto ${k + 1}` : `Elegir a ${nombrePoke(x)}`)}">
+          <img src="/arte/${x.especie}" alt="" loading="lazy">${k >= 0 ? `<span class="num">${k === 0 ? '1.º' : k + 1}</span>` : ''}
+          <span class="nom">${esc(nombrePoke(x))}</span><span class="hab">${esc(x.habilidad || '')}</span></button>`;
+      }).join('');
+      const boton = !completo ? [`Elige los ${equipo.length}`, 'gris'] : listo ? ['¡A combatir!', 'verde'] : ['Estoy preparado', ''];
+      const suyos = ((suyo && suyo.equipo) || []).map((x) => `<div class="cl-suyo"><img src="/arte/${x.especie}" alt="${esc(nombrePoke(x))}" loading="lazy">
+        <div><b>${esc(nombrePoke(x))}</b><small>Nv ${x.nivel}</small></div></div>`).join('');
+      html = `<div class="cl-cabeza">
+          <h1>Sala</h1><span class="cl-codigo" aria-label="Código ${esc(s.codigo)}">${esc(s.codigo)}</span>
+          <button type="button" class="cl-copiar" data-cl="copiar">${combate.copiado ? '¡Copiado!' : 'Copiar código'}</button>
+          <div class="cl-normas" aria-label="Normas del combate">${normas}</div>
         </div>
-        <section class="cl-lado rival" aria-label="Tu rival">
-          ${rival ? `<div class="cl-nombre">${esc(rival)}</div>
-            <div class="cl-estado${rivalListo ? ' ok' : ''}">${rivalListo ? '¡Listo!' : 'Eligiendo…'}</div>
-            ${avatarSala(s.perfiles[rival])}
-            ${equipoSala(s.perfiles[rival], false, s, rival)}`
-          : `<div class="cl-vacio">Esperando a tu rival…<br>Pásale este código:<b>${esc(s.codigo)}</b></div>`}
+        <div class="cl-rejilla">
+          <section class="cl-tarjeta" aria-label="Tú">
+            <div class="cl-escena tarde">${FONDO_TARDE}<span class="cl-escena-et">TU PERSONAJE</span>${personajeSala(mio, 330, false)}</div>
+            <div class="cl-quien"><div style="display: flex; flex-direction: column;"><strong>${esc(yo)}</strong><span class="sub">Juegas con ${entrenadorDe(mio).quien}</span></div>
+              <span class="cl-estado${listo ? ' ok' : ''}">${listo ? 'Preparado' : 'Eligiendo orden'}</span></div>
+          </section>
+          <section class="cl-tarjeta cl-rival" aria-label="Tu rival">
+            ${rival ? `<div class="cl-rival-cab"><div style="display: flex; flex-direction: column;"><strong>${esc(rival)}</strong>
+                <span class="sub">Juega con ${entrenadorDe(suyo).quien} · no ves en qué orden saca su equipo</span></div>
+                <span class="cl-estado${rivalListo ? ' ok' : ''}">${rivalListo ? 'Preparado' : 'Eligiendo orden'}</span></div>
+              <div class="cl-rival-cuerpo">
+                <div class="cl-escena noche">${FONDO_NOCHE}${personajeSala(suyo, 300, true)}</div>
+                <div class="cl-suyos">${suyos || '<p class="cl-espera">Su equipo saldrá cuando su Pokelocke lea su partida.</p>'}</div>
+              </div>`
+            : `<div class="cl-espera">Esperando a tu rival…<br>Pásale el código de la sala:<b>${esc(s.codigo)}</b></div>`}
+          </section>
+        </div>
+        <section class="cl-orden" aria-label="Tu orden de salida">
+          <div class="cl-orden-info"><strong>Tu orden de salida</strong><span>${ayuda}</span>
+            <button type="button" data-cl="borrar">Volver a elegir</button></div>
+          <div class="cl-mios">${mios}</div>
+          <button type="button" class="cl-boton ${boton[1]}" data-cl="listo" ${completo && rival ? '' : 'aria-disabled="true"'}>${boton[0]}</button>
         </section>
-      </div>
-      <div class="cl-pie">
-        <button type="button" class="cl-boton secundario" data-cl="salir">Salir de la sala</button>
-        <button type="button" class="cl-boton${listo ? ' listo' : ''}" data-cl="listo" ${rival && !sinElegir ? '' : 'disabled'}>${listo ? 'Esperando a tu rival…' : '¡Listo!'}</button>
-      </div>
-      <div class="cl-error" role="alert" style="text-align: center; margin: 0 0 12px;">${esc(combate.error || '')}</div>`;
+        <div class="cl-error" role="alert" style="text-align: center;">${esc(combate.error || '')}${!rival ? '' : ''}</div>`;
     }
   }
-  if (html === combate.pintado) return;                // nada cambia: no se repinta (no corta los avatares ni el foco)
+  if (html === combate.pintado) return;                // nada cambia: no se repinta (no corta los personajes ni el foco)
   combate.pintado = html;
   const conFoco = !!(document.activeElement && document.activeElement.matches('.cl-cifras input'));
   caja.innerHTML = html;
@@ -3046,7 +3195,7 @@ function mirarPresentacion() {
   const tu = s.yo, el = 1 - tu;
   const retraso = s.empieza - (Date.now() / 1000 + combate.desfase);
   presentarCombate({izq: {nombre: s.jugadores[tu], perfil: s.perfiles[s.jugadores[tu]]}, der: {nombre: s.jugadores[el], perfil: s.perfiles[s.jugadores[el]]},
-    mejorDe: 3, ma: s.marcador[tu], mb: s.marcador[el], retraso});
+    mejorDe: (s.normas && s.normas.mejor_de) || 3, ma: s.marcador[tu], mb: s.marcador[el], retraso});
   combate.pintado = '';
 }
 $('b-combate').onclick = abrirCombate;
@@ -3062,9 +3211,31 @@ document.addEventListener('click', (ev) => {
     if (!/^\d{4}$/.test(codigo)) { combate.error = 'El código son 4 números'; combate.pintado = ''; return pintarCombate(); }
     return pedirCombate('entrar', {codigo});
   }
-  if (que === 'primero') return pedirCombate('primero', {hueco: Number(b.dataset.hueco)});
-  if (que === 'listo') return pedirCombate('listo', {listo: !(s && s.listos[s.jugadores[s.yo]])});
-  if (que === 'ganador') return pedirCombate('ganador', {lado: Number(b.dataset.lado)});
+  if (!s) return;
+  if (que === 'copiar') {
+    (navigator.clipboard ? navigator.clipboard.writeText(s.codigo) : Promise.reject()).then(() => {
+      combate.copiado = true; pintarCombate();
+      setTimeout(() => { combate.copiado = false; pintarCombate(); }, 1500);
+    }).catch(() => {});
+    return;
+  }
+  if (que === 'pick') {
+    const i = Number(b.dataset.i), orden = s.orden || [];
+    if (orden.includes(i)) return;
+    return pedirCombate('orden', {orden: [...orden, i]});
+  }
+  if (que === 'borrar') return pedirCombate('orden', {orden: []});
+  if (que === 'norma') {
+    const k = b.dataset.k;
+    return pedirCombate('normas', k === 'mejor_de' ? {mejor_de: Number(b.dataset.v)} : {[k]: !s.normas[k]});
+  }
+  if (que === 'listo') {
+    if (b.getAttribute('aria-disabled') === 'true') return;
+    const listo = !s.listos[s.jugadores[s.yo]];
+    cbPantallaCompleta(listo);
+    return pedirCombate('listo', {listo});
+  }
+  if (que === 'vercombate') { CB.abierto = false; CB.n = 0; CB.cola = []; cbAbrir(); return pedirCombate('ver'); }
   if (que === 'revancha') return pedirCombate('revancha');
   if (que === 'salir') return pedirCombate('salir');
 });
@@ -3075,11 +3246,12 @@ document.addEventListener('input', (ev) => {
   const cajas = [...document.querySelectorAll('.cl-cifras input')], i = Number(x.dataset.cifra);
   const cifras = x.value.replace(/\D/g, '');
   if (cifras.length > 1) {
-    cifras.slice(0, 4 - i).split('').forEach((c, k) => { cajas[i + k].value = c; });
+    cifras.slice(0, 4 - i).split('').forEach((c, k) => { cajas[i + k].value = c; cajas[i + k].classList.add('lleno'); });
     cajas[Math.min(3, i + cifras.length - 1)].focus();
     return;
   }
   x.value = cifras;
+  x.classList.toggle('lleno', !!cifras);
   if (cifras && i < 3) cajas[i + 1].focus();
 });
 document.addEventListener('keydown', (ev) => {
@@ -3089,6 +3261,315 @@ document.addEventListener('keydown', (ev) => {
   if (ev.key === 'Backspace' && !x.value && i > 0) { cajas[i - 1].focus(); cajas[i - 1].value = ''; ev.preventDefault(); }
   if (ev.key === 'Enter') document.querySelector('[data-cl="entrar"]').click();
 });
+
+// ---------- 2.3.0 · LA PANTALLA DEL COMBATE ----------
+// Lo que pasa en el combate lo calcula el servidor (app/combate.py) y llega como una lista de sucesos ('log') que aquí
+// se van reproduciendo uno a uno: mensajes en la banda, la barra de PS que baja, el Pokémon que parpadea al recibir un
+// golpe, el que cae al debilitarse... Con la cola vacía, si te toca, salen los botones (Luchar, Pokémon, Mochila, Huir).
+// Las piezas y medidas son las del combate de Ostinato (1920x1080), escalado a la ventana y en pantalla completa.
+const CB = {abierto: false, n: 0, cola: [], jugando: false, vis: [{}, {}], cb: null, sala: null, menu: null, sel: 0, atk: 0, enviado: false};
+const CB_BLANCO = ['POISON', 'GROUND', 'GHOST', 'DRAGON', 'DARK'];        // píldoras oscuras: letra blanca
+const CB_ESTADO = {par: ['PAR', '#D8B400'], brn: ['QUE', '#E25C2C'], psn: ['ENV', '#A04FB5'], tox: ['ENV', '#7B2F8E'], slp: ['DOR', '#8C8C8C'], frz: ['CON', '#4FB8E0']};
+const CB_COMANDOS = [['Luchar', 'icono_luchar', 213, 1], ['Pokémon', 'icono_pokemon', 197, 1], ['Mochila', 'icono_mochila', 197, 1], ['Huir', 'icono_huir', 197, 3]];
+const CB_FILAS = [609, 726, 843, 959], CB_FILAS_ATQ = [651, 754, 858, 964];
+const cbEspera = (ms) => new Promise((r) => setTimeout(r, ms));
+function cbEscalar() {
+  const s = Math.min(innerWidth / 1920, innerHeight / 1080);
+  $('cb-escena').style.transform = `scale(${s}) translate(-50%, -50%)`;
+}
+function cbPantallaCompleta(si) {
+  try {
+    if (si && !document.fullscreenElement) document.documentElement.requestFullscreen().catch(() => {});
+    if (!si && document.fullscreenElement) document.exitFullscreen().catch(() => {});
+  } catch (err) { /* sin pantalla completa */ }
+}
+function cbAbrir() {
+  if (CB.abierto) return;
+  Object.assign(CB, {abierto: true, n: 0, cola: [], jugando: false, vis: [{}, {}], menu: null, enviado: false});
+  $('cb').classList.remove('oculto');
+  ['cb-final', 'cb-equipo', 'cb-confirmar', 'cb-info'].forEach((id) => $(id).classList.add('oculto'));
+  $('cb-pk-r').className = 'cb-pk rival fuera'; $('cb-pk-p').className = 'cb-pk mio fuera';
+  cbMenus(null);
+  cbEscalar();
+  cbPantallaCompleta(true);
+  musica.pause(); musicaPortada.pause();
+  cbMusica(true);
+}
+function cbCerrar() {
+  if (!CB.abierto) return;
+  CB.abierto = false; CB.n = 0; CB.cola = [];
+  $('cb').classList.add('oculto');
+  cbMusica(false);
+  cbPantallaCompleta(false);
+  sonar(ultimo && ultimo.jugando);
+}
+// la canción de combate del mix sigue sonando en el combate (la misma de la presentación, con su bucle)
+async function cbMusica(si) {
+  if (!si) {
+    if (CB.fuente) { try { CB.vol.gain.setTargetAtTime(0, VS.ctx.currentTime, 0.3); CB.fuente.stop(VS.ctx.currentTime + 1.5); } catch (err) { /* nada */ } }
+    CB.fuente = null;
+    return;
+  }
+  const buffer = await vsSonido();
+  if (!buffer || !CB.abierto || CB.fuente) return;
+  const vol = VS.ctx.createGain(), f = VS.ctx.createBufferSource();
+  vol.gain.value = (sonido.mudo ? 0 : sonido.volumen / 100) * 0.7;
+  f.buffer = buffer; f.loop = true; f.loopStart = VS.BUCLE_DESDE; f.loopEnd = buffer.duration;
+  f.connect(vol); vol.connect(VS.ctx.destination);
+  try { await VS.ctx.resume(); } catch (err) { /* sin música */ }
+  f.start(0, VS.BUCLE_DESDE);
+  CB.fuente = f; CB.vol = vol;
+}
+// lo que llega del servidor con cada consulta de la sala
+function cbActualizar(s) {
+  const c = s && s.combate;
+  if (!c) { if (CB.abierto && !CB.jugando && $('cb-final').classList.contains('oculto')) cbCerrar(); return; }
+  const enMarcha = s.estado === 'combate' || (s.estado === 'presentacion' && !VS.activa && combate.presentada === `${s.codigo}-${s.empieza}`
+    && Date.now() / 1000 + combate.desfase > s.empieza);
+  if (!CB.abierto && !enMarcha) return;
+  cbAbrir();
+  CB.sala = s; CB.cb = c;
+  // lo elegido ya ha contado cuando el turno es otro (o si toca sacar a otro): la próxima vez que toque, salen los botones
+  if (CB.enviado && (c.turno !== CB.enviadoTurno || c.espera === 'cambio')) CB.enviado = false;
+  if (c.log && c.log.length && c.n > CB.n) {
+    CB.cola.push(...c.log.slice(Math.max(0, c.log.length - (c.n - CB.n))));
+    CB.n = c.n;
+  }
+  if (!CB.jugando) cbReproducir();
+}
+const cbMio = (lado) => lado === (CB.cb ? CB.cb.lado : 0);
+async function cbTexto(txt, ms) {
+  if (!txt) return;
+  $('cb-texto').textContent = txt;
+  $('cb-banda').classList.add('ver');
+  $('cb-ficha-p').style.transform = 'translateY(-150px)';
+  await cbEspera(ms || Math.min(2200, 700 + txt.length * 22));
+}
+function cbFicha(lado) {
+  const v = CB.vis[lado], k = cbMio(lado) ? 'p' : 'r';
+  if (!v.pk) return;
+  $('cb-nom-' + k).textContent = v.pk.nombre;
+  $('cb-niv-' + k).textContent = String(v.pk.nivel);      // el «Lv.» ya va dibujado en la ficha
+  const frac = Math.max(0, v.ps / v.max), barra = $('cb-ps-' + k);
+  barra.style.width = `${v.ps > 0 ? Math.max(0.5, frac * 100) : 0}%`;
+  barra.style.backgroundColor = frac > 0.5 ? 'rgb(30,248,14)' : frac > 0.25 ? 'rgb(250,200,40)' : frac > 0.1 ? 'rgb(250,130,30)' : 'rgb(230,40,40)';
+  if (k === 'p') $('cb-num-p').textContent = `${v.ps}/${v.max}`;
+  const est = $('cb-est-' + k), e = CB_ESTADO[v.estado];
+  est.classList.toggle('oculto', !e);
+  if (e) { est.textContent = e[0]; est.style.background = e[1]; }
+}
+function cbBolas() {
+  const c = CB.cb;
+  if (!c) return;
+  const pinta = (id, lista, xs) => { $(id).innerHTML = lista.map((b, i) => `<img class="bola" src="/assets/combate/${b === 'bola' ? 'bola' : b === 'debil' ? 'bola_debil' : 'bola_estado'}.png" alt="" style="left: ${xs[i]}px; top: 3px;">`).join(''); };
+  pinta('cb-bolas-p', c.equipo.map((p) => (p.ps <= 0 ? 'debil' : p.estado ? 'estado' : 'bola')), [4, 23, 42, 61, 80, 99]);
+  pinta('cb-bolas-r', c.rival_bolas, [17, 37, 57, 78, 98, 118]);
+}
+// el Pokémon en el campo: de espaldas el tuyo; cada uno con los pies en su sitio
+function cbSprite(lado, pk) {
+  const mio = cbMio(lado), caja = $(mio ? 'cb-pk-p' : 'cb-pk-r'), img = $(mio ? 'cb-img-p' : 'cb-img-r');
+  const [cx, pies, k] = mio ? [760, 1078, 3.6] : [1064, 655, 3];
+  img.onload = () => {
+    const w = img.naturalWidth * k, h = img.naturalHeight * k;
+    caja.style.cssText = `left: ${cx - w / 2}px; top: ${pies - h}px; width: ${w}px; height: ${h}px;`;
+  };
+  img.src = `/ani/${pk.especie}?${mio ? 'espalda=1&' : ''}${pk.shiny ? 'shiny=1' : ''}`;
+  caja.className = `cb-pk ${mio ? 'mio' : 'rival'} fuera`;
+  requestAnimationFrame(() => requestAnimationFrame(() => { caja.className = `cb-pk ${mio ? 'mio' : 'rival'}`; }));
+}
+function cbClase(lado, clase, ms) {
+  const caja = $(cbMio(lado) ? 'cb-pk-p' : 'cb-pk-r');
+  caja.classList.remove(clase); void caja.offsetWidth; caja.classList.add(clase);
+  setTimeout(() => caja.classList.remove(clase), ms);
+}
+async function cbReproducir() {
+  CB.jugando = true;
+  cbMenus(null);
+  while (CB.cola.length && CB.abierto) {
+    const e = CB.cola.shift();
+    const v = CB.vis[e.lado] || {};
+    if (e.t === 'turno') continue;
+    if (e.t === 'cambio') {
+      CB.vis[e.lado] = {pk: e.pk, ps: e.pk.ps, max: e.pk.max, estado: e.pk.estado};
+      if (!cbMio(e.lado) || true) cbSprite(e.lado, e.pk);
+      cbFicha(e.lado);
+      await cbTexto(cbMio(e.lado) ? `¡Adelante, ${e.pk.nombre}!` : e.txt, 1300);
+    } else if (e.t === 'ataque') {
+      cbClase(e.lado, 'ataca', 500);
+      await cbTexto(e.txt, 1200);
+    } else if (e.t === 'dano' || e.t === 'cura') {
+      if (e.t === 'dano' && !e.txt) cbClase(e.lado, 'golpe', 520);
+      Object.assign(v, {ps: e.ps, max: e.max});
+      CB.vis[e.lado] = v;
+      cbFicha(e.lado);
+      await cbEspera(650);
+      if (e.critico) await cbTexto('¡Un golpe crítico!', 1000);
+      if (e.efic > 1) await cbTexto('¡Es muy eficaz!', 1000);
+      if (e.efic > 0 && e.efic < 1) await cbTexto('No es muy eficaz…', 1000);
+      if (e.txt) await cbTexto(e.txt);
+    } else if (e.t === 'estado') {
+      v.estado = e.estado;
+      cbFicha(e.lado);
+      await cbTexto(e.txt);
+    } else if (e.t === 'debil') {
+      const caja = $(cbMio(e.lado) ? 'cb-pk-p' : 'cb-pk-r');
+      caja.classList.add('cae');
+      await cbTexto(e.txt, 1500);
+    } else if (e.t === 'fin') {
+      await cbTexto(e.txt, 1800);
+    } else {
+      await cbTexto(e.txt);
+    }
+  }
+  CB.jugando = false;
+  cbBolas();
+  cbSiguiente();
+}
+// con la cola vacía: qué toca (elegir, cambiar porque se ha debilitado, esperar al rival o el final)
+function cbSiguiente() {
+  const c = CB.cb;
+  if (!c || !CB.abierto || CB.jugando) return;
+  if (c.fin !== null && c.fin !== undefined) {
+    const yo = c.lado, gano = c.fin === yo, s = CB.sala;
+    $('cb-banda').classList.remove('ver');
+    $('cb-final-tit').textContent = c.fin === 'empate' ? '¡Empate!' : gano ? '¡Has ganado!' : 'Has perdido';
+    const m = s ? s.marcador : [0, 0];
+    $('cb-final-txt').textContent = `Marcador: ${m[yo]} - ${m[1 - yo]} · al mejor de ${(s && s.normas && s.normas.mejor_de) || 3}`;
+    $('cb-final').classList.remove('oculto');
+    return;
+  }
+  if (c.espera === 'cambio') { cbTexto('Elige qué Pokémon sale.', 1); return cbEquipo(true); }
+  if (c.espera === 'accion' && !CB.enviado) {
+    $('cb-banda').classList.remove('ver');
+    $('cb-ficha-p').style.transform = '';
+    return cbMenus('menu');
+  }
+  cbMenus(null);
+  const rival = CB.sala ? CB.sala.jugadores[1 - c.lado] : 'tu rival';
+  cbTexto(`Esperando a ${rival}…`, 1);
+}
+function cbMenus(cual) {
+  CB.menu = cual;
+  $('cb-menu').classList.toggle('oculta', cual !== 'menu');
+  $('cb-ataques').classList.toggle('oculta', cual !== 'ataques');
+  $('cb-info').classList.toggle('oculto', cual !== 'ataques');
+  if (cual !== 'equipo') $('cb-equipo').classList.add('oculto');
+  if (cual === 'menu') cbPintarMenu();
+  if (cual === 'ataques') cbPintarAtaques();
+}
+function cbPintarMenu() {
+  $('cb-menu').innerHTML = CB_COMANDOS.map(([txt, icono, ix, iy], i) => {
+    const sel = i === CB.sel;
+    return `<button type="button" class="cb-cmd${sel ? ' sel' : ''}" data-cb="cmd" data-i="${i}" style="top: ${CB_FILAS[i]}px;" aria-label="${txt}">
+      <img class="fondo" src="/assets/combate/${sel ? 'boton_sel' : 'boton'}.png" alt=""><span>${txt}</span><img class="icono" src="/assets/combate/${icono}.png" alt="" style="left: ${ix}px; top: ${iy}px;"></button>`;
+  }).join('');
+}
+const cbMiActivo = () => (CB.cb ? CB.cb.equipo[CB.cb.activo] : null);
+function cbEficacia(e) {
+  return e === null || e === undefined || e === 1 ? '' : e === 0 ? 'No afecta' : e > 1 ? 'Muy eficaz' : 'Poco eficaz';
+}
+function cbPintarAtaques() {
+  const p = cbMiActivo();
+  if (!p) return;
+  if (CB.atk >= p.ataques.length) CB.atk = 0;
+  $('cb-ataques').innerHTML = `<button type="button" id="cb-atras" data-cb="atras">Atrás</button>` + p.ataques.map((a, i) => {
+    const sel = i === CB.atk, ef = cbEficacia(a.efic), blanco = CB_BLANCO.includes(a.tipo);
+    const frac = a.max ? a.pp / a.max : 1;
+    const colPP = a.pp === 0 ? '#FF5A5A' : frac <= 0.25 ? '#FFA046' : frac <= 0.5 ? '#FFE150' : '#fff';
+    return `<button type="button" class="cb-atq${sel ? ' sel' : ''}" data-cb="atq" data-i="${i}" style="top: ${CB_FILAS_ATQ[i]}px;" ${a.pp > 0 ? '' : 'disabled'}
+      aria-label="${esc(`${a.nombre}, ${a.pp} de ${a.max} PP${ef ? ', ' + ef : ''}`)}">
+      <img src="/assets/combate/ataques/${a.tipo}.png" alt=""><b style="top: ${ef ? 14 : 29}px; color: ${blanco ? '#fff' : '#232323'};">${esc(a.nombre)}</b>
+      ${ef ? `<small style="color: ${blanco ? '#fff' : '#232323'};">${ef}</small>` : ''}<em style="color: ${colPP};">${a.pp}/${a.max}</em></button>`;
+  }).join('') + `<img id="cb-flecha" src="/assets/combate/flecha.png" alt="" style="top: ${CB_FILAS_ATQ[CB.atk] + 15}px;">`;
+  cbPintarInfo();
+}
+function cbPintarInfo() {
+  const p = cbMiActivo(), a = p && p.ataques[CB.atk];
+  if (!a) return;
+  $('cb-info-fondo').src = `/assets/combate/ataque_info/${a.tipo}.png`;
+  $('cb-info-nom').textContent = a.nombre;
+  const cat = $('cb-info-cat');
+  cat.style.backgroundPosition = `0 ${-28 * ({F: 0, E: 1, S: 2}[a.cat] || 0)}px`;
+  requestAnimationFrame(() => { cat.style.left = `${Math.max(290, 76 + $('cb-info-nom').offsetWidth + 16)}px`; });
+  $('cb-info-desc').textContent = a.desc || '';
+  $('cb-info-pot').textContent = a.potencia > 1 ? a.potencia : '—';
+  $('cb-info-pre').textContent = a.precision ? a.precision : '—';
+}
+function cbEquipo(obligado) {
+  const c = CB.cb;
+  if (!c) return;
+  CB.menu = 'equipo';
+  $('cb-menu').classList.add('oculta'); $('cb-ataques').classList.add('oculta'); $('cb-info').classList.add('oculto');
+  const panel = $('cb-equipo');
+  panel.innerHTML = `<h2>${obligado ? '¿Quién sale ahora?' : 'Tu equipo'}</h2>` + c.equipo.map((p, i) => {
+    const frac = p.max ? p.ps / p.max : 0, activo = i === c.activo, e = CB_ESTADO[p.estado];
+    const col = frac > 0.5 ? 'rgb(30,248,14)' : frac > 0.25 ? 'rgb(250,200,40)' : frac > 0.1 ? 'rgb(250,130,30)' : 'rgb(230,40,40)';
+    return `<button type="button" class="cb-miembro${activo ? ' activo' : ''}" data-cb="cambio" data-i="${i}" ${p.ps <= 0 || activo ? 'disabled' : ''}>
+      <img src="/arte/${p.especie}" alt=""><b>${esc(p.nombre)} <small>Nv. ${p.nivel}${activo ? ' · en combate' : p.ps <= 0 ? ' · debilitado' : ''}</small></b>
+      <span class="linea"><span class="cb-barra"><i style="width: ${frac * 100}%; background: ${col};"></i></span>${p.ps}/${p.max}${e ? ` <span style="color: ${e[1]}; font-weight: 800;">${e[0]}</span>` : ''}</span></button>`;
+  }).join('') + (obligado ? '' : '<button type="button" class="cb-cerrar" data-cb="cerrar-equipo">Atrás</button>');
+  panel.classList.remove('oculto');
+}
+async function cbMandar(accion) {
+  const obligado = CB.cb && CB.cb.espera === 'cambio';
+  CB.enviado = !obligado; CB.enviadoTurno = CB.cb ? CB.cb.turno : 0;
+  cbMenus(null);
+  $('cb-equipo').classList.add('oculto');
+  const r = await pedirCombate('accion', {accion});
+  if (!r) {                                   // no ha valido (p. ej. sin PP): se vuelve a elegir
+    CB.enviado = false;
+    await cbTexto(combate.error || 'No se ha podido.', 1600);
+    cbSiguiente();
+  }
+}
+document.addEventListener('click', (ev) => {
+  const b = ev.target.closest('[data-cb]');
+  if (!b || !CB.abierto || b.disabled) return;
+  const que = b.dataset.cb, i = Number(b.dataset.i);
+  if (que === 'cmd') {
+    CB.sel = i;
+    if (i === 0) return cbMenus('ataques');
+    if (i === 1) return cbEquipo(false);
+    if (i === 2) { cbMenus(null); return cbTexto('En el combate en línea no se usan objetos de la Mochila.', 1800).then(cbSiguiente); }
+    if (i === 3) return $('cb-confirmar').classList.remove('oculto');
+  }
+  if (que === 'atq') return cbMandar({tipo: 'ataque', i});
+  if (que === 'atras') return cbMenus('menu');
+  if (que === 'cambio') return cbMandar({tipo: 'cambio', i});
+  if (que === 'cerrar-equipo') { $('cb-equipo').classList.add('oculto'); return cbMenus('menu'); }
+  if (que === 'rendirse') { $('cb-confirmar').classList.add('oculto'); return cbMandar({tipo: 'rendirse'}); }
+  if (que === 'no-rendirse') return $('cb-confirmar').classList.add('oculto');
+  if (que === 'continuar') { $('cb-final').classList.add('oculto'); pedirCombate('continuar'); return cbCerrar(); }
+});
+// el ratón elige al pasar (como en el juego: la elegida, negra y un pelín más grande)
+document.addEventListener('mouseover', (ev) => {
+  if (!CB.abierto) return;
+  const b = ev.target.closest('.cb-cmd, .cb-atq');
+  if (!b || b.disabled) return;
+  const i = Number(b.dataset.i);
+  if (b.classList.contains('cb-cmd') && i !== CB.sel) { CB.sel = i; cbPintarMenu(); }
+  if (b.classList.contains('cb-atq') && i !== CB.atk) {
+    CB.atk = i;
+    document.querySelectorAll('.cb-atq').forEach((x) => x.classList.toggle('sel', Number(x.dataset.i) === i));
+    $('cb-flecha').style.top = `${CB_FILAS_ATQ[i] + 15}px`;
+    cbPintarInfo();
+  }
+});
+// teclado: flechas para moverse, Intro para elegir, Escape para volver
+document.addEventListener('keydown', (ev) => {
+  if (!CB.abierto || VS.activa) return;
+  if (CB.menu === 'menu') {
+    if (ev.key === 'ArrowDown' || ev.key === 'ArrowUp') { CB.sel = (CB.sel + (ev.key === 'ArrowDown' ? 1 : 3)) % 4; cbPintarMenu(); ev.preventDefault(); }
+    if (ev.key === 'Enter') document.querySelector(`.cb-cmd[data-i="${CB.sel}"]`).click();
+  } else if (CB.menu === 'ataques') {
+    const n = (cbMiActivo() || {ataques: []}).ataques.length || 1;
+    if (ev.key === 'ArrowDown' || ev.key === 'ArrowUp') { CB.atk = (CB.atk + (ev.key === 'ArrowDown' ? 1 : n - 1)) % n; cbPintarAtaques(); ev.preventDefault(); }
+    if (ev.key === 'Enter') document.querySelector(`.cb-atq[data-i="${CB.atk}"]`).click();
+    if (ev.key === 'Escape' || ev.key === 'Backspace') cbMenus('menu');
+  }
+});
+$('cb-pantalla').onclick = () => cbPantallaCompleta(!document.fullscreenElement);
+addEventListener('resize', () => { if (CB.abierto) cbEscalar(); });
 
 // ---------- la presentación del combate (VS + RONDA) ----------
 // La del lienzo «Pokelocke · combate del torneo» (Presentacion.dc.html), igual: los dos entrenadores (Serena si juega

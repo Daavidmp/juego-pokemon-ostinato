@@ -103,7 +103,10 @@ def tablero(j):
             completos = [x for x in p.equipo() if x and not x['huevo']]
             perfil = {'sexo': p.d[SEXO_ENTRENADOR] & 1,
                       'equipo': [{'especie': x['especie'], 'nombre': x['especie_nombre'], 'mote': x['mote'], 'nivel': x['nivel'],
-                                  'habilidad': pokehex._nombre('habilidades', x['habilidad']), 'shiny': x['shiny']} for x in completos]}
+                                  'habilidad': pokehex._nombre('habilidades', x['habilidad']), 'shiny': x['shiny'],
+                                  # para el combate: sus estadísticas reales (PS, Atq, Def, Vel, AtE, DfE), ataques y sexo
+                                  'stats': x['stats'], 'ataques': [a for a in x['movimientos'] if a], 'genero': x['sexo']}
+                                 for x in completos]}
             if comun.biblio.get('mi_perfil') != perfil:
                 comun.biblio['mi_perfil'] = perfil
                 comun.guardar()
