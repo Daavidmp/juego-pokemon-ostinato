@@ -670,3 +670,14 @@ Hechas con Gemini Nano Banana 2 editando SIEMPRE la misma base (no generando de 
   «¡Has ganado!» con marcador 1-0. NO probado entre dos PCs: el anfitrión (David) tiene que instalar la 2.3.0 para que su
   servidor tenga salas y motor.
 - test_torneo.py ya fallaba antes (assert de la plaza con impares, del cuadro de 1.3.2).
+
+== 2.3.1 (2026-11-24): arreglos del combate en línea tras la primera partida de David (contra OKARPALACE) ==
+- «No dejaba seleccionar un ataque»: cada consulta (1 por segundo) volvía a reproducir y repintaba los botones, y al
+  entrar en «Luchar» te devolvía al menú. Ahora cbActualizar solo reproduce si hay sucesos nuevos y solo mira qué toca
+  (cbSiguiente) si cambia espera/fin/turno; cbSiguiente deja el menú, los ataques o el equipo si ya estás en ellos.
+  Probado con un jugador que espera ~3,5 s en cada menú: combate entero hasta el final.
+- «La música no se escucha»: la de Web Audio esperaba a decodificar el ogg entero y no llegó a sonar. Ahora es un
+  <audio> (musicaCombate, como la música de siempre; web.py sirve .ogg a trozos con Range para poder saltar): empieza con
+  la presentación, sigue sin cortarse en el combate (bucle saltando a LOOPSTART 0,3 s antes del final) y se apaga al
+  salir. Con el volumen y el silencio de la app (ponerSonido), y sonar() no pone la música de la app encima.
+- El Pokémon del rival, más abajo: pies en y 700 (antes 655).

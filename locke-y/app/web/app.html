@@ -1028,7 +1028,7 @@
     </div>
     <div class="portada-izq">
       <button class="redondo-video" type="button" data-sonido aria-label="Silenciar la música"></button>
-      <span>Versión 2.3.0</span>
+      <span>Versión 2.3.1</span>
     </div>
     <div class="portada-jugar">
       <span id="p-progreso"></span>
@@ -1109,7 +1109,7 @@
     <section class="tb-hud tb-carta tb-objetivo" id="tb-objetivo" aria-label="Siguiente objetivo"></section>
     <section class="tb-hud tb-carta tb-marcador" id="tb-marcador" aria-label="Vidas y medallas"></section>
     <div class="tb-hud tb-abajo"><div class="tb-equipo" id="tb-equipo" aria-label="Tu equipo"></div><div class="tb-carta tb-jugar" id="tb-jugar"></div></div>
-    <span class="tb-hud tb-credito">Creado por David Martínez Palacios · Versión 2.3.0</span>
+    <span class="tb-hud tb-credito">Creado por David Martínez Palacios · Versión 2.3.1</span>
   </div>
 
   <footer>
@@ -3285,7 +3285,7 @@ function cbPantallaCompleta(si) {
 }
 function cbAbrir() {
   if (CB.abierto) return;
-  Object.assign(CB, {abierto: true, n: 0, cola: [], jugando: false, vis: [{}, {}], menu: null, enviado: false});
+  Object.assign(CB, {abierto: true, n: 0, cola: [], jugando: false, vis: [{}, {}], menu: null, enviado: false, estadoVisto: ''});
   $('cb').classList.remove('oculto');
   ['cb-final', 'cb-equipo', 'cb-confirmar', 'cb-info'].forEach((id) => $(id).classList.add('oculto'));
   $('cb-pk-r').className = 'cb-pk rival fuera'; $('cb-pk-p').className = 'cb-pk mio fuera';
@@ -3303,22 +3303,9 @@ function cbCerrar() {
   cbPantallaCompleta(false);
   sonar(ultimo && ultimo.jugando);
 }
-// la canción de combate del mix sigue sonando en el combate (la misma de la presentación, con su bucle)
-async function cbMusica(si) {
-  if (!si) {
-    if (CB.fuente) { try { CB.vol.gain.setTargetAtTime(0, VS.ctx.currentTime, 0.3); CB.fuente.stop(VS.ctx.currentTime + 1.5); } catch (err) { /* nada */ } }
-    CB.fuente = null;
-    return;
-  }
-  const buffer = await vsSonido();
-  if (!buffer || !CB.abierto || CB.fuente) return;
-  const vol = VS.ctx.createGain(), f = VS.ctx.createBufferSource();
-  vol.gain.value = (sonido.mudo ? 0 : sonido.volumen / 100) * 0.7;
-  f.buffer = buffer; f.loop = true; f.loopStart = VS.BUCLE_DESDE; f.loopEnd = buffer.duration;
-  f.connect(vol); vol.connect(VS.ctx.destination);
-  try { await VS.ctx.resume(); } catch (err) { /* sin música */ }
-  f.start(0, VS.BUCLE_DESDE);
-  CB.fuente = f; CB.vol = vol;
+// la canción de combate del mix sigue sonando en el combate (la misma de la presentación, que no se corta)
+function cbMusica(si) {
+  combateMusica(si, VS.BUCLE_DESDE);
 }
 // lo que llega del servidor con cada consulta de la sala
 function cbActualizar(s) {
@@ -3335,7 +3322,10 @@ function cbActualizar(s) {
     CB.cola.push(...c.log.slice(Math.max(0, c.log.length - (c.n - CB.n))));
     CB.n = c.n;
   }
-  if (!CB.jugando) cbReproducir();
+  const estado = `${c.espera}|${c.fin}|${c.turno}|${CB.enviado}`;
+  if (CB.cola.length && !CB.jugando) cbReproducir();
+  else if (!CB.jugando && estado !== CB.estadoVisto) cbSiguiente();
+  CB.estadoVisto = estado;
 }
 const cbMio = (lado) => lado === (CB.cb ? CB.cb.lado : 0);
 async function cbTexto(txt, ms) {
@@ -3368,7 +3358,7 @@ function cbBolas() {
 // el Pokémon en el campo: de espaldas el tuyo; cada uno con los pies en su sitio
 function cbSprite(lado, pk) {
   const mio = cbMio(lado), caja = $(mio ? 'cb-pk-p' : 'cb-pk-r'), img = $(mio ? 'cb-img-p' : 'cb-img-r');
-  const [cx, pies, k] = mio ? [760, 1078, 3.6] : [1064, 655, 3];
+  const [cx, pies, k] = mio ? [760, 1078, 3.6] : [1064, 700, 3];
   img.onload = () => {
     const w = img.naturalWidth * k, h = img.naturalHeight * k;
     caja.style.cssText = `left: ${cx - w / 2}px; top: ${pies - h}px; width: ${w}px; height: ${h}px;`;
@@ -3438,10 +3428,15 @@ function cbSiguiente() {
     $('cb-final').classList.remove('oculto');
     return;
   }
-  if (c.espera === 'cambio') { cbTexto('Elige qué Pokémon sale.', 1); return cbEquipo(true); }
+  if (c.espera === 'cambio') {
+    if (CB.menu === 'equipo' && !$('cb-equipo').classList.contains('oculto')) return;
+    cbTexto('Elige qué Pokémon sale.', 1);
+    return cbEquipo(true);
+  }
   if (c.espera === 'accion' && !CB.enviado) {
     $('cb-banda').classList.remove('ver');
     $('cb-ficha-p').style.transform = '';
+    if (CB.menu === 'menu' || CB.menu === 'ataques' || CB.menu === 'equipo') return;
     return cbMenus('menu');
   }
   cbMenus(null);
@@ -3583,27 +3578,42 @@ const VS = {
   SITIOS: [[0, 490, 700, false], [-222, 675, 460, false], [218, 675, 460, false], [-302, 1052, 420, true], [-152, 1035, 360, false], [258, 998, 380, true]],
   activa: null, cancion: null, ctx: null
 };
-function vsSonido() {
-  try {
-    if (!VS.ctx) {
-      VS.ctx = new (window.AudioContext || window.webkitAudioContext)();
-      VS.cancion = fetch('/assets/vs-combate.ogg').then((r) => r.arrayBuffer()).then((b) => VS.ctx.decodeAudioData(b)).catch(() => null);
+// la canción de combate del mix: un <audio>, como la música de siempre de Pokelocke (suena mientras carga; la versión con
+// Web Audio esperaba a decodificar los 5 MB y en el combate de David no llegó a sonar). Su bucle va de LOOPSTART al
+// final: un poco antes de acabar salta a LOOPSTART (la juntura del mix está cosida para eso)
+const musicaCombate = new Audio('/assets/vs-combate.ogg');
+musicaCombate.preload = 'auto';
+musicaCombate.addEventListener('timeupdate', () => {
+  const m = musicaCombate;
+  if (m.duration && m.currentTime > m.duration - 0.3) m.currentTime = VS.BUCLE_DESDE;
+});
+musicaCombate.addEventListener('ended', () => { musicaCombate.currentTime = VS.BUCLE_DESDE; musicaCombate.play().catch(() => {}); });
+let fundidoCombate = null;
+// si: que suene (desde ese segundo si estaba parada); no: se apaga en medio segundo
+function combateMusica(si, desde) {
+  clearInterval(fundidoCombate);
+  const m = musicaCombate;
+  m.muted = sonido.mudo || sonido.volumen === 0;
+  if (si) {
+    m.volume = Math.min(1, sonido.volumen / 100);
+    if (m.paused) {
+      if (desde !== undefined) { try { m.currentTime = desde; } catch (err) { /* aún sin cargar */ } }
+      m.play().catch(() => {});
     }
-    return VS.cancion;
-  } catch (err) { return Promise.resolve(null); }
+    return;
+  }
+  if (m.paused) return;
+  fundidoCombate = setInterval(() => {
+    m.volume = Math.max(0, m.volume - 0.08);
+    if (m.volume <= 0.01) { clearInterval(fundidoCombate); m.pause(); }
+  }, 40);
 }
-// la música empieza con la presentación; si la canción tarda en cargar, entra por donde toca
-async function vsMusica(p) {
-  const buffer = await vsSonido();
-  if (!buffer || VS.activa !== p) return;
-  const vol = VS.ctx.createGain(), f = VS.ctx.createBufferSource();
-  vol.gain.value = (sonido.mudo ? 0 : sonido.volumen / 100) * 0.9;
-  f.buffer = buffer; f.loop = true; f.loopStart = VS.BUCLE_DESDE; f.loopEnd = buffer.duration;
-  f.connect(vol); vol.connect(VS.ctx.destination);
-  try { await VS.ctx.resume(); } catch (err) { /* sin permiso: sin música */ }
+// la música empieza con la presentación (si la presentación empieza dentro de un momento, espera a ese momento)
+function vsMusica(p) {
+  musicaCombate.pause();
   const desde = (performance.now() - p.t0) / 1000;
-  if (desde < 0) f.start(VS.ctx.currentTime - desde); else f.start(0, Math.min(desde, VS.BUCLE_DESDE));
-  p.fuente = f; p.vol = vol;
+  if (desde < 0) setTimeout(() => { if (VS.activa === p) combateMusica(true, 0); }, -desde * 1000);
+  else combateMusica(true, Math.min(desde, VS.BUCLE_DESDE));
 }
 function vsEscalar() {
   const s = Math.min(innerWidth / 1920, innerHeight / 1080);
@@ -3650,10 +3660,8 @@ function vsCerrar(seguida) {
   const p = VS.activa;
   if (!p) return;
   VS.activa = null;
-  if (p.fuente) {
-    const ahora = VS.ctx.currentTime;
-    try { p.vol.gain.setTargetAtTime(0, ahora, 0.15); p.fuente.stop(ahora + 0.8); } catch (err) { /* ya parada */ }
-  }
+  // en una sala, la canción sigue en el combate; si no, se apaga
+  if (!seguida && !combate.abierto) combateMusica(false);
   if (!seguida) {
     $('vs-pres').classList.add('oculto');
     sonar(ultimo && ultimo.jugando);
@@ -3731,7 +3739,7 @@ function vsPintar(p, real) {
   });
   css('vs-negro', `position: absolute; inset: 0; background: #000; pointer-events: none; opacity: ${Math.max(1 - sale(fase(0, 0.35)), sale(fase(6.6, 7.2)))};`);
   // la música se apaga con el negro del final
-  if (p.vol && t > 6.6 && !p.apagando) { p.apagando = true; try { p.vol.gain.setTargetAtTime(0, VS.ctx.currentTime, 0.25); } catch (err) { /* nada */ } }
+  if (t > 6.6 && !p.apagando && !combate.abierto) { p.apagando = true; combateMusica(false); }
 }
 $('vs-saltar').onclick = () => vsCerrar();
 document.addEventListener('keydown', (ev) => { if (ev.key === 'Escape' && VS.activa) { ev.stopPropagation(); vsCerrar(); } }, true);
@@ -4518,7 +4526,7 @@ const musicaPortada = $('musica-portada');
 let hayMusicaPortada = true;
 musicaPortada.addEventListener('error', () => { hayMusicaPortada = false; sonar(ultimo && ultimo.jugando); }, {once: true});
 function ponerSonido() {
-  for (const m of [musica, musicaPortada]) {
+  for (const m of [musica, musicaPortada, musicaCombate]) {
     m.volume = sonido.volumen / 100;
     m.muted = sonido.mudo || sonido.volumen === 0;
   }
@@ -4531,6 +4539,7 @@ function ponerSonido() {
   try { localStorage.setItem('pokelocke-sonido', JSON.stringify(sonido)); } catch (err) { /* nada */ }
 }
 function sonar(jugando) {
+  try { if (VS.activa || CB.abierto) { musica.pause(); musicaPortada.pause(); return; } } catch (err) { /* aún cargando */ }   // suena la del combate
   const portada = hayMusicaPortada && (vistaActual === 'login' || vistaActual === 'portada');
   const suena = portada ? musicaPortada : musica, calla = portada ? musica : musicaPortada;
   calla.pause();
