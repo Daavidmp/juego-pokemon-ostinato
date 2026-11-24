@@ -1077,7 +1077,7 @@
     </div>
     <div class="portada-izq">
       <button class="redondo-video" type="button" data-sonido aria-label="Silenciar la música"></button>
-      <span>Versión 2.4.1</span>
+      <span>Versión 2.4.2</span>
     </div>
     <div class="portada-jugar">
       <span id="p-progreso"></span>
@@ -1158,7 +1158,7 @@
     <section class="tb-hud tb-carta tb-objetivo" id="tb-objetivo" aria-label="Siguiente objetivo"></section>
     <section class="tb-hud tb-carta tb-marcador" id="tb-marcador" aria-label="Vidas y medallas"></section>
     <div class="tb-hud tb-abajo"><div class="tb-equipo" id="tb-equipo" aria-label="Tu equipo"></div><div class="tb-carta tb-jugar" id="tb-jugar"></div></div>
-    <span class="tb-hud tb-credito">Creado por David Martínez Palacios · Versión 2.4.1</span>
+    <span class="tb-hud tb-credito">Creado por David Martínez Palacios · Versión 2.4.2</span>
   </div>
 
   <footer>
@@ -3420,7 +3420,8 @@ function cbBolas() {
 // su velocidad (dormido, tres veces más lenta; congelado, quieta). Los datos, de app/hacer_sprites.py.
 const SPR = {datos: null};
 const SPR_LISTO = fetch('/assets/combate/pk/sprites.json').then((r) => r.json()).then((d) => { SPR.datos = d; }).catch(() => { SPR.datos = {}; });
-const OST_POS = {PROPIO_X: 760, ALTO: 1080, RIVAL_X: 1010, SUELO_RIVAL_Y: 576, PIES_EN_SOMBRA: 10, K_MIO: 3, K_RIVAL: 2, RETRASO: 0.06};
+// el rival, en el suelo del estadio del torneo (en Ostinato, x 1010 e y 576; este fondo tiene el suelo más abajo)
+const OST_POS = {PROPIO_X: 760, ALTO: 1080, RIVAL_X: 1060, SUELO_RIVAL_Y: 690, PIES_EN_SOMBRA: 10, K_MIO: 3, K_RIVAL: 2, RETRASO: 0.06};
 async function cbSprite(lado, pk) {
   await SPR_LISTO;
   const mio = cbMio(lado), caja = $(mio ? 'cb-pk-p' : 'cb-pk-r'), dib = $(mio ? 'cb-img-p' : 'cb-img-r');

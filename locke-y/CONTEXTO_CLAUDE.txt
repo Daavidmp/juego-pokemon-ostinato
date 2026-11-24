@@ -764,4 +764,9 @@ Hechas con Gemini Nano Banana 2 editando SIEMPRE la misma base (no generando de 
   (OstInfo.debilidades). Flechas y teclado para cambiar de vista; Y/Escape o pulsar fuera para cerrar.
 - Recuadro de habilidad: banda_propia/banda_rival de 016 (AbilitySplashBar) en (-24, 814) / (1356, 134), solo el nombre.
 - Megaevolución: la píldora provisional de 016 (1330, 568, 330x64), «Megaevolucionar» / negra «¡Megaevolución!».
-- PENDIENTE: el equipo y la mochila como en Ostinato (las pantallas de Essentials a 512x384 con bandas: UI_Party, MUI).
+- El equipo y la mochila de Ostinato (pantallas de Essentials a 512x384): David dice que no hacen falta; se quedan los de la app.
+
+== 2.4.2 (2026-11-24): el rival, en el suelo ==
+- David: «baja al Pokémon rival un pelín abajo y a la derecha para que toque suelo». En el estadio del torneo el suelo
+  está más abajo que en los fondos de Ostinato: OST_POS.RIVAL_X 1060 (antes 1010) y SUELO_RIVAL_Y 690 (antes 576); la
+  sombra va con él.
